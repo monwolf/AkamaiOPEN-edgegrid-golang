@@ -1,0 +1,15 @@
+{
+  "name": "bookstore API",
+  "hostnames": [
+    "akamai.com"
+  ],
+  "contractId": "3-XXXXXX",
+  "groupId": 33333,
+  "version": 1,
+  "matchPathSegmentParameter": false,
+  "matchCaseSensitive": false,
+  "enableApiGateway": false,
+  "graphQl": false,
+  "recordVersion": 1,
+  "id": 52
+}

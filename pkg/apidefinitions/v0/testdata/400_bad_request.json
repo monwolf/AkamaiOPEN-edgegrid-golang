@@ -1,0 +1,8 @@
+{
+  "type": "https://problems.luna.akamaiapis.net/api-definitions/error-types/BAD-REQUEST",
+  "status": 400,
+  "title": "Bad Request",
+  "instance": "22f95e07-00f8-4dfc-a903-ba9b1e2999bf",
+  "detail": "Bad Request",
+  "severity": "ERROR"
+}

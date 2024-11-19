@@ -1,0 +1,144 @@
+{
+  "name": "bookstore API",
+  "hostnames": [
+    "akamai.com"
+  ],
+  "contractId": "3-XXXXXX",
+  "groupId": 33333,
+  "basePath": "/api",
+  "tags": [
+    "Tag1",
+    "Tag2"
+  ],
+  "description": "desc",
+  "matchPathSegmentParameter": true,
+  "matchCaseSensitive": true,
+  "enableApiGateway": true,
+  "graphQl": true,
+  "securitySchemes": {
+    "apiKey": {
+      "in": "Header",
+      "name": "Authorization"
+    }
+  },
+  "constraints": {
+    "enforceOnRequest": true,
+    "enforceOnResponse": true,
+    "requestBody": {
+      "consumeType": [
+        "json",
+        "xml"
+      ],
+      "maxContentLength": 256,
+      "maxNestingDepth": 10,
+      "properties": {
+        "maxStringLength": 1000,
+        "maxIntegerValue": 12345678,
+        "maxCount": 200,
+        "maxNameLength": 50
+      }
+    },
+    "bypassOn": {
+      "undefinedMethods": [
+        "GET"
+      ],
+      "undefinedParameters": [
+        "COOKIE"
+      ]
+    }
+  },
+  "versioning": {
+    "in": "Header",
+    "name": "Version",
+    "value": "1"
+  },
+  "resources": {
+    "/books": {
+      "name": "Books Resource",
+      "description": "Books Resource description",
+      "post": {
+        "parameters": [
+          {
+            "name": "limit",
+            "type": "integer",
+            "in": "query",
+            "required": true,
+            "description": "limit parameter",
+            "min": 1,
+            "max": 2
+          },
+          {
+            "name": "query",
+            "type": "string",
+            "in": "query",
+            "required": true,
+            "description": "query parameter",
+            "minLength": 1,
+            "maxLength": 2
+          }
+        ],
+        "requestBody": {
+          "json": {
+            "name": "Book Body",
+            "type": "object",
+            "required": true,
+            "description": "Json body desciption",
+            "properties": [
+              {
+                "name": "name",
+                "type": "string",
+                "required": true,
+                "minLength": 1,
+                "maxLength": 200
+              },
+              {
+                "name": "tags",
+                "type": "array",
+                "required": true,
+                "items": {
+                  "name": "",
+                  "type": "object",
+                  "properties": [
+                    {
+                      "name": "id",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "responses": {
+          "headers": [
+            {
+              "name": "Set-Cookie",
+              "type": "string",
+              "required": true
+            }
+          ],
+          "contents": [
+            {
+              "statusCodes": [
+                20
+              ],
+              "json": {
+                "name": "application/json",
+                "type": "array",
+                "items": {
+                  "name": "",
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        },
+        "bypassOn": {
+          "undefinedParameters": [
+            "BODY"
+          ]
+        }
+      }
+    }
+  }
+}

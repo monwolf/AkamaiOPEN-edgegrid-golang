@@ -53,6 +53,24 @@
 
 
 
+* Added API Definitions API Support
+  * Endpoints
+    * [RegisterEndpoint](https://techdocs.akamai.com/api-definitions/reference/post-endpoints)
+    * [RegisterEndpointFromFile](https://techdocs.akamai.com/api-definitions/reference/post-endpoints-file)
+    * [ShowEndpoint](https://techdocs.akamai.com/api-definitions/reference/post-endpoint-show)
+    * [HideEndpoint](https://techdocs.akamai.com/api-definitions/reference/post-endpoint-hide)
+    * [DeleteEndpoint](https://techdocs.akamai.com/api-definitions/reference/delete-endpoint)
+    * [ListEndpoints](https://techdocs.akamai.com/api-definitions/reference/get-endpoints)
+  * Endpoints Versions
+    * [ListEndpointVersions](https://techdocs.akamai.com/api-definitions/reference/get-endpoint-versions)
+    * [GetEndpointVersion](https://techdocs.akamai.com/api-definitions/reference/get-version-details)
+    * [UpdateEndpointVersion](https://techdocs.akamai.com/api-definitions/reference/put-endpoint-version)
+    * [CloneEndpointVersion](https://techdocs.akamai.com/api-definitions/reference/post-endpoint-version-clone)
+    * [DeleteEndpointVersion](https://techdocs.akamai.com/api-definitions/reference/delete-endpoint-version)
+  * Activations
+    * [ActivateVersion](https://techdocs.akamai.com/api-definitions/reference/post-endpoint-version-activate)
+    * [DeactivateVersion](https://techdocs.akamai.com/api-definitions/reference/post-endpoint-version-deactivate)
+
 
 
 
