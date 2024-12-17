@@ -1,0 +1,29 @@
+{
+  "name": "",
+  "hostnames": null,
+  "contractId": "",
+  "groupId": 0,
+  "resources": {
+    "/books": {
+      "name": "Books Resource"
+    },
+    "/animals": {
+      "name": "Animal Resource"
+    },
+    "/pets": {
+      "name": "Pets Resource"
+    },
+    "/invoices": {
+      "name": "Invoices Resource"
+    },
+    "/hostnames": {
+      "name": "Hostnames Resource"
+    },
+    "/cars": {
+      "name": "Car Resource"
+    },
+    "/songs": {
+      "name": "Song Resource"
+    }
+  }
+}

@@ -20,6 +20,7 @@ import (
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v9/pkg/session"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
 func TestAPI_Validate(t *testing.T) {
@@ -153,7 +154,7 @@ func TestProperty_Validate(t *testing.T) {
 				MaxBodySize: ptr.To(MaxBodySize("invalid-body-size")),
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Contains(t, err.Error(), "MaxBodySize: value 'invalid-body-size' is invalid. Must be one of: 'no_limit', '6KB', '8KB', '12KB', '16KB'")
+				assert.Contains(t, err.Error(), "MaxBodySize: value 'invalid-body-size' is invalid. Must be one of: '6KB', '8KB', '12KB', '16KB'")
 			},
 		},
 	}
@@ -166,6 +167,53 @@ func TestProperty_Validate(t *testing.T) {
 			}
 			require.NoError(t, err)
 		})
+	}
+}
+
+func TestResources_OrderShouldBePreservedDuringSerialization(t *testing.T) {
+	var api = API{}
+	input := []byte(loadJson("testdata/api_resources_ordering.json"))
+	err := json.Unmarshal(input, &api)
+	if err != nil {
+		panic(err)
+	}
+	output, err := json.Marshal(api)
+
+	if err != nil {
+		panic(err)
+	}
+	assert.Equal(t, string(input), string(output))
+}
+
+func TestResources_InsertOrderShouldBePreserved(t *testing.T) {
+	var api = RegisterAPIRequest{
+		Resources: orderedmap.New[string, Resource](),
+	}
+	var keys = []string{"c", "v", "b", "n", "m", "a", "s", "d", "e", "q", "g"}
+
+	for _, value := range keys {
+		api.Resources.Set(value, Resource{})
+	}
+	i := 0
+	for pair := api.Resources.Oldest(); pair != nil; pair = pair.Next() {
+		assert.Equal(t, keys[i], pair.Key)
+		i++
+	}
+}
+
+func TestRequestContentTypes_InsertOrderShouldBePreserved(t *testing.T) {
+	var method = Method{
+		RequestBody: orderedmap.New[string, Property](),
+	}
+	var keys = []string{"c", "v", "b", "n", "m", "a", "s", "d", "e", "q", "g"}
+
+	for _, value := range keys {
+		method.RequestBody.Set(value, Property{})
+	}
+	i := 0
+	for pair := method.RequestBody.Oldest(); pair != nil; pair = pair.Next() {
+		assert.Equal(t, keys[i], pair.Key)
+		i++
 	}
 }
 
@@ -545,90 +593,102 @@ var bookStoreAPI = API{
 			Name:  ptr.To("Version"),
 			Value: ptr.To("1"),
 		},
-		Resources: map[string]Resource{
-			"/books": {
-				Name:        "Books Resource",
-				Description: ptr.To("Books Resource description"),
-				Post: &Method{
-					Parameters: []Parameter{
-						{
-							Name:        "limit",
-							In:          "query",
-							Type:        "integer",
-							Required:    true,
-							Description: ptr.To("limit parameter"),
-							Min:         ptr.To(float32(1)),
-							Max:         ptr.To(float32(2)),
+		Resources: orderedmap.New[string, Resource](orderedmap.WithInitialData[string, Resource](
+			orderedmap.Pair[string, Resource]{
+				Key: "/books",
+				Value: Resource{
+					Name:        "Books Resource",
+					Description: ptr.To("Books Resource description"),
+					Post: &Method{
+						Parameters: []Parameter{
+							{
+								Name:        "limit",
+								In:          "query",
+								Type:        "integer",
+								Required:    true,
+								Description: ptr.To("limit parameter"),
+								Min:         ptr.To(float32(1)),
+								Max:         ptr.To(float32(2)),
+							},
+							{
+								Name:        "query",
+								In:          "query",
+								Type:        "string",
+								Required:    true,
+								Description: ptr.To("query parameter"),
+								MinLength:   ptr.To(int64(1)),
+								MaxLength:   ptr.To(int64(2)),
+							},
 						},
-						{
-							Name:        "query",
-							In:          "query",
-							Type:        "string",
-							Required:    true,
-							Description: ptr.To("query parameter"),
-							MinLength:   ptr.To(int64(1)),
-							MaxLength:   ptr.To(int64(2)),
-						},
-					},
-					RequestBody: map[string]Property{
-						"json": {
-							Name:        "Book Body",
-							Type:        "object",
-							Required:    true,
-							Description: ptr.To("Json body desciption"),
-							Properties: []Property{
-								{
-									Name:      "name",
-									Type:      "string",
-									Required:  true,
-									MinLength: ptr.To(int64(1)),
-									MaxLength: ptr.To(int64(200)),
-								},
-								{
-									Name:     "tags",
-									Type:     "array",
-									Required: true,
-									Items: &Property{
-										Type: "object",
-										Properties: []Property{
-											{
-												Name: "id",
-												Type: "string",
+						RequestBody: orderedmap.New[string, Property](orderedmap.WithInitialData[string, Property](
+							orderedmap.Pair[string, Property]{
+								Key: "json",
+								Value: Property{
+									Name:        "Book Body",
+									Type:        "object",
+									Required:    true,
+									Description: ptr.To("Json body desciption"),
+									Properties: []Property{
+										{
+											Name:      "name",
+											Type:      "string",
+											Required:  true,
+											MinLength: ptr.To(int64(1)),
+											MaxLength: ptr.To(int64(200)),
+										},
+										{
+											Name:     "tags",
+											Type:     "array",
+											Required: true,
+											Items: &Property{
+												Type: "object",
+												Properties: []Property{
+													{
+														Name: "id",
+														Type: "string",
+													},
+												},
 											},
+										},
+									},
+									XML: &XML{
+										Attribute: ptr.To(true),
+										Wrapped:   ptr.To(true),
+										Namespace: ptr.To("akamai.com/schema"),
+										Name:      ptr.To("BookRoot"),
+										Prefix:    ptr.To("akam"),
+									},
+								},
+							},
+						)),
+						Responses: &Responses{
+							Headers: []Parameter{
+								{
+									Name:     "Set-Cookie",
+									Type:     "string",
+									Required: true,
+								},
+							},
+							Contents: []ResponseContent{
+								{
+									StatusCodes: []int64{20},
+									JSON: &Property{
+										Name:     "application/json",
+										Type:     "array",
+										Required: false,
+										Items: &Property{
+											Type: "string",
 										},
 									},
 								},
 							},
 						},
-					},
-					Responses: &Responses{
-						Headers: []Parameter{
-							{
-								Name:     "Set-Cookie",
-								Type:     "string",
-								Required: true,
-							},
+						BypassOn: &MethodBypassOn{
+							UndefinedParameters: []string{"BODY"},
 						},
-						Contents: []ResponseContent{
-							{
-								StatusCodes: []int64{20},
-								JSON: &Property{
-									Name:     "application/json",
-									Type:     "array",
-									Required: false,
-									Items: &Property{
-										Type: "string",
-									},
-								},
-							},
-						},
-					},
-					BypassOn: &MethodBypassOn{
-						UndefinedParameters: []string{"BODY"},
 					},
 				},
-			},
-		},
+			})),
 	},
 }
 

@@ -14,6 +14,7 @@ import (
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v9/pkg/ptr"
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v9/pkg/session"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
 type (
@@ -33,21 +34,21 @@ type (
 
 	// RegisterAPIRequest contains body for RegisterAPI operation
 	RegisterAPIRequest struct {
-		Name                      string              `json:"name"`
-		Hostnames                 []string            `json:"hostnames"`
-		ContractID                string              `json:"contractId"`
-		GroupID                   int64               `json:"groupId"`
-		BasePath                  *string             `json:"basePath,omitempty"`
-		Tags                      []string            `json:"tags,omitempty"`
-		Description               *string             `json:"description,omitempty"`
-		MatchPathSegmentParameter *bool               `json:"matchPathSegmentParameter,omitempty"`
-		MatchCaseSensitive        *bool               `json:"matchCaseSensitive,omitempty"`
-		EnableAPIGateway          *bool               `json:"enableApiGateway,omitempty"`
-		GraphQL                   *bool               `json:"graphQl,omitempty"`
-		SecuritySchemes           *SecuritySchemes    `json:"securitySchemes,omitempty"`
-		Constraints               *Constraints        `json:"constraints,omitempty"`
-		Versioning                *Versioning         `json:"versioning,omitempty"`
-		Resources                 map[string]Resource `json:"resources,omitempty"`
+		Name                      string                                   `json:"name"`
+		Hostnames                 []string                                 `json:"hostnames"`
+		ContractID                string                                   `json:"contractId"`
+		GroupID                   int64                                    `json:"groupId"`
+		BasePath                  *string                                  `json:"basePath,omitempty"`
+		Tags                      []string                                 `json:"tags,omitempty"`
+		Description               *string                                  `json:"description,omitempty"`
+		MatchPathSegmentParameter *bool                                    `json:"matchPathSegmentParameter,omitempty"`
+		MatchCaseSensitive        *bool                                    `json:"matchCaseSensitive,omitempty"`
+		EnableAPIGateway          *bool                                    `json:"enableApiGateway,omitempty"`
+		GraphQL                   *bool                                    `json:"graphQl,omitempty"`
+		SecuritySchemes           *SecuritySchemes                         `json:"securitySchemes,omitempty"`
+		Constraints               *Constraints                             `json:"constraints,omitempty"`
+		Versioning                *Versioning                              `json:"versioning,omitempty"`
+		Resources                 *orderedmap.OrderedMap[string, Resource] `json:"resources,omitempty"`
 	}
 
 	// RegisterAPIResponse holds the response from RegisterAPI operation
@@ -170,10 +171,10 @@ type (
 
 	// Method holds configuration for an API Method
 	Method struct {
-		Parameters  []Parameter         `json:"parameters,omitempty"`
-		RequestBody map[string]Property `json:"requestBody,omitempty"`
-		Responses   *Responses          `json:"responses,omitempty"`
-		BypassOn    *MethodBypassOn     `json:"bypassOn,omitempty"`
+		Parameters  []Parameter                              `json:"parameters,omitempty"`
+		RequestBody *orderedmap.OrderedMap[string, Property] `json:"requestBody,omitempty"`
+		Responses   *Responses                               `json:"responses,omitempty"`
+		BypassOn    *MethodBypassOn                          `json:"bypassOn,omitempty"`
 	}
 
 	// MethodBypassOn holds configuration for Constraints
@@ -221,6 +222,15 @@ type (
 	// MaxBodySize represents MaxBodySize value
 	MaxBodySize string
 
+	// XML holds configuration about an XML representation of property
+	XML struct {
+		Name      *string `json:"name,omitempty"`
+		Namespace *string `json:"namespace,omitempty"`
+		Prefix    *string `json:"prefix,omitempty"`
+		Attribute *bool   `json:"attribute,omitempty"`
+		Wrapped   *bool   `json:"wrapped,omitempty"`
+	}
+
 	// Property holds configuration for an API Property
 	Property struct {
 		Name        string       `json:"name"`
@@ -236,6 +246,7 @@ type (
 		MaxBodySize *MaxBodySize `json:"maxBodySize,omitempty"`
 		Properties  []Property   `json:"properties,omitempty"`
 		Items       *Property    `json:"items,omitempty"`
+		XML         *XML         `json:"xml,omitempty"`
 	}
 
 	// FromOpenAPIFileResponse holds the response for FromOpenAPIFile operation
@@ -292,8 +303,6 @@ var (
 	MaxBodySizeSize12KB MaxBodySize = "12KB"
 	// MaxBodySizeSize16kB represents MaxBodySize of value "16KB"
 	MaxBodySizeSize16kB MaxBodySize = "16KB"
-	// MaxBodySizeNoLimit represents MaxBodySize of value "no_limit"
-	MaxBodySizeNoLimit MaxBodySize = "no_limit"
 )
 
 // Client returns a new apidefinitions Client instance with the specified controller
@@ -393,8 +402,8 @@ func (t PropertyType) Validate() error {
 
 // Validate validates MaxBodySize
 func (b MaxBodySize) Validate() error {
-	return validation.In(MaxBodySizeNoLimit, MaxBodySizeSize6KB, MaxBodySizeSize8KB, MaxBodySizeSize12KB, MaxBodySizeSize16kB).
-		Error(fmt.Sprintf("value '%v' is invalid. Must be one of: '%s', '%s', '%s', '%s', '%s'", b, MaxBodySizeNoLimit, MaxBodySizeSize6KB, MaxBodySizeSize8KB, MaxBodySizeSize12KB, MaxBodySizeSize16kB)).
+	return validation.In(MaxBodySizeSize6KB, MaxBodySizeSize8KB, MaxBodySizeSize12KB, MaxBodySizeSize16kB).
+		Error(fmt.Sprintf("value '%v' is invalid. Must be one of: '%s', '%s', '%s', '%s' ", b, MaxBodySizeSize6KB, MaxBodySizeSize8KB, MaxBodySizeSize12KB, MaxBodySizeSize16kB)).
 		Validate(b)
 }
 

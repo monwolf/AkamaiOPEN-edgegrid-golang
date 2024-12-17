@@ -108,7 +108,14 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "xml": {
+                "attribute" : true,
+                "name": "BookRoot",
+                "namespace": "akamai.com/schema",
+                "prefix": "akam",
+                "wrapped": true
+              }
             }
           },
           "responses": {
