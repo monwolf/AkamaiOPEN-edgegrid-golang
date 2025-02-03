@@ -8,7 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v9/pkg/ptr"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v10/pkg/ptr"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -1135,7 +1135,7 @@ func TestUpdateEndpointVersion(t *testing.T) {
 		"validation errors": {
 			params: UpdateEndpointVersionRequest{},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "update endpoint version: struct validation: APIEndpointID: cannot be blank\nAPIEndpointHosts: cannot be blank\nAPIEndpointID: cannot be blank\nAPIEndpointName: cannot be blank\nContractID: cannot be blank\nGroupID: cannot be blank\nVersionNumber: cannot be blank", err.Error())
+				assert.Equal(t, "update endpoint version: struct validation: APIEndpointID: cannot be blank\nBody: {\n\tAPIEndpointHosts: cannot be blank\n\tAPIEndpointID: cannot be blank\n\tAPIEndpointName: cannot be blank\n\tContractID: cannot be blank\n\tGroupID: cannot be blank\n}\nVersionNumber: cannot be blank", err.Error())
 			},
 		},
 	}
