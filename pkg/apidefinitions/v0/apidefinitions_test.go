@@ -42,6 +42,47 @@ func TestAPI_Validate(t *testing.T) {
 				assert.Equal(t, "ContractID: cannot be blank\nGroupID: cannot be blank\nHostnames: cannot be blank\nName: cannot be blank", err.Error())
 			},
 		},
+		"security schemes - in : invalid value": {
+			req: RegisterAPIRequest{
+				SecuritySchemes: &SecuritySchemes{
+					APIKey: &SecurityScheme{
+						In: ptr.To(SecuritySchemeLocation("HEADER")),
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Contains(t, err.Error(), "In: value 'HEADER' is invalid. Must be one of: 'cookie', 'header', 'query'")
+			},
+		},
+	}
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			err := test.req.Validate()
+			if test.withError != nil {
+				test.withError(t, err)
+				return
+			}
+			require.NoError(t, err)
+		})
+	}
+}
+
+func TestVersioning_Validate(t *testing.T) {
+	tests := map[string]struct {
+		req       Versioning
+		withError func(*testing.T, error)
+	}{
+		"min ok": {
+			req: Versioning{},
+		},
+		"versioning - invalid 'in' ": {
+			req: Versioning{
+				In: ptr.To(VersioningLocation("invalid-location")),
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "In: value 'invalid-location' is invalid. Must be one of: 'header', 'path', 'query'.", err.Error())
+			},
+		},
 	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
@@ -70,7 +111,7 @@ func TestConstraints_Validate(t *testing.T) {
 				},
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "RequestBody: (ConsumeType: (0: value 'invalid' is invalid. Must be one of: 'json', 'xml', 'urlencoded', 'any, 'none'.).).", err.Error())
+				assert.Equal(t, "RequestBody: (ConsumeType: (0: value 'invalid' is invalid. Must be one of: 'json', 'xml', 'urlencoded', 'any'.).).", err.Error())
 			},
 		},
 	}
@@ -95,12 +136,13 @@ func TestParameter_Validate(t *testing.T) {
 			req: Parameter{
 				Name: "Name",
 				Type: ParameterTypeInteger,
+				In:   ParameterLocationPath,
 			},
 		},
 		"empty": {
 			req: Parameter{},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "Name: cannot be blank; Type: cannot be blank.", err.Error())
+				assert.Equal(t, "In: cannot be blank; Name: cannot be blank; Type: cannot be blank.", err.Error())
 			},
 		},
 		"invalid type": {
@@ -109,6 +151,14 @@ func TestParameter_Validate(t *testing.T) {
 			},
 			withError: func(t *testing.T, err error) {
 				assert.Contains(t, err.Error(), "Type: value 'invalid-type' is invalid. Must be one of: 'number', 'integer', 'string', 'boolean'.")
+			},
+		},
+		"invalid location": {
+			req: Parameter{
+				In: "invalid-location",
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Contains(t, err.Error(), "In: value 'invalid-location' is invalid. Must be one of: 'cookie', 'query', 'header', 'path'")
 			},
 		},
 	}
@@ -251,10 +301,10 @@ func TestRegisterAPI(t *testing.T) {
 					ContractID:                "3-XXXXXX",
 					GroupID:                   33333,
 					Hostnames:                 []string{"akamai.com"},
-					MatchCaseSensitive:        ptr.To(false),
-					EnableAPIGateway:          ptr.To(false),
-					MatchPathSegmentParameter: ptr.To(false),
-					GraphQL:                   ptr.To(false),
+					MatchCaseSensitive:        false,
+					EnableAPIGateway:          false,
+					MatchPathSegmentParameter: false,
+					GraphQL:                   false,
 				},
 				ID:            ptr.To(int64(52)),
 				RecordVersion: ptr.To(int64(1)),
@@ -559,19 +609,27 @@ var bookStoreAPI = API{
 		BasePath:                  ptr.To("/api"),
 		Tags:                      []string{"Tag1", "Tag2"},
 		Description:               ptr.To("desc"),
-		MatchCaseSensitive:        ptr.To(true),
-		MatchPathSegmentParameter: ptr.To(true),
-		EnableAPIGateway:          ptr.To(true),
-		GraphQL:                   ptr.To(true),
+		MatchCaseSensitive:        true,
+		EnableAPIGateway:          true,
+		MatchPathSegmentParameter: true,
+		GraphQL:                   true,
 		SecuritySchemes: &SecuritySchemes{
-			APIKey: &SecuritySchemeV0{
-				In:   ptr.To("Header"),
+			APIKey: &SecurityScheme{
+				In:   ptr.To(SecuritySchemeLocationHeader),
 				Name: ptr.To("Authorization"),
 			},
 		},
 		Constraints: &Constraints{
-			EnforceOnRequest:  ptr.To(true),
-			EnforceOnResponse: ptr.To(true),
+			EnforceOn: &EnforceOn{
+				Request:  ptr.To(true),
+				Response: ptr.To(true),
+				UndefinedMethods: &UndefinedMethods{
+					Get: true,
+				},
+				UndefinedParameters: &UndefinedParameters{
+					RequestCookie: true,
+				},
+			},
 			RequestBody: &ConstraintsRequestBody{
 				ConsumeType:     []ConsumeType{ConsumeTypeJSON, ConsumeTypeXML},
 				MaxBodySize:     ptr.To(int64(256)),
@@ -583,13 +641,9 @@ var bookStoreAPI = API{
 					MaxNameLength:   ptr.To(int64(50)),
 				},
 			},
-			BypassOn: &BypassOn{
-				UndefinedMethods:    []string{"GET"},
-				UndefinedParameters: []string{"COOKIE"},
-			},
 		},
 		Versioning: &Versioning{
-			In:    ptr.To("Header"),
+			In:    ptr.To(VersioningLocationHeader),
 			Name:  ptr.To("Version"),
 			Value: ptr.To("1"),
 		},
@@ -607,8 +661,8 @@ var bookStoreAPI = API{
 								Type:        "integer",
 								Required:    true,
 								Description: ptr.To("limit parameter"),
-								Min:         ptr.To(float32(1)),
-								Max:         ptr.To(float32(2)),
+								Minimum:     ptr.To(float32(1)),
+								Maximum:     ptr.To(float32(2)),
 							},
 							{
 								Name:        "query",
@@ -683,8 +737,12 @@ var bookStoreAPI = API{
 								},
 							},
 						},
-						BypassOn: &MethodBypassOn{
-							UndefinedParameters: []string{"BODY"},
+						Constraints: &MethodConstraints{
+							EnforceOn: &MethodEnforceOn{
+								UndefinedParameters: &UndefinedParameters{
+									RequestBody: true,
+								},
+							},
 						},
 					},
 				},

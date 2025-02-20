@@ -19,13 +19,21 @@
     "graphQl": true,
     "securitySchemes": {
       "apiKey": {
-        "in": "Header",
+        "in": "header",
         "name": "Authorization"
       }
     },
     "constraints": {
-      "enforceOnRequest": true,
-      "enforceOnResponse": true,
+      "enforceOn": {
+        "request": true,
+        "response": true,
+        "undefinedMethods": {
+          "get": true
+        },
+        "undefinedParameters": {
+          "requestCookie": true
+        }
+      },
       "requestBody": {
         "consumeType": [
           "json",
@@ -39,18 +47,10 @@
           "maxCount": 200,
           "maxNameLength": 50
         }
-      },
-      "bypassOn": {
-        "undefinedMethods": [
-          "GET"
-        ],
-        "undefinedParameters": [
-          "COOKIE"
-        ]
       }
     },
     "versioning": {
-      "in": "Header",
+      "in": "header",
       "name": "Version",
       "value": "1"
     },
@@ -62,17 +62,17 @@
           "parameters": [
             {
               "name": "limit",
-              "in": "query",
               "type": "integer",
+              "in": "query",
               "required": true,
               "description": "limit parameter",
-              "min": 1,
-              "max": 2
+              "minimum": 1,
+              "maximum": 2
             },
             {
               "name": "query",
-              "in": "query",
               "type": "string",
+              "in": "query",
               "required": true,
               "description": "query parameter",
               "minLength": 1,
@@ -110,7 +110,7 @@
                 }
               ],
               "xml": {
-                "attribute" : true,
+                "attribute": true,
                 "name": "BookRoot",
                 "namespace": "akamai.com/schema",
                 "prefix": "akam",
@@ -142,10 +142,12 @@
               }
             ]
           },
-          "bypassOn": {
-            "undefinedParameters": [
-              "BODY"
-            ]
+          "constraints": {
+            "enforceOn": {
+              "undefinedParameters": {
+                "requestBody": true
+              }
+            }
           }
         }
       }

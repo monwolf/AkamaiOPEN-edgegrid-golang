@@ -41,10 +41,10 @@ type (
 		BasePath                  *string                                  `json:"basePath,omitempty"`
 		Tags                      []string                                 `json:"tags,omitempty"`
 		Description               *string                                  `json:"description,omitempty"`
-		MatchPathSegmentParameter *bool                                    `json:"matchPathSegmentParameter,omitempty"`
-		MatchCaseSensitive        *bool                                    `json:"matchCaseSensitive,omitempty"`
-		EnableAPIGateway          *bool                                    `json:"enableApiGateway,omitempty"`
-		GraphQL                   *bool                                    `json:"graphQl,omitempty"`
+		MatchPathSegmentParameter bool                                     `json:"matchPathSegmentParameter,omitempty"`
+		MatchCaseSensitive        bool                                     `json:"matchCaseSensitive,omitempty"`
+		EnableAPIGateway          bool                                     `json:"enableApiGateway,omitempty"`
+		GraphQL                   bool                                     `json:"graphQl,omitempty"`
 		SecuritySchemes           *SecuritySchemes                         `json:"securitySchemes,omitempty"`
 		Constraints               *Constraints                             `json:"constraints,omitempty"`
 		Versioning                *Versioning                              `json:"versioning,omitempty"`
@@ -107,34 +107,61 @@ type (
 
 	// SecuritySchemes holds configuration for Security Schemes
 	SecuritySchemes struct {
-		APIKey *SecuritySchemeV0 `json:"apiKey,omitempty"`
+		APIKey *SecurityScheme `json:"apiKey,omitempty"`
 	}
 
-	// SecuritySchemeV0 holds configuration for Security Scheme
-	SecuritySchemeV0 struct {
-		In   *string `json:"in,omitempty"`
-		Name *string `json:"name,omitempty"`
+	// SecuritySchemeLocation holds location of the SecurityScheme
+	SecuritySchemeLocation string
+
+	// SecurityScheme holds configuration for Security Scheme
+	SecurityScheme struct {
+		In   *SecuritySchemeLocation `json:"in,omitempty"`
+		Name *string                 `json:"name,omitempty"`
 	}
 
-	// Versioning holds configuration for Versioning
+	// VersioningLocation holds location of the version
+	VersioningLocation string
+
+	// Versioning holds configuration for Versioning configuration
 	Versioning struct {
-		In    *string `json:"in,omitempty"`
-		Name  *string `json:"name,omitempty"`
-		Value *string `json:"value,omitempty"`
+		In    *VersioningLocation `json:"in,omitempty"`
+		Name  *string             `json:"name,omitempty"`
+		Value *string             `json:"value,omitempty"`
 	}
 
 	// Constraints holds configuration for Constraints
 	Constraints struct {
-		EnforceOnRequest  *bool                   `json:"enforceOnRequest,omitempty"`
-		EnforceOnResponse *bool                   `json:"enforceOnResponse,omitempty"`
-		RequestBody       *ConstraintsRequestBody `json:"requestBody,omitempty"`
-		BypassOn          *BypassOn               `json:"bypassOn,omitempty"`
+		EnforceOn   *EnforceOn              `json:"enforceOn,omitempty"`
+		RequestBody *ConstraintsRequestBody `json:"requestBody,omitempty"`
 	}
 
-	// BypassOn holds configuration for Constraints
-	BypassOn struct {
-		UndefinedMethods    []string `json:"undefinedMethods,omitempty"`
-		UndefinedParameters []string `json:"undefinedParameters,omitempty"`
+	// EnforceOn holds configuration for Constraints enforcement
+	EnforceOn struct {
+		Request             *bool                `json:"request,omitempty"`
+		Response            *bool                `json:"response,omitempty"`
+		UndefinedMethods    *UndefinedMethods    `json:"undefinedMethods,omitempty"`
+		UndefinedParameters *UndefinedParameters `json:"undefinedParameters,omitempty"`
+	}
+
+	// UndefinedMethods hold configuration for undefined method Constraints enforcement
+	UndefinedMethods struct {
+		Get     bool `json:"get,omitempty"`
+		Post    bool `json:"post,omitempty"`
+		Put     bool `json:"put,omitempty"`
+		Head    bool `json:"head,omitempty"`
+		Options bool `json:"options,omitempty"`
+		Delete  bool `json:"delete,omitempty"`
+		Patch   bool `json:"patch,omitempty"`
+	}
+
+	// UndefinedParameters hold configuration for undefined parameters Constraints enforcement
+	UndefinedParameters struct {
+		RequestCookie  bool `json:"requestCookie,omitempty"`
+		RequestHeader  bool `json:"requestHeader,omitempty"`
+		RequestQuery   bool `json:"requestQuery,omitempty"`
+		RequestBody    bool `json:"requestBody,omitempty"`
+		ResponseHeader bool `json:"responseHeader,omitempty"`
+		ResponseBody   bool `json:"responseBody,omitempty"`
 	}
 
 	// ConsumeType content type the endpoint exchanges
@@ -174,12 +201,17 @@ type (
 		Parameters  []Parameter                              `json:"parameters,omitempty"`
 		RequestBody *orderedmap.OrderedMap[string, Property] `json:"requestBody,omitempty"`
 		Responses   *Responses                               `json:"responses,omitempty"`
-		BypassOn    *MethodBypassOn                          `json:"bypassOn,omitempty"`
+		Constraints *MethodConstraints                       `json:"constraints,omitempty"`
 	}
 
-	// MethodBypassOn holds configuration for Constraints
-	MethodBypassOn struct {
-		UndefinedParameters []string `json:"undefinedParameters,omitempty"`
+	// MethodConstraints holds configuration for Method Constraints
+	MethodConstraints struct {
+		EnforceOn *MethodEnforceOn `json:"enforceOn,omitempty"`
+	}
+
+	// MethodEnforceOn holds configuration for Method Constraints
+	MethodEnforceOn struct {
+		UndefinedParameters *UndefinedParameters `json:"undefinedParameters,omitempty"`
 	}
 
 	// Responses holds configuration for an API Responses
@@ -203,17 +235,20 @@ type (
 	// ParameterType type of the parameter
 	ParameterType string
 
+	// ParameterLocation location of the parameter
+	ParameterLocation string
+
 	// Parameter holds configuration for an API Parameter
 	Parameter struct {
-		Name        string        `json:"name"`
-		Type        ParameterType `json:"type"`
-		In          string        `json:"in,omitempty"`
-		Required    bool          `json:"required,omitempty"`
-		Description *string       `json:"description,omitempty"`
-		Min         *float32      `json:"min,omitempty"`
-		Max         *float32      `json:"max,omitempty"`
-		MinLength   *int64        `json:"minLength,omitempty"`
-		MaxLength   *int64        `json:"maxLength,omitempty"`
+		Name        string            `json:"name"`
+		Type        ParameterType     `json:"type"`
+		In          ParameterLocation `json:"in,omitempty"`
+		Required    bool              `json:"required,omitempty"`
+		Description *string           `json:"description,omitempty"`
+		Minimum     *float32          `json:"minimum,omitempty"`
+		Maximum     *float32          `json:"maximum,omitempty"`
+		MinLength   *int64            `json:"minLength,omitempty"`
+		MaxLength   *int64            `json:"maxLength,omitempty"`
 	}
 
 	// PropertyType type of the property
@@ -237,8 +272,8 @@ type (
 		Type        PropertyType `json:"type"`
 		Required    bool         `json:"required,omitempty"`
 		Description *string      `json:"description,omitempty"`
-		Min         *float32     `json:"min,omitempty"`
-		Max         *float32     `json:"max,omitempty"`
+		Minimum     *float32     `json:"minimum,omitempty"`
+		Maximum     *float32     `json:"maximum,omitempty"`
 		MinLength   *int64       `json:"minLength,omitempty"`
 		MaxLength   *int64       `json:"maxLength,omitempty"`
 		MinItems    *int64       `json:"minItems,omitempty"`
@@ -270,6 +305,13 @@ var (
 	// ErrStructValidation is returned when given struct validation failed
 	ErrStructValidation = errors.New("struct validation")
 
+	// SecuritySchemeLocationHeader holds value for http 'header' security scheme location
+	SecuritySchemeLocationHeader SecuritySchemeLocation = "header"
+	// SecuritySchemeLocationQuery holds value for http 'query' security scheme location
+	SecuritySchemeLocationQuery SecuritySchemeLocation = "query"
+	// SecuritySchemeLocationCookie holds value for http 'cookie' security scheme location
+	SecuritySchemeLocationCookie SecuritySchemeLocation = "cookie"
+
 	// ConsumeTypeJSON holds value for consume type json
 	ConsumeTypeJSON ConsumeType = "json"
 	// ConsumeTypeXML holds value for consume type xml
@@ -278,8 +320,6 @@ var (
 	ConsumeTypeUrlencoded ConsumeType = "urlencoded"
 	// ConsumeTypeAny holds value for consume type any
 	ConsumeTypeAny ConsumeType = "any"
-	// ConsumeTypeNone holds value for consume type none
-	ConsumeTypeNone ConsumeType = "none"
 
 	// ParameterTypeString holds value for string ParameterType
 	ParameterTypeString ParameterType = "string"
@@ -289,6 +329,15 @@ var (
 	ParameterTypeInteger ParameterType = "integer"
 	// ParameterTypeBoolean holds value for boolean ParameterType
 	ParameterTypeBoolean ParameterType = "boolean"
+
+	// ParameterLocationQuery holds value for 'query' parameter location
+	ParameterLocationQuery ParameterLocation = "query"
+	// ParameterLocationHeader holds value for 'header' parameter location
+	ParameterLocationHeader ParameterLocation = "header"
+	// ParameterLocationCookie holds value for 'cookie' parameter location
+	ParameterLocationCookie ParameterLocation = "cookie"
+	// ParameterLocationPath holds value for 'path' parameter location
+	ParameterLocationPath ParameterLocation = "path"
 
 	// PropertyTypeObject holds value for boolean PropertyType
 	PropertyTypeObject PropertyType = "object"
@@ -303,6 +352,13 @@ var (
 	MaxBodySizeSize12KB MaxBodySize = "12KB"
 	// MaxBodySizeSize16kB represents MaxBodySize of value "16KB"
 	MaxBodySizeSize16kB MaxBodySize = "16KB"
+
+	// VersioningLocationHeader holds value for versioning location 'header'
+	VersioningLocationHeader VersioningLocation = "header"
+	// VersioningLocationPath holds value for versioning location 'path'
+	VersioningLocationPath VersioningLocation = "path"
+	// VersioningLocationQuery holds value for versioning location 'query'
+	VersioningLocationQuery VersioningLocation = "query"
 )
 
 // Client returns a new apidefinitions Client instance with the specified controller
@@ -326,19 +382,65 @@ func (r API) Validate() error {
 // Validate validates RegisterAPIRequest
 func (r RegisterAPIRequest) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
-		"Name":        validation.Validate(r.Name, validation.Required),
-		"Hostnames":   validation.Validate(r.Hostnames, validation.Required),
-		"ContractID":  validation.Validate(r.ContractID, validation.Required),
-		"GroupID":     validation.Validate(r.GroupID, validation.Required),
-		"Constraints": validation.Validate(r.Constraints),
-		"Resources":   validation.Validate(r.Resources),
+		"Name":            validation.Validate(r.Name, validation.Required),
+		"Hostnames":       validation.Validate(r.Hostnames, validation.Required),
+		"ContractID":      validation.Validate(r.ContractID, validation.Required),
+		"GroupID":         validation.Validate(r.GroupID, validation.Required),
+		"Constraints":     validation.Validate(r.Constraints),
+		"Resources":       validation.Validate(r.Resources),
+		"Versioning":      validation.Validate(r.Versioning),
+		"SecuritySchemes": validation.Validate(r.SecuritySchemes),
 	})
+}
+
+// Validate validates SecuritySchemes
+func (v SecuritySchemes) Validate() error {
+	return validation.Errors{
+		"APIKey": validation.Validate(v.APIKey),
+	}.Filter()
+}
+
+// Validate validates SecurityScheme
+func (v SecurityScheme) Validate() error {
+	return validation.Errors{
+		"In": validation.Validate(v.In),
+	}.Filter()
+}
+
+// Validate validates SecuritySchemeLocation
+func (s SecuritySchemeLocation) Validate() error {
+	return validation.In(SecuritySchemeLocationCookie, SecuritySchemeLocationHeader, SecuritySchemeLocationQuery).
+		Error(fmt.Sprintf("value '%v' is invalid. Must be one of: '%s', '%s', '%s'", s, SecuritySchemeLocationCookie, SecuritySchemeLocationHeader, SecuritySchemeLocationQuery)).
+		Validate(s)
+}
+
+// Validate validates Versioning
+func (v Versioning) Validate() error {
+	return validation.Errors{
+		"In": validation.Validate(v.In),
+	}.Filter()
+}
+
+// Validate validates ConsumeType
+func (s VersioningLocation) Validate() error {
+	return validation.In(VersioningLocationHeader, VersioningLocationPath, VersioningLocationQuery).
+		Error(fmt.Sprintf("value '%v' is invalid. Must be one of: '%s', '%s', '%s'", s, VersioningLocationHeader, VersioningLocationPath, VersioningLocationQuery)).
+		Validate(s)
 }
 
 // Validate validates Constraints
 func (c Constraints) Validate() error {
 	return validation.Errors{
 		"RequestBody": validation.Validate(c.RequestBody),
+		"EnforceOn":   validation.Validate(c.EnforceOn),
+	}.Filter()
+}
+
+// Validate validates EnforceOn
+func (b EnforceOn) Validate() error {
+	return validation.Errors{
+		"UndefinedMethods":    validation.Validate(b.UndefinedMethods),
+		"UndefinedParameters": validation.Validate(b.UndefinedParameters),
 	}.Filter()
 }
 
@@ -351,8 +453,8 @@ func (c ConstraintsRequestBody) Validate() error {
 
 // Validate validates ConsumeType
 func (s ConsumeType) Validate() error {
-	return validation.In(ConsumeTypeJSON, ConsumeTypeXML, ConsumeTypeUrlencoded, ConsumeTypeAny, ConsumeTypeNone).
-		Error(fmt.Sprintf("value '%v' is invalid. Must be one of: '%s', '%s', '%s', '%s, '%s'", s, ConsumeTypeJSON, ConsumeTypeXML, ConsumeTypeUrlencoded, ConsumeTypeAny, ConsumeTypeNone)).
+	return validation.In(ConsumeTypeJSON, ConsumeTypeXML, ConsumeTypeUrlencoded, ConsumeTypeAny).
+		Error(fmt.Sprintf("value '%v' is invalid. Must be one of: '%s', '%s', '%s', '%s'", s, ConsumeTypeJSON, ConsumeTypeXML, ConsumeTypeUrlencoded, ConsumeTypeAny)).
 		Validate(s)
 }
 
@@ -383,6 +485,7 @@ func (p Parameter) Validate() error {
 	return validation.Errors{
 		"Name": validation.Validate(p.Name, validation.Required),
 		"Type": validation.Validate(p.Type, validation.Required),
+		"In":   validation.Validate(p.In, validation.Required),
 	}.Filter()
 }
 
@@ -390,6 +493,13 @@ func (p Parameter) Validate() error {
 func (t ParameterType) Validate() error {
 	return validation.In(ParameterTypeNumber, ParameterTypeInteger, ParameterTypeString, ParameterTypeBoolean).
 		Error(fmt.Sprintf("value '%v' is invalid. Must be one of: '%s', '%s', '%s', '%s'", t, ParameterTypeNumber, ParameterTypeInteger, ParameterTypeString, ParameterTypeBoolean)).
+		Validate(t)
+}
+
+// Validate validates ParameterLocation
+func (t ParameterLocation) Validate() error {
+	return validation.In(ParameterLocationCookie, ParameterLocationQuery, ParameterLocationHeader, ParameterLocationPath).
+		Error(fmt.Sprintf("value '%v' is invalid. Must be one of: '%s', '%s', '%s', '%s'", t, ParameterLocationCookie, ParameterLocationQuery, ParameterLocationHeader, ParameterLocationPath)).
 		Validate(t)
 }
 
