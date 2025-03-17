@@ -37,13 +37,17 @@ type (
 		// DeleteResourceOperation deletes resource operations for a particular endpoint
 		DeleteResourceOperation(context.Context, DeleteResourceOperationRequest) (*DeleteResourceOperationResponse, error)
 	}
-
 	// RegisterAPIRequest contains body for RegisterAPI operation
 	RegisterAPIRequest struct {
+		APIAttributes
+		ContractID string `json:"contractId"`
+		GroupID    int64  `json:"groupId"`
+	}
+
+	// APIAttributes hold information about API (without contract and group)
+	APIAttributes struct {
 		Name                      string                                   `json:"name"`
 		Hostnames                 []string                                 `json:"hostnames"`
-		ContractID                string                                   `json:"contractId"`
-		GroupID                   int64                                    `json:"groupId"`
 		BasePath                  *string                                  `json:"basePath,omitempty"`
 		Tags                      []string                                 `json:"tags,omitempty"`
 		Description               *string                                  `json:"description,omitempty"`
@@ -84,7 +88,7 @@ type (
 
 	// FromOpenAPIFileRequest contains body for FromOpenAPIFile operation
 	FromOpenAPIFileRequest struct {
-		Content  string
+		Content  []byte
 		RootFile *string
 	}
 
@@ -292,8 +296,8 @@ type (
 
 	// FromOpenAPIFileResponse holds the response for FromOpenAPIFile operation
 	FromOpenAPIFileResponse struct {
-		Problems []Error            `json:"problems"`
-		API      RegisterAPIRequest `json:"api"`
+		Problems []Error       `json:"problems"`
+		API      APIAttributes `json:"api"`
 	}
 )
 
@@ -641,7 +645,7 @@ func (a *apidefinitions) FromOpenAPIFile(ctx context.Context, body FromOpenAPIFi
 		return nil, fmt.Errorf("%w: io failed: %s", ErrFromOpenAPIFile, err)
 	}
 
-	_, err = io.Copy(part, bytes.NewBuffer([]byte(body.Content)))
+	_, err = io.Copy(part, bytes.NewBuffer(body.Content))
 	if err != nil {
 		return nil, fmt.Errorf("%w: io failed: %s", ErrFromOpenAPIFile, err)
 	}

@@ -30,10 +30,12 @@ func TestAPI_Validate(t *testing.T) {
 	}{
 		"min ok": {
 			req: RegisterAPIRequest{
-				Name:       "name",
 				ContractID: "Contract-1",
 				GroupID:    1,
-				Hostnames:  []string{"akamai.com"},
+				APIAttributes: APIAttributes{
+					Name:      "name",
+					Hostnames: []string{"akamai.com"},
+				},
 			},
 		},
 		"empty": {
@@ -44,12 +46,13 @@ func TestAPI_Validate(t *testing.T) {
 		},
 		"security schemes - in : invalid value": {
 			req: RegisterAPIRequest{
-				SecuritySchemes: &SecuritySchemes{
-					APIKey: &SecurityScheme{
-						In: ptr.To(SecuritySchemeLocation("HEADER")),
+				APIAttributes: APIAttributes{
+					SecuritySchemes: &SecuritySchemes{
+						APIKey: &SecurityScheme{
+							In: ptr.To(SecuritySchemeLocation("HEADER")),
+						},
 					},
-				},
-			},
+				}},
 			withError: func(t *testing.T, err error) {
 				assert.Contains(t, err.Error(), "In: value 'HEADER' is invalid. Must be one of: 'cookie', 'header', 'query'")
 			},
@@ -221,7 +224,7 @@ func TestProperty_Validate(t *testing.T) {
 }
 
 func TestResources_OrderShouldBePreservedDuringSerialization(t *testing.T) {
-	var api = API{}
+	var api = APIAttributes{}
 	input := []byte(loadJson("testdata/api_resources_ordering.json"))
 	err := json.Unmarshal(input, &api)
 	if err != nil {
@@ -236,7 +239,7 @@ func TestResources_OrderShouldBePreservedDuringSerialization(t *testing.T) {
 }
 
 func TestResources_InsertOrderShouldBePreserved(t *testing.T) {
-	var api = RegisterAPIRequest{
+	var api = APIAttributes{
 		Resources: orderedmap.New[string, Resource](),
 	}
 	var keys = []string{"c", "v", "b", "n", "m", "a", "s", "d", "e", "q", "g"}
@@ -280,10 +283,12 @@ func TestRegisterAPI(t *testing.T) {
 		"201 created - required parameters only": {
 			responseStatus: http.StatusCreated,
 			body: RegisterAPIRequest{
-				Name:       "bookstore API",
-				Hostnames:  []string{"akamai.com"},
 				ContractID: "3-XXXXXX",
 				GroupID:    33333,
+				APIAttributes: APIAttributes{
+					Name:      "bookstore API",
+					Hostnames: []string{"akamai.com"},
+				},
 			},
 			expectedRequestBody: `{
     "name": "bookstore API",
@@ -297,14 +302,16 @@ func TestRegisterAPI(t *testing.T) {
 			responseBody: loadJson("testdata/book_store_api_required_only.json"),
 			expectedResult: &API{
 				RegisterAPIRequest: RegisterAPIRequest{
-					Name:                      "bookstore API",
-					ContractID:                "3-XXXXXX",
-					GroupID:                   33333,
-					Hostnames:                 []string{"akamai.com"},
-					MatchCaseSensitive:        false,
-					EnableAPIGateway:          false,
-					MatchPathSegmentParameter: false,
-					GraphQL:                   false,
+					APIAttributes: APIAttributes{
+						Name:                      "bookstore API",
+						Hostnames:                 []string{"akamai.com"},
+						MatchCaseSensitive:        false,
+						EnableAPIGateway:          false,
+						MatchPathSegmentParameter: false,
+						GraphQL:                   false,
+					},
+					ContractID: "3-XXXXXX",
+					GroupID:    33333,
 				},
 				ID:            ptr.To(int64(52)),
 				RecordVersion: ptr.To(int64(1)),
@@ -506,7 +513,7 @@ func TestFromOpenAPIFile(t *testing.T) {
 			responseStatus: http.StatusOK,
 			expectedResult: &FromOpenAPIFileResponse{
 				Problems: []Error{},
-				API:      bookStoreAPI.RegisterAPIRequest,
+				API:      bookStoreAPI.RegisterAPIRequest.APIAttributes,
 			},
 			expectedPath: "/api-definitions/v0/endpoints/openapi",
 			responseBody: loadJson("testdata/book_store_api_from_openapi.json"),
@@ -530,7 +537,7 @@ func TestFromOpenAPIFile(t *testing.T) {
 			}))
 			client := mockAPIClient(t, mockServer)
 			result, err := client.FromOpenAPIFile(context.Background(), FromOpenAPIFileRequest{
-				Content:  "zip archive with Open API Files",
+				Content:  []byte("zip archive with Open API Files"),
 				RootFile: ptr.To("api.yaml"),
 			})
 			if test.withError != nil {
@@ -601,152 +608,153 @@ func TestToOpenAPI(t *testing.T) {
 
 var bookStoreAPI = API{
 	RegisterAPIRequest: RegisterAPIRequest{
-
-		Name:                      "bookstore API",
-		Hostnames:                 []string{"akamai.com"},
-		ContractID:                "3-XXXXXX",
-		GroupID:                   33333,
-		BasePath:                  ptr.To("/api"),
-		Tags:                      []string{"Tag1", "Tag2"},
-		Description:               ptr.To("desc"),
-		MatchCaseSensitive:        true,
-		EnableAPIGateway:          true,
-		MatchPathSegmentParameter: true,
-		GraphQL:                   true,
-		SecuritySchemes: &SecuritySchemes{
-			APIKey: &SecurityScheme{
-				In:   ptr.To(SecuritySchemeLocationHeader),
-				Name: ptr.To("Authorization"),
-			},
-		},
-		Constraints: &Constraints{
-			EnforceOn: &EnforceOn{
-				Request:  ptr.To(true),
-				Response: ptr.To(true),
-				UndefinedMethods: &UndefinedMethods{
-					Get: true,
-				},
-				UndefinedParameters: &UndefinedParameters{
-					RequestCookie: true,
+		ContractID: "3-XXXXXX",
+		GroupID:    33333,
+		APIAttributes: APIAttributes{
+			Name:                      "bookstore API",
+			Hostnames:                 []string{"akamai.com"},
+			BasePath:                  ptr.To("/api"),
+			Tags:                      []string{"Tag1", "Tag2"},
+			Description:               ptr.To("desc"),
+			MatchCaseSensitive:        true,
+			EnableAPIGateway:          true,
+			MatchPathSegmentParameter: true,
+			GraphQL:                   true,
+			SecuritySchemes: &SecuritySchemes{
+				APIKey: &SecurityScheme{
+					In:   ptr.To(SecuritySchemeLocationHeader),
+					Name: ptr.To("Authorization"),
 				},
 			},
-			RequestBody: &ConstraintsRequestBody{
-				ConsumeType:     []ConsumeType{ConsumeTypeJSON, ConsumeTypeXML},
-				MaxBodySize:     ptr.To(int64(256)),
-				MaxNestingDepth: ptr.To(int64(10)),
-				Properties: &ConstraintsRequestBodyProperties{
-					MaxStringLength: ptr.To(int64(1000)),
-					MaxIntegerValue: ptr.To(int64(12345678)),
-					MaxCount:        ptr.To(int64(200)),
-					MaxNameLength:   ptr.To(int64(50)),
+			Constraints: &Constraints{
+				EnforceOn: &EnforceOn{
+					Request:  ptr.To(true),
+					Response: ptr.To(true),
+					UndefinedMethods: &UndefinedMethods{
+						Get: true,
+					},
+					UndefinedParameters: &UndefinedParameters{
+						RequestCookie: true,
+					},
+				},
+				RequestBody: &ConstraintsRequestBody{
+					ConsumeType:     []ConsumeType{ConsumeTypeJSON, ConsumeTypeXML},
+					MaxBodySize:     ptr.To(int64(256)),
+					MaxNestingDepth: ptr.To(int64(10)),
+					Properties: &ConstraintsRequestBodyProperties{
+						MaxStringLength: ptr.To(int64(1000)),
+						MaxIntegerValue: ptr.To(int64(12345678)),
+						MaxCount:        ptr.To(int64(200)),
+						MaxNameLength:   ptr.To(int64(50)),
+					},
 				},
 			},
-		},
-		Versioning: &Versioning{
-			In:    ptr.To(VersioningLocationHeader),
-			Name:  ptr.To("Version"),
-			Value: ptr.To("1"),
-		},
-		Resources: orderedmap.New[string, Resource](orderedmap.WithInitialData[string, Resource](
-			orderedmap.Pair[string, Resource]{
-				Key: "/books",
-				Value: Resource{
-					Name:        "Books Resource",
-					Description: ptr.To("Books Resource description"),
-					Post: &Method{
-						Parameters: []Parameter{
-							{
-								Name:        "limit",
-								In:          "query",
-								Type:        "integer",
-								Required:    true,
-								Description: ptr.To("limit parameter"),
-								Minimum:     ptr.To(float32(1)),
-								Maximum:     ptr.To(float32(2)),
-							},
-							{
-								Name:        "query",
-								In:          "query",
-								Type:        "string",
-								Required:    true,
-								Description: ptr.To("query parameter"),
-								MinLength:   ptr.To(int64(1)),
-								MaxLength:   ptr.To(int64(2)),
-							},
-						},
-						RequestBody: orderedmap.New[string, Property](orderedmap.WithInitialData[string, Property](
-							orderedmap.Pair[string, Property]{
-								Key: "json",
-								Value: Property{
-									Name:        "Book Body",
-									Type:        "object",
+			Versioning: &Versioning{
+				In:    ptr.To(VersioningLocationHeader),
+				Name:  ptr.To("Version"),
+				Value: ptr.To("1"),
+			},
+			Resources: orderedmap.New[string, Resource](orderedmap.WithInitialData[string, Resource](
+				orderedmap.Pair[string, Resource]{
+					Key: "/books",
+					Value: Resource{
+						Name:        "Books Resource",
+						Description: ptr.To("Books Resource description"),
+						Post: &Method{
+							Parameters: []Parameter{
+								{
+									Name:        "limit",
+									In:          "query",
+									Type:        "integer",
 									Required:    true,
-									Description: ptr.To("Json body desciption"),
-									Properties: []Property{
-										{
-											Name:      "name",
-											Type:      "string",
-											Required:  true,
-											MinLength: ptr.To(int64(1)),
-											MaxLength: ptr.To(int64(200)),
-										},
-										{
-											Name:     "tags",
-											Type:     "array",
-											Required: true,
-											Items: &Property{
-												Type: "object",
-												Properties: []Property{
-													{
-														Name: "id",
-														Type: "string",
+									Description: ptr.To("limit parameter"),
+									Minimum:     ptr.To(float32(1)),
+									Maximum:     ptr.To(float32(2)),
+								},
+								{
+									Name:        "query",
+									In:          "query",
+									Type:        "string",
+									Required:    true,
+									Description: ptr.To("query parameter"),
+									MinLength:   ptr.To(int64(1)),
+									MaxLength:   ptr.To(int64(2)),
+								},
+							},
+							RequestBody: orderedmap.New[string, Property](orderedmap.WithInitialData[string, Property](
+								orderedmap.Pair[string, Property]{
+									Key: "json",
+									Value: Property{
+										Name:        "Book Body",
+										Type:        "object",
+										Required:    true,
+										Description: ptr.To("Json body desciption"),
+										Properties: []Property{
+											{
+												Name:      "name",
+												Type:      "string",
+												Required:  true,
+												MinLength: ptr.To(int64(1)),
+												MaxLength: ptr.To(int64(200)),
+											},
+											{
+												Name:     "tags",
+												Type:     "array",
+												Required: true,
+												Items: &Property{
+													Type: "object",
+													Properties: []Property{
+														{
+															Name: "id",
+															Type: "string",
+														},
 													},
 												},
 											},
 										},
-									},
-									XML: &XML{
-										Attribute: ptr.To(true),
-										Wrapped:   ptr.To(true),
-										Namespace: ptr.To("akamai.com/schema"),
-										Name:      ptr.To("BookRoot"),
-										Prefix:    ptr.To("akam"),
+										XML: &XML{
+											Attribute: ptr.To(true),
+											Wrapped:   ptr.To(true),
+											Namespace: ptr.To("akamai.com/schema"),
+											Name:      ptr.To("BookRoot"),
+											Prefix:    ptr.To("akam"),
+										},
 									},
 								},
-							},
-						)),
-						Responses: &Responses{
-							Headers: []Parameter{
-								{
-									Name:     "Set-Cookie",
-									Type:     "string",
-									Required: true,
+							)),
+							Responses: &Responses{
+								Headers: []Parameter{
+									{
+										Name:     "Set-Cookie",
+										Type:     "string",
+										Required: true,
+									},
 								},
-							},
-							Contents: []ResponseContent{
-								{
-									StatusCodes: []int64{20},
-									JSON: &Property{
-										Name:     "application/json",
-										Type:     "array",
-										Required: false,
-										Items: &Property{
-											Type: "string",
+								Contents: []ResponseContent{
+									{
+										StatusCodes: []int64{20},
+										JSON: &Property{
+											Name:     "application/json",
+											Type:     "array",
+											Required: false,
+											Items: &Property{
+												Type: "string",
+											},
 										},
 									},
 								},
 							},
-						},
-						Constraints: &MethodConstraints{
-							EnforceOn: &MethodEnforceOn{
-								UndefinedParameters: &UndefinedParameters{
-									RequestBody: true,
+							Constraints: &MethodConstraints{
+								EnforceOn: &MethodEnforceOn{
+									UndefinedParameters: &UndefinedParameters{
+										RequestBody: true,
+									},
 								},
 							},
 						},
 					},
-				},
-			})),
+				})),
+		},
 	},
 }
 

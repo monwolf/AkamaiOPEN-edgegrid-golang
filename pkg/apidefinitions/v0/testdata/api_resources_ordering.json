@@ -1,8 +1,6 @@
 {
   "name": "",
   "hostnames": null,
-  "contractId": "",
-  "groupId": 0,
   "resources": {
     "/books": {
       "name": "Books Resource"
