@@ -1,0 +1,31 @@
+{
+  "type": "/api-definitions/error-types/invalid-input-error",
+  "status": 400,
+  "title": "Invalid input error",
+  "instance": "id_001",
+  "detail": "The request you submitted is invalid. Modify the request and try again.",
+  "errors": [
+    {
+      "type": "/api-definitions/error-types/resource-path-operation-check",
+      "title": "resource-path-operation-check.title",
+      "detail": "resource-path-operation-check.detail",
+      "severity": "ERROR",
+      "field": "put.dto.resourceOperations[/base].<map value>[test login].operationParameter",
+      "rejectedValue": {
+        "operationPurpose": "LOGIN",
+        "method": "POST"
+      }
+    },
+    {
+      "type": "/api-definitions/error-types/resource-path-operation-check",
+      "title": "resource-path-operation-check.title",
+      "detail": "resource-path-operation-check.detail",
+      "severity": "ERROR",
+      "field": "put.dto.resourceOperations[/base].<map value>[test login].operationParameter.username",
+      "rejectedValue": {
+        "operationPurpose": "LOGIN",
+        "method": "POST"
+      }
+    }
+  ],
+  "severity": "ERROR"}

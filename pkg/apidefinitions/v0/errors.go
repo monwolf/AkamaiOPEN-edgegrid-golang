@@ -11,28 +11,30 @@ import (
 type (
 	// Error is an apidefinitions error interface
 	Error struct {
-		Type            string  `json:"type"`
-		Title           string  `json:"title"`
-		Detail          string  `json:"detail"`
-		Instance        string  `json:"instance,omitempty"`
-		Status          int64   `json:"status,omitempty"`
-		RequestInstance *string `json:"requestInstance,omitempty"`
-		Method          *string `json:"method,omitempty"`
-		RequestTime     *string `json:"requestTime,omitempty"`
-		BehaviorName    *string `json:"behaviorName,omitempty"`
-		ErrorLocation   *string `json:"errorLocation,omitempty"`
-		DomainPrefix    *string `json:"domainPrefix,omitempty"`
-		DomainSuffix    *string `json:"domainSuffix,omitempty"`
-		Severity        *string `json:"severity,omitempty"`
-		AuthzRealm      *string `json:"authzRealm,omitempty"`
-		ServerIP        *string `json:"serverIp,omitempty"`
-		ClientIP        *string `json:"clientIp,omitempty"`
-		RequestID       *string `json:"requestId,omitempty"`
-		Network         *string `json:"network,omitempty"`
-		VersionNumber   *int64  `json:"versionNumber,omitempty"`
-		EndpointID      *int64  `json:"endpointId,omitempty"`
-		EndpointName    *string `json:"endpointName,omitempty"`
-		Errors          []Error `json:"errors,omitempty"`
+		Type            string                 `json:"type"`
+		Title           string                 `json:"title"`
+		Detail          string                 `json:"detail"`
+		Instance        string                 `json:"instance,omitempty"`
+		Status          int64                  `json:"status,omitempty"`
+		RequestInstance *string                `json:"requestInstance,omitempty"`
+		Method          *string                `json:"method,omitempty"`
+		RequestTime     *string                `json:"requestTime,omitempty"`
+		BehaviorName    *string                `json:"behaviorName,omitempty"`
+		ErrorLocation   *string                `json:"errorLocation,omitempty"`
+		DomainPrefix    *string                `json:"domainPrefix,omitempty"`
+		DomainSuffix    *string                `json:"domainSuffix,omitempty"`
+		Severity        *string                `json:"severity,omitempty"`
+		Field           *string                `json:"field,omitempty"`
+		RejectedValue   map[string]interface{} `json:"rejectedValue,omitempty"`
+		AuthzRealm      *string                `json:"authzRealm,omitempty"`
+		ServerIP        *string                `json:"serverIp,omitempty"`
+		ClientIP        *string                `json:"clientIp,omitempty"`
+		RequestID       *string                `json:"requestId,omitempty"`
+		Network         *string                `json:"network,omitempty"`
+		VersionNumber   *int64                 `json:"versionNumber,omitempty"`
+		EndpointID      *int64                 `json:"endpointId,omitempty"`
+		EndpointName    *string                `json:"endpointName,omitempty"`
+		Errors          []Error                `json:"errors,omitempty"`
 	}
 )
 

@@ -1,0 +1,33 @@
+{
+  "operations": {
+    "/api/resource": {
+      "UpdateOperation": {
+        "method": "POST",
+        "purpose": "Update resource details",
+        "parameters": {
+          "param1": {
+            "path": ["path", "to", "param1"],
+            "location": "body",
+            "usedForLogin": true
+          }
+        },
+        "failureConditions": [
+          {
+            "headerName": "X-Error",
+            "positiveMatch": false,
+            "type": "ErrorCondition",
+            "values": ["400", "500"]
+          }
+        ],
+        "successConditions": [
+          {
+            "headerName": "X-Success",
+            "positiveMatch": true,
+            "type": "SuccessCondition",
+            "values": ["201"]
+          }
+        ]
+      }
+    }
+  }
+}

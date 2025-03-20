@@ -70,7 +70,10 @@
   * Activations
     * [ActivateVersion](https://techdocs.akamai.com/api-definitions/reference/post-endpoint-version-activate)
     * [DeactivateVersion](https://techdocs.akamai.com/api-definitions/reference/post-endpoint-version-deactivate)
-
+  * Endpoint Resource Operations
+    * GetResourceOperation
+    * UpdateResourceOperation
+    * DeleteResourceOperation
 
 
 

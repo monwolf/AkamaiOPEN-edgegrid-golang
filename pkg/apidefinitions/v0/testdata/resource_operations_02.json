@@ -1,0 +1,51 @@
+{
+  "operations": {
+    "/index.php*": {
+      "testPurpose": {
+        "method": "POST",
+        "purpose": "LOGIN",
+        "parameters": {
+          "us979898ername": {
+            "path": ["username"],
+            "location": "REQUEST_BODY",
+            "usedForLogin": false
+          }
+        },
+        "failureConditions": [
+          {
+            "headerName": "Content-Length",
+            "positiveMatch": true,
+            "suppressFromClientResponse": false,
+            "type": "HEADER_VALUE",
+            "valueCase": false,
+            "valueWildcard": true,
+            "xPath": "",
+            "values": ["28?"]
+          }
+        ],
+        "successConditions": [
+          {
+            "headerName": "Content-Type",
+            "positiveMatch": true,
+            "suppressFromClientResponse": false,
+            "type": "",
+            "valueCase": false,
+            "valueWildcard": true,
+            "xPath": "",
+            "values": []
+          }
+        ],
+        "conditions": [
+          {
+            "path": [
+              "root",
+              "username"
+            ],
+            "location": "REQUEST_BODY",
+            "positiveMatch": true
+          }
+        ]
+      }
+    }
+  }
+}

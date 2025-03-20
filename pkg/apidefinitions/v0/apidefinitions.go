@@ -30,6 +30,12 @@ type (
 		FromOpenAPIFile(context.Context, FromOpenAPIFileRequest) (*FromOpenAPIFileResponse, error)
 		// ToOpenAPIFile map API to OpenAPI
 		ToOpenAPIFile(context.Context, ToOpenAPIFileRequest) (*ToOpenAPIFileResponse, error)
+		// GetResourceOperation reads resource operations for a particular endpoint
+		GetResourceOperation(context.Context, GetResourceOperationRequest) (*GetResourceOperationResponse, error)
+		// UpdateResourceOperation updates resource operations for a particular endpoint
+		UpdateResourceOperation(context.Context, UpdateResourceOperationRequest) (*UpdateResourceOperationResponse, error)
+		// DeleteResourceOperation deletes resource operations for a particular endpoint
+		DeleteResourceOperation(context.Context, DeleteResourceOperationRequest) (*DeleteResourceOperationResponse, error)
 	}
 
 	// RegisterAPIRequest contains body for RegisterAPI operation
@@ -562,7 +568,7 @@ func (a *apidefinitions) RegisterAPI(ctx context.Context, params RegisterAPIRequ
 	if err != nil {
 		return nil, fmt.Errorf("%w: request failed: %s", ErrRegisterAPI, err)
 	}
-
+	defer session.CloseResponseBody(resp)
 	if resp.StatusCode != http.StatusCreated {
 		return nil, fmt.Errorf("%s: %w", ErrRegisterAPI, a.Error(resp))
 	}
@@ -590,7 +596,7 @@ func (a *apidefinitions) GetAPIVersion(ctx context.Context, params GetAPIVersion
 	if err != nil {
 		return nil, fmt.Errorf("%w: request failed: %s", ErrGetAPIVersion, err)
 	}
-
+	defer session.CloseResponseBody(resp)
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("%s: %w", ErrGetAPIVersion, a.Error(resp))
 	}
@@ -618,7 +624,7 @@ func (a *apidefinitions) UpdateAPIVersion(ctx context.Context, params UpdateAPIV
 	if err != nil {
 		return nil, fmt.Errorf("%w: request failed: %s", ErrUpdateAPIVersion, err)
 	}
-
+	defer session.CloseResponseBody(resp)
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("%s: %w", ErrUpdateAPIVersion, a.Error(resp))
 	}
@@ -668,7 +674,7 @@ func (a *apidefinitions) FromOpenAPIFile(ctx context.Context, body FromOpenAPIFi
 	if err != nil {
 		return nil, fmt.Errorf("%w: request failed: %s", ErrFromOpenAPIFile, err)
 	}
-
+	defer session.CloseResponseBody(resp)
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("%s: %w", ErrFromOpenAPIFile, a.Error(resp))
 	}
@@ -695,6 +701,7 @@ func (a *apidefinitions) ToOpenAPIFile(ctx context.Context, params ToOpenAPIFile
 	if err != nil {
 		return nil, fmt.Errorf("%w: request failed: %s", ErrToOpenAPIFile, err)
 	}
+	defer session.CloseResponseBody(resp)
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("%s: %w", ErrToOpenAPIFile, a.Error(resp))
 	}

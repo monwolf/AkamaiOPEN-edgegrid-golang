@@ -53,3 +53,27 @@ func (m *Mock) UpdateAPIVersion(ctx context.Context, request UpdateAPIVersionReq
 	}
 	return args.Get(0).(*UpdateAPIVersionResponse), args.Error(1)
 }
+
+func (m *Mock) UpdateResourceOperation(ctx context.Context, req UpdateResourceOperationRequest) (*UpdateResourceOperationResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*UpdateResourceOperationResponse), args.Error(1)
+}
+
+func (m *Mock) GetResourceOperation(ctx context.Context, req GetResourceOperationRequest) (*GetResourceOperationResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*GetResourceOperationResponse), args.Error(1)
+}
+
+func (m *Mock) DeleteResourceOperation(ctx context.Context, req DeleteResourceOperationRequest) (*DeleteResourceOperationResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*DeleteResourceOperationResponse), args.Error(1)
+}
