@@ -57,6 +57,142 @@ func TestAPI_Validate(t *testing.T) {
 				assert.Contains(t, err.Error(), "In: value 'HEADER' is invalid. Must be one of: 'cookie', 'header', 'query'")
 			},
 		},
+		"resources - resource Method in : invalid enum value": {
+			req: RegisterAPIRequest{
+				ContractID: "3-XXXXXX",
+				GroupID:    33333,
+				APIAttributes: APIAttributes{
+					Name:      "bookstore API",
+					Hostnames: []string{"akamai.com"},
+					Resources: orderedmap.New[string, Resource](orderedmap.WithInitialData[string, Resource](
+						orderedmap.Pair[string, Resource]{
+							Key: "/books",
+							Value: Resource{
+								Name:        "Books Resource",
+								Description: ptr.To("Books Resource description"),
+								Post: &Method{
+									Parameters: []Parameter{
+										{
+											Name:        "limit",
+											In:          "QUERY",
+											Type:        "integer",
+											Required:    true,
+											Description: ptr.To("limit parameter"),
+											Minimum:     ptr.To(float32(1)),
+											Maximum:     ptr.To(float32(2)),
+										},
+									},
+									RequestBody: orderedmap.New[string, Property](orderedmap.WithInitialData[string, Property](
+										orderedmap.Pair[string, Property]{
+											Key: "json",
+											Value: Property{
+												Name:        "Book Body",
+												Type:        "object",
+												Required:    true,
+												Description: ptr.To("Json body desciption"),
+												Properties: []Property{
+													{
+														Name:      "name",
+														Type:      "string",
+														Required:  true,
+														MinLength: ptr.To(int64(1)),
+														MaxLength: ptr.To(int64(200)),
+													},
+												},
+											},
+										},
+									)),
+									Responses: &Responses{
+										Contents: []ResponseContent{
+											{
+												StatusCodes: []int64{20},
+												JSON: &Property{
+													Name:     "application/json",
+													Type:     "array",
+													Required: false,
+													Items: &Property{
+														Type: "string",
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						})),
+				}},
+			withError: func(t *testing.T, err error) {
+				assert.Contains(t, err.Error(), "/books: {\n\tPost: {\n\t\tParameters[0]: {\n\t\t\tIn: value 'QUERY' is invalid. Must be one of: 'cookie', 'query', 'header', 'path'\n\t\t}\n\t}\n}")
+			},
+		},
+		"resources - resource method RequestBody in : invalid enum value": {
+			req: RegisterAPIRequest{
+				ContractID: "3-XXXXXX",
+				GroupID:    33333,
+				APIAttributes: APIAttributes{
+					Name:      "bookstore API",
+					Hostnames: []string{"akamai.com"},
+					Resources: orderedmap.New[string, Resource](orderedmap.WithInitialData[string, Resource](
+						orderedmap.Pair[string, Resource]{
+							Key: "/books",
+							Value: Resource{
+								Name:        "Books Resource",
+								Description: ptr.To("Books Resource description"),
+								Post: &Method{
+									Parameters: []Parameter{
+										{
+											Name:        "limit",
+											In:          "query",
+											Type:        "integer",
+											Required:    true,
+											Description: ptr.To("limit parameter"),
+											Minimum:     ptr.To(float32(1)),
+											Maximum:     ptr.To(float32(2)),
+										},
+									},
+									RequestBody: orderedmap.New[string, Property](orderedmap.WithInitialData[string, Property](
+										orderedmap.Pair[string, Property]{
+											Key: "json",
+											Value: Property{
+												Name:        "Book Body",
+												Type:        "OBJECT",
+												Required:    true,
+												Description: ptr.To("Json body desciption"),
+												Properties: []Property{
+													{
+														Name:      "name",
+														Type:      "string",
+														Required:  true,
+														MinLength: ptr.To(int64(1)),
+														MaxLength: ptr.To(int64(200)),
+													},
+												},
+											},
+										},
+									)),
+									Responses: &Responses{
+										Contents: []ResponseContent{
+											{
+												StatusCodes: []int64{20},
+												JSON: &Property{
+													Name:     "application/json",
+													Type:     "array",
+													Required: false,
+													Items: &Property{
+														Type: "string",
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						})),
+				}},
+			withError: func(t *testing.T, err error) {
+				assert.Contains(t, err.Error(), "/books: {\n\tPost: {\n\t\tjson: {\n\t\t\tType: value 'OBJECT' is invalid. Must be one of: 'number', 'integer', 'string', 'boolean', 'object', 'array'\n\t\t}\n\t}\n}")
+			},
+		},
 	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {

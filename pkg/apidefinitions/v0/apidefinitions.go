@@ -391,7 +391,8 @@ func (r API) Validate() error {
 
 // Validate validates RegisterAPIRequest
 func (r RegisterAPIRequest) Validate() error {
-	return edgegriderr.ParseValidationErrors(validation.Errors{
+
+	validationErrors := validation.Errors{
 		"Name":            validation.Validate(r.Name, validation.Required),
 		"Hostnames":       validation.Validate(r.Hostnames, validation.Required),
 		"ContractID":      validation.Validate(r.ContractID, validation.Required),
@@ -400,7 +401,16 @@ func (r RegisterAPIRequest) Validate() error {
 		"Resources":       validation.Validate(r.Resources),
 		"Versioning":      validation.Validate(r.Versioning),
 		"SecuritySchemes": validation.Validate(r.SecuritySchemes),
-	})
+	}
+
+	if r.Resources != nil {
+		for pair := r.Resources.Oldest(); pair != nil; pair = pair.Next() {
+			if err := pair.Value.Validate(); err != nil {
+				validationErrors[pair.Key] = err
+			}
+		}
+	}
+	return edgegriderr.ParseValidationErrors(validationErrors)
 }
 
 // Validate validates SecuritySchemes
@@ -483,11 +493,20 @@ func (r Resource) Validate() error {
 
 // Validate validates Method
 func (m Method) Validate() error {
-	return validation.Errors{
+	validationErrors := validation.Errors{
 		"Parameters":  validation.Validate(m.Parameters),
 		"RequestBody": validation.Validate(m.RequestBody),
 		"Responses":   validation.Validate(m.Responses),
-	}.Filter()
+	}
+
+	if m.RequestBody != nil {
+		for pair := m.RequestBody.Oldest(); pair != nil; pair = pair.Next() {
+			if err := pair.Value.Validate(); err != nil {
+				validationErrors[pair.Key] = err
+			}
+		}
+	}
+	return validationErrors.Filter()
 }
 
 // Validate validates Parameter
