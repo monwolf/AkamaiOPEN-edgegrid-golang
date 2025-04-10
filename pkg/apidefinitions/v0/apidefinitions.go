@@ -290,8 +290,21 @@ type (
 		MaxItems    *int64       `json:"maxItems,omitempty"`
 		MaxBodySize *MaxBodySize `json:"maxBodySize,omitempty"`
 		Properties  []Property   `json:"properties,omitempty"`
-		Items       *Property    `json:"items,omitempty"`
+		Items       *Items       `json:"items,omitempty"`
 		XML         *XML         `json:"xml,omitempty"`
+	}
+
+	// Items holds configuration for an Array Property Items
+	Items struct {
+		Type       PropertyType `json:"type"`
+		Required   bool         `json:"required,omitempty"`
+		Minimum    *float32     `json:"minimum,omitempty"`
+		Maximum    *float32     `json:"maximum,omitempty"`
+		MinLength  *int64       `json:"minLength,omitempty"`
+		MaxLength  *int64       `json:"maxLength,omitempty"`
+		MinItems   *int64       `json:"minItems,omitempty"`
+		MaxItems   *int64       `json:"maxItems,omitempty"`
+		Properties []Property   `json:"properties,omitempty"`
 	}
 
 	// FromOpenAPIFileResponse holds the response for FromOpenAPIFile operation

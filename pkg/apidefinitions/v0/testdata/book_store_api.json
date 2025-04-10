@@ -96,7 +96,6 @@
                 "type": "array",
                 "required": true,
                 "items": {
-                  "name": "",
                   "type": "object",
                   "properties": [
                     {
@@ -133,7 +132,6 @@
                 "name": "application/json",
                 "type": "array",
                 "items": {
-                  "name": "",
                   "type": "string"
                 }
               }

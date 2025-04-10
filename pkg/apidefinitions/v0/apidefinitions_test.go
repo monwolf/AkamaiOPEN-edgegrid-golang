@@ -110,7 +110,7 @@ func TestAPI_Validate(t *testing.T) {
 													Name:     "application/json",
 													Type:     "array",
 													Required: false,
-													Items: &Property{
+													Items: &Items{
 														Type: "string",
 													},
 												},
@@ -178,7 +178,7 @@ func TestAPI_Validate(t *testing.T) {
 													Name:     "application/json",
 													Type:     "array",
 													Required: false,
-													Items: &Property{
+													Items: &Items{
 														Type: "string",
 													},
 												},
@@ -837,7 +837,7 @@ var bookStoreAPI = API{
 												Name:     "tags",
 												Type:     "array",
 												Required: true,
-												Items: &Property{
+												Items: &Items{
 													Type: "object",
 													Properties: []Property{
 														{
@@ -873,7 +873,7 @@ var bookStoreAPI = API{
 											Name:     "application/json",
 											Type:     "array",
 											Required: false,
-											Items: &Property{
+											Items: &Items{
 												Type: "string",
 											},
 										},
