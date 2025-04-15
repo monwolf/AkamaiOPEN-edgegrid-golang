@@ -29,13 +29,18 @@ type (
 	}
 )
 
+const caSetNotFoundType = "/mtls-edge-truststore/v2/error-types/ca-set-not-found"
+
+// ErrGetCASetNotFound is returned when the CA set was not found.
+var ErrGetCASetNotFound = errors.New("ca set not found")
+
 // Error parses an error from the response.
-func (c *mtlstruststore) Error(r *http.Response) error {
+func (m *mtlstruststore) Error(r *http.Response) error {
 	var e Error
 	var body []byte
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		c.Log(r.Request.Context()).Errorf("reading error response body: %s", err)
+		m.Log(r.Request.Context()).Errorf("reading error response body: %s", err)
 		e.Status = int64(r.StatusCode)
 		e.Title = "Failed to read error body"
 		e.Detail = err.Error()
@@ -43,7 +48,7 @@ func (c *mtlstruststore) Error(r *http.Response) error {
 	}
 
 	if err := json.Unmarshal(body, &e); err != nil {
-		c.Log(r.Request.Context()).Errorf("could not unmarshal API error: %s", err)
+		m.Log(r.Request.Context()).Errorf("could not unmarshal API error: %s", err)
 		e.Title = "Failed to unmarshal error body. mTLS Truststore API failed. Check details for more information."
 		e.Detail = errs.UnescapeContent(string(body))
 	}
@@ -64,6 +69,9 @@ func (e *Error) Error() string {
 
 // Is handles error comparisons.
 func (e *Error) Is(target error) bool {
+	if errors.Is(target, ErrGetCASetNotFound) {
+		return e.Status == http.StatusNotFound && e.Type == caSetNotFoundType
+	}
 
 	var t *Error
 	if !errors.As(target, &t) {

@@ -50,6 +50,13 @@
   * Added a new method `TranslateUsernames`.
   * Added a new method [GetClientListItems](https://techdocs.akamai.com/client-lists/reference/get-items).
 
+* mTLS Truststore
+  * Added support for the Mutual TLS Edge Truststore V2 API.
+    * [CreateCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-ca-set)
+    * [GetCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set)
+    * [ListCASets](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-sets)
+    * [DeleteCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/delete-ca-set)
+
 
 
 
