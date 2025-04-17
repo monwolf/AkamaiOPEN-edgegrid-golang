@@ -3,7 +3,7 @@
     "/api/resource": {
       "UpdateOperation": {
         "method": "POST",
-        "purpose": "Update resource details",
+        "purpose": "login",
         "parameters": {
           "param1": {
             "path": ["path", "to", "param1"],

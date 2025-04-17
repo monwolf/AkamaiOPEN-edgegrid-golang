@@ -3,11 +3,11 @@
     "/index.php*": {
       "testPurpose": {
         "method": "POST",
-        "purpose": "LOGIN",
+        "purpose": "login",
         "parameters": {
           "us979898ername": {
             "path": ["username"],
-            "location": "REQUEST_BODY",
+            "location": "request_body",
             "usedForLogin": false
           }
         },
@@ -16,7 +16,7 @@
             "headerName": "Content-Length",
             "positiveMatch": true,
             "suppressFromClientResponse": false,
-            "type": "HEADER_VALUE",
+            "type": "header_value",
             "valueCase": false,
             "valueWildcard": true,
             "xPath": "",
@@ -41,7 +41,7 @@
               "root",
               "username"
             ],
-            "location": "REQUEST_BODY",
+            "location": "request_body",
             "positiveMatch": true
           }
         ]

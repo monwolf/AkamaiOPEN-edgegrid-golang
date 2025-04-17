@@ -1,12 +1,12 @@
 {"operations":{
   "/v1/search" : {
     "post search by date" : {
-      "purpose" : "SEARCH",
+      "purpose" : "search",
       "method" : "POST",
       "conditions" : [
         {
           "path" : ["searchParams", "fromDate"],
-          "location" : "REQUEST_BODY",
+          "location" : "request_body",
           "positiveMatch" : true
         }
       ]

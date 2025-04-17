@@ -12,7 +12,7 @@
       "severity": "ERROR",
       "field": "put.dto.resourceOperations[/base].<map value>[test login].operationParameter",
       "rejectedValue": {
-        "operationPurpose": "LOGIN",
+        "operationPurpose": "login",
         "method": "POST"
       }
     },
@@ -23,7 +23,7 @@
       "severity": "ERROR",
       "field": "put.dto.resourceOperations[/base].<map value>[test login].operationParameter.username",
       "rejectedValue": {
-        "operationPurpose": "LOGIN",
+        "operationPurpose": "login",
         "method": "POST"
       }
     }

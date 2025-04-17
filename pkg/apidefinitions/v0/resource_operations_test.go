@@ -325,12 +325,12 @@ func getResourceOperationResponse() *GetResourceOperationResponse {
 
 	operationsForIndex.Set("testPurpose", Operation{
 		Method:  ptr.To("POST"),
-		Purpose: ptr.To("LOGIN"),
+		Purpose: ptr.To("login"),
 		Parameters: func() *orderedmap.OrderedMap[string, OperationParameter] {
 			omap := orderedmap.New[string, OperationParameter]()
 			omap.Set("us979898ername", OperationParameter{
 				Path:         []string{"username"},
-				Location:     ptr.To("REQUEST_BODY"),
+				Location:     ptr.To("request_body"),
 				UsedForLogin: ptr.To(false),
 			})
 			return omap
@@ -340,7 +340,7 @@ func getResourceOperationResponse() *GetResourceOperationResponse {
 				HeaderName:                 ptr.To("Content-Length"),
 				PositiveMatch:              ptr.To(true),
 				SuppressFromClientResponse: ptr.To(false),
-				Type:                       ptr.To("HEADER_VALUE"),
+				Type:                       ptr.To("header_value"),
 				ValueCase:                  ptr.To(false),
 				ValueWildcard:              ptr.To(true),
 				Path:                       ptr.To(""),
@@ -362,7 +362,7 @@ func getResourceOperationResponse() *GetResourceOperationResponse {
 		Conditions: []ParameterPathCondition{
 			{
 				Path:          []string{"root", "username"},
-				Location:      ptr.To("REQUEST_BODY"),
+				Location:      ptr.To("request_body"),
 				PositiveMatch: ptr.To(true),
 			},
 		},
@@ -384,7 +384,7 @@ func updateResourceOperationResponse() *UpdateResourceOperationResponse {
 
 	operationsForResource.Set("UpdateOperation", Operation{
 		Method:  ptr.To("POST"),
-		Purpose: ptr.To("Update resource details"),
+		Purpose: ptr.To("login"),
 		Parameters: func() *orderedmap.OrderedMap[string, OperationParameter] {
 			omap := orderedmap.New[string, OperationParameter]()
 			omap.Set("param1", OperationParameter{ // Fixed: Using OrderedMap
@@ -427,7 +427,7 @@ func badRequest() *UpdateResourceOperationResponse {
 
 	operationsForBase.Set("test login", Operation{
 		Method:  ptr.To("POST"),
-		Purpose: ptr.To("LOGIN"),
+		Purpose: ptr.To("login"),
 	})
 
 	resourceOps.Set("/base", operationsForBase)
@@ -464,7 +464,7 @@ func loadErrorResponse() *Error {
 				"field": "put.dto.resourceOperations[/base].\u003cmap value\u003e[test login].operationParameter",
 				"rejectedValue": {
         	            			"method": "POST",
-        	            			"operationPurpose": "LOGIN"
+        	            			"operationPurpose": "login"
 					}
 			},
 			{
@@ -475,7 +475,7 @@ func loadErrorResponse() *Error {
 				"field": "put.dto.resourceOperations[/base].\u003cmap value\u003e[test login].operationParameter.username",
 				"rejectedValue": {
         	            			"method": "POST",
-        	            			"operationPurpose": "LOGIN"
+        	            			"operationPurpose": "login"
 					}
 			}
 		]
