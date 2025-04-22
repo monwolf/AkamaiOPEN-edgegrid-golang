@@ -30,9 +30,45 @@ type (
 )
 
 const caSetNotFoundType = "/mtls-edge-truststore/v2/error-types/ca-set-not-found"
+const caSetDeleteRequestInProgress = "/mtls-edge-truststore/v2/error-types/delete-ca-set-request-in-progress"
+const caSetVersionDuplicate = "/mtls-edge-truststore/v2/error-types/duplicate-ca-set-version"
+const caSetVersionNotFoundType = "/mtls-edge-truststore/v2/error-types/ca-set-version-not-found"
+const caSetVersionLimitReached = "/mtls-edge-truststore/v2/error-types/ca-set-version-limit-reached"
+const caSetVersionIsActive = "/mtls-edge-truststore/v2/error-types/ca-set-version-is-active"
+const caSetVersionWasPreviouslyActive = "/mtls-edge-truststore/v2/error-types/ca-set-version-was-previously-active"
+const certificateValidationFailedForCreate = "/mtls-edge-truststore/v2/error-types/certificate-validation-failure-create"
+const certificateValidationFailedForUpdate = "/mtls-edge-truststore/v2/error-types/certificate-validation-failure-update"
+const certificateLimitReached = "/mtls-edge-truststore/v2/error-types/certificate-limit-reached"
 
 // ErrGetCASetNotFound is returned when the CA set was not found.
 var ErrGetCASetNotFound = errors.New("ca set not found")
+
+// ErrGetCASetVersionNotFound is returned when the CA set was not found.
+var ErrGetCASetVersionNotFound = errors.New("ca set version not found")
+
+// ErrCaSetDeleteRequestInProgress is returned when the CA set deletion request is in progress.
+var ErrCaSetDeleteRequestInProgress = errors.New("delete ca set request in progress")
+
+// ErrCaSetVersionIsActive is returned when the CA set Version is active on one or more networks.
+var ErrCaSetVersionIsActive = errors.New("ca set version is currently active")
+
+// ErrCaSetVersionWasPreviouslyActive is returned when the CA set Version was previously active on one or more networks.
+var ErrCaSetVersionWasPreviouslyActive = errors.New("ca set version was previously active")
+
+// ErrCertificateValidationFailedForCreate is returned during Create of the CA set Version if one or more certificates is invalid.
+var ErrCertificateValidationFailedForCreate = errors.New("one or more certificates is invalid")
+
+// ErrCertificateValidationFailedForUpdate is returned during Update of the CA set Version if one or more certificates is invalid.
+var ErrCertificateValidationFailedForUpdate = errors.New("one or more certificates is invalid")
+
+// ErrCertificateLimitReached is returned when the count of certificates submitted in the request body exceeds the limit allowed for the Version.
+var ErrCertificateLimitReached = errors.New("submitted certificates exceed the maximum allowed certificates limit")
+
+// ErrCaSetVersionLimitReached is returned when the number of ca set versions has reached the limit.
+var ErrCaSetVersionLimitReached = errors.New("maximum allowed ca set version's limit has been reached")
+
+// ErrCaSetVersionIsDuplicate is returned when a version with same certificates exists in the ca set.
+var ErrCaSetVersionIsDuplicate = errors.New("a version with same certificates exists in the ca set")
 
 // Error parses an error from the response.
 func (m *mtlstruststore) Error(r *http.Response) error {
@@ -71,6 +107,42 @@ func (e *Error) Error() string {
 func (e *Error) Is(target error) bool {
 	if errors.Is(target, ErrGetCASetNotFound) {
 		return e.Status == http.StatusNotFound && e.Type == caSetNotFoundType
+	}
+
+	if errors.Is(target, ErrGetCASetVersionNotFound) {
+		return e.Status == http.StatusNotFound && e.Type == caSetVersionNotFoundType
+	}
+
+	if errors.Is(target, ErrCaSetDeleteRequestInProgress) {
+		return e.Status == http.StatusConflict && e.Type == caSetDeleteRequestInProgress
+	}
+
+	if errors.Is(target, ErrCaSetVersionIsActive) {
+		return e.Status == http.StatusUnprocessableEntity && e.Type == caSetVersionIsActive
+	}
+
+	if errors.Is(target, ErrCaSetVersionWasPreviouslyActive) {
+		return e.Status == http.StatusUnprocessableEntity && e.Type == caSetVersionWasPreviouslyActive
+	}
+
+	if errors.Is(target, ErrCertificateValidationFailedForCreate) {
+		return e.Status == http.StatusBadRequest && e.Type == certificateValidationFailedForCreate
+	}
+
+	if errors.Is(target, ErrCertificateValidationFailedForUpdate) {
+		return e.Status == http.StatusBadRequest && e.Type == certificateValidationFailedForUpdate
+	}
+
+	if errors.Is(target, ErrCertificateLimitReached) {
+		return e.Status == http.StatusUnprocessableEntity && e.Type == certificateLimitReached
+	}
+
+	if errors.Is(target, ErrCaSetVersionLimitReached) {
+		return e.Status == http.StatusUnprocessableEntity && e.Type == caSetVersionLimitReached
+	}
+
+	if errors.Is(target, ErrCaSetVersionIsDuplicate) {
+		return e.Status == http.StatusUnprocessableEntity && e.Type == caSetVersionDuplicate
 	}
 
 	var t *Error

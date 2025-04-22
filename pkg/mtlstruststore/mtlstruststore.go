@@ -35,6 +35,36 @@ type (
 		//
 		// See: https://techdocs.akamai.com/mtls-edge-truststore/reference/delete-ca-set
 		DeleteCASet(ctx context.Context, params DeleteCASetRequest) error
+
+		// CreateCASetVersion creates a new CA set version.
+		//
+		// See: https://techdocs.akamai.com/mtls-edge-truststore/reference/post-ca-set-version
+		CreateCASetVersion(ctx context.Context, params CreateCASetVersionRequest) (*CreateCASetVersionResponse, error)
+
+		// CloneCASetVersion creates a clone of an existing CA set version.
+		//
+		// See: https://techdocs.akamai.com/mtls-edge-truststore/reference/post-clone-ca-set-version
+		CloneCASetVersion(ctx context.Context, params CloneCASetVersionRequest) (*CloneCASetVersionResponse, error)
+
+		// GetCASetVersions lists all the available CA sets created under the account.
+		//
+		// See: https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-versions
+		GetCASetVersions(ctx context.Context, params GetCASetVersionsRequest) (*GetCASetVersionsResponse, error)
+
+		// GetCASetVersion returns details of a CA sets version.
+		//
+		// See: https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-version
+		GetCASetVersion(ctx context.Context, params GetCASetVersionRequest) (*GetCASetVersionResponse, error)
+
+		// UpdateCASetVersion updates a CA sets version.
+		//
+		// See: https://techdocs.akamai.com/mtls-edge-truststore/reference/put-ca-set-version
+		UpdateCASetVersion(ctx context.Context, params UpdateCASetVersionRequest) (*UpdateCASetVersionResponse, error)
+
+		// GetCASetVersionCertificates returns certificates details of a CA sets version.
+		//
+		// See: https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-version-certificates
+		GetCASetVersionCertificates(ctx context.Context, params GetCASetVersionCertificatesRequest) (*GetCASetVersionCertificatesResponse, error)
 	}
 
 	mtlstruststore struct {

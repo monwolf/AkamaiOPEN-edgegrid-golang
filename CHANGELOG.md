@@ -58,6 +58,16 @@
     * [DeleteCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/delete-ca-set)
 
 
+* mTLS Truststore
+  * Added support for the Mutual TLS Edge Truststore V2 API.
+    * [CreateCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-ca-set-version) - Creates a new CA set version.
+    * [CloneCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-clone-ca-set-version) - Creates a clone of a CA set version.
+    * [GetCASetVersions](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-versions) - Lists all the available CA sets created under the account.
+    * [GetCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-version) - Fetches details of a CA sets version.
+    * [UpdateCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/put-ca-set-version) - Updates a CA sets version.
+    * [GetCASetVersionCertificates](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-version-certificates) - Lists certificates details of a CA sets version.
+      
+
 
 
 * Added API Definitions API Support

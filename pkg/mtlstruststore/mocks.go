@@ -49,3 +49,63 @@ func (m *Mock) DeleteCASet(ctx context.Context, params DeleteCASetRequest) error
 	args := m.Called(ctx, params)
 	return args.Error(0)
 }
+
+func (m *Mock) CreateCASetVersion(ctx context.Context, params CreateCASetVersionRequest) (*CreateCASetVersionResponse, error) {
+	args := m.Called(ctx, params)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*CreateCASetVersionResponse), args.Error(1)
+}
+
+func (m *Mock) CloneCASetVersion(ctx context.Context, params CloneCASetVersionRequest) (*CloneCASetVersionResponse, error) {
+	args := m.Called(ctx, params)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*CloneCASetVersionResponse), args.Error(1)
+}
+
+func (m *Mock) UpdateCASetVersion(ctx context.Context, params UpdateCASetVersionRequest) (*UpdateCASetVersionResponse, error) {
+	args := m.Called(ctx, params)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*UpdateCASetVersionResponse), args.Error(1)
+}
+
+func (m *Mock) GetCASetVersion(ctx context.Context, params GetCASetVersionRequest) (*GetCASetVersionResponse, error) {
+	args := m.Called(ctx, params)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*GetCASetVersionResponse), args.Error(1)
+}
+
+func (m *Mock) GetCASetVersions(ctx context.Context, params GetCASetVersionsRequest) (*GetCASetVersionsResponse, error) {
+	args := m.Called(ctx, params)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*GetCASetVersionsResponse), args.Error(1)
+}
+
+func (m *Mock) GetCASetVersionCertificates(ctx context.Context, params GetCASetVersionCertificatesRequest) (*GetCASetVersionCertificatesResponse, error) {
+	args := m.Called(ctx, params)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*GetCASetVersionCertificatesResponse), args.Error(1)
+}
