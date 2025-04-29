@@ -120,6 +120,13 @@
     * [ListCASetActivations](TODO) - Lists activations for CA set.
 
 
+* mTLS Truststore
+  * Added support for the Mutual TLS Edge Truststore V2 API.
+    * [ListCASetAssociations](ToDo) - Lists properties and enrollments associated with a CA set.
+    * [CloneCASet](ToDo) - Clones a CA Set.
+    * [GetCASetDeletionStatus](ToDo) - Retrieves a status of CA Set deletion.
+    * [ListCASetActivities](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-activities) - Lists activities of a CA Set.
+    * [ValidateCertificates](ToDo) - Validates a list of certificates.
 
 
 

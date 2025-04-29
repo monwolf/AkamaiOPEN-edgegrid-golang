@@ -159,3 +159,53 @@ func (m *Mock) ListCASetVersionActivations(ctx context.Context, params ListCASet
 
 	return args.Get(0).(*ListCASetVersionActivationsResponse), args.Error(1)
 }
+
+func (m *Mock) ListCASetAssociations(ctx context.Context, params ListCASetAssociationsRequest) (*ListCASetAssociationsResponse, error) {
+	args := m.Called(ctx, params)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*ListCASetAssociationsResponse), args.Error(1)
+}
+
+func (m *Mock) CloneCASet(ctx context.Context, params CloneCASetRequest) (*CloneCASetResponse, error) {
+	args := m.Called(ctx, params)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*CloneCASetResponse), args.Error(1)
+}
+
+func (m *Mock) GetCASetDeletionStatus(ctx context.Context, params GetCASetDeleteStatusRequest) (*GetCASetDeleteStatusResponse, error) {
+	args := m.Called(ctx, params)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*GetCASetDeleteStatusResponse), args.Error(1)
+}
+
+func (m *Mock) ListCASetActivities(ctx context.Context, params ListCASetActivitiesRequest) (*ListCASetActivitiesResponse, error) {
+	args := m.Called(ctx, params)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*ListCASetActivitiesResponse), args.Error(1)
+}
+
+func (m *Mock) ValidateCertificates(ctx context.Context, params ValidateCertificatesRequest) (*ValidateCertificatesResponse, error) {
+	args := m.Called(ctx, params)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*ValidateCertificatesResponse), args.Error(1)
+}

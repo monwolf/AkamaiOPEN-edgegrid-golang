@@ -84,8 +84,9 @@ func TestNewError(t *testing.T) {
 				},
 				Errors: []ErrorItem{
 					{
-						Detail:  "Provided CA set name v2-api-create-ca set does not match validation constraints. Allowed characters are alphanumerics (a-z, A-Z, 0-9), underscore (_), hyphen (-), percent (%) and period (.) with no three consecutive periods (…). Length must be between 3 and 64 characters.",
-						Pointer: "/caSetName",
+						Detail:      "Provided CA set name v2-api-create-ca set does not match validation constraints. Allowed characters are alphanumerics (a-z, A-Z, 0-9), underscore (_), hyphen (-), percent (%) and period (.) with no three consecutive periods (…). Length must be between 3 and 64 characters.",
+						Pointer:     "/caSetName",
+						ContextInfo: map[string]any{},
 					},
 				},
 			},

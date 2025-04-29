@@ -90,6 +90,31 @@ type (
 		//
 		// See: https://techdocs.akamai.com/mtls-edge-truststore/reference/get-activations
 		ListCASetVersionActivations(ctx context.Context, params ListCASetVersionActivationsRequest) (*ListCASetVersionActivationsResponse, error)
+
+		// ListCASetAssociations provides of CA Set associations to a Certificate/Slot in CPS (in Commercial) or to a Hostname in Property Manager (in Defense Edge).
+		//
+		// See: ToDo
+		ListCASetAssociations(ctx context.Context, params ListCASetAssociationsRequest) (*ListCASetAssociationsResponse, error)
+
+		// CloneCASet clones a CA set with provided name and description.
+		//
+		// See: ToDo
+		CloneCASet(ctx context.Context, params CloneCASetRequest) (*CloneCASetResponse, error)
+
+		// GetCASetDeletionStatus fetches the status of delete operation on both the networks.
+		//
+		// See: ToDo
+		GetCASetDeletionStatus(ctx context.Context, params GetCASetDeleteStatusRequest) (*GetCASetDeleteStatusResponse, error)
+
+		// ListCASetActivities returns the complete list of activities on a CA set.
+		//
+		// See: https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-activities
+		ListCASetActivities(ctx context.Context, params ListCASetActivitiesRequest) (*ListCASetActivitiesResponse, error)
+
+		// ValidateCertificates validates provided certificates if they are correct.
+		//
+		// See: ToDo
+		ValidateCertificates(ctx context.Context, params ValidateCertificatesRequest) (*ValidateCertificatesResponse, error)
 	}
 
 	mtlstruststore struct {

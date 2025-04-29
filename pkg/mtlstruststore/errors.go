@@ -24,8 +24,9 @@ type (
 
 	// ErrorItem contains details about the error.
 	ErrorItem struct {
-		Detail  string `json:"detail"`
-		Pointer string `json:"pointer"`
+		Detail      string         `json:"detail"`
+		Pointer     string         `json:"pointer"`
+		ContextInfo map[string]any `json:"contextInfo"`
 	}
 )
 
@@ -46,41 +47,80 @@ const (
 	anotherActivationInProgress          = "/mtls-edge-truststore/v2/error-types/another-activation-request-in-progress-in-the-ca-set"
 	anotherDeactivationInProgress        = "/mtls-edge-truststore/v2/error-types/another-deactivation-request-in-progress-in-the-ca-set"
 	caSetVersionNotActiveOnNetwork       = "/mtls-edge-truststore/v2/error-types/ca-set-version-not-active-on-network"
+	fetchAssociationsTimeout             = "/mtls-edge-truststore/v2/error-types/cannot-get-ca-set-associations-timeout"
+	missingCaCertVersion                 = "/mtls-edge-truststore/v2/error-types/missing-caset-version"
+	caSetNameNotUnique                   = "/mtls-edge-truststore/v2/error-types/ca-set-name-is-not-unique"
+	caSetLimitReached                    = "/mtls-edge-truststore/v2/error-types/ca-set-limit-reached"
+	noActiveCertDeletions                = "/mtls-edge-truststore/v2/error-types/no-active-cert-deletions"
+	certValidationFailure                = "/mtls-edge-truststore/v2/error-types/certificate-validation-failure"
 )
 
 var (
 	// ErrGetCASetNotFound is returned when the CA set was not found.
 	ErrGetCASetNotFound = errors.New("ca set not found")
+
 	// ErrGetCASetVersionNotFound is returned when the CA set was not found.
 	ErrGetCASetVersionNotFound = errors.New("ca set version not found")
+
 	// ErrGetCASetActivationNotFound is returned when the CA set activation was not found.
 	ErrGetCASetActivationNotFound = errors.New("ca set activation not found")
+
 	// ErrCASetDeleteRequestInProgress is returned when the CA set deletion request is in progress.
 	ErrCASetDeleteRequestInProgress = errors.New("delete ca set request in progress")
+
 	// ErrCASetVersionIsActive is returned when the CA set version is active on one or more networks.
 	ErrCASetVersionIsActive = errors.New("ca set version is currently active")
+
 	// ErrCASetVersionWasPreviouslyActive is returned when the CA set version was previously active on one or more networks.
 	ErrCASetVersionWasPreviouslyActive = errors.New("ca set version was previously active")
+
 	// ErrCertificateValidationFailedForCreate is returned during Create of the CA set Version if one or more certificates is invalid.
 	ErrCertificateValidationFailedForCreate = errors.New("one or more certificates is invalid")
+
 	// ErrCertificateValidationFailedForUpdate is returned during Update of the CA set Version if one or more certificates is invalid.
 	ErrCertificateValidationFailedForUpdate = errors.New("one or more certificates is invalid")
+
 	// ErrCertificateLimitReached is returned when the count of certificates submitted in the request body exceeds the limit allowed for the Version.
 	ErrCertificateLimitReached = errors.New("submitted certificates exceed the maximum allowed certificates limit")
+
 	// ErrCaSetVersionLimitReached is returned when the number of ca set versions has reached the limit.
 	ErrCaSetVersionLimitReached = errors.New("maximum allowed ca set version's limit has been reached")
+
 	// ErrCaSetVersionIsDuplicate is returned when a version with same certificates exists in the ca set.
 	ErrCaSetVersionIsDuplicate = errors.New("a version with same certificates exists in the ca set")
+
 	// ErrCASetBoundToSlotInCPS is returned when the CA set is bound to a slot in CPS.
 	ErrCASetBoundToSlotInCPS = errors.New("ca set bound to slot in CPS")
+
 	// ErrCASetBoundToHostname is returned when the CA set is bound to a hostname.
 	ErrCASetBoundToHostname = errors.New("ca set bound to hostname")
+
 	// ErrAnotherActivationInProgress is returned when another activation request is in progress for the CA set.
 	ErrAnotherActivationInProgress = errors.New("another activation request in progress in the ca set")
+
 	// ErrAnotherDeactivationInProgress is returned when another deactivation request is in progress in the CA set.
 	ErrAnotherDeactivationInProgress = errors.New("another deactivation request in progress in the ca set")
+
 	// ErrCASetVersionNotActiveOnNetwork is returned when the CA set version is not active on the network.
 	ErrCASetVersionNotActiveOnNetwork = errors.New("ca set version not active on network")
+
+	// ErrFetchAssociationsTimeout is returned when ListCASetAssociations fails on timeout.
+	ErrFetchAssociationsTimeout = errors.New("fetching associations for ca set got timed out")
+
+	// ErrMissingCaCertVersion is returned when attempting to clone a ca set without any version.
+	ErrMissingCaCertVersion = errors.New("ca set does not contain any version")
+
+	// ErrCaSetNameNotUnique is returned when provided ca set name already exists.
+	ErrCaSetNameNotUnique = errors.New("ca set name is not unique")
+
+	// ErrCASetLimitReached is returned when ca set limit is reached.
+	ErrCASetLimitReached = errors.New("reached ca set limit")
+
+	// ErrNoActiveCertDeletions is returned when attempting to check deletion status of CA Set that was not requested for delete.
+	ErrNoActiveCertDeletions = errors.New("no active ca set deletion")
+
+	// ErrCertValidationFailure is returned when certificates provided in ValidateCertificates are not valid.
+	ErrCertValidationFailure = errors.New("certificates validation failed")
 )
 
 // Error parses an error from the response.
@@ -186,6 +226,30 @@ func (e *Error) Is(target error) bool {
 
 	if errors.Is(target, ErrCASetVersionNotActiveOnNetwork) {
 		return e.Status == http.StatusConflict && e.Type == caSetVersionNotActiveOnNetwork
+	}
+
+	if errors.Is(target, ErrFetchAssociationsTimeout) {
+		return e.Status == http.StatusGatewayTimeout && e.Type == fetchAssociationsTimeout
+	}
+
+	if errors.Is(target, ErrMissingCaCertVersion) {
+		return e.Status == http.StatusBadRequest && e.Type == missingCaCertVersion
+	}
+
+	if errors.Is(target, ErrCaSetNameNotUnique) {
+		return e.Status == http.StatusConflict && e.Type == caSetNameNotUnique
+	}
+
+	if errors.Is(target, ErrCASetLimitReached) {
+		return e.Status == http.StatusUnprocessableEntity && e.Type == caSetLimitReached
+	}
+
+	if errors.Is(target, ErrNoActiveCertDeletions) {
+		return e.Status == http.StatusBadRequest && e.Type == noActiveCertDeletions
+	}
+
+	if errors.Is(target, ErrCertValidationFailure) {
+		return e.Status == http.StatusBadRequest && e.Type == certValidationFailure
 	}
 
 	var t *Error

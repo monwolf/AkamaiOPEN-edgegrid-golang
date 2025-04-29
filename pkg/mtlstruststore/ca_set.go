@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -119,6 +120,210 @@ type (
 		// CASetID is a unique identifier representing the CA set.
 		CASetID int64 `json:"caSetId"`
 	}
+
+	// ListCASetAssociationsRequest holds request for ListCASetAssociations.
+	ListCASetAssociationsRequest struct {
+		// CASetID is a unique identifier representing the CA set.
+		CASetID int64
+	}
+
+	// ListCASetAssociationsResponse holds response for ListCASetAssociations.
+	ListCASetAssociationsResponse struct {
+		// Associations contains list of properties and enrollments.
+		Associations Associations `json:"associations"`
+	}
+
+	// Associations represents associations data for given CASetID.
+	Associations struct {
+		// Properties contains details about properties with associated hostnames.
+		Properties []AssociationProperty `json:"properties"`
+
+		// Enrollments contains details about enrollments associated with this CA Set.
+		Enrollments []AssociationEnrollment `json:"enrollments"`
+	}
+
+	// AssociationProperty represents one property associations data for given CASetID.
+	AssociationProperty struct {
+		// PropertyID is a unique identifier for the property.
+		PropertyID string `json:"propertyId"`
+
+		// PropertyName is a unique, descriptive name for the property.
+		PropertyName *string `json:"propertyName"`
+
+		// AssetID is an alternative identifier for the property.
+		AssetID *int64 `json:"assetId"`
+
+		// GroupID identifies the group to which the property is assigned.
+		GroupID *int64 `json:"groupId"`
+
+		// Hostnames contains details about associated hostnames.
+		Hostnames []AssociationHostname `json:"hostnames"`
+	}
+
+	// AssociationHostname represents one hostname associations data for given CASetID.
+	AssociationHostname struct {
+		// Hostname is name of device.
+		Hostname string `json:"hostName"`
+
+		// Network indicates the network on which CA set to hostname association is formed/removed/in progress. The values for this are "STAGING", "PRODUCTION".
+		Network string `json:"network"`
+
+		// Status indicates the status of CA set to hostname association. The values for it are - "ATTACHING", "DETACHING", "ATTACHED".
+		Status string `json:"status"`
+	}
+
+	// AssociationEnrollment represents one enrollment associations data for given CASetID.
+	AssociationEnrollment struct {
+		// EnrollmentID is unique identifier for the enrollment.
+		EnrollmentID int64 `json:"enrollmentId"`
+
+		// EnrollmentLink is link to CPS enrollment.
+		EnrollmentLink string `json:"enrollmentLink"`
+
+		// StagingSlots are slots where the certificate is deployed on the staging network.
+		StagingSlots []int64 `json:"stagingSlots"`
+
+		// ProductionSlots are slots where the certificate is deployed on the production network.
+		ProductionSlots []int64 `json:"productionSlots"`
+
+		// CN is the domain name to use for the certificate, also known as the common name.
+		CN string `json:"cn"`
+	}
+
+	// CloneCASetRequest holds request for CloneCASet.
+	CloneCASetRequest struct {
+		// CloneFromSetID is a CA set ID which should be used to create new CA set from.
+		CloneFromSetID int64 `json:"-"`
+
+		// CloneFromVersion is an optional version of CA set which should be used to create new CA set from.
+		CloneFromVersion int64 `json:"-"`
+
+		// NewCASetName is descriptive name for the set.
+		NewCASetName string `json:"caSetName"`
+
+		// NewDescription is optional description for the set.
+		NewDescription string `json:"description"`
+	}
+
+	// CloneCASetResponse holds response body for CloneCASet.
+	CloneCASetResponse CASetResponse
+
+	// GetCASetDeleteStatusRequest holds request for GetCASetDeleteStatus.
+	GetCASetDeleteStatusRequest struct {
+		// CASetID is a unique identifier representing the CA set.
+		CASetID int64
+	}
+
+	// GetCASetDeleteStatusResponse holds response for GetCASetDeleteStatus.
+	GetCASetDeleteStatusResponse struct {
+		// Status is current status of CA set deletion.
+		Status string `json:"status"`
+
+		// StatusLink is the hypermedia link to the deletion status.
+		StatusLink string `json:"statusLink"`
+
+		// CASetLink is the hypermedia link to the CA set.
+		CASetLink string `json:"caSetLink"`
+
+		// ResourceMethod is type of method.
+		ResourceMethod string `json:"resourceMethod"`
+
+		// CASetID is a unique identifier representing the CA set.
+		CASetID int64 `json:"caSetId"`
+
+		// CASetName is descriptive name for the set.
+		CASetName string `json:"caSetName"`
+
+		// EstimatedEndTime is approximated time when CA set should be deleted.
+		EstimatedEndTime *time.Time `json:"estimatedEndTime"`
+
+		// EndTime is time when CA set was deleted.
+		EndTime *time.Time `json:"endTime"`
+
+		// FailureReason is a reason why CA set was not deleted.
+		FailureReason *string `json:"failureReason"`
+
+		// StartTime is a time when CA set was asked to be deleted.
+		StartTime time.Time `json:"startTime"`
+
+		// Deletions is a list of status for each network about CA set deletion.
+		Deletions []CASetNetworkDeleteStatus `json:"deletions"`
+	}
+
+	// CASetNetworkDeleteStatus holds information about one network for GetCASetDeleteStatus response.
+	CASetNetworkDeleteStatus struct {
+		// Network represents network type for this delete status.
+		Network string `json:"network"`
+
+		// PercentComplete represents progress of CA set deletion of given network.
+		PercentComplete int `json:"percentComplete"`
+
+		// Status represents CA set deletion status on given network.
+		Status string `json:"status"`
+
+		// FailureReason is a reason why CA set was not deleted on given network.
+		FailureReason *string `json:"failureReason"`
+	}
+
+	// ListCASetActivitiesRequest holds request for ListCASetActivities.
+	ListCASetActivitiesRequest struct {
+		// CASetID is a unique identifier representing the CA set.
+		CASetID int64
+
+		// Start is optional Date in ISO-8601 format with fractional seconds. Include an action object in the result data if the actionDate is greater than or equal to start date.
+		Start time.Time
+
+		// End is optional Date in ISO-8601 format with fractional seconds. Include an action object in the result data if the actionDate is less than or equal to end date.
+		End time.Time
+	}
+
+	// ListCASetActivitiesResponse holds response for ListCASetActivities.
+	ListCASetActivitiesResponse struct {
+		// CASetID is unique identifier of the set.
+		CASetID int64 `json:"caSetID"`
+
+		// CASetLink is hypermedia link to the CA set resource.
+		CASetLink string `json:"caSetLink"`
+
+		// CASetName is name of the CA set.
+		CASetName string `json:"caSetName"`
+
+		// CreatedDate is date the CA set was created in ISO-8601 format.
+		CreatedDate time.Time `json:"createdDate"`
+
+		// CreatedBy is user who created the CA set.
+		CreatedBy string `json:"createdBy"`
+
+		//CASetStatus indicates the status of the CA set. Could be one of: "NOT_DELETED", "DELETED", "DELETING".
+		CASetStatus string `json:"caSetStatus"`
+
+		// DeletedDate is date the CA set was deleted in ISO-8601 format. null if the CA set is not deleted.
+		DeletedDate *time.Time `json:"deletedDate"`
+
+		// DeletedBy is user who deleted the CA set if its deleted, null otherwise.
+		DeletedBy *string `json:"deletedBy"`
+
+		// Activities are list of activities on the CA set with each element in the list representing one activity object.
+		Activities []CASetActivity `json:"activities"`
+	}
+
+	// CASetActivity holds one activity entry from ListCASetActivities response.
+	CASetActivity struct {
+		// Type is activity. Could be one of: "CREATE_CA_SET", "CREATE_CA_SET_VERSION", "ACTIVATE_CA_SET_VERSION", "DEACTIVATE_CA_SET_VERSION", "DELETE_CA_SET".
+		Type string `json:"type"`
+
+		// Network is one amongst, "STAGING" or "PRODUCTION". Note that for "CREATE_CA_SET" this field will be null.
+		Network *string `json:"network"`
+
+		// Version on which user acted on.
+		Version *int64 `json:"version"`
+
+		// ActivityDate is the date associated with the activity in ISO-8601 format.
+		ActivityDate time.Time `json:"activityDate"`
+
+		// ActivityBy is user who submitted the request.
+		ActivityBy string `json:"activityBy"`
+	}
 )
 
 const (
@@ -141,6 +346,16 @@ var (
 	ErrListCASets = errors.New("list ca sets failed")
 	// ErrDeleteCASet is returned when the request to delete a CA set fails.
 	ErrDeleteCASet = errors.New("delete ca set failed")
+	// ErrListCASetAssociations is returned when the request to get a CA set associations fails.
+	ErrListCASetAssociations = errors.New("list ca sets associations failed")
+	// ErrCloneCASet is returned when the request to clone a CA set fails.
+	ErrCloneCASet = errors.New("clone ca set failed")
+	// ErrGetCASetDeletionStatus is returned when the request to get a CA set deletion status fails.
+	ErrGetCASetDeletionStatus = errors.New("list ca set deletion status failed")
+	// ErrListCASetActivities is returned when the request to get a CA set activities fails.
+	ErrListCASetActivities = errors.New("get ca set activities failed")
+	// ErrValidateCertificates is returned when the request to validate certificates fails or some provided certificates are not valid.
+	ErrValidateCertificates = errors.New("validate certificates failed")
 )
 
 // Validate validates CreateCASetRequest.
@@ -192,6 +407,40 @@ func validateCASetName() validation.StringRule {
 	return validation.NewStringRule(func(s string) bool {
 		return !strings.Contains(s, "...")
 	}, "CA Set name cannot contain three consecutive periods (...)")
+}
+
+// Validate validates ListCASetAssociationsRequest.
+func (r ListCASetAssociationsRequest) Validate() error {
+	return edgegriderr.ParseValidationErrors(validation.Errors{
+		"CASetID": validation.Validate(r.CASetID, validation.Required, validation.Min(1)),
+	})
+}
+
+// Validate validates CloneCASetRequest.
+func (r CloneCASetRequest) Validate() error {
+	return edgegriderr.ParseValidationErrors(validation.Errors{
+		"CloneFromSetID":   validation.Validate(r.CloneFromSetID, validation.Required),
+		"CloneFromVersion": validation.Validate(r.CloneFromVersion, validation.Min(1)),
+		"NewCASetName": validation.Validate(r.NewCASetName,
+			validation.Required,
+			validation.Length(3, 64),
+			validation.Match(caSetNameRegex).Error("allowed characters are alphanumerics (a-z, A-Z, 0-9), underscore (_), hyphen (-), percent (%) and period (.)"),
+			validateCASetName()),
+	})
+}
+
+// Validate validates GetCASetDeleteStatusRequest.
+func (r GetCASetDeleteStatusRequest) Validate() error {
+	return edgegriderr.ParseValidationErrors(validation.Errors{
+		"CASetID": validation.Validate(r.CASetID, validation.Required, validation.Min(1)),
+	})
+}
+
+// Validate validates ListCASetActivitiesRequest.
+func (r ListCASetActivitiesRequest) Validate() error {
+	return edgegriderr.ParseValidationErrors(validation.Errors{
+		"CASetID": validation.Validate(r.CASetID, validation.Required, validation.Min(1)),
+	})
 }
 
 func (m *mtlstruststore) CreateCASet(ctx context.Context, params CreateCASetRequest) (*CreateCASetResponse, error) {
@@ -329,4 +578,135 @@ func (m *mtlstruststore) DeleteCASet(ctx context.Context, params DeleteCASetRequ
 	}
 
 	return nil
+}
+
+func (m *mtlstruststore) ListCASetAssociations(ctx context.Context, params ListCASetAssociationsRequest) (*ListCASetAssociationsResponse, error) {
+	logger := m.Log(ctx)
+	logger.Debug("ListCASetAssociations")
+
+	if err := params.Validate(); err != nil {
+		return nil, fmt.Errorf("%s: %w: %s", ErrListCASetAssociations, ErrStructValidation, err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%d/associations", params.CASetID), nil)
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to create request: %s", ErrListCASetAssociations, err)
+	}
+
+	var result ListCASetAssociationsResponse
+	resp, err := m.Exec(req, &result)
+	if err != nil {
+		return nil, fmt.Errorf("%w: request failed: %s", ErrListCASetAssociations, err)
+	}
+	defer session.CloseResponseBody(resp)
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, m.Error(resp)
+	}
+
+	return &result, nil
+}
+
+func (m *mtlstruststore) CloneCASet(ctx context.Context, params CloneCASetRequest) (*CloneCASetResponse, error) {
+	logger := m.Log(ctx)
+	logger.Debug("CloneCASet")
+
+	if err := params.Validate(); err != nil {
+		return nil, fmt.Errorf("%s: %w: %s", ErrCloneCASet, ErrStructValidation, err)
+	}
+
+	uri, err := url.Parse(fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%d/clone", params.CloneFromSetID))
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrCloneCASet, err)
+	}
+	q := uri.Query()
+	if params.CloneFromVersion != 0 {
+		q.Add("cloneFromVersion", strconv.FormatInt(params.CloneFromVersion, 10))
+	}
+	uri.RawQuery = q.Encode()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, uri.String(), nil)
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to create request: %s", ErrCloneCASet, err)
+	}
+
+	var result CloneCASetResponse
+	resp, err := m.Exec(req, &result, params)
+	if err != nil {
+		return nil, fmt.Errorf("%w: request failed: %s", ErrCloneCASet, err)
+	}
+	defer session.CloseResponseBody(resp)
+
+	if resp.StatusCode != http.StatusCreated {
+		return nil, m.Error(resp)
+	}
+
+	return &result, nil
+}
+
+func (m *mtlstruststore) GetCASetDeletionStatus(ctx context.Context, params GetCASetDeleteStatusRequest) (*GetCASetDeleteStatusResponse, error) {
+	logger := m.Log(ctx)
+	logger.Debug("GetCASetDeletionStatus")
+
+	if err := params.Validate(); err != nil {
+		return nil, fmt.Errorf("%s: %w: %s", ErrGetCASetDeletionStatus, ErrStructValidation, err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%d/status/delete", params.CASetID), nil)
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to create request: %s", ErrGetCASetDeletionStatus, err)
+	}
+
+	var result GetCASetDeleteStatusResponse
+	resp, err := m.Exec(req, &result)
+	if err != nil {
+		return nil, fmt.Errorf("%w: request failed: %s", ErrGetCASetDeletionStatus, err)
+	}
+	defer session.CloseResponseBody(resp)
+
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusSeeOther { //ToDo: The SeeOther does not work well yet, Q81
+		return nil, m.Error(resp)
+	}
+
+	return &result, nil
+}
+
+func (m *mtlstruststore) ListCASetActivities(ctx context.Context, params ListCASetActivitiesRequest) (*ListCASetActivitiesResponse, error) {
+	logger := m.Log(ctx)
+	logger.Debug("ListCASetActivities")
+
+	if err := params.Validate(); err != nil {
+		return nil, fmt.Errorf("%s: %w: %s", ErrListCASetActivities, ErrStructValidation, err)
+	}
+
+	uri, err := url.Parse(fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%d/activities", params.CASetID))
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrCloneCASet, err)
+	}
+	q := uri.Query()
+	if !params.Start.IsZero() {
+		q.Add("start", params.Start.Format(time.RFC3339Nano))
+	}
+	if !params.End.IsZero() {
+		q.Add("end", params.End.Format(time.RFC3339Nano))
+	}
+	uri.RawQuery = q.Encode()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri.String(), nil)
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to create request: %s", ErrListCASetActivities, err)
+	}
+
+	var result ListCASetActivitiesResponse
+	resp, err := m.Exec(req, &result)
+	if err != nil {
+		return nil, fmt.Errorf("%w: request failed: %s", ErrListCASetActivities, err)
+	}
+	defer session.CloseResponseBody(resp)
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, m.Error(resp)
+	}
+
+	return &result, nil
 }
