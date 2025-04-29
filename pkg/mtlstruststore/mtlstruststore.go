@@ -46,10 +46,10 @@ type (
 		// See: https://techdocs.akamai.com/mtls-edge-truststore/reference/post-clone-ca-set-version
 		CloneCASetVersion(ctx context.Context, params CloneCASetVersionRequest) (*CloneCASetVersionResponse, error)
 
-		// GetCASetVersions lists all the available CA sets created under the account.
+		// ListCASetVersions lists all the available CA sets created under the account.
 		//
 		// See: https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-versions
-		GetCASetVersions(ctx context.Context, params GetCASetVersionsRequest) (*GetCASetVersionsResponse, error)
+		ListCASetVersions(ctx context.Context, params ListCASetVersionsRequest) (*ListCASetVersionsResponse, error)
 
 		// GetCASetVersion returns details of a CA sets version.
 		//
@@ -65,6 +65,31 @@ type (
 		//
 		// See: https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-version-certificates
 		GetCASetVersionCertificates(ctx context.Context, params GetCASetVersionCertificatesRequest) (*GetCASetVersionCertificatesResponse, error)
+
+		// ActivateCASetVersion activates a CA set version.
+		//
+		// See: https://techdocs.akamai.com/mtls-edge-truststore/reference/post-activate-ca-set-version
+		ActivateCASetVersion(ctx context.Context, params ActivateCASetVersionRequest) (*ActivateCASetVersionResponse, error)
+
+		// DeactivateCASetVersion deactivates a CA set version.
+		//
+		// See: https://techdocs.akamai.com/mtls-edge-truststore/reference/post-deactivate-ca-set-version
+		DeactivateCASetVersion(ctx context.Context, params DeactivateCASetVersionRequest) (*DeactivateCASetVersionResponse, error)
+
+		// GetCASetVersionActivation returns the status of a CA set version activation.
+		//
+		// See: https://techdocs.akamai.com/mtls-edge-truststore/reference/get-deployment-request-details
+		GetCASetVersionActivation(ctx context.Context, params GetCASetVersionActivationRequest) (*GetCASetVersionActivationResponse, error)
+
+		// ListCASetActivations returns a list of CA set activations for a given CA set.
+		//
+		// See: TODO
+		ListCASetActivations(ctx context.Context, params ListCASetActivationsRequest) (*ListCASetActivationsResponse, error)
+
+		// ListCASetVersionActivations returns a list of CA set version activations.
+		//
+		// See: https://techdocs.akamai.com/mtls-edge-truststore/reference/get-activations
+		ListCASetVersionActivations(ctx context.Context, params ListCASetVersionActivationsRequest) (*ListCASetVersionActivationsResponse, error)
 	}
 
 	mtlstruststore struct {

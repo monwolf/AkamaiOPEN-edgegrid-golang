@@ -511,7 +511,7 @@ func TestCreateCASetVersion(t *testing.T) {
             }
         }`,
 			withError: func(t *testing.T, err error) {
-				assert.True(t, errors.Is(err, ErrCaSetDeleteRequestInProgress))
+				assert.True(t, errors.Is(err, ErrCASetDeleteRequestInProgress))
 			},
 		},
 		"Error Response - Duplicate Version": {
@@ -805,7 +805,7 @@ func TestCloneCASetVersion(t *testing.T) {
             }
         }`,
 			withError: func(t *testing.T, err error) {
-				assert.True(t, errors.Is(err, ErrCaSetDeleteRequestInProgress))
+				assert.True(t, errors.Is(err, ErrCASetDeleteRequestInProgress))
 			},
 		},
 		//"[TODO: Warning in Response] Error Response - Clone CA set version with expired certs": {},
@@ -1477,7 +1477,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 						}
 					}`,
 			withError: func(t *testing.T, err error) {
-				assert.True(t, errors.Is(err, ErrCaSetDeleteRequestInProgress))
+				assert.True(t, errors.Is(err, ErrCASetDeleteRequestInProgress))
 			},
 		},
 		"Error Response - Version is being activated or deactivated on either network (STAGING or PRODUCTION)": {
@@ -1542,7 +1542,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 						}
 					}`,
 			withError: func(t *testing.T, err error) {
-				assert.True(t, errors.Is(err, ErrCaSetVersionIsActive))
+				assert.True(t, errors.Is(err, ErrCASetVersionIsActive))
 			},
 		},
 		"Error Response - CA set version is currently active (Production)": {
@@ -1607,7 +1607,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 			"type": "/mtls-edge-truststore/v2/error-types/ca-set-version-is-active"
 		}`,
 			withError: func(t *testing.T, err error) {
-				assert.True(t, errors.Is(err, ErrCaSetVersionIsActive))
+				assert.True(t, errors.Is(err, ErrCASetVersionIsActive))
 			},
 		},
 		"Error Response - CA set version is currently active (Staging)": {
@@ -1672,7 +1672,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 			}
 		}`,
 			withError: func(t *testing.T, err error) {
-				assert.True(t, errors.Is(err, ErrCaSetVersionIsActive))
+				assert.True(t, errors.Is(err, ErrCASetVersionIsActive))
 			},
 		},
 		"Error Response - CA set version was previously active": {
@@ -1737,7 +1737,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 			"type": "/mtls-edge-truststore/v2/error-types/ca-set-version-was-previously-active"
 		}`,
 			withError: func(t *testing.T, err error) {
-				assert.True(t, errors.Is(err, ErrCaSetVersionWasPreviouslyActive))
+				assert.True(t, errors.Is(err, ErrCASetVersionWasPreviouslyActive))
 			},
 		},
 		"Error Response - One or more certificates is invalid": {
@@ -1983,15 +1983,15 @@ func TestUpdateCASetVersion(t *testing.T) {
 
 func TestListCASetVersion(t *testing.T) {
 	tests := map[string]struct {
-		request          GetCASetVersionsRequest
+		request          ListCASetVersionsRequest
 		responseStatus   int
 		responseBody     string
 		expectedPath     string
-		expectedResponse *GetCASetVersionsResponse
+		expectedResponse *ListCASetVersionsResponse
 		withError        func(*testing.T, error)
 	}{
 		"200- Successfully Lists versions": {
-			request: GetCASetVersionsRequest{
+			request: ListCASetVersionsRequest{
 				CASetID: 123,
 			},
 			responseStatus: http.StatusOK,
@@ -2084,7 +2084,7 @@ func TestListCASetVersion(t *testing.T) {
 					  }
 				   ]
 				}`,
-			expectedResponse: &GetCASetVersionsResponse{
+			expectedResponse: &ListCASetVersionsResponse{
 				Versions: []CASetVersion{
 					{
 						CASetID:           1000,
@@ -2175,7 +2175,7 @@ func TestListCASetVersion(t *testing.T) {
 			},
 		},
 		"200- Successfully Lists versions with optional params": {
-			request: GetCASetVersionsRequest{
+			request: ListCASetVersionsRequest{
 				CASetID:             123,
 				IncludeCertificates: ptr.To(true),
 				ActiveVersionsOnly:  ptr.To(true),
@@ -2270,7 +2270,7 @@ func TestListCASetVersion(t *testing.T) {
 					  }
 				   ]
 				}`,
-			expectedResponse: &GetCASetVersionsResponse{
+			expectedResponse: &ListCASetVersionsResponse{
 				Versions: []CASetVersion{
 					{
 						CASetID:           1000,
@@ -2360,7 +2360,7 @@ func TestListCASetVersion(t *testing.T) {
 			},
 		},
 		"200- Successfully Lists versions with optional params 2": {
-			request: GetCASetVersionsRequest{
+			request: ListCASetVersionsRequest{
 				CASetID:             123,
 				IncludeCertificates: ptr.To(false),
 				ActiveVersionsOnly:  ptr.To(true),
@@ -2399,7 +2399,7 @@ func TestListCASetVersion(t *testing.T) {
 					  }
 				   ]
 				}`,
-			expectedResponse: &GetCASetVersionsResponse{
+			expectedResponse: &ListCASetVersionsResponse{
 				Versions: []CASetVersion{
 					{
 						CASetID:           1000,
@@ -2434,13 +2434,13 @@ func TestListCASetVersion(t *testing.T) {
 			},
 		},
 		"Validation error - missing CASetID": {
-			request: GetCASetVersionsRequest{},
+			request: ListCASetVersionsRequest{},
 			withError: func(t *testing.T, err error) {
 				assert.Equal(t, "fetching CA set versions: struct validation: CASetID: cannot be blank.", err.Error())
 			},
 		},
 		"Error Response - CA set is not found": {
-			request: GetCASetVersionsRequest{
+			request: ListCASetVersionsRequest{
 				CASetID: 123,
 			},
 			responseStatus: http.StatusNotFound,
@@ -2473,7 +2473,7 @@ func TestListCASetVersion(t *testing.T) {
 			defer mockServer.Close()
 
 			client := mockAPIClient(t, mockServer)
-			result, err := client.GetCASetVersions(context.Background(), test.request)
+			result, err := client.ListCASetVersions(context.Background(), test.request)
 
 			if test.withError != nil {
 				test.withError(t, err)

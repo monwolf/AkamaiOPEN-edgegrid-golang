@@ -20,6 +20,7 @@ type (
 	CreateCASetRequest struct {
 		// CASetName is a descriptive name for the set.
 		CASetName string `json:"caSetName"`
+
 		// Description is an optional description for the set.
 		Description string `json:"description"`
 	}
@@ -28,38 +29,54 @@ type (
 	CASetResponse struct {
 		// AccountID is the ID of the account under which this CA set was created.
 		AccountID string `json:"accountId"`
+
 		// CASetID is a unique identifier representing the CA set.
 		CASetID int64 `json:"caSetId"`
+
 		// CASetLink is the hypermedia link to the CA set.
 		CASetLink string `json:"caSetLink"`
+
 		// CASetName is the name of the CA set.
 		CASetName string `json:"caSetName"`
+
 		// CASetStatus is the status of the CA set - NOT_DELETED, DELETING, DELETED.
 		CASetStatus string `json:"caSetStatus"`
+
 		// Description is a description of the CA set.
 		Description string `json:"description"`
+
 		// LatestVersionLink is the hypermedia link for newly created / cloned version in a CA set.
 		LatestVersionLink *string `json:"latestVersionLink"`
+
 		// LatestVersion is the version number for newly created / cloned version in a CA set.
 		LatestVersion *int64 `json:"latestVersion"`
+
 		// StagingVersionLink is the hypermedia link for the version of the CA set that is active on staging.
 		// This field could be `nil` if no version of the CA set was activated on staging.
 		StagingVersionLink *string `json:"stagingVersionLink"`
+
 		// StagingVersion is the version number of the CA set that is active on staging.
 		StagingVersion *int64 `json:"stagingVersion"`
+
 		// ProductionVersionLink is the hypermedia link for the version of the CA set that is active on production.
 		// This field could be `nil` if no version of the set was activated on production.
 		ProductionVersionLink *string `json:"productionVersionLink"`
+
 		// ProductionVersion is the version number of the CA set that is active on production.
 		ProductionVersion *int64 `json:"productionVersion"`
+
 		// VersionsLink is the hypermedia link to the list of versions in the CA set.
 		VersionsLink string `json:"versionsLink"`
+
 		// CreatedDate is the date the set was created.
 		CreatedDate time.Time `json:"createdDate"`
+
 		// CreatedBy is the user who created the set.
 		CreatedBy string `json:"createdBy"`
+
 		// DeletedDate is the date the CA set was deleted if the CA set has been archived, `nil` otherwise.
 		DeletedDate *time.Time `json:"deletedDate"`
+
 		// DeletedBy is the user who deleted the CA set if the CA set has been deleted, `nil` otherwise.
 		DeletedBy *string `json:"deletedBy"`
 	}
@@ -74,6 +91,7 @@ type (
 	ListCASetsRequest struct {
 		// CASetName is the name prefix to filter out marching CA sets.
 		CASetName string
+
 		// ActivatedOn is the network type to filter out matching CA sets.
 		// A CA set is included in the response if any version of it is active on that network.
 		// The values that could be provided are `staging`, `production` or `staging,production`.

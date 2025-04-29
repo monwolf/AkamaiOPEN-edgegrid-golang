@@ -25,8 +25,10 @@ type (
 	CreateCASetVersionRequestBody struct {
 		// AllowInsecureSHA1 permits SHA-1 signed certificates if set to true. Defaults to false.
 		AllowInsecureSHA1 bool `json:"allowInsecureSha1"`
+
 		// Description is an optional description for the can set.
 		Description string `json:"description"`
+
 		// Certificates is a list of valid root or intermediate certificates. At least one is required.
 		Certificates []Certificate `json:"certificates"`
 	}
@@ -35,16 +37,19 @@ type (
 	CloneCASetVersionRequest struct {
 		// CASetID is a unique identifier representing the CA set.
 		CASetID int64 `json:"caSetId"`
+
 		// Version is the version number within the CA Set, starting at 1 and incrementing sequentially.
 		Version int64 `json:"version"`
 	}
 
-	// GetCASetVersionsRequest represents a request to retrieve a list of CA sets.
-	GetCASetVersionsRequest struct {
+	// ListCASetVersionsRequest represents a request to retrieve a list of CA sets.
+	ListCASetVersionsRequest struct {
 		// CASetID is a unique identifier representing the CA set.
 		CASetID int64
+
 		// IncludeCertificates includes certificates in the response if true. Defaults to false. Optional.
 		IncludeCertificates *bool
+
 		// ActiveVersionsOnly includes only staging or production active versions if true. Defaults to false. Optional.
 		ActiveVersionsOnly *bool
 	}
@@ -53,6 +58,7 @@ type (
 	GetCASetVersionRequest struct {
 		// CASetID is a unique identifier representing the CA set.
 		CASetID int64 `json:"caSetId"`
+
 		// Version is the version number within the CA Set, starting at 1 and incrementing sequentially.
 		Version int64 `json:"version"`
 	}
@@ -68,26 +74,37 @@ type (
 	UpdateCASetVersionRequestBody struct {
 		// Version is the version number within the CA Set, starting at 1 and incrementing sequentially.
 		Version int64 `json:"version"`
+
 		// CASetName is a descriptive name for the set.
 		CASetName string `json:"caSetName"`
+
 		// VersionLink is the hypermedia link to the version resource.
 		VersionLink string `json:"versionLink"`
+
 		// Description is an optional description for the ca set.
 		Description string `json:"description"`
+
 		// AllowInsecureSHA1 indicates whether SHA-1 certificates are allowed.
 		AllowInsecureSHA1 bool `json:"allowInsecureSha1"`
+
 		// StagingStatus is "INACTIVE" initially, changes to "ACTIVE" when active on staging.
 		StagingStatus VersionStatus `json:"stagingStatus"`
+
 		// ProductionStatus is "INACTIVE" initially, changes to "ACTIVE" when active on production.
 		ProductionStatus VersionStatus `json:"productionStatus"`
+
 		// CreatedDate is the creation timestamp in ISO-8601 format.
 		CreatedDate string `json:"createdDate"`
+
 		// CreatedBy is the user who created the version.
 		CreatedBy string `json:"createdBy"`
+
 		// ModifiedDate is the last update timestamp in ISO-8601 format or null for new versions.
 		ModifiedDate string `json:"modifiedDate"`
+
 		// ModifiedBy is the user who last updated the version or null for new versions.
 		ModifiedBy string `json:"modifiedBy"`
+
 		// Certificates is a list of root or intermediate certificates in the version.
 		Certificates []Certificate `json:"certificates"`
 	}
@@ -96,10 +113,13 @@ type (
 	GetCASetVersionCertificatesRequest struct {
 		// CASetID is a unique identifier representing the CA set.
 		CASetID int64 `json:"caSetId"`
+
 		// Version is the version number within the CA Set, starting at 1 and incrementing sequentially.
 		Version int64 `json:"version"`
+
 		// CertificateStatus filters by "EXPIRING", "EXPIRED", or both (comma-separated). Required if expiryThresholdInDays is set. Optional.
 		CertificateStatus *CertificateStatus
+
 		// ExpiryThresholdInDays filters certificates expiring within or expired in past N days. Defaults to 30 if not set. Optional.
 		ExpiryThresholdInDays *int
 	}
@@ -108,24 +128,34 @@ type (
 	Certificate struct {
 		// Subject of the certificate.
 		Subject string `json:"subject"`
+
 		// Issuer of the certificate.
 		Issuer string `json:"issuer"`
+
 		// EndDate is the ISO-8601 date after which the certificate is not valid.
 		EndDate string `json:"endDate"`
+
 		// StartDate is the ISO-8601 date before which the certificate is not valid.
 		StartDate string `json:"startDate"`
+
 		// Fingerprint is the unique SHA-256 fingerprint of the certificate.
 		Fingerprint string `json:"fingerprint"`
+
 		// CertificatePEM is the PEM-encoded representation of the certificate. Required.
 		CertificatePEM string `json:"certificatePem"`
+
 		// SerialNumber is the unique serial number of the certificate.
 		SerialNumber string `json:"serialNumber"`
+
 		// SignatureAlgorithm used to sign the certificate, e.g., SHA256WITHRSA.
 		SignatureAlgorithm string `json:"signatureAlgorithm"`
+
 		// CreatedDate is the ISO-8601 date the certificate was created.
 		CreatedDate string `json:"createdDate"`
+
 		// CreatedBy is the user who created the certificate.
 		CreatedBy string `json:"createdBy"`
+
 		// Description is an optional description of the certificate.
 		Description string `json:"description,omitempty"`
 	}
@@ -142,8 +172,8 @@ type (
 	// UpdateCASetVersionResponse represents the response returned after updating an existing CA Set version.
 	UpdateCASetVersionResponse CASetVersion
 
-	// GetCASetVersionsResponse represents the response containing a list of CA Set versions.
-	GetCASetVersionsResponse struct {
+	// ListCASetVersionsResponse represents the response containing a list of CA Set versions.
+	ListCASetVersionsResponse struct {
 		Versions []CASetVersion `json:"versions"`
 	}
 
@@ -151,10 +181,13 @@ type (
 	GetCASetVersionCertificatesResponse struct {
 		// CASetID is a unique identifier representing the CA set.
 		CASetID int64 `json:"caSetId"`
+
 		// Version is the version number within the CA Set, starting at 1 and incrementing sequentially.
 		Version int64 `json:"version"`
+
 		// CASetName is a descriptive name for the set.
 		CASetName string `json:"caSetName"`
+
 		// Certificates is a list of valid root or intermediate certificates. At least one is required.
 		Certificates []Certificate `json:"certificates"`
 	}
@@ -163,28 +196,40 @@ type (
 	CASetVersion struct {
 		// CASetID is a unique identifier representing the CA set.
 		CASetID int64 `json:"caSetId"`
+
 		// Version is the version number within the CA Set, starting at 1 and incrementing sequentially.
 		Version int64 `json:"version"`
+
 		// CASetName is a descriptive name for the set.
 		CASetName string `json:"caSetName"`
+
 		// VersionLink is the hypermedia link to the version resource.
 		VersionLink string `json:"versionLink"`
+
 		// Description is an optional description for the version.
 		Description string `json:"description"`
+
 		// AllowInsecureSha1 indicates whether SHA-1 certificates are allowed.
 		AllowInsecureSha1 bool `json:"allowInsecureSha1"`
+
 		// StagingStatus is "INACTIVE" initially, changes to "ACTIVE" when active on staging.
 		StagingStatus string `json:"stagingStatus"`
+
 		// ProductionStatus is "INACTIVE" initially, changes to "ACTIVE" when active on production.
 		ProductionStatus string `json:"productionStatus"`
+
 		// CreatedDate is the creation timestamp in ISO-8601 format.
 		CreatedDate string `json:"createdDate"`
+
 		// CreatedBy is the user who created the version.
 		CreatedBy string `json:"createdBy"`
+
 		// ModifiedDate is the last update timestamp in ISO-8601 format or null for new versions.
 		ModifiedDate string `json:"modifiedDate"`
+
 		// ModifiedBy is the user who last updated the version or null for new versions.
 		ModifiedBy string `json:"modifiedBy"`
+
 		// Certificates is a list of valid root or intermediate certificates. At least one is required.
 		Certificates []Certificate `json:"certificates"`
 	}
@@ -197,8 +242,8 @@ var (
 	ErrCloneCASetVersion = errors.New("cloning a CA set version")
 	// ErrGetCASetVersion represents error when fetching a CA set version fails.
 	ErrGetCASetVersion = errors.New("fetching a CA set version")
-	// ErrGetCASetVersions represents error when fetching CA set versions fails.
-	ErrGetCASetVersions = errors.New("fetching CA set versions")
+	// ErrListCASetVersions represents error when fetching CA set versions fails.
+	ErrListCASetVersions = errors.New("fetching CA set versions")
 	// ErrGetCASetVersionCertificates represents error when fetching certificates for a CA set version fails.
 	ErrGetCASetVersionCertificates = errors.New("fetching certificates for a CA set version")
 	// ErrUpdateCASetVersion represents error when updating a CA set version fails.
@@ -401,15 +446,15 @@ func (m *mtlstruststore) GetCASetVersion(ctx context.Context, params GetCASetVer
 	return &result, nil
 }
 
-func (m *mtlstruststore) GetCASetVersions(ctx context.Context, params GetCASetVersionsRequest) (*GetCASetVersionsResponse, error) {
+func (m *mtlstruststore) ListCASetVersions(ctx context.Context, params ListCASetVersionsRequest) (*ListCASetVersionsResponse, error) {
 	logger := m.Log(ctx)
-	logger.Debug("GetCASetVersions")
+	logger.Debug("ListCASetVersions")
 
 	err := validation.ValidateStruct(&params,
 		validation.Field(&params.CASetID, validation.Required),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w: %s", ErrGetCASetVersions, ErrStructValidation, err)
+		return nil, fmt.Errorf("%s: %w: %s", ErrListCASetVersions, ErrStructValidation, err)
 	}
 
 	query := url.Values{}
@@ -427,18 +472,18 @@ func (m *mtlstruststore) GetCASetVersions(ctx context.Context, params GetCASetVe
 		query.Encode()),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrGetCASetVersions, err)
+		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrListCASetVersions, err)
 	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri.String(), nil)
 	if err != nil {
-		return nil, fmt.Errorf("%w: failed to create request: %s", ErrGetCASetVersions, err)
+		return nil, fmt.Errorf("%w: failed to create request: %s", ErrListCASetVersions, err)
 	}
 
-	var result GetCASetVersionsResponse
+	var result ListCASetVersionsResponse
 	resp, err := m.Exec(req, &result)
 	if err != nil {
-		return nil, fmt.Errorf("%w: request failed: %s", ErrGetCASetVersions, err)
+		return nil, fmt.Errorf("%w: request failed: %s", ErrListCASetVersions, err)
 	}
 	defer session.CloseResponseBody(resp)
 

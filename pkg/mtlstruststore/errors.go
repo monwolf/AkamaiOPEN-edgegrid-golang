@@ -29,46 +29,59 @@ type (
 	}
 )
 
-const caSetNotFoundType = "/mtls-edge-truststore/v2/error-types/ca-set-not-found"
-const caSetDeleteRequestInProgress = "/mtls-edge-truststore/v2/error-types/delete-ca-set-request-in-progress"
-const caSetVersionDuplicate = "/mtls-edge-truststore/v2/error-types/duplicate-ca-set-version"
-const caSetVersionNotFoundType = "/mtls-edge-truststore/v2/error-types/ca-set-version-not-found"
-const caSetVersionLimitReached = "/mtls-edge-truststore/v2/error-types/ca-set-version-limit-reached"
-const caSetVersionIsActive = "/mtls-edge-truststore/v2/error-types/ca-set-version-is-active"
-const caSetVersionWasPreviouslyActive = "/mtls-edge-truststore/v2/error-types/ca-set-version-was-previously-active"
-const certificateValidationFailedForCreate = "/mtls-edge-truststore/v2/error-types/certificate-validation-failure-create"
-const certificateValidationFailedForUpdate = "/mtls-edge-truststore/v2/error-types/certificate-validation-failure-update"
-const certificateLimitReached = "/mtls-edge-truststore/v2/error-types/certificate-limit-reached"
+const (
+	caSetNotFoundType                    = "/mtls-edge-truststore/v2/error-types/ca-set-not-found"
+	caSetActivationNotFoundType          = "/mtls-edge-truststore/v2/error-types/activation-or-deactivation-request-not-found"
+	caSetDeleteRequestInProgress         = "/mtls-edge-truststore/v2/error-types/delete-ca-set-request-in-progress"
+	caSetVersionDuplicate                = "/mtls-edge-truststore/v2/error-types/duplicate-ca-set-version"
+	caSetVersionNotFoundType             = "/mtls-edge-truststore/v2/error-types/ca-set-version-not-found"
+	caSetVersionLimitReached             = "/mtls-edge-truststore/v2/error-types/ca-set-version-limit-reached"
+	caSetVersionIsActive                 = "/mtls-edge-truststore/v2/error-types/ca-set-version-is-active"
+	caSetVersionWasPreviouslyActive      = "/mtls-edge-truststore/v2/error-types/ca-set-version-was-previously-active"
+	certificateValidationFailedForCreate = "/mtls-edge-truststore/v2/error-types/certificate-validation-failure-create"
+	certificateValidationFailedForUpdate = "/mtls-edge-truststore/v2/error-types/certificate-validation-failure-update"
+	certificateLimitReached              = "/mtls-edge-truststore/v2/error-types/certificate-limit-reached"
+	caSetBoundToSlotInCPS                = "/mtls-edge-truststore/v2/error-types/ca-set-bound-to-slot-in-cps"
+	caSetBoundToHostname                 = "/mtls-edge-truststore/v2/error-types/ca-set-bound-to-hostname"
+	anotherActivationInProgress          = "/mtls-edge-truststore/v2/error-types/another-activation-request-in-progress-in-the-ca-set"
+	anotherDeactivationInProgress        = "/mtls-edge-truststore/v2/error-types/another-deactivation-request-in-progress-in-the-ca-set"
+	caSetVersionNotActiveOnNetwork       = "/mtls-edge-truststore/v2/error-types/ca-set-version-not-active-on-network"
+)
 
-// ErrGetCASetNotFound is returned when the CA set was not found.
-var ErrGetCASetNotFound = errors.New("ca set not found")
-
-// ErrGetCASetVersionNotFound is returned when the CA set was not found.
-var ErrGetCASetVersionNotFound = errors.New("ca set version not found")
-
-// ErrCaSetDeleteRequestInProgress is returned when the CA set deletion request is in progress.
-var ErrCaSetDeleteRequestInProgress = errors.New("delete ca set request in progress")
-
-// ErrCaSetVersionIsActive is returned when the CA set Version is active on one or more networks.
-var ErrCaSetVersionIsActive = errors.New("ca set version is currently active")
-
-// ErrCaSetVersionWasPreviouslyActive is returned when the CA set Version was previously active on one or more networks.
-var ErrCaSetVersionWasPreviouslyActive = errors.New("ca set version was previously active")
-
-// ErrCertificateValidationFailedForCreate is returned during Create of the CA set Version if one or more certificates is invalid.
-var ErrCertificateValidationFailedForCreate = errors.New("one or more certificates is invalid")
-
-// ErrCertificateValidationFailedForUpdate is returned during Update of the CA set Version if one or more certificates is invalid.
-var ErrCertificateValidationFailedForUpdate = errors.New("one or more certificates is invalid")
-
-// ErrCertificateLimitReached is returned when the count of certificates submitted in the request body exceeds the limit allowed for the Version.
-var ErrCertificateLimitReached = errors.New("submitted certificates exceed the maximum allowed certificates limit")
-
-// ErrCaSetVersionLimitReached is returned when the number of ca set versions has reached the limit.
-var ErrCaSetVersionLimitReached = errors.New("maximum allowed ca set version's limit has been reached")
-
-// ErrCaSetVersionIsDuplicate is returned when a version with same certificates exists in the ca set.
-var ErrCaSetVersionIsDuplicate = errors.New("a version with same certificates exists in the ca set")
+var (
+	// ErrGetCASetNotFound is returned when the CA set was not found.
+	ErrGetCASetNotFound = errors.New("ca set not found")
+	// ErrGetCASetVersionNotFound is returned when the CA set was not found.
+	ErrGetCASetVersionNotFound = errors.New("ca set version not found")
+	// ErrGetCASetActivationNotFound is returned when the CA set activation was not found.
+	ErrGetCASetActivationNotFound = errors.New("ca set activation not found")
+	// ErrCASetDeleteRequestInProgress is returned when the CA set deletion request is in progress.
+	ErrCASetDeleteRequestInProgress = errors.New("delete ca set request in progress")
+	// ErrCASetVersionIsActive is returned when the CA set version is active on one or more networks.
+	ErrCASetVersionIsActive = errors.New("ca set version is currently active")
+	// ErrCASetVersionWasPreviouslyActive is returned when the CA set version was previously active on one or more networks.
+	ErrCASetVersionWasPreviouslyActive = errors.New("ca set version was previously active")
+	// ErrCertificateValidationFailedForCreate is returned during Create of the CA set Version if one or more certificates is invalid.
+	ErrCertificateValidationFailedForCreate = errors.New("one or more certificates is invalid")
+	// ErrCertificateValidationFailedForUpdate is returned during Update of the CA set Version if one or more certificates is invalid.
+	ErrCertificateValidationFailedForUpdate = errors.New("one or more certificates is invalid")
+	// ErrCertificateLimitReached is returned when the count of certificates submitted in the request body exceeds the limit allowed for the Version.
+	ErrCertificateLimitReached = errors.New("submitted certificates exceed the maximum allowed certificates limit")
+	// ErrCaSetVersionLimitReached is returned when the number of ca set versions has reached the limit.
+	ErrCaSetVersionLimitReached = errors.New("maximum allowed ca set version's limit has been reached")
+	// ErrCaSetVersionIsDuplicate is returned when a version with same certificates exists in the ca set.
+	ErrCaSetVersionIsDuplicate = errors.New("a version with same certificates exists in the ca set")
+	// ErrCASetBoundToSlotInCPS is returned when the CA set is bound to a slot in CPS.
+	ErrCASetBoundToSlotInCPS = errors.New("ca set bound to slot in CPS")
+	// ErrCASetBoundToHostname is returned when the CA set is bound to a hostname.
+	ErrCASetBoundToHostname = errors.New("ca set bound to hostname")
+	// ErrAnotherActivationInProgress is returned when another activation request is in progress for the CA set.
+	ErrAnotherActivationInProgress = errors.New("another activation request in progress in the ca set")
+	// ErrAnotherDeactivationInProgress is returned when another deactivation request is in progress in the CA set.
+	ErrAnotherDeactivationInProgress = errors.New("another deactivation request in progress in the ca set")
+	// ErrCASetVersionNotActiveOnNetwork is returned when the CA set version is not active on the network.
+	ErrCASetVersionNotActiveOnNetwork = errors.New("ca set version not active on network")
+)
 
 // Error parses an error from the response.
 func (m *mtlstruststore) Error(r *http.Response) error {
@@ -104,6 +117,8 @@ func (e *Error) Error() string {
 }
 
 // Is handles error comparisons.
+//
+//nolint:gocyclo
 func (e *Error) Is(target error) bool {
 	if errors.Is(target, ErrGetCASetNotFound) {
 		return e.Status == http.StatusNotFound && e.Type == caSetNotFoundType
@@ -113,15 +128,23 @@ func (e *Error) Is(target error) bool {
 		return e.Status == http.StatusNotFound && e.Type == caSetVersionNotFoundType
 	}
 
-	if errors.Is(target, ErrCaSetDeleteRequestInProgress) {
+	if errors.Is(target, ErrGetCASetActivationNotFound) {
+		return e.Status == http.StatusNotFound && e.Type == caSetActivationNotFoundType
+	}
+
+	if errors.Is(target, ErrGetCASetVersionNotFound) {
+		return e.Status == http.StatusNotFound && e.Type == caSetVersionNotFoundType
+	}
+
+	if errors.Is(target, ErrCASetDeleteRequestInProgress) {
 		return e.Status == http.StatusConflict && e.Type == caSetDeleteRequestInProgress
 	}
 
-	if errors.Is(target, ErrCaSetVersionIsActive) {
+	if errors.Is(target, ErrCASetVersionIsActive) {
 		return e.Status == http.StatusUnprocessableEntity && e.Type == caSetVersionIsActive
 	}
 
-	if errors.Is(target, ErrCaSetVersionWasPreviouslyActive) {
+	if errors.Is(target, ErrCASetVersionWasPreviouslyActive) {
 		return e.Status == http.StatusUnprocessableEntity && e.Type == caSetVersionWasPreviouslyActive
 	}
 
@@ -143,6 +166,26 @@ func (e *Error) Is(target error) bool {
 
 	if errors.Is(target, ErrCaSetVersionIsDuplicate) {
 		return e.Status == http.StatusUnprocessableEntity && e.Type == caSetVersionDuplicate
+	}
+
+	if errors.Is(target, ErrCASetBoundToSlotInCPS) {
+		return e.Status == http.StatusConflict && e.Type == caSetBoundToSlotInCPS
+	}
+
+	if errors.Is(target, ErrCASetBoundToHostname) {
+		return e.Status == http.StatusConflict && e.Type == caSetBoundToHostname
+	}
+
+	if errors.Is(target, ErrAnotherActivationInProgress) {
+		return e.Status == http.StatusConflict && e.Type == anotherActivationInProgress
+	}
+
+	if errors.Is(target, ErrAnotherDeactivationInProgress) {
+		return e.Status == http.StatusConflict && e.Type == anotherDeactivationInProgress
+	}
+
+	if errors.Is(target, ErrCASetVersionNotActiveOnNetwork) {
+		return e.Status == http.StatusConflict && e.Type == caSetVersionNotActiveOnNetwork
 	}
 
 	var t *Error

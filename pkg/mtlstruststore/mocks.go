@@ -90,14 +90,14 @@ func (m *Mock) GetCASetVersion(ctx context.Context, params GetCASetVersionReques
 	return args.Get(0).(*GetCASetVersionResponse), args.Error(1)
 }
 
-func (m *Mock) GetCASetVersions(ctx context.Context, params GetCASetVersionsRequest) (*GetCASetVersionsResponse, error) {
+func (m *Mock) ListCASetVersions(ctx context.Context, params ListCASetVersionsRequest) (*ListCASetVersionsResponse, error) {
 	args := m.Called(ctx, params)
 
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
 
-	return args.Get(0).(*GetCASetVersionsResponse), args.Error(1)
+	return args.Get(0).(*ListCASetVersionsResponse), args.Error(1)
 }
 
 func (m *Mock) GetCASetVersionCertificates(ctx context.Context, params GetCASetVersionCertificatesRequest) (*GetCASetVersionCertificatesResponse, error) {
@@ -108,4 +108,54 @@ func (m *Mock) GetCASetVersionCertificates(ctx context.Context, params GetCASetV
 	}
 
 	return args.Get(0).(*GetCASetVersionCertificatesResponse), args.Error(1)
+}
+
+func (m *Mock) ActivateCASetVersion(ctx context.Context, params ActivateCASetVersionRequest) (*ActivateCASetVersionResponse, error) {
+	args := m.Called(ctx, params)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*ActivateCASetVersionResponse), args.Error(1)
+}
+
+func (m *Mock) DeactivateCASetVersion(ctx context.Context, params DeactivateCASetVersionRequest) (*DeactivateCASetVersionResponse, error) {
+	args := m.Called(ctx, params)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*DeactivateCASetVersionResponse), args.Error(1)
+}
+
+func (m *Mock) GetCASetVersionActivation(ctx context.Context, params GetCASetVersionActivationRequest) (*GetCASetVersionActivationResponse, error) {
+	args := m.Called(ctx, params)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*GetCASetVersionActivationResponse), args.Error(1)
+}
+
+func (m *Mock) ListCASetActivations(ctx context.Context, params ListCASetActivationsRequest) (*ListCASetActivationsResponse, error) {
+	args := m.Called(ctx, params)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*ListCASetActivationsResponse), args.Error(1)
+}
+
+func (m *Mock) ListCASetVersionActivations(ctx context.Context, params ListCASetVersionActivationsRequest) (*ListCASetVersionActivationsResponse, error) {
+	args := m.Called(ctx, params)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*ListCASetVersionActivationsResponse), args.Error(1)
 }
