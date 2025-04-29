@@ -90,8 +90,8 @@ type (
 
 	// ListCASetsRequest holds request body for ListCASets.
 	ListCASetsRequest struct {
-		// CASetName is the name prefix to filter out marching CA sets.
-		CASetName string
+		// CASetNamePrefix is the name prefix to filter out marching CA sets.
+		CASetNamePrefix string
 
 		// ActivatedOn is the network type to filter out matching CA sets.
 		// A CA set is included in the response if any version of it is active on that network.
@@ -381,8 +381,8 @@ func (r GetCASetRequest) Validate() error {
 // Validate validates ListCASetsRequest.
 func (r ListCASetsRequest) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
-		"CASetName": validation.Validate(r.CASetName,
-			validation.Length(3, 64),
+		"CASetNamePrefix": validation.Validate(r.CASetNamePrefix,
+			validation.Length(0, 64),
 			validation.Match(caSetNameRegex).Error("allowed characters are alphanumerics (a-z, A-Z, 0-9), underscore (_), hyphen (-), percent (%) and period (.)"),
 			validateCASetName()),
 		"ActivatedOn": validation.Validate(r.ActivatedOn, r.ActivatedOn.Validate()),
@@ -406,7 +406,7 @@ func (n Network) Validate() validation.InRule {
 func validateCASetName() validation.StringRule {
 	return validation.NewStringRule(func(s string) bool {
 		return !strings.Contains(s, "...")
-	}, "CA Set name cannot contain three consecutive periods (...)")
+	}, "cannot contain three consecutive periods (...)")
 }
 
 // Validate validates ListCASetAssociationsRequest.
@@ -522,8 +522,8 @@ func (m *mtlstruststore) ListCASets(ctx context.Context, params ListCASetsReques
 		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrListCASets, err)
 	}
 	q := uri.Query()
-	if params.CASetName != "" {
-		q.Add("caSetName", params.CASetName)
+	if params.CASetNamePrefix != "" {
+		q.Add("caSetNamePrefix", params.CASetNamePrefix)
 	}
 	if params.ActivatedOn != "" {
 		q.Add("activatedOn", string(params.ActivatedOn))

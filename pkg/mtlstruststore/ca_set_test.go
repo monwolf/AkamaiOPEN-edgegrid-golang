@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v10/internal/test"
@@ -101,7 +102,7 @@ func TestCreateCASet(t *testing.T) {
 				CASetName: "AAA...A",
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "create ca set failed: struct validation: CASetName: CA Set name cannot contain three consecutive periods (...)", err.Error())
+				assert.Equal(t, "create ca set failed: struct validation: CASetName: cannot contain three consecutive periods (...)", err.Error())
 			},
 		},
 		"500 internal server error": {
@@ -425,10 +426,10 @@ func TestListCASet(t *testing.T) {
 		},
 		"200 OK with filtering and empty response": {
 			request: ListCASetsRequest{
-				CASetName:   "foo",
-				ActivatedOn: "production",
+				CASetNamePrefix: "foo",
+				ActivatedOn:     "production",
 			},
-			expectedPath:   "/mtls-edge-truststore/v2/ca-sets?activatedOn=production&caSetName=foo",
+			expectedPath:   "/mtls-edge-truststore/v2/ca-sets?activatedOn=production&caSetNamePrefix=foo",
 			responseStatus: http.StatusOK,
 			responseBody: `{
 				"caSets": []
@@ -439,10 +440,10 @@ func TestListCASet(t *testing.T) {
 		},
 		"200 OK with filtering with non lower case value and an empty response": {
 			request: ListCASetsRequest{
-				CASetName:   "foo",
-				ActivatedOn: "PRODUCTION",
+				CASetNamePrefix: "foo",
+				ActivatedOn:     "PRODUCTION",
 			},
-			expectedPath:   "/mtls-edge-truststore/v2/ca-sets?activatedOn=production&caSetName=foo",
+			expectedPath:   "/mtls-edge-truststore/v2/ca-sets?activatedOn=production&caSetNamePrefix=foo",
 			responseStatus: http.StatusOK,
 			responseBody: `{
 				"caSets": []
@@ -472,28 +473,28 @@ func TestListCASet(t *testing.T) {
 				assert.Equal(t, "list ca sets failed: struct validation: ActivatedOn: value 'prod' is invalid. Must be one of: 'staging', 'production' or 'staging+production'", err.Error())
 			},
 		},
-		"name too short - validation error": {
+		"name prefix too long - validation error": {
 			request: ListCASetsRequest{
-				CASetName: "a",
+				CASetNamePrefix: strings.Repeat("PrefixTooLong", 5),
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "list ca sets failed: struct validation: CASetName: the length must be between 3 and 64", err.Error())
+				assert.Equal(t, "list ca sets failed: struct validation: CASetNamePrefix: the length must be no more than 64", err.Error())
 			},
 		},
-		"invalid name - validation error": {
+		"invalid name prefix - validation error": {
 			request: ListCASetsRequest{
-				CASetName: "###A",
+				CASetNamePrefix: "###A",
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "list ca sets failed: struct validation: CASetName: allowed characters are alphanumerics (a-z, A-Z, 0-9), underscore (_), hyphen (-), percent (%) and period (.)", err.Error())
+				assert.Equal(t, "list ca sets failed: struct validation: CASetNamePrefix: allowed characters are alphanumerics (a-z, A-Z, 0-9), underscore (_), hyphen (-), percent (%) and period (.)", err.Error())
 			},
 		},
-		"invalid name with ... - validation error": {
+		"invalid name prefix with ... - validation error": {
 			request: ListCASetsRequest{
-				CASetName: "AAA...A",
+				CASetNamePrefix: "AAA...A",
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "list ca sets failed: struct validation: CASetName: CA Set name cannot contain three consecutive periods (...)", err.Error())
+				assert.Equal(t, "list ca sets failed: struct validation: CASetNamePrefix: cannot contain three consecutive periods (...)", err.Error())
 			},
 		},
 		"500 internal server error": {
@@ -964,7 +965,7 @@ func TestCloneCASet(t *testing.T) {
 				NewCASetName:   "abc...cba",
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "clone ca set failed: struct validation: NewCASetName: CA Set name cannot contain three consecutive periods (...)", err.Error())
+				assert.Equal(t, "clone ca set failed: struct validation: NewCASetName: cannot contain three consecutive periods (...)", err.Error())
 			},
 		},
 		"400 ca set does not have any version": {
