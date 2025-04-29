@@ -506,6 +506,14 @@ func (m *mtlstruststore) GetCASetVersionCertificates(ctx context.Context, params
 		return nil, fmt.Errorf("certificateStatus must be provided when expiryThresholdInDays is set")
 	}
 
+	uri, err := url.Parse(fmt.Sprintf(
+		"/mtls-edge-truststore/v2/ca-sets/%d/versions/%d/certificates",
+		params.CASetID,
+		params.Version))
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrGetCASetVersionCertificates, err)
+	}
+
 	query := url.Values{}
 	if params.CertificateStatus != nil {
 		query.Set("certificateStatus", string(*params.CertificateStatus))
@@ -515,15 +523,7 @@ func (m *mtlstruststore) GetCASetVersionCertificates(ctx context.Context, params
 		query.Set("expiryThresholdInDays", strconv.Itoa(*params.ExpiryThresholdInDays))
 	}
 
-	uri, err := url.Parse(fmt.Sprintf(
-		"/mtls-edge-truststore/v2/ca-sets/%d/versions/%d/certificates?%s",
-		params.CASetID,
-		params.Version,
-		query.Encode()),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrGetCASetVersionCertificates, err)
-	}
+	uri.RawQuery = query.Encode()
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri.String(), nil)
 	if err != nil {

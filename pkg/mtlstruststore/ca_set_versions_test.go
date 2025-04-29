@@ -23,7 +23,7 @@ func TestCreateCASetVersion(t *testing.T) {
 		expectedResponse    *CreateCASetVersionResponse
 		withError           func(*testing.T, error)
 	}{
-		"201- Successful creation": {
+		"201 Successful creation": {
 			request: CreateCASetVersionRequest{
 				CASetID: 123,
 				Body: CreateCASetVersionRequestBody{
@@ -667,7 +667,7 @@ func TestCloneCASetVersion(t *testing.T) {
 		expectedResponse *CloneCASetVersionResponse
 		withError        func(*testing.T, error)
 	}{
-		"201- Successful creation": {
+		"201 Successful creation": {
 			request: CloneCASetVersionRequest{
 				CASetID: 123,
 				Version: 1,
@@ -893,7 +893,7 @@ func TestGetCASetVersion(t *testing.T) {
 		expectedResponse *GetCASetVersionResponse
 		withError        func(*testing.T, error)
 	}{
-		"200- Successful get version": {
+		"200 Successful get version": {
 			request: GetCASetVersionRequest{
 				CASetID: 123,
 				Version: 1,
@@ -1044,7 +1044,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 		expectedResponse    *UpdateCASetVersionResponse
 		withError           func(*testing.T, error)
 	}{
-		"200- Successful update": {
+		"200 Successful update": {
 			request: UpdateCASetVersionRequest{
 				CASetID: 123,
 				Body: UpdateCASetVersionRequestBody{
@@ -1990,7 +1990,7 @@ func TestListCASetVersion(t *testing.T) {
 		expectedResponse *ListCASetVersionsResponse
 		withError        func(*testing.T, error)
 	}{
-		"200- Successfully Lists versions": {
+		"200 Successfully Lists versions": {
 			request: ListCASetVersionsRequest{
 				CASetID: 123,
 			},
@@ -2174,7 +2174,7 @@ func TestListCASetVersion(t *testing.T) {
 				},
 			},
 		},
-		"200- Successfully Lists versions with optional params": {
+		"200 Successfully Lists versions with optional params": {
 			request: ListCASetVersionsRequest{
 				CASetID:             123,
 				IncludeCertificates: ptr.To(true),
@@ -2359,7 +2359,7 @@ func TestListCASetVersion(t *testing.T) {
 				},
 			},
 		},
-		"200- Successfully Lists versions with optional params 2": {
+		"200 Successfully Lists versions with optional params 2": {
 			request: ListCASetVersionsRequest{
 				CASetID:             123,
 				IncludeCertificates: ptr.To(false),
@@ -2495,13 +2495,89 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 		expectedResponse *GetCASetVersionCertificatesResponse
 		withError        func(*testing.T, error)
 	}{
-		"200- Successful get certificates of a version": {
+		"200 Successful get certificates of a version": {
 			request: GetCASetVersionCertificatesRequest{
 				CASetID: 123,
 				Version: 1,
 			},
 			responseStatus: http.StatusOK,
-			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions/1/certificates?",
+			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions/1/certificates",
+			responseBody: `{
+				  "caSetId" : 1,
+				  "caSetName": "test1",
+				  "version": 1,
+				  "certificates": [
+					{
+					  "subject": "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate.tcm-11-example.com",
+					  "issuer": "C=US,ST=MA,L=Cambridge,O=Akamai,CN=tcm-13-example.com",
+					  "endDate": "2020-04-07T17:33:39Z",
+					  "startDate": "2019-04-08T17:33:39Z",
+					  "fingerprint": "1E:DD:AD:32:C3:54:3F:C3:6F:7F:94:51:8D:5E:F7:ED:7C:DB:5D:A5",
+					  "certificatePem": "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
+					  "serialNumber": "11612024106234272000",
+					  "signatureAlgorithm": "SHA256WITHRSA",
+					  "createdDate": "2020-04-07T17:33:39Z",
+					  "description": "Optional description for the certificate",
+					  "createdBy": "jsmith2"
+					},
+					{
+					  "subject": "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate1.tcm-11-example.com",
+					  "issuer": "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate.tcm-11-example.com",
+					  "endDate": "2020-04-07T17:43:58Z",
+					  "startDate": "2019-04-08T17:43:58Z",
+					  "fingerprint": "1F:DD:AD:32:C3:54:3F:C3:6F:7F:04:51:8D:5E:F7:ED:7C:DB:5D:A5",
+					  "certificatePem": "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
+					  "serialNumber": "11612024106234272000",
+					  "signatureAlgorithm": "SHA256WITHRSA",
+					  "createdDate": "2020-04-07T17:33:39Z",
+					  "description": "Optional description for the certificate",
+					  "createdBy": "jsmith2"
+					}
+				]
+			}`,
+			expectedResponse: &GetCASetVersionCertificatesResponse{
+				CASetID:   1,
+				Version:   1,
+				CASetName: "test1",
+				Certificates: []Certificate{
+					{
+						Subject:            "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate.tcm-11-example.com",
+						Issuer:             "C=US,ST=MA,L=Cambridge,O=Akamai,CN=tcm-13-example.com",
+						EndDate:            "2020-04-07T17:33:39Z",
+						StartDate:          "2019-04-08T17:33:39Z",
+						Fingerprint:        "1E:DD:AD:32:C3:54:3F:C3:6F:7F:94:51:8D:5E:F7:ED:7C:DB:5D:A5",
+						CertificatePEM:     "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
+						SerialNumber:       "11612024106234272000",
+						SignatureAlgorithm: "SHA256WITHRSA",
+						CreatedDate:        "2020-04-07T17:33:39Z",
+						Description:        "Optional description for the certificate",
+						CreatedBy:          "jsmith2",
+					},
+					{
+						Subject:            "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate1.tcm-11-example.com",
+						Issuer:             "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate.tcm-11-example.com",
+						EndDate:            "2020-04-07T17:43:58Z",
+						StartDate:          "2019-04-08T17:43:58Z",
+						Fingerprint:        "1F:DD:AD:32:C3:54:3F:C3:6F:7F:04:51:8D:5E:F7:ED:7C:DB:5D:A5",
+						CertificatePEM:     "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
+						SerialNumber:       "11612024106234272000",
+						SignatureAlgorithm: "SHA256WITHRSA",
+						CreatedDate:        "2020-04-07T17:33:39Z",
+						Description:        "Optional description for the certificate",
+						CreatedBy:          "jsmith2",
+					},
+				},
+			},
+		},
+		"200 Successful get certificates of a version with CertificateStatus as EXPIRED and ExpiryThresholdInDays 10": {
+			request: GetCASetVersionCertificatesRequest{
+				CASetID:               123,
+				Version:               1,
+				ExpiryThresholdInDays: ptr.To(10),
+				CertificateStatus:     ptr.To(CertificateStatus("EXPIRED")),
+			},
+			responseStatus: http.StatusOK,
+			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions/1/certificates?certificateStatus=EXPIRED&expiryThresholdInDays=10",
 			responseBody: `{
 				  "caSetId" : 1,
 				  "caSetName": "test1",
@@ -2602,7 +2678,7 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 				Version: 1,
 			},
 			responseStatus: http.StatusNotFound,
-			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions/1/certificates?",
+			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions/1/certificates",
 			responseBody: `
 					{
   						"type": "/mtls-edge-truststore/v2/error-types/ca-set-not-found",
