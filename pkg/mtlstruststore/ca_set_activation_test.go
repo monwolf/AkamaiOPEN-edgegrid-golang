@@ -30,7 +30,7 @@ func TestActivateCASetVersion(t *testing.T) {
 				Version: 1,
 				Network: ActivationNetworkProduction,
 			},
-			expectedRequestBody: `{"network":"production"}`,
+			expectedRequestBody: `{"network":"PRODUCTION"}`,
 			expectedPath:        "/mtls-edge-truststore/v2/ca-sets/199/versions/1/activate",
 			responseStatus:      http.StatusAccepted,
 			responseBody: `
@@ -81,7 +81,7 @@ func TestActivateCASetVersion(t *testing.T) {
 				Network: "foo",
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "activate ca set version failed: struct validation: Network: value 'foo' is invalid. Must be one of: 'staging' or 'production'", err.Error())
+				assert.Equal(t, "activate ca set version failed: struct validation: Network: value 'foo' is invalid. Must be one of: 'STAGING' or 'PRODUCTION'", err.Error())
 			},
 		},
 		"500 internal server error": {
@@ -155,7 +155,7 @@ func TestDeactivateCASetVersion(t *testing.T) {
 				Version: 1,
 				Network: ActivationNetworkProduction,
 			},
-			expectedRequestBody: `{"network":"production"}`,
+			expectedRequestBody: `{"network":"PRODUCTION"}`,
 			expectedPath:        "/mtls-edge-truststore/v2/ca-sets/199/versions/1/deactivate",
 			responseStatus:      http.StatusAccepted,
 			responseBody: `
@@ -199,7 +199,7 @@ func TestDeactivateCASetVersion(t *testing.T) {
 				Version: 1,
 				Network: ActivationNetworkProduction,
 			},
-			expectedRequestBody: `{"network":"production"}`,
+			expectedRequestBody: `{"network":"PRODUCTION"}`,
 			expectedPath:        "/mtls-edge-truststore/v2/ca-sets/199/versions/1/deactivate",
 			responseStatus:      http.StatusConflict,
 			responseBody: `
@@ -232,7 +232,7 @@ func TestDeactivateCASetVersion(t *testing.T) {
 				Version: 1,
 				Network: ActivationNetworkProduction,
 			},
-			expectedRequestBody: `{"network":"production"}`,
+			expectedRequestBody: `{"network":"PRODUCTION"}`,
 			expectedPath:        "/mtls-edge-truststore/v2/ca-sets/199/versions/1/deactivate",
 			responseStatus:      http.StatusConflict,
 			responseBody: `
@@ -265,7 +265,7 @@ func TestDeactivateCASetVersion(t *testing.T) {
 				Version: 1,
 				Network: ActivationNetworkProduction,
 			},
-			expectedRequestBody: `{"network":"production"}`,
+			expectedRequestBody: `{"network":"PRODUCTION"}`,
 			expectedPath:        "/mtls-edge-truststore/v2/ca-sets/199/versions/1/deactivate",
 			responseStatus:      http.StatusConflict,
 			responseBody: `
@@ -293,7 +293,7 @@ func TestDeactivateCASetVersion(t *testing.T) {
 				Version: 1,
 				Network: ActivationNetworkProduction,
 			},
-			expectedRequestBody: `{"network":"production"}`,
+			expectedRequestBody: `{"network":"PRODUCTION"}`,
 			expectedPath:        "/mtls-edge-truststore/v2/ca-sets/199/versions/1/deactivate",
 			responseStatus:      http.StatusConflict,
 			responseBody: `
@@ -321,7 +321,7 @@ func TestDeactivateCASetVersion(t *testing.T) {
 				Version: 1,
 				Network: ActivationNetworkProduction,
 			},
-			expectedRequestBody: `{"network":"production"}`,
+			expectedRequestBody: `{"network":"PRODUCTION"}`,
 			expectedPath:        "/mtls-edge-truststore/v2/ca-sets/199/versions/1/deactivate",
 			responseStatus:      http.StatusConflict,
 			responseBody: `
@@ -354,7 +354,7 @@ func TestDeactivateCASetVersion(t *testing.T) {
 				Network: "foo",
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "deactivate ca set version failed: struct validation: Network: value 'foo' is invalid. Must be one of: 'staging' or 'production'", err.Error())
+				assert.Equal(t, "deactivate ca set version failed: struct validation: Network: value 'foo' is invalid. Must be one of: 'STAGING' or 'PRODUCTION'", err.Error())
 			},
 		},
 		"500 internal server error": {

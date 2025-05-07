@@ -123,9 +123,9 @@ type (
 
 const (
 	// ActivationNetworkStaging represents staging network.
-	ActivationNetworkStaging ActivationNetwork = "staging"
+	ActivationNetworkStaging ActivationNetwork = "STAGING"
 	// ActivationNetworkProduction represents production network.
-	ActivationNetworkProduction ActivationNetwork = "production"
+	ActivationNetworkProduction ActivationNetwork = "PRODUCTION"
 )
 
 var (
