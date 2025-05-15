@@ -44,7 +44,7 @@ func TestAPI_Validate(t *testing.T) {
 				assert.Equal(t, "ContractID: cannot be blank\nGroupID: cannot be blank\nHostnames: cannot be blank\nName: cannot be blank", err.Error())
 			},
 		},
-		"security schemes - in : invalid value": {
+		"security schemes - in : invalid enum value": {
 			req: RegisterAPIRequest{
 				APIAttributes: APIAttributes{
 					SecuritySchemes: &SecuritySchemes{
@@ -55,6 +55,19 @@ func TestAPI_Validate(t *testing.T) {
 				}},
 			withError: func(t *testing.T, err error) {
 				assert.Contains(t, err.Error(), "In: value 'HEADER' is invalid. Must be one of: 'cookie', 'header', 'query'")
+			},
+		},
+		"constraints - ConsumeType : invalid enum value": {
+			req: RegisterAPIRequest{
+				APIAttributes: APIAttributes{
+					Constraints: &Constraints{
+						RequestBody: &ConstraintsRequestBody{
+							ConsumeType: []ConsumeType{"JSON", "XML", "urlencoded", "ANY"},
+						},
+					},
+				}},
+			withError: func(t *testing.T, err error) {
+				assert.Contains(t, err.Error(), "Constraints: {\n\tRequestBody: {\n\t\t0: value 'JSON' is invalid. Must be one of: 'json', 'xml', 'urlencoded', 'any'\n\t\t1: value 'XML' is invalid. Must be one of: 'json', 'xml', 'urlencoded', 'any'\n\t\t3: value 'ANY' is invalid. Must be one of: 'json', 'xml', 'urlencoded', 'any'\n\t}\n}\nContractID: cannot be blank\nGroupID: cannot be blank\nHostnames: cannot be blank\nName: cannot be blank")
 			},
 		},
 		"resources - resource Method in : invalid enum value": {
@@ -81,6 +94,15 @@ func TestAPI_Validate(t *testing.T) {
 											Minimum:     ptr.To(float32(1)),
 											Maximum:     ptr.To(float32(2)),
 										},
+										{
+											Name:        "query",
+											In:          "query",
+											Type:        "string",
+											Required:    true,
+											Description: ptr.To("query parameter"),
+											MinLength:   ptr.To(int64(1)),
+											MaxLength:   ptr.To(int64(2)),
+										},
 									},
 									RequestBody: orderedmap.New[string, Property](orderedmap.WithInitialData[string, Property](
 										orderedmap.Pair[string, Property]{
@@ -90,10 +112,18 @@ func TestAPI_Validate(t *testing.T) {
 												Type:        "object",
 												Required:    true,
 												Description: ptr.To("Json body desciption"),
+												MaxBodySize: ptr.To(MaxBodySize("16kb")),
 												Properties: []Property{
 													{
 														Name:      "name",
 														Type:      "string",
+														Required:  true,
+														MinLength: ptr.To(int64(1)),
+														MaxLength: ptr.To(int64(200)),
+													},
+													{
+														Name:      "limit",
+														Type:      "NUMBER",
 														Required:  true,
 														MinLength: ptr.To(int64(1)),
 														MaxLength: ptr.To(int64(200)),
@@ -103,15 +133,48 @@ func TestAPI_Validate(t *testing.T) {
 										},
 									)),
 									Responses: &Responses{
+										Headers: []Parameter{
+											{
+												Name:     "Set-Cookie",
+												In:       "HEADER",
+												Type:     "STRING",
+												Required: true,
+											},
+											{
+												Name:     "Max-Forwards",
+												In:       "header",
+												Type:     "integer",
+												Required: true,
+											},
+										},
 										Contents: []ResponseContent{
 											{
 												StatusCodes: []int64{20},
 												JSON: &Property{
-													Name:     "application/json",
-													Type:     "array",
-													Required: false,
+													Name:        "application/json",
+													Type:        "ARRAY",
+													Required:    false,
+													MaxBodySize: ptr.To(MaxBodySize("16KB")),
 													Items: &Items{
-														Type: "string",
+														Type: "STRING",
+														Properties: []Property{
+															{
+																Name: "name",
+																Type: "STRING",
+															},
+															{
+																Name: "name",
+																Type: "OBJECT",
+															},
+															{
+																Name: "last_name",
+																Type: "string",
+															},
+															{
+																Name: "last_name",
+																Type: "object",
+															},
+														},
 													},
 												},
 											},
@@ -122,7 +185,7 @@ func TestAPI_Validate(t *testing.T) {
 						})),
 				}},
 			withError: func(t *testing.T, err error) {
-				assert.Contains(t, err.Error(), "/books: {\n\tPost: {\n\t\tParameters[0]: {\n\t\t\tIn: value 'QUERY' is invalid. Must be one of: 'cookie', 'query', 'header', 'path'\n\t\t}\n\t}\n}")
+				assert.Contains(t, err.Error(), "/books: {\n\tPost: {\n\t\tParameters[0]: {\n\t\t\tIn: value 'QUERY' is invalid. Must be one of: 'cookie', 'query', 'header', 'path'\n\t\t}\n\t\tResponses: {\n\t\t\tContents[0]: {\n\t\t\t\tJSON: {\n\t\t\t\t\tItems: {\n\t\t\t\t\t\tProperties[0]: {\n\t\t\t\t\t\t\tType: value 'STRING' is invalid. Must be one of: 'number', 'integer', 'string', 'boolean', 'object', 'array'\n\t\t\t\t\t\t}\n\t\t\t\t\t\tProperties[1]: {\n\t\t\t\t\t\t\tType: value 'OBJECT' is invalid. Must be one of: 'number', 'integer', 'string', 'boolean', 'object', 'array'\n\t\t\t\t\t\t}\n\t\t\t\t\t\tType: value 'STRING' is invalid. Must be one of: 'number', 'integer', 'string', 'boolean', 'object', 'array'\n\t\t\t\t\t}\n\t\t\t\t\tType: value 'ARRAY' is invalid. Must be one of: 'number', 'integer', 'string', 'boolean', 'object', 'array'\n\t\t\t\t}\n\t\t\t}\n\t\t\tHeaders[0]: {\n\t\t\t\tIn: value 'HEADER' is invalid. Must be one of: 'cookie', 'query', 'header', 'path'\n\t\t\t\tType: value 'STRING' is invalid. Must be one of: 'number', 'integer', 'string', 'boolean'\n\t\t\t}\n\t\t}\n\t\tjson: {\n\t\t\tMaxBodySize: value '16kb' is invalid. Must be one of: '6KB', '8KB', '12KB', '16KB' \n\t\t\tProperties[1]: {\n\t\t\t\tType: value 'NUMBER' is invalid. Must be one of: 'number', 'integer', 'string', 'boolean', 'object', 'array'\n\t\t\t}\n\t\t}\n\t}\n}")
 			},
 		},
 		"resources - resource method RequestBody in : invalid enum value": {
@@ -222,6 +285,14 @@ func TestVersioning_Validate(t *testing.T) {
 				assert.Equal(t, "In: value 'invalid-location' is invalid. Must be one of: 'header', 'path', 'query'.", err.Error())
 			},
 		},
+		"versioning - invalid uppercased enum value": {
+			req: Versioning{
+				In: ptr.To(VersioningLocation("HEADER")),
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "In: value 'HEADER' is invalid. Must be one of: 'header', 'path', 'query'.", err.Error())
+			},
+		},
 	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
@@ -281,7 +352,7 @@ func TestParameter_Validate(t *testing.T) {
 		"empty": {
 			req: Parameter{},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "In: cannot be blank; Name: cannot be blank; Type: cannot be blank.", err.Error())
+				assert.Equal(t, "Name: cannot be blank; Type: cannot be blank.", err.Error())
 			},
 		},
 		"invalid type": {

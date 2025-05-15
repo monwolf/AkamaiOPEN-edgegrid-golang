@@ -327,7 +327,9 @@ var (
 	ErrToOpenAPIFile = errors.New("to openapi file")
 	// ErrStructValidation is returned when given struct validation failed
 	ErrStructValidation = errors.New("struct validation")
+)
 
+const (
 	// SecuritySchemeLocationHeader holds value for http 'header' security scheme location
 	SecuritySchemeLocationHeader SecuritySchemeLocation = "header"
 	// SecuritySchemeLocationQuery holds value for http 'query' security scheme location
@@ -522,12 +524,33 @@ func (m Method) Validate() error {
 	return validationErrors.Filter()
 }
 
+// Validate validates Responses
+func (p Responses) Validate() error {
+	return validation.Errors{
+		"Headers":  validation.Validate(p.Headers),
+		"Contents": validation.Validate(p.Contents),
+	}.Filter()
+}
+
+// Validate validates ResponseContent
+func (p ResponseContent) Validate() error {
+	return validation.Errors{
+		"JSON":       validation.Validate(p.JSON),
+		"GraphQL":    validation.Validate(p.GraphQL),
+		"XML":        validation.Validate(p.XML),
+		"URLEncoded": validation.Validate(p.URLEncoded),
+		"JSONXML":    validation.Validate(p.JSONXML),
+		"Any":        validation.Validate(p.Any),
+		"None":       validation.Validate(p.None),
+	}.Filter()
+}
+
 // Validate validates Parameter
 func (p Parameter) Validate() error {
 	return validation.Errors{
 		"Name": validation.Validate(p.Name, validation.Required),
 		"Type": validation.Validate(p.Type, validation.Required),
-		"In":   validation.Validate(p.In, validation.Required),
+		"In":   validation.Validate(p.In),
 	}.Filter()
 }
 
@@ -547,9 +570,9 @@ func (t ParameterLocation) Validate() error {
 
 // Validate validates PropertyType
 func (t PropertyType) Validate() error {
-	return validation.In(ParameterTypeNumber, ParameterTypeInteger, ParameterTypeString, ParameterTypeBoolean, PropertyTypeObject, PropertyTypeArray).
+	return validation.In(string(ParameterTypeNumber), string(ParameterTypeInteger), string(ParameterTypeString), string(ParameterTypeBoolean), string(PropertyTypeObject), string(PropertyTypeArray)).
 		Error(fmt.Sprintf("value '%v' is invalid. Must be one of: '%s', '%s', '%s', '%s', '%s', '%s'", t, ParameterTypeNumber, ParameterTypeInteger, ParameterTypeString, ParameterTypeBoolean, PropertyTypeObject, PropertyTypeArray)).
-		Validate(t)
+		Validate(string(t))
 }
 
 // Validate validates MaxBodySize
@@ -565,6 +588,16 @@ func (p Property) Validate() error {
 		"Name":        validation.Validate(p.Name, validation.Required),
 		"Type":        validation.Validate(p.Type, validation.Required),
 		"MaxBodySize": validation.Validate(p.MaxBodySize),
+		"Items":       validation.Validate(p.Items),
+		"Properties":  validation.Validate(p.Properties),
+	}.Filter()
+}
+
+// Validate validates Items
+func (p Items) Validate() error {
+	return validation.Errors{
+		"Type":       validation.Validate(p.Type),
+		"Properties": validation.Validate(p.Properties),
 	}.Filter()
 }
 
