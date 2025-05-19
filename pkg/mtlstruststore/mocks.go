@@ -180,14 +180,14 @@ func (m *Mock) CloneCASet(ctx context.Context, params CloneCASetRequest) (*Clone
 	return args.Get(0).(*CloneCASetResponse), args.Error(1)
 }
 
-func (m *Mock) GetCASetDeletionStatus(ctx context.Context, params GetCASetDeleteStatusRequest) (*GetCASetDeleteStatusResponse, error) {
+func (m *Mock) GetCASetDeletionStatus(ctx context.Context, params GetCASetDeletionStatusRequest) (*GetCASetDeletionStatusResponse, error) {
 	args := m.Called(ctx, params)
 
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
 
-	return args.Get(0).(*GetCASetDeleteStatusResponse), args.Error(1)
+	return args.Get(0).(*GetCASetDeletionStatusResponse), args.Error(1)
 }
 
 func (m *Mock) ListCASetActivities(ctx context.Context, params ListCASetActivitiesRequest) (*ListCASetActivitiesResponse, error) {

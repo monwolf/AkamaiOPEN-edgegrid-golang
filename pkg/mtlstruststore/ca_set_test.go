@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/internal/test"
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/ptr"
@@ -28,14 +29,14 @@ func TestCreateCASet(t *testing.T) {
 		"201 Created": {
 			request: CreateCASetRequest{
 				CASetName:   "test",
-				Description: "description",
+				Description: ptr.To("description"),
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets",
 			responseStatus: http.StatusCreated,
 			responseBody: `
 				{
 					"accountId": "A-CCOUNT",
-					"caSetId": 199,
+					"caSetId": "199",
 					"caSetLink": "/mtls-edge-truststore/v2/ca-sets/199",
 					"caSetName": "test",
 					"caSetStatus": "NOT_DELETED",
@@ -54,7 +55,7 @@ func TestCreateCASet(t *testing.T) {
 				}`,
 			expectedResponse: &CreateCASetResponse{
 				AccountID:             "A-CCOUNT",
-				CASetID:               199,
+				CASetID:               "199",
 				CASetLink:             "/mtls-edge-truststore/v2/ca-sets/199",
 				CASetName:             "test",
 				CASetStatus:           "NOT_DELETED",
@@ -108,7 +109,7 @@ func TestCreateCASet(t *testing.T) {
 		"500 internal server error": {
 			request: CreateCASetRequest{
 				CASetName:   "test",
-				Description: "description",
+				Description: ptr.To("description"),
 			},
 			responseStatus: http.StatusInternalServerError,
 			responseBody: `
@@ -171,14 +172,14 @@ func TestGetCASet(t *testing.T) {
 	}{
 		"200 OK": {
 			params: GetCASetRequest{
-				CASetID: 199,
+				CASetID: "199",
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/199",
 			responseStatus: http.StatusOK,
 			responseBody: `
 				{
 					"accountId": "A-CCOUNT",
-					"caSetId": 199,
+					"caSetId": "199",
 					"caSetLink": "/mtls-edge-truststore/v2/ca-sets/199",
 					"caSetName": "test",
 					"caSetStatus": "NOT_DELETED",
@@ -197,7 +198,7 @@ func TestGetCASet(t *testing.T) {
 				}`,
 			expectedResponse: &GetCASetResponse{
 				AccountID:             "A-CCOUNT",
-				CASetID:               199,
+				CASetID:               "199",
 				CASetLink:             "/mtls-edge-truststore/v2/ca-sets/199",
 				CASetName:             "test",
 				CASetStatus:           "NOT_DELETED",
@@ -223,13 +224,13 @@ func TestGetCASet(t *testing.T) {
 		},
 		"404 ca set key not found - custom error check": {
 			params: GetCASetRequest{
-				CASetID: 10,
+				CASetID: "10",
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/10",
 			responseStatus: http.StatusNotFound,
 			responseBody: `{
 				"contextInfo": {
-					"caSetId": 10
+					"caSetId": "10"
 				},
 				"detail": "Cannot get CA set as the CA set with caSetId 10 is not found.",
 				"status": 404,
@@ -242,7 +243,7 @@ func TestGetCASet(t *testing.T) {
 		},
 		"500 internal server error": {
 			params: GetCASetRequest{
-				CASetID: 199,
+				CASetID: "199",
 			},
 			responseStatus: http.StatusInternalServerError,
 			responseBody: `
@@ -305,7 +306,7 @@ func TestListCASet(t *testing.T) {
 				"caSets": [
 					{
 						"accountId": "A-CCOUNT",
-						"caSetId": 199,
+						"caSetId": "199",
 						"caSetLink": "/mtls-edge-truststore/v2/ca-sets/199",
 						"caSetName": "test",
 						"caSetStatus": "NOT_DELETED",
@@ -324,7 +325,7 @@ func TestListCASet(t *testing.T) {
 					},
 					{
 						"accountId": "A-CCOUNT",
-						"caSetId": 80431,
+						"caSetId": "80431",
 						"caSetLink": "/mtls-edge-truststore/v2/ca-sets/80431",
 						"caSetName": "sktcm2-051623",
 						"caSetStatus": "NOT_DELETED",
@@ -343,7 +344,7 @@ func TestListCASet(t *testing.T) {
 					},
 					{
 						"accountId": "A-CCOUNT",
-						"caSetId": 75201,
+						"caSetId": "75201",
 						"caSetLink": "/mtls-edge-truststore/v2/ca-sets/75201",
 						"caSetName": "CertSet-4-docs",
 						"caSetStatus": "NOT_DELETED",
@@ -366,7 +367,7 @@ func TestListCASet(t *testing.T) {
 				CASets: []CASetResponse{
 					{
 						AccountID:             "A-CCOUNT",
-						CASetID:               199,
+						CASetID:               "199",
 						CASetLink:             "/mtls-edge-truststore/v2/ca-sets/199",
 						CASetName:             "test",
 						CASetStatus:           "NOT_DELETED",
@@ -385,7 +386,7 @@ func TestListCASet(t *testing.T) {
 					},
 					{
 						AccountID:             "A-CCOUNT",
-						CASetID:               80431,
+						CASetID:               "80431",
 						CASetLink:             "/mtls-edge-truststore/v2/ca-sets/80431",
 						CASetName:             "sktcm2-051623",
 						CASetStatus:           "NOT_DELETED",
@@ -404,7 +405,7 @@ func TestListCASet(t *testing.T) {
 					},
 					{
 						AccountID:             "A-CCOUNT",
-						CASetID:               75201,
+						CASetID:               "75201",
 						CASetLink:             "/mtls-edge-truststore/v2/ca-sets/75201",
 						CASetName:             "CertSet-4-docs",
 						CASetStatus:           "NOT_DELETED",
@@ -553,7 +554,7 @@ func TestDeleteCASet(t *testing.T) {
 	}{
 		"202 Accepted": {
 			params: DeleteCASetRequest{
-				CASetID: 199,
+				CASetID: "199",
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/199",
 			responseStatus: http.StatusAccepted,
@@ -566,7 +567,7 @@ func TestDeleteCASet(t *testing.T) {
 		},
 		"500 internal server error": {
 			params: DeleteCASetRequest{
-				CASetID: 199,
+				CASetID: "199",
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/199",
 			responseStatus: http.StatusInternalServerError,
@@ -622,7 +623,7 @@ func TestListCASetAssociations(t *testing.T) {
 	}{
 		"200 - No associations": {
 			params: ListCASetAssociationsRequest{
-				CASetID: 1,
+				CASetID: "1",
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/associations",
 			responseStatus: http.StatusOK,
@@ -636,7 +637,7 @@ func TestListCASetAssociations(t *testing.T) {
 		},
 		"200 - Navigable property": {
 			params: ListCASetAssociationsRequest{
-				CASetID: 1,
+				CASetID: "1",
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/associations",
 			responseStatus: http.StatusOK,
@@ -678,7 +679,7 @@ func TestListCASetAssociations(t *testing.T) {
 		},
 		"200 - Non-navigable property": {
 			params: ListCASetAssociationsRequest{
-				CASetID: 1,
+				CASetID: "1",
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/associations",
 			responseStatus: http.StatusOK,
@@ -714,7 +715,7 @@ func TestListCASetAssociations(t *testing.T) {
 		},
 		"200 - Enrollment": {
 			params: ListCASetAssociationsRequest{
-				CASetID: 1,
+				CASetID: "1",
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/associations",
 			responseStatus: http.StatusOK,
@@ -774,13 +775,13 @@ func TestListCASetAssociations(t *testing.T) {
 		},
 		"404 ca set not found": {
 			params: ListCASetAssociationsRequest{
-				CASetID: 2,
+				CASetID: "2",
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/2/associations",
 			responseStatus: http.StatusNotFound,
 			responseBody: `{
   "contextInfo" : {
-    "caSetId" : 2
+    "caSetId" : "2"
   },
   "detail" : "Cannot get CA set associations as the CA set with caSetId 2 is not found.",
   "status" : 404,
@@ -793,7 +794,7 @@ func TestListCASetAssociations(t *testing.T) {
 		},
 		"issue fetching": {
 			params: ListCASetAssociationsRequest{
-				CASetID: 1,
+				CASetID: "1",
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/associations",
 			responseStatus: http.StatusGatewayTimeout,
@@ -846,7 +847,7 @@ func TestCloneCASet(t *testing.T) {
 	}{
 		"200 - No version provided": {
 			params: CloneCASetRequest{
-				CloneFromSetID: 1,
+				CloneFromSetID: "1",
 				NewCASetName:   "new-set",
 				NewDescription: "New CA Set",
 			},
@@ -858,7 +859,7 @@ func TestCloneCASet(t *testing.T) {
 			responseStatus: http.StatusCreated,
 			responseBody: `{
     "accountId": "1-ACC",
-    "caSetId": 2,
+    "caSetId": "2",
     "caSetLink": "/mtls-edge-truststore/v2/ca-sets/2",
     "caSetName": "new-set",
     "caSetStatus": "NOT_DELETED",
@@ -877,7 +878,7 @@ func TestCloneCASet(t *testing.T) {
 }`,
 			expectedResponse: &CloneCASetResponse{
 				AccountID:         "1-ACC",
-				CASetID:           2,
+				CASetID:           "2",
 				CASetLink:         "/mtls-edge-truststore/v2/ca-sets/2",
 				CASetName:         "new-set",
 				CASetStatus:       "NOT_DELETED",
@@ -891,7 +892,7 @@ func TestCloneCASet(t *testing.T) {
 		},
 		"200 - Version provided": {
 			params: CloneCASetRequest{
-				CloneFromSetID:   1,
+				CloneFromSetID:   "1",
 				CloneFromVersion: 2,
 				NewCASetName:     "new-set",
 				NewDescription:   "New CA Set",
@@ -904,7 +905,7 @@ func TestCloneCASet(t *testing.T) {
 			responseStatus: http.StatusCreated,
 			responseBody: `{
     "accountId": "1-ACC",
-    "caSetId": 2,
+    "caSetId": "2",
     "caSetLink": "/mtls-edge-truststore/v2/ca-sets/2",
     "caSetName": "new-set",
     "caSetStatus": "NOT_DELETED",
@@ -923,7 +924,7 @@ func TestCloneCASet(t *testing.T) {
 }`,
 			expectedResponse: &CloneCASetResponse{
 				AccountID:         "1-ACC",
-				CASetID:           2,
+				CASetID:           "2",
 				CASetLink:         "/mtls-edge-truststore/v2/ca-sets/2",
 				CASetName:         "new-set",
 				CASetStatus:       "NOT_DELETED",
@@ -943,7 +944,7 @@ func TestCloneCASet(t *testing.T) {
 		},
 		"too short required params - validation error": {
 			params: CloneCASetRequest{
-				CloneFromSetID: 1,
+				CloneFromSetID: "1",
 				NewCASetName:   "a",
 			},
 			withError: func(t *testing.T, err error) {
@@ -952,7 +953,7 @@ func TestCloneCASet(t *testing.T) {
 		},
 		"incorrect characters in required parameters - validation error": {
 			params: CloneCASetRequest{
-				CloneFromSetID: 1,
+				CloneFromSetID: "1",
 				NewCASetName:   "#edgegrid",
 			},
 			withError: func(t *testing.T, err error) {
@@ -961,7 +962,7 @@ func TestCloneCASet(t *testing.T) {
 		},
 		"special case in required parameters - validation error": {
 			params: CloneCASetRequest{
-				CloneFromSetID: 1,
+				CloneFromSetID: "1",
 				NewCASetName:   "abc...cba",
 			},
 			withError: func(t *testing.T, err error) {
@@ -970,14 +971,14 @@ func TestCloneCASet(t *testing.T) {
 		},
 		"400 ca set does not have any version": {
 			params: CloneCASetRequest{
-				CloneFromSetID: 1,
+				CloneFromSetID: "1",
 				NewCASetName:   "new-set",
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/clone",
 			responseStatus: http.StatusBadRequest,
 			responseBody: `{
     "contextInfo": {
-        "caSetId": 1,
+        "caSetId": "1",
         "caSetName": "test1"
     },
     "detail": "CA set with caSetId 1 does not contain any versions. At least one version must be present to clone the CA set.",
@@ -991,7 +992,7 @@ func TestCloneCASet(t *testing.T) {
 		},
 		"404 ca set not found": {
 			params: CloneCASetRequest{
-				CloneFromSetID: 2,
+				CloneFromSetID: "2",
 				NewCASetName:   "new-set",
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/2/clone",
@@ -1011,7 +1012,7 @@ func TestCloneCASet(t *testing.T) {
 		},
 		"404 ca set version not found": {
 			params: CloneCASetRequest{
-				CloneFromSetID:   1,
+				CloneFromSetID:   "1",
 				CloneFromVersion: 2,
 				NewCASetName:     "new-set",
 			},
@@ -1024,7 +1025,7 @@ func TestCloneCASet(t *testing.T) {
   "detail": "Cannot clone CA set as the CA set version with version 2 is not found in the CA set under caSetName test1.",
   "contextInfo": {
     "caSetName": "test1",
-    "caSetId": 1,
+    "caSetId": "1",
     "version": 2
   }
 }`,
@@ -1034,7 +1035,7 @@ func TestCloneCASet(t *testing.T) {
 		},
 		"409 duplicate": {
 			params: CloneCASetRequest{
-				CloneFromSetID: 1,
+				CloneFromSetID: "1",
 				NewCASetName:   "new-set",
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/clone",
@@ -1055,7 +1056,7 @@ func TestCloneCASet(t *testing.T) {
 		},
 		"422 reached limit": {
 			params: CloneCASetRequest{
-				CloneFromSetID: 1,
+				CloneFromSetID: "1",
 				NewCASetName:   "new-set",
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/clone",
@@ -1105,21 +1106,25 @@ func TestCloneCASet(t *testing.T) {
 
 func TestGetCASetDeletionStatus(t *testing.T) {
 	tests := map[string]struct {
-		params           GetCASetDeleteStatusRequest
+		params           GetCASetDeletionStatusRequest
 		expectedPath     string
 		responseStatus   int
+		responseHeaders  map[string]string
 		responseBody     string
-		expectedResponse *GetCASetDeleteStatusResponse
+		expectedResponse *GetCASetDeletionStatusResponse
 		withError        func(*testing.T, error)
 	}{
 		"200 - in progress": {
-			params: GetCASetDeleteStatusRequest{
-				CASetID: 1,
+			params: GetCASetDeletionStatusRequest{
+				CASetID: "1",
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/status/delete",
 			responseStatus: http.StatusOK,
+			responseHeaders: map[string]string{
+				"Retry-After": "300",
+			},
 			responseBody: `{
-    "caSetId": 1,
+    "caSetId": "1",
     "caSetLink": "/mtls-edge-truststore/v2/ca-sets/1",
     "caSetName": "test1",
     "deletions": [
@@ -1144,8 +1149,8 @@ func TestGetCASetDeletionStatus(t *testing.T) {
     "status": "IN_PROGRESS",
     "statusLink": "/mtls-edge-truststore/v2/ca-sets/1/status/delete"
 }`,
-			expectedResponse: &GetCASetDeleteStatusResponse{
-				CASetID:   1,
+			expectedResponse: &GetCASetDeletionStatusResponse{
+				CASetID:   "1",
 				CASetLink: "/mtls-edge-truststore/v2/ca-sets/1",
 				CASetName: "test1",
 				Deletions: []CASetNetworkDeleteStatus{
@@ -1161,27 +1166,28 @@ func TestGetCASetDeletionStatus(t *testing.T) {
 					},
 				},
 				EstimatedEndTime: ptr.To(test.NewTimeFromString(t, "2025-04-15T12:25:02.183Z")),
-				ResourceMethod:   "delete",
+				ResourceMethod:   ptr.To("delete"),
 				StartTime:        test.NewTimeFromString(t, "2025-04-15T12:10:02.039Z"),
 				Status:           "IN_PROGRESS",
 				StatusLink:       "/mtls-edge-truststore/v2/ca-sets/1/status/delete",
+				RetryAfter:       300 * time.Second,
 			},
 		},
 		"missing required params - validation error": {
-			params: GetCASetDeleteStatusRequest{},
+			params: GetCASetDeletionStatusRequest{},
 			withError: func(t *testing.T, err error) {
 				assert.Equal(t, "list ca set deletion status failed: struct validation: CASetID: cannot be blank", err.Error())
 			},
 		},
 		"404 ca set not found": {
-			params: GetCASetDeleteStatusRequest{
-				CASetID: 2,
+			params: GetCASetDeletionStatusRequest{
+				CASetID: "2",
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/2/status/delete",
 			responseStatus: http.StatusNotFound,
 			responseBody: `{
  "contextInfo" : {
-   "caSetId" : 2
+   "caSetId" : "2"
  },
  "detail" : "Cannot get CA set deletions as the CA set with caSetId 2 is not found.",
  "status" : 404,
@@ -1193,14 +1199,14 @@ func TestGetCASetDeletionStatus(t *testing.T) {
 			},
 		},
 		"400 - ca set is not during delete": {
-			params: GetCASetDeleteStatusRequest{
-				CASetID: 1,
+			params: GetCASetDeletionStatusRequest{
+				CASetID: "1",
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/status/delete",
 			responseStatus: http.StatusBadRequest,
 			responseBody: `{
     "contextInfo": {
-        "caSetId": 1
+        "caSetId": "1"
     },
     "detail": "No active deletions were found for CA Certificate Set with set ID 1.",
     "status": 400,
@@ -1218,6 +1224,11 @@ func TestGetCASetDeletionStatus(t *testing.T) {
 			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				assert.Equal(t, test.expectedPath, r.URL.String())
 				assert.Equal(t, http.MethodGet, r.Method)
+				if len(test.responseHeaders) > 0 {
+					for header, value := range test.responseHeaders {
+						w.Header().Set(header, value)
+					}
+				}
 				w.WriteHeader(test.responseStatus)
 				_, err := w.Write([]byte(test.responseBody))
 				assert.NoError(t, err)
@@ -1245,7 +1256,7 @@ func TestListCASetActivities(t *testing.T) {
 	}{
 		"200 - no query params": {
 			params: ListCASetActivitiesRequest{
-				CASetID: 1,
+				CASetID: "1",
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/activities",
 			responseStatus: http.StatusOK,
@@ -1287,7 +1298,7 @@ func TestListCASetActivities(t *testing.T) {
             "version": null
         }
     ],
-    "caSetId": 1,
+    "caSetId": "1",
     "caSetLink": "/mtls-edge-truststore/v2/ca-sets/1",
     "caSetName": "test1",
     "caSetStatus": "DELETED",
@@ -1328,7 +1339,7 @@ func TestListCASetActivities(t *testing.T) {
 						Type:         "CREATE_CA_SET",
 					},
 				},
-				CASetID:     1,
+				CASetID:     "1",
 				CASetLink:   "/mtls-edge-truststore/v2/ca-sets/1",
 				CASetName:   "test1",
 				CASetStatus: "DELETED",
@@ -1340,8 +1351,8 @@ func TestListCASetActivities(t *testing.T) {
 		},
 		"200 - all query params": {
 			params: ListCASetActivitiesRequest{
-				CASetID: 1,
-				Start:   test.NewTimeFromString(t, "2025-04-15T14:00:00.00000Z"),
+				CASetID: "1",
+				Start:   test.NewTimeFromString(t, "2025-04-15T14:00:00Z"),
 				End:     test.NewTimeFromString(t, "2025-04-17T14:00:00.00000Z"),
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/activities?end=2025-04-17T14%3A00%3A00Z&start=2025-04-15T14%3A00%3A00Z",
@@ -1356,7 +1367,7 @@ func TestListCASetActivities(t *testing.T) {
             "version": 2
         }
     ],
-    "caSetId": 1,
+    "caSetId": "1",
     "caSetLink": "/mtls-edge-truststore/v2/ca-sets/1",
     "caSetName": "test1",
     "caSetStatus": "DELETED",
@@ -1374,7 +1385,7 @@ func TestListCASetActivities(t *testing.T) {
 						Version:      ptr.To(int64(2)),
 					},
 				},
-				CASetID:     1,
+				CASetID:     "1",
 				CASetLink:   "/mtls-edge-truststore/v2/ca-sets/1",
 				CASetName:   "test1",
 				CASetStatus: "DELETED",
@@ -1393,13 +1404,13 @@ func TestListCASetActivities(t *testing.T) {
 		},
 		"404 ca set not found": {
 			params: ListCASetActivitiesRequest{
-				CASetID: 2,
+				CASetID: "2",
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/2/activities",
 			responseStatus: http.StatusNotFound,
 			responseBody: `{
     "contextInfo": {
-        "caSetId": 2
+        "caSetId": "2"
     },
     "detail": "Cannot get CA set activities as the CA set with caSetId 2 is not found.",
     "status": 404,

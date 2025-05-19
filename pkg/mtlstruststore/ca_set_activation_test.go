@@ -26,7 +26,7 @@ func TestActivateCASetVersion(t *testing.T) {
 	}{
 		"202 Accepted": {
 			request: ActivateCASetVersionRequest{
-				CASetID: 199,
+				CASetID: "199",
 				Version: 1,
 				Network: ActivationNetworkProduction,
 			},
@@ -37,7 +37,7 @@ func TestActivateCASetVersion(t *testing.T) {
 				{
 					"activationId": 84707,
 					"activationLink": "/mtls-edge-truststore/v2/ca-sets/199/versions/1/activations/84707",
-					"caSetId": 199,
+					"caSetId": "199",
 					"caSetName": "test1",
 					"caSetLink": "/mtls-edge-truststore/v2/ca-sets/199",
 					"createdBy": "jsmith@example.com",
@@ -53,7 +53,7 @@ func TestActivateCASetVersion(t *testing.T) {
 			expectedResponse: &ActivateCASetVersionResponse{
 				ActivationID:     84707,
 				ActivationLink:   "/mtls-edge-truststore/v2/ca-sets/199/versions/1/activations/84707",
-				CASetID:          199,
+				CASetID:          "199",
 				CASetName:        "test1",
 				CASetLink:        "/mtls-edge-truststore/v2/ca-sets/199",
 				CreatedBy:        "jsmith@example.com",
@@ -76,7 +76,7 @@ func TestActivateCASetVersion(t *testing.T) {
 		},
 		"invalid network - validation error": {
 			request: ActivateCASetVersionRequest{
-				CASetID: 199,
+				CASetID: "199",
 				Version: 1,
 				Network: "foo",
 			},
@@ -86,7 +86,7 @@ func TestActivateCASetVersion(t *testing.T) {
 		},
 		"500 internal server error": {
 			request: ActivateCASetVersionRequest{
-				CASetID: 199,
+				CASetID: "199",
 				Version: 1,
 				Network: ActivationNetworkProduction,
 			},
@@ -151,7 +151,7 @@ func TestDeactivateCASetVersion(t *testing.T) {
 	}{
 		"202 Accepted": {
 			request: DeactivateCASetVersionRequest{
-				CASetID: 199,
+				CASetID: "199",
 				Version: 1,
 				Network: ActivationNetworkProduction,
 			},
@@ -162,7 +162,7 @@ func TestDeactivateCASetVersion(t *testing.T) {
 				{
 					"activationId": 84707,
 					"activationLink": "/mtls-edge-truststore/v2/ca-sets/199/versions/1/activations/84707",
-					"caSetId": 199,
+					"caSetId": "199",
 					"caSetName": "test1",
 					"caSetLink": "/mtls-edge-truststore/v2/ca-sets/199",
 					"createdBy": "jsmith@example.com",
@@ -178,7 +178,7 @@ func TestDeactivateCASetVersion(t *testing.T) {
 			expectedResponse: &DeactivateCASetVersionResponse{
 				ActivationID:     84707,
 				ActivationLink:   "/mtls-edge-truststore/v2/ca-sets/199/versions/1/activations/84707",
-				CASetID:          199,
+				CASetID:          "199",
 				CASetName:        "test1",
 				CASetLink:        "/mtls-edge-truststore/v2/ca-sets/199",
 				CreatedBy:        "jsmith@example.com",
@@ -195,7 +195,7 @@ func TestDeactivateCASetVersion(t *testing.T) {
 		//"202 Accepted with warning TODO": {},
 		"Error Response - CA Set is associated with a slot in CPS (Commercial)": {
 			request: DeactivateCASetVersionRequest{
-				CASetID: 199,
+				CASetID: "199",
 				Version: 1,
 				Network: ActivationNetworkProduction,
 			},
@@ -228,7 +228,7 @@ func TestDeactivateCASetVersion(t *testing.T) {
 		},
 		"Error Response - CA Set is associated with a hostname in Property Manager (Defense Edge)": {
 			request: DeactivateCASetVersionRequest{
-				CASetID: 199,
+				CASetID: "199",
 				Version: 1,
 				Network: ActivationNetworkProduction,
 			},
@@ -261,7 +261,7 @@ func TestDeactivateCASetVersion(t *testing.T) {
 		},
 		"Error Response - Another activation  is associated with the CA set version": {
 			request: DeactivateCASetVersionRequest{
-				CASetID: 199,
+				CASetID: "199",
 				Version: 1,
 				Network: ActivationNetworkProduction,
 			},
@@ -289,7 +289,7 @@ func TestDeactivateCASetVersion(t *testing.T) {
 		},
 		"Error Response - Another deactivation is associated with the CA set version": {
 			request: DeactivateCASetVersionRequest{
-				CASetID: 199,
+				CASetID: "199",
 				Version: 1,
 				Network: ActivationNetworkProduction,
 			},
@@ -317,7 +317,7 @@ func TestDeactivateCASetVersion(t *testing.T) {
 		},
 		"Error Response - Version is not activated on the network": {
 			request: DeactivateCASetVersionRequest{
-				CASetID: 199,
+				CASetID: "199",
 				Version: 1,
 				Network: ActivationNetworkProduction,
 			},
@@ -349,7 +349,7 @@ func TestDeactivateCASetVersion(t *testing.T) {
 		},
 		"invalid network - validation error": {
 			request: DeactivateCASetVersionRequest{
-				CASetID: 199,
+				CASetID: "199",
 				Version: 1,
 				Network: "foo",
 			},
@@ -359,7 +359,7 @@ func TestDeactivateCASetVersion(t *testing.T) {
 		},
 		"500 internal server error": {
 			request: DeactivateCASetVersionRequest{
-				CASetID: 199,
+				CASetID: "199",
 				Version: 1,
 				Network: ActivationNetworkProduction,
 			},
@@ -423,7 +423,7 @@ func TestGetCASetVersionActivation(t *testing.T) {
 	}{
 		"200 OK": {
 			params: GetCASetVersionActivationRequest{
-				CASetID:      1000,
+				CASetID:      "1000",
 				Version:      1,
 				ActivationID: 84572,
 			},
@@ -433,7 +433,7 @@ func TestGetCASetVersionActivation(t *testing.T) {
 				{
 					 "activationId": 84572,
 					 "activationLink": "/mtls-edge-truststore/v2/ca-sets/1000/versions/1000/activations/84572",
-					 "caSetId": 1000,
+					 "caSetId": "1000",
 					 "caSetName": "test1",
 					 "caSetLink": "/mtls-edge-truststore/v2/ca-sets/1000",          
 					 "version": 1,
@@ -449,7 +449,7 @@ func TestGetCASetVersionActivation(t *testing.T) {
 			expectedResponse: &GetCASetVersionActivationResponse{
 				ActivationID:     84572,
 				ActivationLink:   "/mtls-edge-truststore/v2/ca-sets/1000/versions/1000/activations/84572",
-				CASetID:          1000,
+				CASetID:          "1000",
 				CASetName:        "test1",
 				CASetLink:        "/mtls-edge-truststore/v2/ca-sets/1000",
 				Version:          1,
@@ -471,7 +471,7 @@ func TestGetCASetVersionActivation(t *testing.T) {
 		},
 		"404 ca set not found - custom error check": {
 			params: GetCASetVersionActivationRequest{
-				CASetID:      10,
+				CASetID:      "10",
 				Version:      1,
 				ActivationID: 84572,
 			},
@@ -483,7 +483,7 @@ func TestGetCASetVersionActivation(t *testing.T) {
 				"status": 404,
 				"detail": "Cannot get activation or deactivation status as the CA set with caSetId 10 is not found.",
 				"contextInfo": {
-					"caSetId": 10
+					"caSetId": "10"
 				}
 			}`,
 			withError: func(t *testing.T, err error) {
@@ -492,7 +492,7 @@ func TestGetCASetVersionActivation(t *testing.T) {
 		},
 		"404 ca set version not found - custom error check": {
 			params: GetCASetVersionActivationRequest{
-				CASetID:      2,
+				CASetID:      "2",
 				Version:      12,
 				ActivationID: 84572,
 			},
@@ -505,7 +505,7 @@ func TestGetCASetVersionActivation(t *testing.T) {
 				"detail": "Cannot get activation or deactivation status as the version 12 is not found in the CA set under caSetName test1.",
 				"contextInfo": {
 					"caSetName": "test1",
-					"caSetId": 2,
+					"caSetId": "2",
 					"version": 12
 				}
 			}`,
@@ -515,7 +515,7 @@ func TestGetCASetVersionActivation(t *testing.T) {
 		},
 		"404 ca set activation not found - custom error check": {
 			params: GetCASetVersionActivationRequest{
-				CASetID:      2,
+				CASetID:      "2",
 				Version:      1,
 				ActivationID: 2,
 			},
@@ -524,7 +524,7 @@ func TestGetCASetVersionActivation(t *testing.T) {
 			responseBody: `{
 				"contextInfo" : {
 					"activationId" : 2,
-					"caSetId" : 2,
+					"caSetId" : "2",
 					"caSetName" : "caSetName-1",
 					"version" : 1
 				},
@@ -539,7 +539,7 @@ func TestGetCASetVersionActivation(t *testing.T) {
 		},
 		"500 internal server error": {
 			params: GetCASetVersionActivationRequest{
-				CASetID:      199,
+				CASetID:      "199",
 				Version:      1,
 				ActivationID: 84572,
 			},
@@ -598,7 +598,7 @@ func TestListCASetVersionActivations(t *testing.T) {
 	}{
 		"200 OK": {
 			request: ListCASetVersionActivationsRequest{
-				CASetID: 1000,
+				CASetID: "1000",
 				Version: 2,
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1000/versions/2/activations",
@@ -608,7 +608,7 @@ func TestListCASetVersionActivations(t *testing.T) {
 				  {
 					 "activationId": 84571,
 					 "activationLink": "/mtls-edge-truststore/v2/ca-sets/1000/versions/2/activations/84571",
-					 "caSetId": 1000,
+					 "caSetId": "1000",
 					 "caSetName": "test1",
 					 "caSetLink": "/mtls-edge-truststore/v2/ca-sets/1000",          
 					 "version": 2,
@@ -628,7 +628,7 @@ func TestListCASetVersionActivations(t *testing.T) {
 					{
 						ActivationID:     84571,
 						ActivationLink:   "/mtls-edge-truststore/v2/ca-sets/1000/versions/2/activations/84571",
-						CASetID:          1000,
+						CASetID:          "1000",
 						CASetName:        "test1",
 						CASetLink:        "/mtls-edge-truststore/v2/ca-sets/1000",
 						Version:          2,
@@ -646,7 +646,7 @@ func TestListCASetVersionActivations(t *testing.T) {
 		},
 		"404 ca set not found - custom error check": {
 			request: ListCASetVersionActivationsRequest{
-				CASetID: 1000,
+				CASetID: "1000",
 				Version: 2,
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1000/versions/2/activations",
@@ -657,7 +657,7 @@ func TestListCASetVersionActivations(t *testing.T) {
 				"status": 404,
 				"detail": "Cannot get CA set activations as the CA set with caSetId 1000 is not found.",
 				"contextInfo": {
-					"caSetId": 1000
+					"caSetId": "1000"
 				}
 			}`,
 			withError: func(t *testing.T, err error) {
@@ -666,7 +666,7 @@ func TestListCASetVersionActivations(t *testing.T) {
 		},
 		"404 ca set version not found - custom error check": {
 			request: ListCASetVersionActivationsRequest{
-				CASetID: 1000,
+				CASetID: "1000",
 				Version: 2,
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1000/versions/2/activations",
@@ -678,7 +678,7 @@ func TestListCASetVersionActivations(t *testing.T) {
 				"detail": "Cannot get CA set activations as the CA set version with version 2 is not found in the CA set under caSetName foo.",
 				"contextInfo": {
 					"caSetName": "foo",
-					"caSetId": 1000,
+					"caSetId": "1000",
 					"version": 2
 				}
 			}`,
@@ -695,7 +695,7 @@ func TestListCASetVersionActivations(t *testing.T) {
 		},
 		"500 internal server error": {
 			request: ListCASetVersionActivationsRequest{
-				CASetID: 199,
+				CASetID: "199",
 				Version: 2,
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/199/versions/2/activations",
@@ -753,7 +753,7 @@ func TestListCASetActivations(t *testing.T) {
 	}{
 		"200 OK": {
 			request: ListCASetActivationsRequest{
-				CASetID: 1000,
+				CASetID: "1000",
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1000/activations",
 			responseStatus: http.StatusOK,
@@ -762,7 +762,7 @@ func TestListCASetActivations(t *testing.T) {
 				  {
 					 "activationId": 84572,
 					 "activationLink": "/mtls-edge-truststore/v2/ca-sets/1000/versions/1/activations/84572",
-					 "caSetId": 1000,
+					 "caSetId": "1000",
 					 "caSetName": "test1",
 					 "caSetLink": "/mtls-edge-truststore/v2/ca-sets/1000",          
 					 "version": 1,
@@ -778,7 +778,7 @@ func TestListCASetActivations(t *testing.T) {
 				  {
 					 "activationId": 84571,
 					 "activationLink": "/mtls-edge-truststore/v2/ca-sets/1000/versions/2/activations/84571",
-					 "caSetId": 1000,
+					 "caSetId": "1000",
 					 "caSetName": "test1",
 					 "caSetLink": "/mtls-edge-truststore/v2/ca-sets/1000",          
 					 "version": 2,
@@ -798,7 +798,7 @@ func TestListCASetActivations(t *testing.T) {
 					{
 						ActivationID:     84572,
 						ActivationLink:   "/mtls-edge-truststore/v2/ca-sets/1000/versions/1/activations/84572",
-						CASetID:          1000,
+						CASetID:          "1000",
 						CASetName:        "test1",
 						CASetLink:        "/mtls-edge-truststore/v2/ca-sets/1000",
 						Version:          1,
@@ -814,7 +814,7 @@ func TestListCASetActivations(t *testing.T) {
 					{
 						ActivationID:     84571,
 						ActivationLink:   "/mtls-edge-truststore/v2/ca-sets/1000/versions/2/activations/84571",
-						CASetID:          1000,
+						CASetID:          "1000",
 						CASetName:        "test1",
 						CASetLink:        "/mtls-edge-truststore/v2/ca-sets/1000",
 						Version:          2,
@@ -832,7 +832,7 @@ func TestListCASetActivations(t *testing.T) {
 		},
 		"404 ca set not found - custom error check": {
 			request: ListCASetActivationsRequest{
-				CASetID: 1000,
+				CASetID: "1000",
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1000/activations",
 			responseStatus: http.StatusNotFound,
@@ -842,7 +842,7 @@ func TestListCASetActivations(t *testing.T) {
 				"status": 404,
 				"detail": "Cannot get CA set activations as the CA set with caSetId 1000 is not found.",
 				"contextInfo": {
-					"caSetId": 1000
+					"caSetId": "1000"
 				}
 			}`,
 			withError: func(t *testing.T, err error) {
@@ -857,7 +857,7 @@ func TestListCASetActivations(t *testing.T) {
 		},
 		"500 internal server error": {
 			request: ListCASetActivationsRequest{
-				CASetID: 199,
+				CASetID: "199",
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/199/activations",
 			responseStatus: http.StatusInternalServerError,

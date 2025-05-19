@@ -104,7 +104,7 @@ type (
 		// GetCASetDeletionStatus fetches the status of delete operation on both the networks.
 		//
 		// See: ToDo
-		GetCASetDeletionStatus(ctx context.Context, params GetCASetDeleteStatusRequest) (*GetCASetDeleteStatusResponse, error)
+		GetCASetDeletionStatus(ctx context.Context, params GetCASetDeletionStatusRequest) (*GetCASetDeletionStatusResponse, error)
 
 		// ListCASetActivities returns the complete list of activities on a CA set.
 		//

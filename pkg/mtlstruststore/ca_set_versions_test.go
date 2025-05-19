@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/internal/test"
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/ptr"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -25,19 +26,13 @@ func TestCreateCASetVersion(t *testing.T) {
 	}{
 		"201 Successful creation": {
 			request: CreateCASetVersionRequest{
-				CASetID: 123,
+				CASetID: "123",
 				Body: CreateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Description:       "Test CA Set Version",
-					Certificates: []Certificate{
+					Description:       ptr.To("Test CA Set Version"),
+					Certificates: []CertificateRequest{
 						{
-							Subject:        "Test Subject",
-							Issuer:         "Test Issuer",
-							EndDate:        "2025-12-31",
-							StartDate:      "2025-01-01",
-							Fingerprint:    "abc123",
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-							SerialNumber:   "123456789",
 						},
 					},
 				},
@@ -47,21 +42,12 @@ func TestCreateCASetVersion(t *testing.T) {
 				  "description": "Test CA Set Version",
 				  "certificates": [
 					{
-					  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-					  "createdBy": "",
-					  "createdDate": "",
-					  "endDate": "2025-12-31",
-					  "fingerprint": "abc123",
-					  "issuer": "Test Issuer",
-					  "serialNumber": "123456789",
-					  "signatureAlgorithm": "",
-					  "startDate": "2025-01-01",
-					  "subject": "Test Subject"
+					  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
 					}
 				  ]}`,
 			responseStatus: http.StatusCreated,
 			responseBody: `{
-				  "caSetId": 123,
+				  "caSetId": "123",
 				  "version": 1,
 				  "caSetName": "Test CA Set",
 				  "versionLink": "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
@@ -77,8 +63,8 @@ func TestCreateCASetVersion(t *testing.T) {
 					{
 					  "subject": "Test Subject",
 					  "issuer": "Test Issuer",
-					  "endDate": "2025-12-31",
-					  "startDate": "2025-01-01",
+					  "endDate": "2025-12-31T00:00:00Z",
+					  "startDate": "2025-01-01T00:00:00Z",
 					  "fingerprint": "abc123",
 					  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
 					  "serialNumber": "123456789",
@@ -90,29 +76,29 @@ func TestCreateCASetVersion(t *testing.T) {
 				}`,
 			expectedPath: `/mtls-edge-truststore/v2/ca-sets/123/versions`,
 			expectedResponse: &CreateCASetVersionResponse{
-				CASetID:           123,
+				CASetID:           "123",
 				Version:           1,
 				CASetName:         "Test CA Set",
 				VersionLink:       "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
 				Description:       "Test CA Set Version",
-				AllowInsecureSha1: false,
+				AllowInsecureSHA1: false,
 				StagingStatus:     "PENDING",
 				ProductionStatus:  "PENDING",
-				CreatedDate:       "2025-04-10T00:00:00Z",
+				CreatedDate:       test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
 				CreatedBy:         "tester",
-				ModifiedDate:      "2025-04-10T00:00:00Z",
-				ModifiedBy:        "tester",
-				Certificates: []Certificate{
+				ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2025-04-10T00:00:00Z")),
+				ModifiedBy:        ptr.To("tester"),
+				Certificates: []CertificateResponse{
 					{
 						Subject:            "Test Subject",
 						Issuer:             "Test Issuer",
-						EndDate:            "2025-12-31",
-						StartDate:          "2025-01-01",
+						StartDate:          test.NewTimeFromString(t, "2025-01-01T00:00:00Z"),
+						EndDate:            test.NewTimeFromString(t, "2025-12-31T00:00:00Z"),
 						Fingerprint:        "abc123",
 						CertificatePEM:     "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
 						SerialNumber:       "123456789",
 						SignatureAlgorithm: "SHA256WithRSA",
-						CreatedDate:        "2025-04-10T00:00:00Z",
+						CreatedDate:        test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
 						CreatedBy:          "tester",
 					},
 				},
@@ -120,19 +106,13 @@ func TestCreateCASetVersion(t *testing.T) {
 		},
 		"Validation error - CA Set version description greater than max allowed length": {
 			request: CreateCASetVersionRequest{
-				CASetID: 123,
+				CASetID: "123",
 				Body: CreateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Description:       "Test CA Set Version is a critical step in validating and ensuring the correct version of the Certificate Authority (CA) configuration is applied. It involves thorough checks, validation steps, and the verification of certificates to confirm functionality and compliance.",
-					Certificates: []Certificate{
+					Description:       ptr.To("Test CA Set Version is a critical step in validating and ensuring the correct version of the Certificate Authority (CA) configuration is applied. It involves thorough checks, validation steps, and the verification of certificates to confirm functionality and compliance."),
+					Certificates: []CertificateRequest{
 						{
-							Subject:        "Test Subject",
-							Issuer:         "Test Issuer",
-							EndDate:        "2025-12-31",
-							StartDate:      "2025-01-01",
-							Fingerprint:    "abc123",
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-							SerialNumber:   "123456789",
 						},
 					},
 				},
@@ -145,16 +125,10 @@ func TestCreateCASetVersion(t *testing.T) {
 			request: CreateCASetVersionRequest{
 				Body: CreateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Description:       "Missing CASetID",
-					Certificates: []Certificate{
+					Description:       ptr.To("Missing CASetID"),
+					Certificates: []CertificateRequest{
 						{
-							Subject:        "Test Subject",
-							Issuer:         "Test Issuer",
-							EndDate:        "2025-12-31",
-							StartDate:      "2025-01-01",
-							Fingerprint:    "abc123",
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-							SerialNumber:   "123456789",
 						},
 					},
 				},
@@ -165,10 +139,10 @@ func TestCreateCASetVersion(t *testing.T) {
 		},
 		"Validation error - missing Certificates": {
 			request: CreateCASetVersionRequest{
-				CASetID: 1,
+				CASetID: "1",
 				Body: CreateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Description:       "Missing CASetID",
+					Description:       ptr.To("Missing CASetID"),
 				},
 			},
 			withError: func(t *testing.T, err error) {
@@ -177,19 +151,12 @@ func TestCreateCASetVersion(t *testing.T) {
 		},
 		"Validation error - missing Certificates.CertificatePEM": {
 			request: CreateCASetVersionRequest{
-				CASetID: 1,
+				CASetID: "1",
 				Body: CreateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Description:       "Missing CASetID",
-					Certificates: []Certificate{
-						{
-							Subject:      "Test Subject",
-							Issuer:       "Test Issuer",
-							EndDate:      "2025-12-31",
-							StartDate:    "2025-01-01",
-							Fingerprint:  "abc123",
-							SerialNumber: "123456789",
-						},
+					Description:       ptr.To("Missing CASetID"),
+					Certificates: []CertificateRequest{
+						{},
 					},
 				},
 			},
@@ -199,19 +166,13 @@ func TestCreateCASetVersion(t *testing.T) {
 		},
 		"Validation error - Certificate's description greater than max allowed length": {
 			request: CreateCASetVersionRequest{
-				CASetID: 123,
+				CASetID: "123",
 				Body: CreateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Certificates: []Certificate{
+					Certificates: []CertificateRequest{
 						{
-							Subject:        "Test Subject",
-							Issuer:         "Test Issuer",
-							EndDate:        "2025-12-31",
-							StartDate:      "2025-01-01",
-							Fingerprint:    "abc123",
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-							SerialNumber:   "123456789",
-							Description:    "Test CA Set Version is a critical step in validating and ensuring the correct version of the Certificate Authority (CA) configuration is applied. It involves thorough checks, validation steps, and the verification of certificates to confirm functionality and compliance.",
+							Description:    ptr.To("Test CA Set Version is a critical step in validating and ensuring the correct version of the Certificate Authority (CA) configuration is applied. It involves thorough checks, validation steps, and the verification of certificates to confirm functionality and compliance."),
 						},
 					},
 				},
@@ -222,19 +183,13 @@ func TestCreateCASetVersion(t *testing.T) {
 		},
 		"Error Response - CA set is not found": {
 			request: CreateCASetVersionRequest{
-				CASetID: 123,
+				CASetID: "123",
 				Body: CreateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Description:       "Test CA Set Version",
-					Certificates: []Certificate{
+					Description:       ptr.To("Test CA Set Version"),
+					Certificates: []CertificateRequest{
 						{
-							Subject:        "Test Subject",
-							Issuer:         "Test Issuer",
-							EndDate:        "2025-12-31",
-							StartDate:      "2025-01-01",
-							Fingerprint:    "abc123",
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-							SerialNumber:   "123456789",
 						},
 					},
 				},
@@ -244,16 +199,7 @@ func TestCreateCASetVersion(t *testing.T) {
 				  "description": "Test CA Set Version",
 				  "certificates": [
 					{
-					  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-					  "createdBy": "",
-					  "createdDate": "",
-					  "endDate": "2025-12-31",
-					  "fingerprint": "abc123",
-					  "issuer": "Test Issuer",
-					  "serialNumber": "123456789",
-					  "signatureAlgorithm": "",
-					  "startDate": "2025-01-01",
-					  "subject": "Test Subject"
+					  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
 					}
 				  ]}`,
 			responseStatus: http.StatusNotFound,
@@ -265,7 +211,7 @@ func TestCreateCASetVersion(t *testing.T) {
   						"status": 404,
   						"detail": "Cannot create a CA set version as the CA set with caSetId 123 is not found.",
   						"contextInfo": {
-    						"caSetId": 123
+    						"caSetId": "123"
 						}
 					}`,
 			withError: func(t *testing.T, err error) {
@@ -274,19 +220,13 @@ func TestCreateCASetVersion(t *testing.T) {
 		},
 		"Error Response - Number of CA Set versions has reached the limit": {
 			request: CreateCASetVersionRequest{
-				CASetID: 1,
+				CASetID: "1",
 				Body: CreateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Description:       "Test CA Set Version",
-					Certificates: []Certificate{
+					Description:       ptr.To("Test CA Set Version"),
+					Certificates: []CertificateRequest{
 						{
-							Subject:        "Test Subject",
-							Issuer:         "Test Issuer",
-							EndDate:        "2025-12-31",
-							StartDate:      "2025-01-01",
-							Fingerprint:    "abc123",
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-							SerialNumber:   "123456789",
 						},
 					},
 				},
@@ -296,16 +236,7 @@ func TestCreateCASetVersion(t *testing.T) {
 				  "description": "Test CA Set Version",
 				  "certificates": [
 					{
-					  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-					  "createdBy": "",
-					  "createdDate": "",
-					  "endDate": "2025-12-31",
-					  "fingerprint": "abc123",
-					  "issuer": "Test Issuer",
-					  "serialNumber": "123456789",
-					  "signatureAlgorithm": "",
-					  "startDate": "2025-01-01",
-					  "subject": "Test Subject"
+					  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
 					}
 				  ]}`,
 			responseStatus: http.StatusUnprocessableEntity,
@@ -318,7 +249,7 @@ func TestCreateCASetVersion(t *testing.T) {
 						"detail": "Cannot create CA set version as you have already reached or exceeded the maximum allowed CA set version limit of 10 for the CA set with caSetId 1.",
 						"contextInfo": {
 							"caSetName": "test",
-							"caSetId": 1,
+							"caSetId": "1",
 							"maxVersionsPerCaSet": 10
 						}
 					}`,
@@ -328,19 +259,13 @@ func TestCreateCASetVersion(t *testing.T) {
 		},
 		"Error Response - Maximum allowed certificates in a version limit reached": {
 			request: CreateCASetVersionRequest{
-				CASetID: 1,
+				CASetID: "1",
 				Body: CreateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Description:       "Test CA Set Version",
-					Certificates: []Certificate{
+					Description:       ptr.To("Test CA Set Version"),
+					Certificates: []CertificateRequest{
 						{
-							Subject:        "Test Subject",
-							Issuer:         "Test Issuer",
-							EndDate:        "2025-12-31",
-							StartDate:      "2025-01-01",
-							Fingerprint:    "abc123",
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-							SerialNumber:   "123456789",
 						},
 						// Assume repeated to make count 302
 					},
@@ -351,16 +276,7 @@ func TestCreateCASetVersion(t *testing.T) {
 				  "description": "Test CA Set Version",
 				  "certificates": [
 					{
-					  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-					  "createdBy": "",
-					  "createdDate": "",
-					  "endDate": "2025-12-31",
-					  "fingerprint": "abc123",
-					  "issuer": "Test Issuer",
-					  "serialNumber": "123456789",
-					  "signatureAlgorithm": "",
-					  "startDate": "2025-01-01",
-					  "subject": "Test Subject"
+					  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
 					}
 				  ]}`,
 			responseStatus: http.StatusUnprocessableEntity,
@@ -373,7 +289,7 @@ func TestCreateCASetVersion(t *testing.T) {
 						"detail": "The maximum number of certificates allowed per CA set version is 300. Number of submitted certificates is 302.",
 						"contextInfo": {
 							"caSetName": "test",
-							"caSetId": 1,
+							"caSetId": "1",
 							"maxCertificatesPerVersion": 300,
 							"submittedCertificatesCount": 302
 						}
@@ -384,19 +300,13 @@ func TestCreateCASetVersion(t *testing.T) {
 		},
 		"Error Response - At least one certificate has failed validation": {
 			request: CreateCASetVersionRequest{
-				CASetID: 131803,
+				CASetID: "131803",
 				Body: CreateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Description:       "Test CA Set Version",
-					Certificates: []Certificate{
+					Description:       ptr.To("Test CA Set Version"),
+					Certificates: []CertificateRequest{
 						{
-							Subject:        "EMAILADDRESS=test@akamai.com, CN=test, OU=DELIVERY, O=AKAMAI, L=BLR, ST=KA, C=IN",
-							Issuer:         "Test Issuer",
-							EndDate:        "2025-12-31",
-							StartDate:      "2025-01-01",
-							Fingerprint:    "fingerebc8de3270598ec1fa62c92a20ef86d53bca415978b40733afaa8b09082",
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-							SerialNumber:   "123456789",
 						},
 					},
 				},
@@ -406,16 +316,7 @@ func TestCreateCASetVersion(t *testing.T) {
 				  "description": "Test CA Set Version",
 				  "certificates": [
 					{
-					  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-					  "createdBy": "",
-					  "createdDate": "",
-					  "endDate": "2025-12-31",
-					  "fingerprint": "fingerebc8de3270598ec1fa62c92a20ef86d53bca415978b40733afaa8b09082",
-					  "issuer": "Test Issuer",
-					  "serialNumber": "123456789",
-					  "signatureAlgorithm": "",
-					  "startDate": "2025-01-01",
-					  "subject": "EMAILADDRESS=test@akamai.com, CN=test, OU=DELIVERY, O=AKAMAI, L=BLR, ST=KA, C=IN"
+					  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
 					}
 				  ]}`,
 			responseStatus: http.StatusBadRequest,
@@ -426,7 +327,7 @@ func TestCreateCASetVersion(t *testing.T) {
 			"title": "Cannot create the ca set version as the certificate(s) has failed validation.",
 			"status": 400,
 			"contextInfo": {
-				"caSetId": 131803,
+				"caSetId": "131803",
 				"caSetName": "sup-m2-bugjam6"
 			},
 			"errors": [
@@ -459,19 +360,13 @@ func TestCreateCASetVersion(t *testing.T) {
 		},
 		"Error Response - Deletion in progress for the CA Set on any network": {
 			request: CreateCASetVersionRequest{
-				CASetID: 1,
+				CASetID: "1",
 				Body: CreateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Description:       "Test CA Set Version",
-					Certificates: []Certificate{
+					Description:       ptr.To("Test CA Set Version"),
+					Certificates: []CertificateRequest{
 						{
-							Subject:        "Test Subject",
-							Issuer:         "Test Issuer",
-							EndDate:        "2025-12-31",
-							StartDate:      "2025-01-01",
-							Fingerprint:    "abc123",
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-							SerialNumber:   "123456789",
 						},
 					},
 				},
@@ -481,16 +376,7 @@ func TestCreateCASetVersion(t *testing.T) {
 				  "description": "Test CA Set Version",
 				  "certificates": [
 					{
-					  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-					  "createdBy": "",
-					  "createdDate": "",
-					  "endDate": "2025-12-31",
-					  "fingerprint": "abc123",
-					  "issuer": "Test Issuer",
-					  "serialNumber": "123456789",
-					  "signatureAlgorithm": "",
-					  "startDate": "2025-01-01",
-					  "subject": "Test Subject"
+					  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
 					}
 				  ]}`,
 			responseStatus: http.StatusConflict,
@@ -502,7 +388,7 @@ func TestCreateCASetVersion(t *testing.T) {
             "status": 409,
             "detail": "Cannot create CA set version as the CA set is being deleted on one or more networks.",
             "contextInfo": {
-                "caSetId": 1,
+                "caSetId": "1",
                 "caSetName": "caSetName-73f58a4e",
                 "deletionLink": "/mtls-edge-truststore/v2/ca-sets/1/status/delete",
                 "productionStatus": "IN_PROGRESS",
@@ -516,19 +402,13 @@ func TestCreateCASetVersion(t *testing.T) {
 		},
 		"Error Response - Duplicate Version": {
 			request: CreateCASetVersionRequest{
-				CASetID: 1,
+				CASetID: "1",
 				Body: CreateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Description:       "Test CA Set Version",
-					Certificates: []Certificate{
+					Description:       ptr.To("Test CA Set Version"),
+					Certificates: []CertificateRequest{
 						{
-							Subject:        "Test Subject",
-							Issuer:         "Test Issuer",
-							EndDate:        "2025-12-31",
-							StartDate:      "2025-01-01",
-							Fingerprint:    "abc123",
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-							SerialNumber:   "123456789",
 						},
 					},
 				},
@@ -538,16 +418,7 @@ func TestCreateCASetVersion(t *testing.T) {
 				  "description": "Test CA Set Version",
 				  "certificates": [
 					{
-					  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-					  "createdBy": "",
-					  "createdDate": "",
-					  "endDate": "2025-12-31",
-					  "fingerprint": "abc123",
-					  "issuer": "Test Issuer",
-					  "serialNumber": "123456789",
-					  "signatureAlgorithm": "",
-					  "startDate": "2025-01-01",
-					  "subject": "Test Subject"
+					  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
 					}
 				  ]}`,
 			responseStatus: http.StatusUnprocessableEntity,
@@ -560,7 +431,7 @@ func TestCreateCASetVersion(t *testing.T) {
             "detail": "A version with same certificates exists in the CA set.",
             "contextInfo": {
                 "caSetName": "tést",
-                "caSetId": 1,
+                "caSetId": "1",
                 "versionLink": "/tcm-api/ca-sets/1/versions/1"
             }
         }`,
@@ -571,19 +442,13 @@ func TestCreateCASetVersion(t *testing.T) {
 		//"[TODO: Warning in Response] Warning Response - Body contains duplicate certificates (based on fingerPrint)":{},
 		"Internal server error": {
 			request: CreateCASetVersionRequest{
-				CASetID: 123,
+				CASetID: "123",
 				Body: CreateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Description:       "Test CA Set Version",
-					Certificates: []Certificate{
+					Description:       ptr.To("Test CA Set Version"),
+					Certificates: []CertificateRequest{
 						{
-							Subject:        "Test Subject",
-							Issuer:         "Test Issuer",
-							EndDate:        "2025-12-31",
-							StartDate:      "2025-01-01",
-							Fingerprint:    "abc123",
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-							SerialNumber:   "123456789",
 						},
 					},
 				},
@@ -593,16 +458,7 @@ func TestCreateCASetVersion(t *testing.T) {
 				  "description": "Test CA Set Version",
 				  "certificates": [
 					{
-					  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-					  "createdBy": "",
-					  "createdDate": "",
-					  "endDate": "2025-12-31",
-					  "fingerprint": "abc123",
-					  "issuer": "Test Issuer",
-					  "serialNumber": "123456789",
-					  "signatureAlgorithm": "",
-					  "startDate": "2025-01-01",
-					  "subject": "Test Subject"
+					  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
 					}
 				  ]}`,
 			responseStatus: http.StatusInternalServerError,
@@ -669,13 +525,13 @@ func TestCloneCASetVersion(t *testing.T) {
 	}{
 		"201 Successful creation": {
 			request: CloneCASetVersionRequest{
-				CASetID: 123,
+				CASetID: "123",
 				Version: 1,
 			},
 			responseStatus: http.StatusCreated,
 			responseBody: `
 					{
-					  "caSetId": 123,
+					  "caSetId": "123",
 					  "version": 1,
 					  "caSetName": "Test CA Set",
 					  "versionLink": "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
@@ -691,8 +547,8 @@ func TestCloneCASetVersion(t *testing.T) {
 						{
 						  "subject": "Test Subject",
 						  "issuer": "Test Issuer",
-						  "endDate": "2025-12-31",
-						  "startDate": "2025-01-01",
+						  "endDate": "2025-12-31T00:00:00Z",
+						  "startDate": "2025-01-01T00:00:00Z",
 						  "fingerprint": "abc123",
 						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
 						  "serialNumber": "123456789",
@@ -704,29 +560,29 @@ func TestCloneCASetVersion(t *testing.T) {
 					}`,
 			expectedPath: `/mtls-edge-truststore/v2/ca-sets/123/versions/1/clone`,
 			expectedResponse: &CloneCASetVersionResponse{
-				CASetID:           123,
+				CASetID:           "123",
 				Version:           1,
 				CASetName:         "Test CA Set",
 				VersionLink:       "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
 				Description:       "Test CA Set Version",
-				AllowInsecureSha1: false,
+				AllowInsecureSHA1: false,
 				StagingStatus:     "PENDING",
 				ProductionStatus:  "PENDING",
-				CreatedDate:       "2025-04-10T00:00:00Z",
+				CreatedDate:       test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
 				CreatedBy:         "tester",
-				ModifiedDate:      "2025-04-10T00:00:00Z",
-				ModifiedBy:        "tester",
-				Certificates: []Certificate{
+				ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2025-04-10T00:00:00Z")),
+				ModifiedBy:        ptr.To("tester"),
+				Certificates: []CertificateResponse{
 					{
 						Subject:            "Test Subject",
 						Issuer:             "Test Issuer",
-						EndDate:            "2025-12-31",
-						StartDate:          "2025-01-01",
+						StartDate:          test.NewTimeFromString(t, "2025-01-01T00:00:00Z"),
+						EndDate:            test.NewTimeFromString(t, "2025-12-31T00:00:00Z"),
 						Fingerprint:        "abc123",
 						CertificatePEM:     "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
 						SerialNumber:       "123456789",
 						SignatureAlgorithm: "SHA256WithRSA",
-						CreatedDate:        "2025-04-10T00:00:00Z",
+						CreatedDate:        test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
 						CreatedBy:          "tester",
 					},
 				},
@@ -740,7 +596,7 @@ func TestCloneCASetVersion(t *testing.T) {
 		},
 		"Error Response - CA set is not found": {
 			request: CloneCASetVersionRequest{
-				CASetID: 123,
+				CASetID: "123",
 				Version: 1,
 			},
 			responseStatus: http.StatusNotFound,
@@ -752,7 +608,7 @@ func TestCloneCASetVersion(t *testing.T) {
   						"status": 404,
   						"detail": "Cannot create a CA set version as the CA set with caSetId 123 is not found.",
   						"contextInfo": {
-    						"caSetId": 123
+    						"caSetId": "123"
 						}
 					}`,
 			withError: func(t *testing.T, err error) {
@@ -761,7 +617,7 @@ func TestCloneCASetVersion(t *testing.T) {
 		},
 		"Error Response - CA set version not found": {
 			request: CloneCASetVersionRequest{
-				CASetID: 123,
+				CASetID: "123",
 				Version: 12,
 			},
 			responseStatus: http.StatusNotFound,
@@ -774,7 +630,7 @@ func TestCloneCASetVersion(t *testing.T) {
 				  		"detail": "Cannot clone CA set version as the CA set version with version 12 is not found in the CA set with caSetId 123.",
 				  		"contextInfo": {
 							"caSetName": "test1",
-							"caSetId": 123,
+							"caSetId": "123",
 							"version": 12
 				  		}
 					}`,
@@ -784,7 +640,7 @@ func TestCloneCASetVersion(t *testing.T) {
 		},
 		"Error Response - Deletion in progress for the CA Set on any network": {
 			request: CloneCASetVersionRequest{
-				CASetID: 1,
+				CASetID: "1",
 				Version: 1,
 			},
 			responseStatus: http.StatusConflict,
@@ -796,7 +652,7 @@ func TestCloneCASetVersion(t *testing.T) {
             "status": 409,
             "detail": "Cannot clone CA set version as the CA set is being deleted on one or more networks.",
             "contextInfo": {
-                "caSetId": 1,
+                "caSetId": "1",
                 "caSetName": "caSetName-26250641",
                 "deletionLink": "/mtls-edge-truststore/v2/ca-sets/1/status/delete",
                 "productionStatus": "IN_PROGRESS",
@@ -811,7 +667,7 @@ func TestCloneCASetVersion(t *testing.T) {
 		//"[TODO: Warning in Response] Error Response - Clone CA set version with expired certs": {},
 		"Error Response - Maximum allowed versions in a CA set limit reached": {
 			request: CloneCASetVersionRequest{
-				CASetID: 1,
+				CASetID: "1",
 				Version: 10,
 			},
 			responseStatus: http.StatusUnprocessableEntity,
@@ -824,7 +680,7 @@ func TestCloneCASetVersion(t *testing.T) {
 						"detail": "Cannot clone CA set version as you have already reached or exceeded the maximum allowed CA set version limit of 10 for the CA set with caSetName test.",
 						"contextInfo": {
 							"caSetName": "test",
-							"caSetId": 1,
+							"caSetId": "1",
 							"maxVersionsPerCaSet": 10
 						}
 					}`,
@@ -834,7 +690,7 @@ func TestCloneCASetVersion(t *testing.T) {
 		},
 		"Internal server error": {
 			request: CloneCASetVersionRequest{
-				CASetID: 123,
+				CASetID: "123",
 				Version: 1,
 			},
 			responseStatus: http.StatusInternalServerError,
@@ -895,13 +751,13 @@ func TestGetCASetVersion(t *testing.T) {
 	}{
 		"200 Successful get version": {
 			request: GetCASetVersionRequest{
-				CASetID: 123,
+				CASetID: "123",
 				Version: 1,
 			},
 			responseStatus: http.StatusOK,
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
 			responseBody: `{
-				"caSetId":123,
+				"caSetId":"123",
 				"version":1,
 				"caSetName":"Test CA Set",
 				"versionLink":"/mtls-edge-truststore/v2/ca-sets/123/versions/1",
@@ -917,8 +773,8 @@ func TestGetCASetVersion(t *testing.T) {
 					{
 						"subject":"Test Subject",
 						"issuer":"Test Issuer",
-						"endDate":"2025-12-31",
-						"startDate":"2025-01-01",
+						"endDate":"2025-12-31T00:00:00Z",
+						"startDate":"2025-01-01T00:00:00Z",
 						"fingerprint":"abc123",
 						"certificatePem":"-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
 						"serialNumber":"123456789",
@@ -929,29 +785,29 @@ func TestGetCASetVersion(t *testing.T) {
 				]
 			}`,
 			expectedResponse: &GetCASetVersionResponse{
-				CASetID:           123,
+				CASetID:           "123",
 				Version:           1,
 				CASetName:         "Test CA Set",
 				VersionLink:       "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
 				Description:       "Test CA Set Version",
-				AllowInsecureSha1: false,
+				AllowInsecureSHA1: false,
 				StagingStatus:     "PENDING",
 				ProductionStatus:  "PENDING",
-				CreatedDate:       "2025-04-10T00:00:00Z",
+				CreatedDate:       test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
 				CreatedBy:         "tester",
-				ModifiedDate:      "2025-04-10T00:00:00Z",
-				ModifiedBy:        "tester",
-				Certificates: []Certificate{
+				ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2025-04-10T00:00:00Z")),
+				ModifiedBy:        ptr.To("tester"),
+				Certificates: []CertificateResponse{
 					{
 						Subject:            "Test Subject",
 						Issuer:             "Test Issuer",
-						EndDate:            "2025-12-31",
-						StartDate:          "2025-01-01",
+						StartDate:          test.NewTimeFromString(t, "2025-01-01T00:00:00Z"),
+						EndDate:            test.NewTimeFromString(t, "2025-12-31T00:00:00Z"),
 						Fingerprint:        "abc123",
 						CertificatePEM:     "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
 						SerialNumber:       "123456789",
 						SignatureAlgorithm: "SHA256WithRSA",
-						CreatedDate:        "2025-04-10T00:00:00Z",
+						CreatedDate:        test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
 						CreatedBy:          "tester",
 					},
 				},
@@ -965,7 +821,7 @@ func TestGetCASetVersion(t *testing.T) {
 		},
 		"Error Response - CA set not found": {
 			request: GetCASetVersionRequest{
-				CASetID: 123,
+				CASetID: "123",
 				Version: 1,
 			},
 			responseStatus: http.StatusNotFound,
@@ -977,7 +833,7 @@ func TestGetCASetVersion(t *testing.T) {
   						"status": 404,
   						"detail": "Cannot get CA set version as the CA set with caSetId 123 is not found.",
   						"contextInfo": {
-							"caSetId": 123
+							"caSetId": "123"
   						}
 					}`,
 			withError: func(t *testing.T, err error) {
@@ -986,7 +842,7 @@ func TestGetCASetVersion(t *testing.T) {
 		},
 		"Error Response - CA set version not found": {
 			request: GetCASetVersionRequest{
-				CASetID: 123,
+				CASetID: "123",
 				Version: 12,
 			},
 			responseStatus: http.StatusNotFound,
@@ -999,7 +855,7 @@ func TestGetCASetVersion(t *testing.T) {
   						"detail": "Cannot get CA set as the CA set version with version 12 is not found in the CA set with caSetId 123",
   						"contextInfo": {
 							"caSetName": "test1",
-    						"caSetId": 123,
+    						"caSetId": "123",
     						"version": 12
   						}
 					}`,
@@ -1046,55 +902,31 @@ func TestUpdateCASetVersion(t *testing.T) {
 	}{
 		"200 Successful update": {
 			request: UpdateCASetVersionRequest{
-				CASetID: 123,
+				CASetID: "123",
+				Version: 1,
 				Body: UpdateCASetVersionRequestBody{
-					Version:           1,
 					AllowInsecureSHA1: false,
 					Description:       "Test CA Set Version",
-					Certificates: []Certificate{
+					Certificates: []CertificateRequest{
 						{
-							Subject:        "Test Subject",
-							Issuer:         "Test Issuer",
-							EndDate:        "2025-12-31",
-							StartDate:      "2025-01-01",
-							Fingerprint:    "abc123",
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-							SerialNumber:   "123456789",
 						},
 					},
 				},
 			},
 			expectedRequestBody: `{
 					  "allowInsecureSha1": false,
-					  "caSetName": "",
 					  "certificates": [
 						{
-						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-						  "createdBy": "",
-						  "createdDate": "",
-						  "endDate": "2025-12-31",
-						  "fingerprint": "abc123",
-						  "issuer": "Test Issuer",
-						  "serialNumber": "123456789",
-						  "signatureAlgorithm": "",
-						  "startDate": "2025-01-01",
-						  "subject": "Test Subject"
+						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
 						}
 					  ],
-					  "createdBy": "",
-					  "createdDate": "",
-					  "description": "Test CA Set Version",
-					  "modifiedBy": "",
-					  "modifiedDate": "",
-					  "productionStatus": "",
-					  "stagingStatus": "",
-					  "version": 1,
-					  "versionLink": ""
+					  "description": "Test CA Set Version"
 					}`,
 			responseStatus: http.StatusOK,
 			responseBody: `
 					{
-					  "caSetId": 123,
+					  "caSetId": "123",
 					  "version": 1,
 					  "caSetName": "Test CA Set",
 					  "versionLink": "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
@@ -1110,8 +942,8 @@ func TestUpdateCASetVersion(t *testing.T) {
 						{
 						  "subject": "Test Subject",
 						  "issuer": "Test Issuer",
-						  "endDate": "2025-12-31",
-						  "startDate": "2025-01-01",
+						  "endDate": "2025-12-31T00:00:00Z",
+						  "startDate": "2025-01-01T00:00:00Z",
 						  "fingerprint": "abc123",
 						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
 						  "serialNumber": "123456789",
@@ -1123,29 +955,29 @@ func TestUpdateCASetVersion(t *testing.T) {
 					}`,
 			expectedPath: `/mtls-edge-truststore/v2/ca-sets/123/versions/1`,
 			expectedResponse: &UpdateCASetVersionResponse{
-				CASetID:           123,
+				CASetID:           "123",
 				Version:           1,
 				CASetName:         "Test CA Set",
 				VersionLink:       "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
 				Description:       "Test CA Set Version",
-				AllowInsecureSha1: false,
+				AllowInsecureSHA1: false,
 				StagingStatus:     "PENDING",
 				ProductionStatus:  "PENDING",
-				CreatedDate:       "2025-04-10T00:00:00Z",
+				CreatedDate:       test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
 				CreatedBy:         "tester",
-				ModifiedDate:      "2025-04-10T00:00:00Z",
-				ModifiedBy:        "tester",
-				Certificates: []Certificate{
+				ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2025-04-10T00:00:00Z")),
+				ModifiedBy:        ptr.To("tester"),
+				Certificates: []CertificateResponse{
 					{
 						Subject:            "Test Subject",
 						Issuer:             "Test Issuer",
-						EndDate:            "2025-12-31",
-						StartDate:          "2025-01-01",
+						StartDate:          test.NewTimeFromString(t, "2025-01-01T00:00:00Z"),
+						EndDate:            test.NewTimeFromString(t, "2025-12-31T00:00:00Z"),
 						Fingerprint:        "abc123",
 						CertificatePEM:     "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
 						SerialNumber:       "123456789",
 						SignatureAlgorithm: "SHA256WithRSA",
-						CreatedDate:        "2025-04-10T00:00:00Z",
+						CreatedDate:        test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
 						CreatedBy:          "tester",
 					},
 				},
@@ -1153,20 +985,14 @@ func TestUpdateCASetVersion(t *testing.T) {
 		},
 		"Validation error - CA Set version description greater than max allowed length": {
 			request: UpdateCASetVersionRequest{
-				CASetID: 123,
+				CASetID: "123",
+				Version: 1,
 				Body: UpdateCASetVersionRequestBody{
-					Version:           1,
 					AllowInsecureSHA1: false,
 					Description:       "Test CA Set Version is a critical step in validating and ensuring the correct version of the Certificate Authority (CA) configuration is applied. It involves thorough checks, validation steps, and the verification of certificates to confirm functionality and compliance.",
-					Certificates: []Certificate{
+					Certificates: []CertificateRequest{
 						{
-							Subject:        "Test Subject",
-							Issuer:         "Test Issuer",
-							EndDate:        "2025-12-31",
-							StartDate:      "2025-01-01",
-							Fingerprint:    "abc123",
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-							SerialNumber:   "123456789",
 						},
 					},
 				},
@@ -1177,19 +1003,13 @@ func TestUpdateCASetVersion(t *testing.T) {
 		},
 		"Validation error - missing CASetID": {
 			request: UpdateCASetVersionRequest{
+				Version: 1,
 				Body: UpdateCASetVersionRequestBody{
-					Version:           1,
 					AllowInsecureSHA1: false,
 					Description:       "Missing CASetID",
-					Certificates: []Certificate{
+					Certificates: []CertificateRequest{
 						{
-							Subject:        "Test Subject",
-							Issuer:         "Test Issuer",
-							EndDate:        "2025-12-31",
-							StartDate:      "2025-01-01",
-							Fingerprint:    "abc123",
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-							SerialNumber:   "123456789",
 						},
 					},
 				},
@@ -1200,19 +1020,13 @@ func TestUpdateCASetVersion(t *testing.T) {
 		},
 		"Validation error - missing Version": {
 			request: UpdateCASetVersionRequest{
-				CASetID: 1,
+				CASetID: "1",
 				Body: UpdateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
 					Description:       "Missing CASetID",
-					Certificates: []Certificate{
+					Certificates: []CertificateRequest{
 						{
-							Subject:        "Test Subject",
-							Issuer:         "Test Issuer",
-							EndDate:        "2025-12-31",
-							StartDate:      "2025-01-01",
-							Fingerprint:    "abc123",
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-							SerialNumber:   "123456789",
 						},
 					},
 				},
@@ -1223,11 +1037,11 @@ func TestUpdateCASetVersion(t *testing.T) {
 		},
 		"Validation error - missing Certificates": {
 			request: UpdateCASetVersionRequest{
-				CASetID: 1,
+				CASetID: "1",
+				Version: 1,
 				Body: UpdateCASetVersionRequestBody{
-					Version:           1,
 					AllowInsecureSHA1: false,
-					Description:       "Missing CASetID",
+					Description:       "Missing Version",
 				},
 			},
 			withError: func(t *testing.T, err error) {
@@ -1236,100 +1050,42 @@ func TestUpdateCASetVersion(t *testing.T) {
 		},
 		"Validation error - missing Certificates.CertificatePEM": {
 			request: UpdateCASetVersionRequest{
-				CASetID: 1,
+				CASetID: "1",
+				Version: 1,
 				Body: UpdateCASetVersionRequestBody{
-					Version:           1,
 					AllowInsecureSHA1: false,
 					Description:       "Missing CASetID",
-					Certificates: []Certificate{
-						{
-							Subject:      "Test Subject",
-							Issuer:       "Test Issuer",
-							EndDate:      "2025-12-31",
-							StartDate:    "2025-01-01",
-							Fingerprint:  "abc123",
-							SerialNumber: "123456789",
-						},
+					Certificates: []CertificateRequest{
+						{},
 					},
 				},
 			},
-			expectedRequestBody: `{
-					  "allowInsecureSha1": false,
-					  "caSetName": "",
-					  "certificates": [
-						{
-						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-						  "createdBy": "",
-						  "createdDate": "",
-						  "endDate": "2025-12-31",
-						  "fingerprint": "abc123",
-						  "issuer": "Test Issuer",
-						  "serialNumber": "123456789",
-						  "signatureAlgorithm": "",
-						  "startDate": "2025-01-01",
-						  "subject": "Test Subject"
-						}
-					  ],
-					  "createdBy": "",
-					  "createdDate": "",
-					  "description": "Test CA Set Version",
-					  "modifiedBy": "",
-					  "modifiedDate": "",
-					  "productionStatus": "",
-					  "stagingStatus": "",
-					  "version": 1,
-					  "versionLink": ""
-					}`,
 			withError: func(t *testing.T, err error) {
 				assert.Equal(t, "updating a CA set version: struct validation: Certificates[0]: {\n\tCertificatePEM: cannot be blank\n}", err.Error())
 			},
 		},
 		"Error Response - CA set not found": {
 			request: UpdateCASetVersionRequest{
-				CASetID: 123,
+				CASetID: "123",
+				Version: 1,
 				Body: UpdateCASetVersionRequestBody{
-					Version:           1,
 					AllowInsecureSHA1: false,
 					Description:       "Test CA Set Version",
-					Certificates: []Certificate{
+					Certificates: []CertificateRequest{
 						{
-							Subject:        "Test Subject",
-							Issuer:         "Test Issuer",
-							EndDate:        "2025-12-31",
-							StartDate:      "2025-01-01",
-							Fingerprint:    "abc123",
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-							SerialNumber:   "123456789",
 						},
 					},
 				},
 			},
 			expectedRequestBody: `{
 					  "allowInsecureSha1": false,
-					  "caSetName": "",
 					  "certificates": [
 						{
-						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-						  "createdBy": "",
-						  "createdDate": "",
-						  "endDate": "2025-12-31",
-						  "fingerprint": "abc123",
-						  "issuer": "Test Issuer",
-						  "serialNumber": "123456789",
-						  "signatureAlgorithm": "",
-						  "startDate": "2025-01-01",
-						  "subject": "Test Subject"
+						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
 						}
 					  ],
-					  "createdBy": "",
-					  "createdDate": "",
-					  "description": "Test CA Set Version",
-					  "modifiedBy": "",
-					  "modifiedDate": "",
-					  "productionStatus": "",
-					  "stagingStatus": "",
-					  "version": 1,
-					  "versionLink": ""
+					  "description": "Test CA Set Version"
 					}`,
 			responseStatus: http.StatusNotFound,
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
@@ -1340,7 +1096,7 @@ func TestUpdateCASetVersion(t *testing.T) {
   						"status": 404,
   						"detail": "Cannot create a CA set version as the CA set with caSetId 123 is not found.",
   						"contextInfo": {
-    						"caSetId": 123
+    						"caSetId": "123"
 						}
 					}`,
 			withError: func(t *testing.T, err error) {
@@ -1349,50 +1105,26 @@ func TestUpdateCASetVersion(t *testing.T) {
 		},
 		"Error Response - CA set version not found": {
 			request: UpdateCASetVersionRequest{
-				CASetID: 123,
+				CASetID: "123",
+				Version: 12,
 				Body: UpdateCASetVersionRequestBody{
-					Version:           12,
 					AllowInsecureSHA1: false,
 					Description:       "Test CA Set Version",
-					Certificates: []Certificate{
+					Certificates: []CertificateRequest{
 						{
-							Subject:        "Test Subject",
-							Issuer:         "Test Issuer",
-							EndDate:        "2025-12-31",
-							StartDate:      "2025-01-01",
-							Fingerprint:    "abc123",
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-							SerialNumber:   "123456789",
 						},
 					},
 				},
 			},
 			expectedRequestBody: `{
 					  "allowInsecureSha1": false,
-					  "caSetName": "",
 					  "certificates": [
 						{
-						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-						  "createdBy": "",
-						  "createdDate": "",
-						  "endDate": "2025-12-31",
-						  "fingerprint": "abc123",
-						  "issuer": "Test Issuer",
-						  "serialNumber": "123456789",
-						  "signatureAlgorithm": "",
-						  "startDate": "2025-01-01",
-						  "subject": "Test Subject"
+						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
 						}
 					  ],
-					  "createdBy": "",
-					  "createdDate": "",
-					  "description": "Test CA Set Version",
-					  "modifiedBy": "",
-					  "modifiedDate": "",
-					  "productionStatus": "",
-					  "stagingStatus": "",
-					  "version": 12,
-					  "versionLink": ""
+					  "description": "Test CA Set Version"
 					}`,
 			responseStatus: http.StatusNotFound,
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions/12",
@@ -1404,7 +1136,7 @@ func TestUpdateCASetVersion(t *testing.T) {
   						"detail": "Cannot create a CA set version as the CA set with caSetId 123 is not found.",
   						"contextInfo": {
     						"caSetName": "test1",
-							"caSetId": 2,
+							"caSetId": "2",
 							"version": 12
 						}
 					}`,
@@ -1414,50 +1146,26 @@ func TestUpdateCASetVersion(t *testing.T) {
 		},
 		"Error Response - Deletion in progress for the CA Set on any network": {
 			request: UpdateCASetVersionRequest{
-				CASetID: 1,
+				CASetID: "1",
+				Version: 1,
 				Body: UpdateCASetVersionRequestBody{
-					Version:           1,
 					AllowInsecureSHA1: false,
 					Description:       "Test CA Set Version",
-					Certificates: []Certificate{
+					Certificates: []CertificateRequest{
 						{
-							Subject:        "Test Subject",
-							Issuer:         "Test Issuer",
-							EndDate:        "2025-12-31",
-							StartDate:      "2025-01-01",
-							Fingerprint:    "abc123",
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-							SerialNumber:   "123456789",
 						},
 					},
 				},
 			},
 			expectedRequestBody: `{
 					  "allowInsecureSha1": false,
-					  "caSetName": "",
 					  "certificates": [
 						{
-						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-						  "createdBy": "",
-						  "createdDate": "",
-						  "endDate": "2025-12-31",
-						  "fingerprint": "abc123",
-						  "issuer": "Test Issuer",
-						  "serialNumber": "123456789",
-						  "signatureAlgorithm": "",
-						  "startDate": "2025-01-01",
-						  "subject": "Test Subject"
+						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
 						}
 					  ],
-					  "createdBy": "",
-					  "createdDate": "",
-					  "description": "Test CA Set Version",
-					  "modifiedBy": "",
-					  "modifiedDate": "",
-					  "productionStatus": "",
-					  "stagingStatus": "",
-					  "version": 1,
-					  "versionLink": ""
+					  "description": "Test CA Set Version"
 					}`,
 			responseStatus: http.StatusConflict,
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/versions/1",
@@ -1468,7 +1176,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 						"status": 409,
 						"detail": "Cannot update CA set version as the CA set is being deleted on one or more networks.",
 						"contextInfo": {
-							"caSetId": 1,
+							"caSetId": "1",
 							"caSetName": "caSetName-123",
 							"deletionLink": "/mtls-edge-truststore/v2/ca-sets/1/status/delete",
 							"productionStatus": "IN_PROGRESS",
@@ -1482,50 +1190,26 @@ func TestUpdateCASetVersion(t *testing.T) {
 		},
 		"Error Response - Version is being activated or deactivated on either network (STAGING or PRODUCTION)": {
 			request: UpdateCASetVersionRequest{
-				CASetID: 1,
+				CASetID: "1",
+				Version: 1,
 				Body: UpdateCASetVersionRequestBody{
-					Version:           1,
 					AllowInsecureSHA1: false,
 					Description:       "Test CA Set Version",
-					Certificates: []Certificate{
+					Certificates: []CertificateRequest{
 						{
-							Subject:        "Test Subject",
-							Issuer:         "Test Issuer",
-							EndDate:        "2025-12-31",
-							StartDate:      "2025-01-01",
-							Fingerprint:    "abc123",
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-							SerialNumber:   "123456789",
 						},
 					},
 				},
 			},
 			expectedRequestBody: `{
 					  "allowInsecureSha1": false,
-					  "caSetName": "",
 					  "certificates": [
 						{
-						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-						  "createdBy": "",
-						  "createdDate": "",
-						  "endDate": "2025-12-31",
-						  "fingerprint": "abc123",
-						  "issuer": "Test Issuer",
-						  "serialNumber": "123456789",
-						  "signatureAlgorithm": "",
-						  "startDate": "2025-01-01",
-						  "subject": "Test Subject"
+						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
 						}
 					  ],
-					  "createdBy": "",
-					  "createdDate": "",
-					  "description": "Test CA Set Version",
-					  "modifiedBy": "",
-					  "modifiedDate": "",
-					  "productionStatus": "",
-					  "stagingStatus": "",
-					  "version": 1,
-					  "versionLink": ""
+					  "description": "Test CA Set Version"
 					}`,
 			responseStatus: http.StatusUnprocessableEntity,
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/versions/1",
@@ -1536,7 +1220,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 						"status": 422,
 						"detail": "Cannot update the CA set version with version 1 as it is active on production network.",
 						"contextInfo": {
-							"caSetId": 1,
+							"caSetId": "1",
 							"caSetName": "tést",
 							"version": 1
 						}
@@ -1547,57 +1231,33 @@ func TestUpdateCASetVersion(t *testing.T) {
 		},
 		"Error Response - CA set version is currently active (Production)": {
 			request: UpdateCASetVersionRequest{
-				CASetID: 1,
+				CASetID: "1",
+				Version: 1,
 				Body: UpdateCASetVersionRequestBody{
-					Version:           1,
 					AllowInsecureSHA1: false,
 					Description:       "Test CA Set Version",
-					Certificates: []Certificate{
+					Certificates: []CertificateRequest{
 						{
-							Subject:        "Test Subject",
-							Issuer:         "Test Issuer",
-							EndDate:        "2025-12-31",
-							StartDate:      "2025-01-01",
-							Fingerprint:    "abc123",
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-							SerialNumber:   "123456789",
 						},
 					},
 				},
 			},
 			expectedRequestBody: `{
 					  "allowInsecureSha1": false,
-					  "caSetName": "",
 					  "certificates": [
 						{
-						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-						  "createdBy": "",
-						  "createdDate": "",
-						  "endDate": "2025-12-31",
-						  "fingerprint": "abc123",
-						  "issuer": "Test Issuer",
-						  "serialNumber": "123456789",
-						  "signatureAlgorithm": "",
-						  "startDate": "2025-01-01",
-						  "subject": "Test Subject"
+						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
 						}
 					  ],
-					  "createdBy": "",
-					  "createdDate": "",
-					  "description": "Test CA Set Version",
-					  "modifiedBy": "",
-					  "modifiedDate": "",
-					  "productionStatus": "",
-					  "stagingStatus": "",
-					  "version": 1,
-					  "versionLink": ""
+					  "description": "Test CA Set Version"
 					}`,
 			responseStatus: http.StatusUnprocessableEntity,
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/versions/1",
 			responseBody: `
 		{
 			"contextInfo": {
-				"caSetId": 1,
+				"caSetId": "1",
 				"caSetName": "tést",
 				"version": 1
 			},
@@ -1612,50 +1272,26 @@ func TestUpdateCASetVersion(t *testing.T) {
 		},
 		"Error Response - CA set version is currently active (Staging)": {
 			request: UpdateCASetVersionRequest{
-				CASetID: 1,
+				CASetID: "1",
+				Version: 1,
 				Body: UpdateCASetVersionRequestBody{
-					Version:           1,
 					AllowInsecureSHA1: false,
 					Description:       "Test CA Set Version",
-					Certificates: []Certificate{
+					Certificates: []CertificateRequest{
 						{
-							Subject:        "Test Subject",
-							Issuer:         "Test Issuer",
-							EndDate:        "2025-12-31",
-							StartDate:      "2025-01-01",
-							Fingerprint:    "abc123",
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-							SerialNumber:   "123456789",
 						},
 					},
 				},
 			},
 			expectedRequestBody: `{
 					  "allowInsecureSha1": false,
-					  "caSetName": "",
 					  "certificates": [
 						{
-						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-						  "createdBy": "",
-						  "createdDate": "",
-						  "endDate": "2025-12-31",
-						  "fingerprint": "abc123",
-						  "issuer": "Test Issuer",
-						  "serialNumber": "123456789",
-						  "signatureAlgorithm": "",
-						  "startDate": "2025-01-01",
-						  "subject": "Test Subject"
+						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
 						}
 					  ],
-					  "createdBy": "",
-					  "createdDate": "",
-					  "description": "Test CA Set Version",
-					  "modifiedBy": "",
-					  "modifiedDate": "",
-					  "productionStatus": "",
-					  "stagingStatus": "",
-					  "version": 1,
-					  "versionLink": ""
+					  "description": "Test CA Set Version"
 					}`,
 			responseStatus: http.StatusUnprocessableEntity,
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/versions/1",
@@ -1667,7 +1303,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 			"detail": "Cannot update the CA set version with version 1 as it is  active on staging network/s.",
 			"contextInfo": {
 				"caSetName": "tést",
-				"caSetId": 1,
+				"caSetId": "1",
 				"version": 1
 			}
 		}`,
@@ -1677,57 +1313,33 @@ func TestUpdateCASetVersion(t *testing.T) {
 		},
 		"Error Response - CA set version was previously active": {
 			request: UpdateCASetVersionRequest{
-				CASetID: 123,
+				CASetID: "123",
+				Version: 1,
 				Body: UpdateCASetVersionRequestBody{
-					Version:           1,
 					AllowInsecureSHA1: false,
 					Description:       "Test CA Set Version",
-					Certificates: []Certificate{
+					Certificates: []CertificateRequest{
 						{
-							Subject:        "Test Subject",
-							Issuer:         "Test Issuer",
-							EndDate:        "2025-12-31",
-							StartDate:      "2025-01-01",
-							Fingerprint:    "abc123",
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-							SerialNumber:   "123456789",
 						},
 					},
 				},
 			},
 			expectedRequestBody: `{
 					  "allowInsecureSha1": false,
-					  "caSetName": "",
 					  "certificates": [
 						{
-						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-						  "createdBy": "",
-						  "createdDate": "",
-						  "endDate": "2025-12-31",
-						  "fingerprint": "abc123",
-						  "issuer": "Test Issuer",
-						  "serialNumber": "123456789",
-						  "signatureAlgorithm": "",
-						  "startDate": "2025-01-01",
-						  "subject": "Test Subject"
+						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
 						}
 					  ],
-					  "createdBy": "",
-					  "createdDate": "",
-					  "description": "Test CA Set Version",
-					  "modifiedBy": "",
-					  "modifiedDate": "",
-					  "productionStatus": "",
-					  "stagingStatus": "",
-					  "version": 1,
-					  "versionLink": ""
+					  "description": "Test CA Set Version"
 					}`,
 			responseStatus: http.StatusUnprocessableEntity,
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
 			responseBody: `
 		{
 			"contextInfo": {
-				"caSetId": 123,
+				"caSetId": "123",
 				"caSetName": "1.13_bc_testing-COPY",
 				"version": 1
 			},
@@ -1742,57 +1354,33 @@ func TestUpdateCASetVersion(t *testing.T) {
 		},
 		"Error Response - One or more certificates is invalid": {
 			request: UpdateCASetVersionRequest{
-				CASetID: 123,
+				CASetID: "123",
+				Version: 1,
 				Body: UpdateCASetVersionRequestBody{
-					Version:           1,
 					AllowInsecureSHA1: false,
 					Description:       "Test CA Set Version",
-					Certificates: []Certificate{
+					Certificates: []CertificateRequest{
 						{
-							Subject:        "Test Subject",
-							Issuer:         "Test Issuer",
-							EndDate:        "2025-12-31",
-							StartDate:      "2025-01-01",
-							Fingerprint:    "abc123",
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-							SerialNumber:   "123456789",
 						},
 					},
 				},
 			},
 			expectedRequestBody: `{
 					  "allowInsecureSha1": false,
-					  "caSetName": "",
 					  "certificates": [
 						{
-						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-						  "createdBy": "",
-						  "createdDate": "",
-						  "endDate": "2025-12-31",
-						  "fingerprint": "abc123",
-						  "issuer": "Test Issuer",
-						  "serialNumber": "123456789",
-						  "signatureAlgorithm": "",
-						  "startDate": "2025-01-01",
-						  "subject": "Test Subject"
+						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
 						}
 					  ],
-					  "createdBy": "",
-					  "createdDate": "",
-					  "description": "Test CA Set Version",
-					  "modifiedBy": "",
-					  "modifiedDate": "",
-					  "productionStatus": "",
-					  "stagingStatus": "",
-					  "version": 1,
-					  "versionLink": ""
+					  "description": "Test CA Set Version"
 					}`,
 			responseStatus: http.StatusBadRequest,
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
 			responseBody: `
 		{
 			"contextInfo": {
-				"caSetId": 123,
+				"caSetId": "123",
 				"caSetName": "test ca set",
 				"version": 1
 			},
@@ -1818,57 +1406,33 @@ func TestUpdateCASetVersion(t *testing.T) {
 		},
 		"Error Response - Certificate count exceeds allowed limit": {
 			request: UpdateCASetVersionRequest{
-				CASetID: 123,
+				CASetID: "123",
+				Version: 2,
 				Body: UpdateCASetVersionRequestBody{
-					Version:           2,
 					AllowInsecureSHA1: false,
 					Description:       "Test CA Set Version",
-					Certificates: []Certificate{
+					Certificates: []CertificateRequest{
 						{
-							Subject:        "Test Subject",
-							Issuer:         "Test Issuer",
-							EndDate:        "2025-12-31",
-							StartDate:      "2025-01-01",
-							Fingerprint:    "abc123",
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-							SerialNumber:   "123456789",
 						},
 					},
 				},
 			},
 			expectedRequestBody: `{
 					  "allowInsecureSha1": false,
-					  "caSetName": "",
 					  "certificates": [
 						{
-						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-						  "createdBy": "",
-						  "createdDate": "",
-						  "endDate": "2025-12-31",
-						  "fingerprint": "abc123",
-						  "issuer": "Test Issuer",
-						  "serialNumber": "123456789",
-						  "signatureAlgorithm": "",
-						  "startDate": "2025-01-01",
-						  "subject": "Test Subject"
+						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
 						}
 					  ],
-					  "createdBy": "",
-					  "createdDate": "",
-					  "description": "Test CA Set Version",
-					  "modifiedBy": "",
-					  "modifiedDate": "",
-					  "productionStatus": "",
-					  "stagingStatus": "",
-					  "version": 2,
-					  "versionLink": ""
+					  "description": "Test CA Set Version"
 					}`,
 			responseStatus: http.StatusUnprocessableEntity,
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions/2",
 			responseBody: `
 		{
 			"contextInfo": {
-				"caSetId": 123,
+				"caSetId": "123",
 				"caSetName": "sveerava-test-13456111",
 				"maxCertificatesPerVersion": 1,
 				"submittedCertificatesCount": 2,
@@ -1885,50 +1449,26 @@ func TestUpdateCASetVersion(t *testing.T) {
 		},
 		"Internal server error": {
 			request: UpdateCASetVersionRequest{
-				CASetID: 123,
+				CASetID: "123",
+				Version: 1,
 				Body: UpdateCASetVersionRequestBody{
-					Version:           1,
 					AllowInsecureSHA1: false,
 					Description:       "Test CA Set Version",
-					Certificates: []Certificate{
+					Certificates: []CertificateRequest{
 						{
-							Subject:        "Test Subject",
-							Issuer:         "Test Issuer",
-							EndDate:        "2025-12-31",
-							StartDate:      "2025-01-01",
-							Fingerprint:    "abc123",
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-							SerialNumber:   "123456789",
 						},
 					},
 				},
 			},
 			expectedRequestBody: `{
 					  "allowInsecureSha1": false,
-					  "caSetName": "",
 					  "certificates": [
 						{
-						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
-						  "createdBy": "",
-						  "createdDate": "",
-						  "endDate": "2025-12-31",
-						  "fingerprint": "abc123",
-						  "issuer": "Test Issuer",
-						  "serialNumber": "123456789",
-						  "signatureAlgorithm": "",
-						  "startDate": "2025-01-01",
-						  "subject": "Test Subject"
+						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
 						}
 					  ],
-					  "createdBy": "",
-					  "createdDate": "",
-					  "description": "Test CA Set Version",
-					  "modifiedBy": "",
-					  "modifiedDate": "",
-					  "productionStatus": "",
-					  "stagingStatus": "",
-					  "version": 1,
-					  "versionLink": ""
+					  "description": "Test CA Set Version"
 					}`,
 			responseStatus: http.StatusInternalServerError,
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
@@ -1992,7 +1532,7 @@ func TestListCASetVersion(t *testing.T) {
 	}{
 		"200 Successfully Lists versions": {
 			request: ListCASetVersionsRequest{
-				CASetID: 123,
+				CASetID: "123",
 			},
 			responseStatus: http.StatusOK,
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions?",
@@ -2001,7 +1541,7 @@ func TestListCASetVersion(t *testing.T) {
 					  {
 						 "version": 1,
 						 "versionLink": "/mtls-edge-truststore/v2/ca-sets/1000/versions/1",
-						 "caSetId" : 1000,
+						 "caSetId" : "1000",
 						 "caSetName": "test1",
 						 "description": "Optional description for this version.",
 						 "allowInsecureSha1": false,
@@ -2041,7 +1581,7 @@ func TestListCASetVersion(t *testing.T) {
 						 ]
 					  },
 					  {
-						 "caSetId" : 1000,
+						 "caSetId" : "1000",
 						 "caSetName": "test1", 
 						 "version": 2,
 						 "versionLink": "/mtls-edge-truststore/v2/ca-sets/1000/versions/2",
@@ -2087,85 +1627,85 @@ func TestListCASetVersion(t *testing.T) {
 			expectedResponse: &ListCASetVersionsResponse{
 				Versions: []CASetVersion{
 					{
-						CASetID:           1000,
+						CASetID:           "1000",
 						Version:           1,
 						CASetName:         "test1",
 						VersionLink:       "/mtls-edge-truststore/v2/ca-sets/1000/versions/1",
 						Description:       "Optional description for this version.",
-						AllowInsecureSha1: false,
+						AllowInsecureSHA1: false,
 						StagingStatus:     "ACTIVE",
 						ProductionStatus:  "INACTIVE",
-						CreatedDate:       "2023-01-10T11:00:00Z",
+						CreatedDate:       test.NewTimeFromString(t, "2023-01-10T11:00:00Z"),
 						CreatedBy:         "jsmith",
-						ModifiedDate:      "2023-01-10T12:00:00Z",
-						ModifiedBy:        "jsmith",
-						Certificates: []Certificate{
+						ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2023-01-10T12:00:00Z")),
+						ModifiedBy:        ptr.To("jsmith"),
+						Certificates: []CertificateResponse{
 							{
 								Subject:            "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate.tcm-11-example.com",
 								Issuer:             "C=US,ST=MA,L=Cambridge,O=Akamai,CN=tcm-13-example.com",
-								EndDate:            "2020-04-07T17:33:39Z",
-								StartDate:          "2019-04-08T17:33:39Z",
+								EndDate:            test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
+								StartDate:          test.NewTimeFromString(t, "2019-04-08T17:33:39Z"),
 								Fingerprint:        "1E:DD:AD:32:C3:54:3F:C3:6F:7F:94:51:8D:5E:F7:ED:7C:DB:5D:A5",
 								CertificatePEM:     "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 								SerialNumber:       "11612024106234270900",
 								SignatureAlgorithm: "SHA256WITHRSA",
-								CreatedDate:        "2020-04-07T17:33:39Z",
+								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
 								CreatedBy:          "jsmith2",
 								Description:        "Optional description for the certificate",
 							},
 							{
 								Subject:            "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate1.tcm-11-example.com",
 								Issuer:             "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate.tcm-11-example.com",
-								EndDate:            "2020-04-07T17:43:58Z",
-								StartDate:          "2019-04-08T17:43:58Z",
+								EndDate:            test.NewTimeFromString(t, "2020-04-07T17:43:58Z"),
+								StartDate:          test.NewTimeFromString(t, "2019-04-08T17:43:58Z"),
 								Fingerprint:        "1F:DD:AD:32:C3:54:3F:C3:6F:7F:04:51:8D:5E:F7:ED:7C:DB:5D:A5",
 								CertificatePEM:     "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 								SerialNumber:       "11612024106234270901",
 								SignatureAlgorithm: "SHA256WITHRSA",
-								CreatedDate:        "2020-04-07T17:33:39Z",
+								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
 								CreatedBy:          "jsmith2",
 								Description:        "Optional description for the certificate",
 							},
 						},
 					},
 					{
-						CASetID: 1000,
+						CASetID: "1000",
 						Version: 2,
 
 						CASetName:         "test1",
 						VersionLink:       "/mtls-edge-truststore/v2/ca-sets/1000/versions/2",
 						Description:       "", // null in JSON maps to empty string in Go
-						AllowInsecureSha1: true,
+						AllowInsecureSHA1: true,
 						StagingStatus:     "ACTIVE",
 						ProductionStatus:  "INACTIVE",
-						CreatedDate:       "2023-01-10T11:00:00Z",
+						CreatedDate:       test.NewTimeFromString(t, "2023-01-10T11:00:00Z"),
 						CreatedBy:         "jsmith",
-						ModifiedDate:      "2023-01-10T12:00:00Z",
-						ModifiedBy:        "jsmith",
-						Certificates: []Certificate{
+						ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2023-01-10T12:00:00Z")),
+						ModifiedBy:        ptr.To("jsmith"),
+						Certificates: []CertificateResponse{
 							{
 								Subject:            "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate.tcm-11-example.com",
 								Issuer:             "C=US,ST=MA,L=Cambridge,O=Akamai,CN=tcm-13-example.com",
-								EndDate:            "2020-04-07T17:33:39Z",
-								StartDate:          "2019-04-08T17:33:39Z",
+								EndDate:            test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
+								StartDate:          test.NewTimeFromString(t, "2019-04-08T17:33:39Z"),
 								Fingerprint:        "1E:DD:AD:32:C3:54:3F:C3:6F:7F:94:51:8D:5E:F7:ED:7C:DB:5D:A5",
 								CertificatePEM:     "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 								SerialNumber:       "11612024106234270900",
 								SignatureAlgorithm: "SHA256WITHRSA",
-								CreatedDate:        "2020-04-07T17:33:39Z",
+								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
 								CreatedBy:          "jsmith2",
 								Description:        "Optional description for the certificate",
 							},
 							{
 								Subject:            "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate1.tcm-11-example.com",
 								Issuer:             "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate.tcm-11-example.com",
-								EndDate:            "2020-04-07T17:43:58Z",
-								StartDate:          "2019-04-08T17:43:58Z",
+								EndDate:            test.NewTimeFromString(t, "2020-04-07T17:43:58Z"),
+								StartDate:          test.NewTimeFromString(t, "2019-04-08T17:43:58Z"),
 								Fingerprint:        "1F:DD:AD:32:C3:54:3F:C3:6F:7F:04:51:8D:5E:F7:ED:7C:DB:5D:A6",
 								CertificatePEM:     "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 								SerialNumber:       "11612024106234270901",
 								SignatureAlgorithm: "SHA256WITHRSA",
-								CreatedDate:        "2020-04-07T17:33:39Z",
+								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
 								CreatedBy:          "jsmith2",
 								Description:        "Optional description for the certificate",
 							},
@@ -2176,9 +1716,9 @@ func TestListCASetVersion(t *testing.T) {
 		},
 		"200 Successfully Lists versions with optional params": {
 			request: ListCASetVersionsRequest{
-				CASetID:             123,
-				IncludeCertificates: ptr.To(true),
-				ActiveVersionsOnly:  ptr.To(true),
+				CASetID:             "123",
+				IncludeCertificates: true,
+				ActiveVersionsOnly:  true,
 			},
 			responseStatus: http.StatusOK,
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions?activeVersionsOnly=true&includeCertificates=true",
@@ -2187,7 +1727,7 @@ func TestListCASetVersion(t *testing.T) {
 					  {
 						 "version": 1,
 						 "versionLink": "/mtls-edge-truststore/v2/ca-sets/1000/versions/1",
-						 "caSetId" : 1000,
+						 "caSetId" : "1000",
 						 "caSetName": "test1",
 						 "description": "Optional description for this version.",
 						 "allowInsecureSha1": false,
@@ -2227,7 +1767,7 @@ func TestListCASetVersion(t *testing.T) {
 						 ]
 					  },
 					  {
-						 "caSetId" : 1000,
+						 "caSetId" : "1000",
 						 "caSetName": "test1", 
 						 "version": 2,
 						 "versionLink": "/mtls-edge-truststore/v2/ca-sets/1000/versions/2",
@@ -2273,84 +1813,84 @@ func TestListCASetVersion(t *testing.T) {
 			expectedResponse: &ListCASetVersionsResponse{
 				Versions: []CASetVersion{
 					{
-						CASetID:           1000,
+						CASetID:           "1000",
 						Version:           1,
 						CASetName:         "test1",
 						VersionLink:       "/mtls-edge-truststore/v2/ca-sets/1000/versions/1",
 						Description:       "Optional description for this version.",
-						AllowInsecureSha1: false,
+						AllowInsecureSHA1: false,
 						StagingStatus:     "ACTIVE",
 						ProductionStatus:  "ACTIVE",
-						CreatedDate:       "2023-01-10T11:00:00Z",
+						CreatedDate:       test.NewTimeFromString(t, "2023-01-10T11:00:00Z"),
 						CreatedBy:         "jsmith",
-						ModifiedDate:      "2023-01-10T12:00:00Z",
-						ModifiedBy:        "jsmith",
-						Certificates: []Certificate{
+						ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2023-01-10T12:00:00Z")),
+						ModifiedBy:        ptr.To("jsmith"),
+						Certificates: []CertificateResponse{
 							{
 								Subject:            "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate.tcm-11-example.com",
 								Issuer:             "C=US,ST=MA,L=Cambridge,O=Akamai,CN=tcm-13-example.com",
-								EndDate:            "2020-04-07T17:33:39Z",
-								StartDate:          "2019-04-08T17:33:39Z",
+								EndDate:            test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
+								StartDate:          test.NewTimeFromString(t, "2019-04-08T17:33:39Z"),
 								Fingerprint:        "1E:DD:AD:32:C3:54:3F:C3:6F:7F:94:51:8D:5E:F7:ED:7C:DB:5D:A5",
 								CertificatePEM:     "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 								SerialNumber:       "11612024106234270900",
 								SignatureAlgorithm: "SHA256WITHRSA",
-								CreatedDate:        "2020-04-07T17:33:39Z",
+								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
 								CreatedBy:          "jsmith2",
 								Description:        "Optional description for the certificate",
 							},
 							{
 								Subject:            "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate1.tcm-11-example.com",
 								Issuer:             "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate.tcm-11-example.com",
-								EndDate:            "2020-04-07T17:43:58Z",
-								StartDate:          "2019-04-08T17:43:58Z",
+								EndDate:            test.NewTimeFromString(t, "2020-04-07T17:43:58Z"),
+								StartDate:          test.NewTimeFromString(t, "2019-04-08T17:43:58Z"),
 								Fingerprint:        "1F:DD:AD:32:C3:54:3F:C3:6F:7F:04:51:8D:5E:F7:ED:7C:DB:5D:A5",
 								CertificatePEM:     "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 								SerialNumber:       "11612024106234270901",
 								SignatureAlgorithm: "SHA256WITHRSA",
-								CreatedDate:        "2020-04-07T17:33:39Z",
+								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
 								CreatedBy:          "jsmith2",
 								Description:        "Optional description for the certificate",
 							},
 						},
 					},
 					{
-						CASetID:           1000,
+						CASetID:           "1000",
 						Version:           2,
 						CASetName:         "test1",
 						VersionLink:       "/mtls-edge-truststore/v2/ca-sets/1000/versions/2",
 						Description:       "", // null in JSON maps to empty string in Go
-						AllowInsecureSha1: true,
+						AllowInsecureSHA1: true,
 						StagingStatus:     "ACTIVE",
 						ProductionStatus:  "ACTIVE",
-						CreatedDate:       "2023-01-10T11:00:00Z",
+						CreatedDate:       test.NewTimeFromString(t, "2023-01-10T11:00:00Z"),
 						CreatedBy:         "jsmith",
-						ModifiedDate:      "2023-01-10T12:00:00Z",
-						ModifiedBy:        "jsmith",
-						Certificates: []Certificate{
+						ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2023-01-10T12:00:00Z")),
+						ModifiedBy:        ptr.To("jsmith"),
+						Certificates: []CertificateResponse{
 							{
 								Subject:            "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate.tcm-11-example.com",
 								Issuer:             "C=US,ST=MA,L=Cambridge,O=Akamai,CN=tcm-13-example.com",
-								EndDate:            "2020-04-07T17:33:39Z",
-								StartDate:          "2019-04-08T17:33:39Z",
+								EndDate:            test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
+								StartDate:          test.NewTimeFromString(t, "2019-04-08T17:33:39Z"),
 								Fingerprint:        "1E:DD:AD:32:C3:54:3F:C3:6F:7F:94:51:8D:5E:F7:ED:7C:DB:5D:A5",
 								CertificatePEM:     "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 								SerialNumber:       "11612024106234270900",
 								SignatureAlgorithm: "SHA256WITHRSA",
-								CreatedDate:        "2020-04-07T17:33:39Z",
+								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
 								CreatedBy:          "jsmith2",
 								Description:        "Optional description for the certificate",
 							},
 							{
 								Subject:            "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate1.tcm-11-example.com",
 								Issuer:             "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate.tcm-11-example.com",
-								EndDate:            "2020-04-07T17:43:58Z",
-								StartDate:          "2019-04-08T17:43:58Z",
+								EndDate:            test.NewTimeFromString(t, "2020-04-07T17:43:58Z"),
+								StartDate:          test.NewTimeFromString(t, "2019-04-08T17:43:58Z"),
 								Fingerprint:        "1F:DD:AD:32:C3:54:3F:C3:6F:7F:04:51:8D:5E:F7:ED:7C:DB:5D:A6",
 								CertificatePEM:     "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 								SerialNumber:       "11612024106234270901",
 								SignatureAlgorithm: "SHA256WITHRSA",
-								CreatedDate:        "2020-04-07T17:33:39Z",
+								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
 								CreatedBy:          "jsmith2",
 								Description:        "Optional description for the certificate",
 							},
@@ -2361,18 +1901,18 @@ func TestListCASetVersion(t *testing.T) {
 		},
 		"200 Successfully Lists versions with optional params 2": {
 			request: ListCASetVersionsRequest{
-				CASetID:             123,
-				IncludeCertificates: ptr.To(false),
-				ActiveVersionsOnly:  ptr.To(true),
+				CASetID:             "1000",
+				IncludeCertificates: false,
+				ActiveVersionsOnly:  true,
 			},
 			responseStatus: http.StatusOK,
-			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions?activeVersionsOnly=true&includeCertificates=false",
+			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1000/versions?activeVersionsOnly=true",
 			responseBody: `{
 				   "versions": [
 					  {
 						 "version": 1,
 						 "versionLink": "/mtls-edge-truststore/v2/ca-sets/1000/versions/1",
-						 "caSetId" : 1000,
+						 "caSetId" : "1000",
 						 "caSetName": "test1",
 						 "description": "Optional description for this version.",
 						 "allowInsecureSha1": false,
@@ -2384,7 +1924,7 @@ func TestListCASetVersion(t *testing.T) {
 						 "modifiedBy": "jsmith"
 					  },
 					  {
-						 "caSetId" : 1000,
+						 "caSetId" : "1000",
 						 "caSetName": "test1", 
 						 "version": 2,
 						 "versionLink": "/mtls-edge-truststore/v2/ca-sets/1000/versions/2",
@@ -2402,33 +1942,33 @@ func TestListCASetVersion(t *testing.T) {
 			expectedResponse: &ListCASetVersionsResponse{
 				Versions: []CASetVersion{
 					{
-						CASetID:           1000,
+						CASetID:           "1000",
 						Version:           1,
 						CASetName:         "test1",
 						VersionLink:       "/mtls-edge-truststore/v2/ca-sets/1000/versions/1",
 						Description:       "Optional description for this version.",
-						AllowInsecureSha1: false,
+						AllowInsecureSHA1: false,
 						StagingStatus:     "ACTIVE",
 						ProductionStatus:  "ACTIVE",
-						CreatedDate:       "2023-01-10T11:00:00Z",
+						CreatedDate:       test.NewTimeFromString(t, "2023-01-10T11:00:00Z"),
 						CreatedBy:         "jsmith",
-						ModifiedDate:      "2023-01-10T12:00:00Z",
-						ModifiedBy:        "jsmith",
+						ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2023-01-10T12:00:00Z")),
+						ModifiedBy:        ptr.To("jsmith"),
 					},
 					{
-						CASetID: 1000,
+						CASetID: "1000",
 						Version: 2,
 
 						CASetName:         "test1",
 						VersionLink:       "/mtls-edge-truststore/v2/ca-sets/1000/versions/2",
 						Description:       "", // null in JSON maps to empty string in Go
-						AllowInsecureSha1: true,
+						AllowInsecureSHA1: true,
 						StagingStatus:     "ACTIVE",
 						ProductionStatus:  "ACTIVE",
-						CreatedDate:       "2023-01-10T11:00:00Z",
+						CreatedDate:       test.NewTimeFromString(t, "2023-01-10T11:00:00Z"),
 						CreatedBy:         "jsmith",
-						ModifiedDate:      "2023-01-10T12:00:00Z",
-						ModifiedBy:        "jsmith",
+						ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2023-01-10T12:00:00Z")),
+						ModifiedBy:        ptr.To("jsmith"),
 					},
 				},
 			},
@@ -2441,7 +1981,7 @@ func TestListCASetVersion(t *testing.T) {
 		},
 		"Error Response - CA set is not found": {
 			request: ListCASetVersionsRequest{
-				CASetID: 123,
+				CASetID: "123",
 			},
 			responseStatus: http.StatusNotFound,
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions?",
@@ -2452,7 +1992,7 @@ func TestListCASetVersion(t *testing.T) {
   						"status": 404,
   						"detail": "Cannot get CA set version as the CA set with caSetId 123 is not found.",
   						"contextInfo": {
-							"caSetId": 123
+							"caSetId": "123"
   						}
 					}`,
 			withError: func(t *testing.T, err error) {
@@ -2497,13 +2037,13 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 	}{
 		"200 Successful get certificates of a version": {
 			request: GetCASetVersionCertificatesRequest{
-				CASetID: 123,
+				CASetID: "123",
 				Version: 1,
 			},
 			responseStatus: http.StatusOK,
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions/1/certificates",
 			responseBody: `{
-				  "caSetId" : 1,
+				  "caSetId" : "123",
 				  "caSetName": "test1",
 				  "version": 1,
 				  "certificates": [
@@ -2536,33 +2076,33 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 				]
 			}`,
 			expectedResponse: &GetCASetVersionCertificatesResponse{
-				CASetID:   1,
+				CASetID:   "123",
 				Version:   1,
 				CASetName: "test1",
-				Certificates: []Certificate{
+				Certificates: []CertificateResponse{
 					{
 						Subject:            "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate.tcm-11-example.com",
 						Issuer:             "C=US,ST=MA,L=Cambridge,O=Akamai,CN=tcm-13-example.com",
-						EndDate:            "2020-04-07T17:33:39Z",
-						StartDate:          "2019-04-08T17:33:39Z",
+						EndDate:            test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
+						StartDate:          test.NewTimeFromString(t, "2019-04-08T17:33:39Z"),
 						Fingerprint:        "1E:DD:AD:32:C3:54:3F:C3:6F:7F:94:51:8D:5E:F7:ED:7C:DB:5D:A5",
 						CertificatePEM:     "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 						SerialNumber:       "11612024106234272000",
 						SignatureAlgorithm: "SHA256WITHRSA",
-						CreatedDate:        "2020-04-07T17:33:39Z",
+						CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
 						Description:        "Optional description for the certificate",
 						CreatedBy:          "jsmith2",
 					},
 					{
 						Subject:            "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate1.tcm-11-example.com",
 						Issuer:             "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate.tcm-11-example.com",
-						EndDate:            "2020-04-07T17:43:58Z",
-						StartDate:          "2019-04-08T17:43:58Z",
+						EndDate:            test.NewTimeFromString(t, "2020-04-07T17:43:58Z"),
+						StartDate:          test.NewTimeFromString(t, "2019-04-08T17:43:58Z"),
 						Fingerprint:        "1F:DD:AD:32:C3:54:3F:C3:6F:7F:04:51:8D:5E:F7:ED:7C:DB:5D:A5",
 						CertificatePEM:     "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 						SerialNumber:       "11612024106234272000",
 						SignatureAlgorithm: "SHA256WITHRSA",
-						CreatedDate:        "2020-04-07T17:33:39Z",
+						CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
 						Description:        "Optional description for the certificate",
 						CreatedBy:          "jsmith2",
 					},
@@ -2571,7 +2111,7 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 		},
 		"200 Successful get certificates of a version with CertificateStatus as EXPIRED and ExpiryThresholdInDays 10": {
 			request: GetCASetVersionCertificatesRequest{
-				CASetID:               123,
+				CASetID:               "123",
 				Version:               1,
 				ExpiryThresholdInDays: ptr.To(10),
 				CertificateStatus:     ptr.To(CertificateStatus("EXPIRED")),
@@ -2579,7 +2119,7 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 			responseStatus: http.StatusOK,
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions/1/certificates?certificateStatus=EXPIRED&expiryThresholdInDays=10",
 			responseBody: `{
-				  "caSetId" : 1,
+				  "caSetId" : "123",
 				  "caSetName": "test1",
 				  "version": 1,
 				  "certificates": [
@@ -2612,33 +2152,33 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 				]
 			}`,
 			expectedResponse: &GetCASetVersionCertificatesResponse{
-				CASetID:   1,
+				CASetID:   "123",
 				Version:   1,
 				CASetName: "test1",
-				Certificates: []Certificate{
+				Certificates: []CertificateResponse{
 					{
 						Subject:            "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate.tcm-11-example.com",
 						Issuer:             "C=US,ST=MA,L=Cambridge,O=Akamai,CN=tcm-13-example.com",
-						EndDate:            "2020-04-07T17:33:39Z",
-						StartDate:          "2019-04-08T17:33:39Z",
+						EndDate:            test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
+						StartDate:          test.NewTimeFromString(t, "2019-04-08T17:33:39Z"),
 						Fingerprint:        "1E:DD:AD:32:C3:54:3F:C3:6F:7F:94:51:8D:5E:F7:ED:7C:DB:5D:A5",
 						CertificatePEM:     "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 						SerialNumber:       "11612024106234272000",
 						SignatureAlgorithm: "SHA256WITHRSA",
-						CreatedDate:        "2020-04-07T17:33:39Z",
+						CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
 						Description:        "Optional description for the certificate",
 						CreatedBy:          "jsmith2",
 					},
 					{
 						Subject:            "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate1.tcm-11-example.com",
 						Issuer:             "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate.tcm-11-example.com",
-						EndDate:            "2020-04-07T17:43:58Z",
-						StartDate:          "2019-04-08T17:43:58Z",
+						EndDate:            test.NewTimeFromString(t, "2020-04-07T17:43:58Z"),
+						StartDate:          test.NewTimeFromString(t, "2019-04-08T17:43:58Z"),
 						Fingerprint:        "1F:DD:AD:32:C3:54:3F:C3:6F:7F:04:51:8D:5E:F7:ED:7C:DB:5D:A5",
 						CertificatePEM:     "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 						SerialNumber:       "11612024106234272000",
 						SignatureAlgorithm: "SHA256WITHRSA",
-						CreatedDate:        "2020-04-07T17:33:39Z",
+						CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
 						Description:        "Optional description for the certificate",
 						CreatedBy:          "jsmith2",
 					},
@@ -2653,7 +2193,7 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 		},
 		"Validation error - invalid certificateStatus value": {
 			request: GetCASetVersionCertificatesRequest{
-				CASetID:               123,
+				CASetID:               "123",
 				Version:               1,
 				ExpiryThresholdInDays: ptr.To(10),
 				CertificateStatus:     ptr.To(CertificateStatus("EXPIRY")),
@@ -2664,7 +2204,7 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 		},
 		"Validation error - missing certificateStatus when expiryThresholdInDays is set": {
 			request: GetCASetVersionCertificatesRequest{
-				CASetID:               123,
+				CASetID:               "123",
 				Version:               1,
 				ExpiryThresholdInDays: ptr.To(10),
 			},
@@ -2674,7 +2214,7 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 		},
 		"Error Response - CA set is not found": {
 			request: GetCASetVersionCertificatesRequest{
-				CASetID: 123,
+				CASetID: "123",
 				Version: 1,
 			},
 			responseStatus: http.StatusNotFound,
@@ -2686,7 +2226,7 @@ func TestGetCASetVersionCertificates(t *testing.T) {
   						"status": 404,
   						"detail": "Cannot get CA set version as the CA set with caSetId 123 is not found.",
   						"contextInfo": {
-							"caSetId": 123
+							"caSetId": "123"
   						}
 					}`,
 			withError: func(t *testing.T, err error) {

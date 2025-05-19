@@ -14,6 +14,7 @@ import (
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/edgegriderr"
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/session"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/spf13/cast"
 )
 
 type (
@@ -23,7 +24,7 @@ type (
 		CASetName string `json:"caSetName"`
 
 		// Description is an optional description for the set.
-		Description string `json:"description"`
+		Description *string `json:"description,omitempty"`
 	}
 
 	// CASetResponse contains response from create, list operations.
@@ -32,7 +33,7 @@ type (
 		AccountID string `json:"accountId"`
 
 		// CASetID is a unique identifier representing the CA set.
-		CASetID int64 `json:"caSetId"`
+		CASetID string `json:"caSetId"`
 
 		// CASetLink is the hypermedia link to the CA set.
 		CASetLink string `json:"caSetLink"`
@@ -109,7 +110,7 @@ type (
 	// GetCASetRequest holds request body for GetCASet.
 	GetCASetRequest struct {
 		// CASetID is a unique identifier representing the CA set.
-		CASetID int64 `json:"caSetId"`
+		CASetID string `json:"caSetId"`
 	}
 
 	// GetCASetResponse contains response from GetCASet.
@@ -118,13 +119,13 @@ type (
 	// DeleteCASetRequest holds request body for DeleteCASet.
 	DeleteCASetRequest struct {
 		// CASetID is a unique identifier representing the CA set.
-		CASetID int64 `json:"caSetId"`
+		CASetID string `json:"caSetId"`
 	}
 
 	// ListCASetAssociationsRequest holds request for ListCASetAssociations.
 	ListCASetAssociationsRequest struct {
 		// CASetID is a unique identifier representing the CA set.
-		CASetID int64
+		CASetID string
 	}
 
 	// ListCASetAssociationsResponse holds response for ListCASetAssociations.
@@ -193,7 +194,7 @@ type (
 	// CloneCASetRequest holds request for CloneCASet.
 	CloneCASetRequest struct {
 		// CloneFromSetID is a CA set ID which should be used to create new CA set from.
-		CloneFromSetID int64 `json:"-"`
+		CloneFromSetID string `json:"-"`
 
 		// CloneFromVersion is an optional version of CA set which should be used to create new CA set from.
 		CloneFromVersion int64 `json:"-"`
@@ -208,14 +209,14 @@ type (
 	// CloneCASetResponse holds response body for CloneCASet.
 	CloneCASetResponse CASetResponse
 
-	// GetCASetDeleteStatusRequest holds request for GetCASetDeleteStatus.
-	GetCASetDeleteStatusRequest struct {
+	// GetCASetDeletionStatusRequest holds request for GetCASetDeleteStatus.
+	GetCASetDeletionStatusRequest struct {
 		// CASetID is a unique identifier representing the CA set.
-		CASetID int64
+		CASetID string
 	}
 
-	// GetCASetDeleteStatusResponse holds response for GetCASetDeleteStatus.
-	GetCASetDeleteStatusResponse struct {
+	// GetCASetDeletionStatusResponse holds response for GetCASetDeleteStatus.
+	GetCASetDeletionStatusResponse struct {
 		// Status is current status of CA set deletion.
 		Status string `json:"status"`
 
@@ -226,10 +227,10 @@ type (
 		CASetLink string `json:"caSetLink"`
 
 		// ResourceMethod is type of method.
-		ResourceMethod string `json:"resourceMethod"`
+		ResourceMethod *string `json:"resourceMethod"`
 
 		// CASetID is a unique identifier representing the CA set.
-		CASetID int64 `json:"caSetId"`
+		CASetID string `json:"caSetId"`
 
 		// CASetName is descriptive name for the set.
 		CASetName string `json:"caSetName"`
@@ -248,6 +249,10 @@ type (
 
 		// Deletions is a list of status for each network about CA set deletion.
 		Deletions []CASetNetworkDeleteStatus `json:"deletions"`
+
+		// RetryAfter is a time in seconds when CA set deletion status can be checked again. Usually 300 seconds.
+		// This header value is returned only if the CA set deletion status is "IN_PROGRESS".
+		RetryAfter time.Duration
 	}
 
 	// CASetNetworkDeleteStatus holds information about one network for GetCASetDeleteStatus response.
@@ -268,7 +273,7 @@ type (
 	// ListCASetActivitiesRequest holds request for ListCASetActivities.
 	ListCASetActivitiesRequest struct {
 		// CASetID is a unique identifier representing the CA set.
-		CASetID int64
+		CASetID string
 
 		// Start is optional Date in ISO-8601 format with fractional seconds. Include an action object in the result data if the actionDate is greater than or equal to start date.
 		Start time.Time
@@ -280,7 +285,7 @@ type (
 	// ListCASetActivitiesResponse holds response for ListCASetActivities.
 	ListCASetActivitiesResponse struct {
 		// CASetID is unique identifier of the set.
-		CASetID int64 `json:"caSetID"`
+		CASetID string `json:"caSetID"`
 
 		// CASetLink is hypermedia link to the CA set resource.
 		CASetLink string `json:"caSetLink"`
@@ -333,10 +338,20 @@ const (
 	NetworkProduction Network = "production"
 	// NetworkStagingAndProduction represents staging and production networks.
 	NetworkStagingAndProduction Network = "staging+production"
+
+	// CASetNamePattern is the regex pattern for CA set name.
+	CASetNamePattern string = `^[%.a-zA-Z0-9_-]+$`
+
+	// DeletionStatusInProgress represents CA set deletion status in progress.
+	DeletionStatusInProgress string = "IN_PROGRESS"
+	// DeletionStatusComplete represents CA set deletion status complete.
+	DeletionStatusComplete string = "COMPLETE"
+	// DeletionStatusFailed represents CA set deletion status failed.
+	DeletionStatusFailed string = "FAILED"
 )
 
 var (
-	caSetNameRegex = regexp.MustCompile(`^([%.a-zA-Z0-9_-])+$`)
+	caSetNameRegex = regexp.MustCompile(CASetNamePattern)
 
 	// ErrCreateCASet is returned when the request to create a CA set fails.
 	ErrCreateCASet = errors.New("create ca set failed")
@@ -368,13 +383,14 @@ func (r CreateCASetRequest) Validate() error {
 			validation.Length(3, 64),
 			validation.Match(caSetNameRegex).Error("allowed characters are alphanumerics (a-z, A-Z, 0-9), underscore (_), hyphen (-), percent (%) and period (.)"),
 			validateCASetName()),
+		"Description": validation.Validate(r.Description, validation.Length(0, 255)),
 	})
 }
 
 // Validate validates GetCASetRequest.
 func (r GetCASetRequest) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
-		"CASetID": validation.Validate(r.CASetID, validation.Required),
+		"CASetID": validation.Validate(r.CASetID, validation.Required, validation.Length(1, 0)),
 	})
 }
 
@@ -392,7 +408,7 @@ func (r ListCASetsRequest) Validate() error {
 // Validate validates DeleteCASetsRequest.
 func (r DeleteCASetRequest) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
-		"CASetID": validation.Validate(r.CASetID, validation.Required),
+		"CASetID": validation.Validate(r.CASetID, validation.Required, validation.Length(1, 0)),
 	})
 }
 
@@ -412,7 +428,7 @@ func validateCASetName() validation.StringRule {
 // Validate validates ListCASetAssociationsRequest.
 func (r ListCASetAssociationsRequest) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
-		"CASetID": validation.Validate(r.CASetID, validation.Required, validation.Min(1)),
+		"CASetID": validation.Validate(r.CASetID, validation.Required, validation.Length(1, 0)),
 	})
 }
 
@@ -429,17 +445,17 @@ func (r CloneCASetRequest) Validate() error {
 	})
 }
 
-// Validate validates GetCASetDeleteStatusRequest.
-func (r GetCASetDeleteStatusRequest) Validate() error {
+// Validate validates GetCASetDeletionStatusRequest.
+func (r GetCASetDeletionStatusRequest) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
-		"CASetID": validation.Validate(r.CASetID, validation.Required, validation.Min(1)),
+		"CASetID": validation.Validate(r.CASetID, validation.Required, validation.Length(1, 0)),
 	})
 }
 
 // Validate validates ListCASetActivitiesRequest.
 func (r ListCASetActivitiesRequest) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
-		"CASetID": validation.Validate(r.CASetID, validation.Required, validation.Min(1)),
+		"CASetID": validation.Validate(r.CASetID, validation.Required, validation.Length(1, 0)),
 	})
 }
 
@@ -483,7 +499,7 @@ func (m *mtlstruststore) GetCASet(ctx context.Context, params GetCASetRequest) (
 		return nil, fmt.Errorf("%s: %w: %s", ErrGetCASet, ErrStructValidation, err)
 	}
 
-	uri, err := url.Parse(fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%d", params.CASetID))
+	uri, err := url.Parse(fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%s", params.CASetID))
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrGetCASet, err)
 	}
@@ -557,7 +573,7 @@ func (m *mtlstruststore) DeleteCASet(ctx context.Context, params DeleteCASetRequ
 		return fmt.Errorf("%s: %w: %s", ErrDeleteCASet, ErrStructValidation, err)
 	}
 
-	uri, err := url.Parse(fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%d", params.CASetID))
+	uri, err := url.Parse(fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%s", params.CASetID))
 	if err != nil {
 		return fmt.Errorf("%w: failed to parse url: %s", ErrDeleteCASet, err)
 	}
@@ -588,7 +604,7 @@ func (m *mtlstruststore) ListCASetAssociations(ctx context.Context, params ListC
 		return nil, fmt.Errorf("%s: %w: %s", ErrListCASetAssociations, ErrStructValidation, err)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%d/associations", params.CASetID), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%s/associations", params.CASetID), nil)
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to create request: %s", ErrListCASetAssociations, err)
 	}
@@ -615,7 +631,7 @@ func (m *mtlstruststore) CloneCASet(ctx context.Context, params CloneCASetReques
 		return nil, fmt.Errorf("%s: %w: %s", ErrCloneCASet, ErrStructValidation, err)
 	}
 
-	uri, err := url.Parse(fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%d/clone", params.CloneFromSetID))
+	uri, err := url.Parse(fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%s/clone", params.CloneFromSetID))
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrCloneCASet, err)
 	}
@@ -644,7 +660,7 @@ func (m *mtlstruststore) CloneCASet(ctx context.Context, params CloneCASetReques
 	return &result, nil
 }
 
-func (m *mtlstruststore) GetCASetDeletionStatus(ctx context.Context, params GetCASetDeleteStatusRequest) (*GetCASetDeleteStatusResponse, error) {
+func (m *mtlstruststore) GetCASetDeletionStatus(ctx context.Context, params GetCASetDeletionStatusRequest) (*GetCASetDeletionStatusResponse, error) {
 	logger := m.Log(ctx)
 	logger.Debug("GetCASetDeletionStatus")
 
@@ -652,12 +668,12 @@ func (m *mtlstruststore) GetCASetDeletionStatus(ctx context.Context, params GetC
 		return nil, fmt.Errorf("%s: %w: %s", ErrGetCASetDeletionStatus, ErrStructValidation, err)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%d/status/delete", params.CASetID), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%s/status/delete", params.CASetID), nil)
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to create request: %s", ErrGetCASetDeletionStatus, err)
 	}
 
-	var result GetCASetDeleteStatusResponse
+	var result GetCASetDeletionStatusResponse
 	resp, err := m.Exec(req, &result)
 	if err != nil {
 		return nil, fmt.Errorf("%w: request failed: %s", ErrGetCASetDeletionStatus, err)
@@ -666,6 +682,11 @@ func (m *mtlstruststore) GetCASetDeletionStatus(ctx context.Context, params GetC
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusSeeOther { //ToDo: The SeeOther does not work well yet, Q81
 		return nil, m.Error(resp)
+	}
+
+	// Get the Retry-After header to return the caller
+	if retryAfter := resp.Header.Get("Retry-After"); retryAfter != "" {
+		result.RetryAfter = time.Duration(cast.ToInt(retryAfter)) * time.Second
 	}
 
 	return &result, nil
@@ -679,7 +700,7 @@ func (m *mtlstruststore) ListCASetActivities(ctx context.Context, params ListCAS
 		return nil, fmt.Errorf("%s: %w: %s", ErrListCASetActivities, ErrStructValidation, err)
 	}
 
-	uri, err := url.Parse(fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%d/activities", params.CASetID))
+	uri, err := url.Parse(fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%s/activities", params.CASetID))
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrCloneCASet, err)
 	}

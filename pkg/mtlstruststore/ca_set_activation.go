@@ -17,7 +17,7 @@ type (
 	// ActivateCASetVersionRequest holds request content for ActivateCASetVersion.
 	ActivateCASetVersionRequest struct {
 		// CASetID that needs to be activated on the network.
-		CASetID int64 `json:"-"`
+		CASetID string `json:"-"`
 
 		// Version number of the CA set that needs to be activated on the network.
 		Version int64 `json:"-"`
@@ -38,7 +38,7 @@ type (
 		ActivationLink string `json:"activationLink"`
 
 		// CASetID is a unique identifier representing the CA set.
-		CASetID int64 `json:"caSetId"`
+		CASetID string `json:"caSetId"`
 
 		// CASetName is the name of the CA set.
 		CASetName string `json:"caSetName"`
@@ -83,7 +83,7 @@ type (
 	// GetCASetVersionActivationRequest holds request content for GetCASetVersionActivation.
 	GetCASetVersionActivationRequest struct {
 		// CASetID is the ID of the CA set to get activation details for.
-		CASetID int64
+		CASetID string
 
 		// Version is the version number of the CA set to get activation details for.
 		Version int64
@@ -98,7 +98,7 @@ type (
 	// ListCASetVersionActivationsRequest holds request content for ListCASetActivations.
 	ListCASetVersionActivationsRequest struct {
 		// CASetID is the ID of the CA set to list activations for.
-		CASetID int64
+		CASetID string
 
 		// Version is the optional version number of the CA set to list activations for.
 		Version int64
@@ -112,7 +112,7 @@ type (
 	// ListCASetActivationsRequest holds request content for ListCASetActivations.
 	ListCASetActivationsRequest struct {
 		// CASetID is the ID of the CA set to list activations for.
-		CASetID int64
+		CASetID string
 	}
 
 	// ListCASetActivationsResponse contains response from ListCASetActivations.
@@ -198,7 +198,7 @@ func (m *mtlstruststore) ActivateCASetVersion(ctx context.Context, params Activa
 		return nil, fmt.Errorf("%s: %w: %s", ErrActivateCASetVersion, ErrStructValidation, err)
 	}
 
-	uri, err := url.Parse(fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%d/versions/%d/activate", params.CASetID, params.Version))
+	uri, err := url.Parse(fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%s/versions/%d/activate", params.CASetID, params.Version))
 	if err != nil {
 		return nil, err
 	}
@@ -230,7 +230,7 @@ func (m *mtlstruststore) DeactivateCASetVersion(ctx context.Context, params Deac
 		return nil, fmt.Errorf("%s: %w: %s", ErrDeactivateCASetVersion, ErrStructValidation, err)
 	}
 
-	uri, err := url.Parse(fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%d/versions/%d/deactivate", params.CASetID, params.Version))
+	uri, err := url.Parse(fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%s/versions/%d/deactivate", params.CASetID, params.Version))
 	if err != nil {
 		return nil, err
 	}
@@ -262,7 +262,7 @@ func (m *mtlstruststore) GetCASetVersionActivation(ctx context.Context, params G
 		return nil, fmt.Errorf("%s: %w: %s", ErrGetCASetActivation, ErrStructValidation, err)
 	}
 
-	uri, err := url.Parse(fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%d/versions/%d/activations/%d", params.CASetID, params.Version, params.ActivationID))
+	uri, err := url.Parse(fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%s/versions/%d/activations/%d", params.CASetID, params.Version, params.ActivationID))
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrGetCASetActivation, err)
 	}
@@ -294,7 +294,7 @@ func (m *mtlstruststore) ListCASetVersionActivations(ctx context.Context, params
 		return nil, fmt.Errorf("%s: %w: %s", ErrListCASetVersionActivations, ErrStructValidation, err)
 	}
 
-	uri, err := url.Parse(fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%d/versions/%d/activations", params.CASetID, params.Version))
+	uri, err := url.Parse(fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%s/versions/%d/activations", params.CASetID, params.Version))
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrListCASetVersionActivations, err)
 	}
@@ -326,7 +326,7 @@ func (m *mtlstruststore) ListCASetActivations(ctx context.Context, params ListCA
 		return nil, fmt.Errorf("%s: %w: %s", ErrListCASetActivations, ErrStructValidation, err)
 	}
 
-	uri, err := url.Parse(fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%d/activations", params.CASetID))
+	uri, err := url.Parse(fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%s/activations", params.CASetID))
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrListCASetActivations, err)
 	}
