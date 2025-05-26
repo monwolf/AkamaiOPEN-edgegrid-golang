@@ -11,6 +11,10 @@
 
 ### FEATURES/ENHANCEMENTS:
 
+* Appsec
+  * Added an `Action` field to the `IPGeoNetworkLists` struct to block the request from specified IP, GEO, ASN with a `deny` or a `custom_deny` action in blockSpecific Mode.
+  * Added a `BlockAllAction` field to the `IPGeoFirewall` and `UpdateIPGeoRequest` structs to block all the request with a `deny` or a `custom_deny` action in IP/GEO except from the allowedLists in blockAll Mode.
+
 * EdgeKV
   * Added `ScheduledDeleteTime` and `NamespaceStatus` fields to the following structures:
     * `GetNamespaceResponse`

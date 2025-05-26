@@ -34,6 +34,7 @@ type (
 	// IPGeoNetworkLists is used to specify IP or GEO network lists to be blocked or allowed.
 	IPGeoNetworkLists struct {
 		NetworkList []string `json:"networkList,omitempty"`
+		Action      string   `json:"action,omitempty"`
 	}
 
 	// IPGeoGeoControls is used to specify GEO network lists to be blocked.
@@ -63,6 +64,7 @@ type (
 		Version            int                `json:"-"`
 		PolicyID           string             `json:"-"`
 		Block              string             `json:"block"`
+		BlockAllAction     string             `json:"blockAllAction,omitempty"`
 		GeoControls        *IPGeoGeoControls  `json:"geoControls,omitempty"`
 		IPControls         *IPGeoIPControls   `json:"ipControls,omitempty"`
 		ASNControls        *IPGeoASNControls  `json:"asnControls,omitempty"`
@@ -72,6 +74,7 @@ type (
 	// IPGeoFirewall is used to describe an IP/Geo firewall.
 	IPGeoFirewall struct {
 		Block              string             `json:"block"`
+		BlockAllAction     string             `json:"blockAllAction,omitempty"`
 		GeoControls        *IPGeoGeoControls  `json:"geoControls,omitempty"`
 		IPControls         *IPGeoIPControls   `json:"ipControls,omitempty"`
 		ASNControls        *IPGeoASNControls  `json:"asnControls,omitempty"`

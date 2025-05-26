@@ -22,7 +22,7 @@ func TestAppSec_GetIPGeo(t *testing.T) {
 		expectedResponse *GetIPGeoResponse
 		withError        error
 	}{
-		"200 OK": {
+		"200 OK Deny Action": {
 			params: GetIPGeoRequest{
 				ConfigID: 43253,
 				Version:  15,
@@ -33,6 +33,7 @@ func TestAppSec_GetIPGeo(t *testing.T) {
 				"block": "blockSpecificIPGeo",
 				"asnControls": {
 					"blockedIPNetworkLists": {
+					"action":"deny",
 						"networkList": [
 							"12345_ASNTEST"
 						]
@@ -40,6 +41,7 @@ func TestAppSec_GetIPGeo(t *testing.T) {
 				},
 				"geoControls": {
 					"blockedIPNetworkLists": {
+					"action":"deny",
 						"networkList": [
 							"72138_TEST1"
 						]
@@ -52,6 +54,7 @@ func TestAppSec_GetIPGeo(t *testing.T) {
 						]
 					},
 					"blockedIPNetworkLists": {
+						"action":"deny",
 						"networkList": [
 							"53712_TESTLIST123"
 						]
@@ -67,6 +70,7 @@ func TestAppSec_GetIPGeo(t *testing.T) {
 				GeoControls: &IPGeoGeoControls{
 					BlockedIPNetworkLists: &IPGeoNetworkLists{
 						NetworkList: []string{"72138_TEST1"},
+						Action:      "deny",
 					},
 				},
 				IPControls: &IPGeoIPControls{
@@ -75,15 +79,117 @@ func TestAppSec_GetIPGeo(t *testing.T) {
 					},
 					BlockedIPNetworkLists: &IPGeoNetworkLists{
 						NetworkList: []string{"53712_TESTLIST123"},
+						Action:      "deny",
 					},
 				},
 				ASNControls: &IPGeoASNControls{
 					BlockedIPNetworkLists: &IPGeoNetworkLists{
 						NetworkList: []string{"12345_ASNTEST"},
+						Action:      "deny",
 					},
 				},
 				UkraineGeoControls: &UkraineGeoControl{
 					Action: "alert",
+				},
+			},
+		},
+		"200 OK CustomDeny Action": {
+			params: GetIPGeoRequest{
+				ConfigID: 43253,
+				Version:  15,
+				PolicyID: "AAAA_81230",
+			},
+			responseStatus: http.StatusOK,
+			responseBody: `{
+				"block": "blockSpecificIPGeo",
+				"asnControls": {
+					"blockedIPNetworkLists": {
+						"action":"deny_custom_12345",
+						"networkList": [
+							"12345_ASNTEST"
+						]
+					}
+				},
+				"geoControls": {
+					"blockedIPNetworkLists": {
+						"action":"deny",
+						"networkList": [
+							"72138_TEST1"
+						]
+					}
+				},
+				"ipControls": {
+					"allowedIPNetworkLists": {
+						"networkList": [
+							"56921_TEST"
+						]
+					},
+					"blockedIPNetworkLists": {
+						"action":"deny_custom_12345",
+						"networkList": [
+							"53712_TESTLIST123"
+						]
+					}
+				},
+				"ukraineGeoControl": {
+					"action": "alert"
+				}
+			}`,
+			expectedPath: "/appsec/v1/configs/43253/versions/15/security-policies/AAAA_81230/ip-geo-firewall",
+			expectedResponse: &GetIPGeoResponse{
+				Block: "blockSpecificIPGeo",
+				GeoControls: &IPGeoGeoControls{
+					BlockedIPNetworkLists: &IPGeoNetworkLists{
+						NetworkList: []string{"72138_TEST1"},
+						Action:      "deny",
+					},
+				},
+				IPControls: &IPGeoIPControls{
+					AllowedIPNetworkLists: &IPGeoNetworkLists{
+						NetworkList: []string{"56921_TEST"},
+					},
+					BlockedIPNetworkLists: &IPGeoNetworkLists{
+						NetworkList: []string{"53712_TESTLIST123"},
+						Action:      "deny_custom_12345",
+					},
+				},
+				ASNControls: &IPGeoASNControls{
+					BlockedIPNetworkLists: &IPGeoNetworkLists{
+						NetworkList: []string{"12345_ASNTEST"},
+						Action:      "deny_custom_12345",
+					},
+				},
+				UkraineGeoControls: &UkraineGeoControl{
+					Action: "alert",
+				},
+			},
+		},
+		"200 OK BlockAllAction": {
+			params: GetIPGeoRequest{
+				ConfigID: 43253,
+				Version:  15,
+				PolicyID: "AAAA_81230",
+			},
+			responseStatus: http.StatusOK,
+			responseBody: `{
+				"block": "blockAllTrafficExceptAllowedIPs",
+				"blockAllAction" : "deny_custom_1234",
+				"ipControls": {
+					"allowedIPNetworkLists": {
+						"networkList": [
+							"56921_TEST"
+						]
+					}
+				}
+			}`,
+			expectedPath: "/appsec/v1/configs/43253/versions/15/security-policies/AAAA_81230/ip-geo-firewall",
+			expectedResponse: &GetIPGeoResponse{
+				Block:          "blockAllTrafficExceptAllowedIPs",
+				BlockAllAction: "deny_custom_1234",
+				IPControls: &IPGeoIPControls{
+					AllowedIPNetworkLists: &IPGeoNetworkLists{
+						NetworkList: []string{"56921_TEST"},
+					},
 				},
 			},
 		},
@@ -131,7 +237,7 @@ func TestAppSec_GetIPGeo(t *testing.T) {
 	}
 }
 
-// Test Update IPGeo.
+// Test Update IPGeo
 func TestAppSec_UpdateIPGeo(t *testing.T) {
 	tests := map[string]struct {
 		params           UpdateIPGeoRequest
@@ -156,6 +262,7 @@ func TestAppSec_UpdateIPGeo(t *testing.T) {
 				"block": "blockSpecificIPGeo",
 				"asnControls": {
 					"blockedIPNetworkLists": {
+						"action" : "deny",
 						"networkList": [
 							"12345_ASNTEST"
 						]
@@ -163,6 +270,7 @@ func TestAppSec_UpdateIPGeo(t *testing.T) {
 				},
 				"geoControls": {
 					"blockedIPNetworkLists": {
+						"action" : "deny",
 						"networkList": [
 							"72138_TEST1"
 						]
@@ -175,6 +283,7 @@ func TestAppSec_UpdateIPGeo(t *testing.T) {
 						]
 					},
 					"blockedIPNetworkLists": {
+						"action" : "deny",
 						"networkList": [
 							"53712_TESTLIST123"
 						]
@@ -189,6 +298,7 @@ func TestAppSec_UpdateIPGeo(t *testing.T) {
 				GeoControls: &IPGeoGeoControls{
 					BlockedIPNetworkLists: &IPGeoNetworkLists{
 						NetworkList: []string{"72138_TEST1"},
+						Action:      "deny",
 					},
 				},
 				IPControls: &IPGeoIPControls{
@@ -197,15 +307,123 @@ func TestAppSec_UpdateIPGeo(t *testing.T) {
 					},
 					BlockedIPNetworkLists: &IPGeoNetworkLists{
 						NetworkList: []string{"53712_TESTLIST123"},
+						Action:      "deny",
 					},
 				},
 				ASNControls: &IPGeoASNControls{
 					BlockedIPNetworkLists: &IPGeoNetworkLists{
 						NetworkList: []string{"12345_ASNTEST"},
+						Action:      "deny",
 					},
 				},
 				UkraineGeoControls: &UkraineGeoControl{
 					Action: "alert",
+				},
+			},
+			expectedPath: "/appsec/v1/configs/43253/versions/15/security-policies/AAAA_81230/ip-geo-firewall",
+		},
+		"200 Success Custom_Deny_Action": {
+			params: UpdateIPGeoRequest{
+				ConfigID: 43253,
+				Version:  15,
+				PolicyID: "AAAA_81230",
+			},
+			headers: http.Header{
+				"Content-Type": []string{"application/json;charset=UTF-8"},
+			},
+			responseStatus: http.StatusCreated,
+			responseBody: `{
+				"block": "blockSpecificIPGeo",
+				"asnControls": {
+					"blockedIPNetworkLists": {
+						"action": "deny_custom_12345",
+						"networkList": [
+							"12345_ASNTEST"
+						]
+					}
+				},
+				"geoControls": {
+					"blockedIPNetworkLists": {
+						"action" : "deny",
+						"networkList": [
+							"72138_TEST1"
+						]
+					}
+				},
+				"ipControls": {
+					"allowedIPNetworkLists": {
+						"networkList": [
+							"56921_TEST"
+						]
+					},
+					"blockedIPNetworkLists": {
+						"action": "deny_custom_12345",
+						"networkList": [
+							"53712_TESTLIST123"
+						]
+					}
+				},
+				"ukraineGeoControl": {
+					"action": "deny_custom_12345"
+				}
+			}`,
+			expectedResponse: &UpdateIPGeoResponse{
+				Block: "blockSpecificIPGeo",
+				GeoControls: &IPGeoGeoControls{
+					BlockedIPNetworkLists: &IPGeoNetworkLists{
+						NetworkList: []string{"72138_TEST1"},
+						Action:      "deny",
+					},
+				},
+				IPControls: &IPGeoIPControls{
+					AllowedIPNetworkLists: &IPGeoNetworkLists{
+						NetworkList: []string{"56921_TEST"},
+					},
+					BlockedIPNetworkLists: &IPGeoNetworkLists{
+						NetworkList: []string{"53712_TESTLIST123"},
+						Action:      "deny_custom_12345",
+					},
+				},
+				ASNControls: &IPGeoASNControls{
+					BlockedIPNetworkLists: &IPGeoNetworkLists{
+						NetworkList: []string{"12345_ASNTEST"},
+						Action:      "deny_custom_12345",
+					},
+				},
+				UkraineGeoControls: &UkraineGeoControl{
+					Action: "deny_custom_12345",
+				},
+			},
+			expectedPath: "/appsec/v1/configs/43253/versions/15/security-policies/AAAA_81230/ip-geo-firewall",
+		},
+		"200 Success Deny_Action_BlockAll": {
+			params: UpdateIPGeoRequest{
+				ConfigID: 43253,
+				Version:  15,
+				PolicyID: "AAAA_81230",
+			},
+			headers: http.Header{
+				"Content-Type": []string{"application/json;charset=UTF-8"},
+			},
+			responseStatus: http.StatusCreated,
+			responseBody: `{
+				"block": "blockAllTrafficExceptAllowedIPs",
+				"blockAllAction" : "deny_custom_1234",
+				"ipControls": {
+					"allowedIPNetworkLists": {
+						"networkList": [
+							"56921_TEST"
+						]
+					}
+				}
+			}`,
+			expectedResponse: &UpdateIPGeoResponse{
+				Block:          "blockAllTrafficExceptAllowedIPs",
+				BlockAllAction: "deny_custom_1234",
+				IPControls: &IPGeoIPControls{
+					AllowedIPNetworkLists: &IPGeoNetworkLists{
+						NetworkList: []string{"56921_TEST"},
+					},
 				},
 			},
 			expectedPath: "/appsec/v1/configs/43253/versions/15/security-policies/AAAA_81230/ip-geo-firewall",
