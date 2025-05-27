@@ -52,6 +52,9 @@ type (
 		// CreatedDate is the date when the CA set was created.
 		CreatedDate time.Time `json:"createdDate"`
 
+		// FailureReason is the reason for failure, if any.
+		FailureReason *string `json:"failureReason"`
+
 		// ModifiedBy is the user who modified the CA set last ime.
 		ModifiedBy *string `json:"modifiedBy"`
 
@@ -66,6 +69,9 @@ type (
 
 		// ActivationType is the type of activation.
 		ActivationType string `json:"activationType"`
+
+		// PercentComplete is the percentage of completion of the activation.
+		PercentComplete int `json:"percentComplete"`
 
 		// Version is the version number of the CA set.
 		Version int64 `json:"version"`
