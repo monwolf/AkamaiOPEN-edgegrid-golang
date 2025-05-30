@@ -429,14 +429,14 @@ func TestGetCASetVersionActivation(t *testing.T) {
 		expectedResponse *GetCASetVersionActivationResponse
 		withError        func(*testing.T, error)
 	}{
-		"200 OK": {
+		"202 Accepted": {
 			params: GetCASetVersionActivationRequest{
 				CASetID:      "1000",
 				Version:      1,
 				ActivationID: 84572,
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1000/versions/1/activations/84572",
-			responseStatus: http.StatusOK,
+			responseStatus: http.StatusAccepted,
 			responseBody: `
 				{
 					 "activationId": 84572,
@@ -468,6 +468,52 @@ func TestGetCASetVersionActivation(t *testing.T) {
 				Network:          "STAGING",
 				ActivationType:   "ACTIVATE",
 				ActivationStatus: "IN_PROGRESS",
+				CreatedDate:      test.NewTimeFromString(t, "2023-01-10T11:00:00Z"),
+				CreatedBy:        "someone",
+				FailureReason:    nil,
+				ModifiedDate:     ptr.To(test.NewTimeFromString(t, "2023-01-10T12:00:00Z")),
+				ModifiedBy:       ptr.To("someone"),
+			},
+		},
+		"200 OK": {
+			params: GetCASetVersionActivationRequest{
+				CASetID:      "1000",
+				Version:      1,
+				ActivationID: 84572,
+			},
+			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1000/versions/1/activations/84572",
+			responseStatus: http.StatusOK,
+			responseBody: `
+				{
+					 "activationId": 84572,
+					 "activationLink": "/mtls-edge-truststore/v2/ca-sets/1000/versions/1000/activations/84572",
+					 "caSetId": "1000",
+					 "caSetName": "test1",
+					 "caSetLink": "/mtls-edge-truststore/v2/ca-sets/1000",
+					 "percentComplete": 100,
+					 "version": 1,
+					 "versionLink": "/mtls-edge-truststore/v2/ca-sets/1000/versions/1",
+					 "network": "STAGING",
+					 "activationType": "ACTIVATE",
+					 "activationStatus": "COMPLETE",
+					 "createdDate": "2023-01-10T11:00:00Z",
+					 "createdBy": "someone",
+					 "failureReason": null,
+					 "modifiedDate": "2023-01-10T12:00:00Z",
+					 "modifiedBy": "someone"
+				}`,
+			expectedResponse: &GetCASetVersionActivationResponse{
+				ActivationID:     84572,
+				ActivationLink:   "/mtls-edge-truststore/v2/ca-sets/1000/versions/1000/activations/84572",
+				CASetID:          "1000",
+				CASetName:        "test1",
+				CASetLink:        "/mtls-edge-truststore/v2/ca-sets/1000",
+				PercentComplete:  100,
+				Version:          1,
+				VersionLink:      "/mtls-edge-truststore/v2/ca-sets/1000/versions/1",
+				Network:          "STAGING",
+				ActivationType:   "ACTIVATE",
+				ActivationStatus: "COMPLETE",
 				CreatedDate:      test.NewTimeFromString(t, "2023-01-10T11:00:00Z"),
 				CreatedBy:        "someone",
 				FailureReason:    nil,

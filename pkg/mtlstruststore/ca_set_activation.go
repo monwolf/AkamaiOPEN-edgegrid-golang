@@ -285,7 +285,7 @@ func (m *mtlstruststore) GetCASetVersionActivation(ctx context.Context, params G
 	}
 	defer session.CloseResponseBody(resp)
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusAccepted {
 		return nil, m.Error(resp)
 	}
 
