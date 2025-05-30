@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/internal/test"
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/ptr"
@@ -426,6 +427,7 @@ func TestGetCASetVersionActivation(t *testing.T) {
 		expectedPath     string
 		responseStatus   int
 		responseBody     string
+		responseHeaders  map[string]string
 		expectedResponse *GetCASetVersionActivationResponse
 		withError        func(*testing.T, error)
 	}{
@@ -437,6 +439,9 @@ func TestGetCASetVersionActivation(t *testing.T) {
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1000/versions/1/activations/84572",
 			responseStatus: http.StatusAccepted,
+			responseHeaders: map[string]string{
+				"Retry-After": "300",
+			},
 			responseBody: `
 				{
 					 "activationId": 84572,
@@ -473,6 +478,7 @@ func TestGetCASetVersionActivation(t *testing.T) {
 				FailureReason:    nil,
 				ModifiedDate:     ptr.To(test.NewTimeFromString(t, "2023-01-10T12:00:00Z")),
 				ModifiedBy:       ptr.To("someone"),
+				RetryAfter:       300 * time.Second,
 			},
 		},
 		"200 OK": {
@@ -629,6 +635,11 @@ func TestGetCASetVersionActivation(t *testing.T) {
 			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				assert.Equal(t, test.expectedPath, r.URL.String())
 				assert.Equal(t, http.MethodGet, r.Method)
+				if len(test.responseHeaders) > 0 {
+					for header, value := range test.responseHeaders {
+						w.Header().Set(header, value)
+					}
+				}
 				w.WriteHeader(test.responseStatus)
 				_, err := w.Write([]byte(test.responseBody))
 				assert.NoError(t, err)

@@ -11,6 +11,7 @@ import (
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/edgegriderr"
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/session"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/spf13/cast"
 )
 
 type (
@@ -78,6 +79,10 @@ type (
 
 		// VersionLink is the link to the CA set version.
 		VersionLink string `json:"versionLink"`
+
+		// RetryAfter is a time in seconds when CA set version activation/deletion status can be checked again. Usually 300 seconds.
+		// This header value is returned only if the CA set version activation/deletion status is "IN_PROGRESS".
+		RetryAfter time.Duration
 	}
 
 	// DeactivateCASetVersionResponse contains response from DeactivateCASetVersion.
@@ -287,6 +292,11 @@ func (m *mtlstruststore) GetCASetVersionActivation(ctx context.Context, params G
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusAccepted {
 		return nil, m.Error(resp)
+	}
+
+	// Get the Retry-After header to return the caller
+	if retryAfter := resp.Header.Get("Retry-After"); retryAfter != "" {
+		result.RetryAfter = time.Duration(cast.ToInt(retryAfter)) * time.Second
 	}
 
 	return &result, nil
