@@ -206,7 +206,7 @@ func TestCreateCASetVersion(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions",
 			responseBody: `
 					{
-  						"type": "/mtls-edge-truststore/v2/error-types/ca-set-not-found",
+  						"type": "/mtls-edge-truststore/error-types/ca-set-not-found",
   						"title": "CA set is not found.",
   						"status": 404,
   						"detail": "Cannot create a CA set version as the CA set with caSetId 123 is not found.",
@@ -243,7 +243,7 @@ func TestCreateCASetVersion(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/versions",
 			responseBody: `
 					{
-						"type": "/mtls-edge-truststore/v2/error-types/ca-set-version-limit-reached",
+						"type": "/mtls-edge-truststore/error-types/ca-set-version-limit-reached",
 						"title": "Maximum allowed CA set version's limit has been reached.",
 						"status": 422,
 						"detail": "Cannot create CA set version as you have already reached or exceeded the maximum allowed CA set version limit of 10 for the CA set with caSetId 1.",
@@ -283,7 +283,7 @@ func TestCreateCASetVersion(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/versions",
 			responseBody: `
 					{
-						"type": "/mtls-edge-truststore/v2/error-types/certificate-limit-reached",
+						"type": "/mtls-edge-truststore/error-types/certificate-limit-reached",
 						"title": "Submitted certificates exceed the maximum allowed certificates limit.",
 						"status": 422,
 						"detail": "The maximum number of certificates allowed per CA set version is 300. Number of submitted certificates is 302.",
@@ -323,7 +323,7 @@ func TestCreateCASetVersion(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/131803/versions",
 			responseBody: `
 		{
-			"type": "/mtls-edge-truststore/v2/error-types/certificate-validation-failure-create",
+			"type": "/mtls-edge-truststore/error-types/certificate-validation-failure-create",
 			"title": "Cannot create the ca set version as the certificate(s) has failed validation.",
 			"status": 400,
 			"contextInfo": {
@@ -383,7 +383,7 @@ func TestCreateCASetVersion(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/versions",
 			responseBody: `
         {
-            "type": "/mtls-edge-truststore/v2/error-types/delete-ca-set-request-in-progress",
+            "type": "/mtls-edge-truststore/error-types/delete-ca-set-request-in-progress",
             "title": "DELETE request is in progress for the CA set on the network.",
             "status": 409,
             "detail": "Cannot create CA set version as the CA set is being deleted on one or more networks.",
@@ -425,7 +425,7 @@ func TestCreateCASetVersion(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/versions",
 			responseBody: `
         {
-            "type": "/mtls-edge-truststore/v2/error-types/duplicate-ca-set-version",
+            "type": "/mtls-edge-truststore/error-types/duplicate-ca-set-version",
             "title": "A version with same certificates exists in the CA set.",
             "status": 422,
             "detail": "A version with same certificates exists in the CA set.",
@@ -603,7 +603,7 @@ func TestCloneCASetVersion(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions/1/clone",
 			responseBody: `
 					{
-  						"type": "/mtls-edge-truststore/v2/error-types/ca-set-not-found",
+  						"type": "/mtls-edge-truststore/error-types/ca-set-not-found",
   						"title": "CA set is not found.",
   						"status": 404,
   						"detail": "Cannot create a CA set version as the CA set with caSetId 123 is not found.",
@@ -624,7 +624,7 @@ func TestCloneCASetVersion(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions/12/clone",
 			responseBody: `
 					{
-				  		"type": "/mtls-edge-truststore/v2/error-types/ca-set-version-not-found",
+				  		"type": "/mtls-edge-truststore/error-types/ca-set-version-not-found",
 				  		"title": "CA set version cannot be cloned",
 				  		"status": 404,
 				  		"detail": "Cannot clone CA set version as the CA set version with version 12 is not found in the CA set with caSetId 123.",
@@ -647,7 +647,7 @@ func TestCloneCASetVersion(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/versions/1/clone",
 			responseBody: `
         {
-            "type": "/mtls-edge-truststore/v2/error-types/delete-ca-set-request-in-progress",
+            "type": "/mtls-edge-truststore/error-types/delete-ca-set-request-in-progress",
             "title": "DELETE request is in progress for the CA set on the network.",
             "status": 409,
             "detail": "Cannot clone CA set version as the CA set is being deleted on one or more networks.",
@@ -674,7 +674,7 @@ func TestCloneCASetVersion(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/versions/10/clone",
 			responseBody: `
 					{
-						"type": "/mtls-edge-truststore/v2/error-types/ca-set-version-limit-reached",
+						"type": "/mtls-edge-truststore/error-types/ca-set-version-limit-reached",
 						"title": "Maximum allowed CA set version's limit has been reached.",
 						"status": 422,
 						"detail": "Cannot clone CA set version as you have already reached or exceeded the maximum allowed CA set version limit of 10 for the CA set with caSetName test.",
@@ -704,13 +704,10 @@ func TestCloneCASetVersion(t *testing.T) {
 					}`,
 			withError: func(t *testing.T, err error) {
 				want := &Error{
-					Type:        "internal_error",
-					Title:       "Internal Server Error",
-					Detail:      "Error processing request",
-					Status:      http.StatusInternalServerError,
-					ContextInfo: nil,
-					Errors:      nil,
-					Instance:    "",
+					Type:   "internal_error",
+					Title:  "Internal Server Error",
+					Detail: "Error processing request",
+					Status: http.StatusInternalServerError,
 				}
 				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
 			},
@@ -828,7 +825,7 @@ func TestGetCASetVersion(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
 			responseBody: `
 					{
-  						"type": "/mtls-edge-truststore/v2/error-types/ca-set-not-found",
+  						"type": "/mtls-edge-truststore/error-types/ca-set-not-found",
   						"title": "CA set not found.",
   						"status": 404,
   						"detail": "Cannot get CA set version as the CA set with caSetId 123 is not found.",
@@ -849,7 +846,7 @@ func TestGetCASetVersion(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions/12",
 			responseBody: `
 					{
-  						"type": "/mtls-edge-truststore/v2/error-types/ca-set-version-not-found",
+  						"type": "/mtls-edge-truststore/error-types/ca-set-version-not-found",
   						"title": "CA set version not found",
   						"status": 404,
   						"detail": "Cannot get CA set as the CA set version with version 12 is not found in the CA set with caSetId 123",
@@ -1091,7 +1088,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
 			responseBody: `
 					{
-  						"type": "/mtls-edge-truststore/v2/error-types/ca-set-not-found",
+  						"type": "/mtls-edge-truststore/error-types/ca-set-not-found",
   						"title": "CA set is not found.",
   						"status": 404,
   						"detail": "Cannot create a CA set version as the CA set with caSetId 123 is not found.",
@@ -1130,7 +1127,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions/12",
 			responseBody: `
 					{
-  						"type": "/mtls-edge-truststore/v2/error-types/ca-set-version-not-found",
+  						"type": "/mtls-edge-truststore/error-types/ca-set-version-not-found",
   						"title": "CA set is not found.",
   						"status": 404,
   						"detail": "Cannot create a CA set version as the CA set with caSetId 123 is not found.",
@@ -1171,7 +1168,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/versions/1",
 			responseBody: `
 					{
-						"type": "/mtls-edge-truststore/v2/error-types/delete-ca-set-request-in-progress",
+						"type": "/mtls-edge-truststore/error-types/delete-ca-set-request-in-progress",
 						"title": "DELETE request is in progress for the CA set on the network.",
 						"status": 409,
 						"detail": "Cannot update CA set version as the CA set is being deleted on one or more networks.",
@@ -1215,7 +1212,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/versions/1",
 			responseBody: `
 					{
-						"type": "/mtls-edge-truststore/v2/error-types/ca-set-version-is-active",
+						"type": "/mtls-edge-truststore/error-types/ca-set-version-is-active",
 						"title": "CA set version is currently active.",
 						"status": 422,
 						"detail": "Cannot update the CA set version with version 1 as it is active on production network.",
@@ -1264,7 +1261,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 			"detail": "Cannot update the CA set version with version 1 as it is active on production network.",
 			"status": 422,
 			"title": "CA set version is currently active.",
-			"type": "/mtls-edge-truststore/v2/error-types/ca-set-version-is-active"
+			"type": "/mtls-edge-truststore/error-types/ca-set-version-is-active"
 		}`,
 			withError: func(t *testing.T, err error) {
 				assert.True(t, errors.Is(err, ErrCASetVersionIsActive))
@@ -1297,7 +1294,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/versions/1",
 			responseBody: `
 		{
-			"type": "/mtls-edge-truststore/v2/error-types/ca-set-version-is-active",
+			"type": "/mtls-edge-truststore/error-types/ca-set-version-is-active",
 			"title": "CA set version is currently active.",
 			"status": 422,
 			"detail": "Cannot update the CA set version with version 1 as it is  active on staging network/s.",
@@ -1346,7 +1343,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 			"detail": "Cannot update the CA set version with version 1 as it was previously active on one ore more networks.",
 			"status": 422,
 			"title": "CA set version was previously active.",
-			"type": "/mtls-edge-truststore/v2/error-types/ca-set-version-was-previously-active"
+			"type": "/mtls-edge-truststore/error-types/ca-set-version-was-previously-active"
 		}`,
 			withError: func(t *testing.T, err error) {
 				assert.True(t, errors.Is(err, ErrCASetVersionWasPreviouslyActive))
@@ -1398,7 +1395,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 			],
 			"status": 400,
 			"title": "Cannot update the ca set version as the certificate(s) has failed validation.",
-			"type": "/mtls-edge-truststore/v2/error-types/certificate-validation-failure-update"
+			"type": "/mtls-edge-truststore/error-types/certificate-validation-failure-update"
 		}`,
 			withError: func(t *testing.T, err error) {
 				assert.True(t, errors.Is(err, ErrCertificateValidationFailedForUpdate))
@@ -1441,7 +1438,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 			"detail": "The maximum number of certificates allowed per CA set version is 1. Number of submitted certificates is 2.",
 			"status": 422,
 			"title": "Submitted certificates exceed the maximum allowed certificates limit.",
-			"type": "/mtls-edge-truststore/v2/error-types/certificate-limit-reached"
+			"type": "/mtls-edge-truststore/error-types/certificate-limit-reached"
 		}`,
 			withError: func(t *testing.T, err error) {
 				assert.True(t, errors.Is(err, ErrCertificateLimitReached))
@@ -1987,7 +1984,7 @@ func TestListCASetVersion(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions?",
 			responseBody: `
 					{
-  						"type": "/mtls-edge-truststore/v2/error-types/ca-set-not-found",
+  						"type": "/mtls-edge-truststore/error-types/ca-set-not-found",
   						"title": "CA set not found.",
   						"status": 404,
   						"detail": "Cannot get CA set version as the CA set with caSetId 123 is not found.",
@@ -2221,7 +2218,7 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions/1/certificates",
 			responseBody: `
 					{
-  						"type": "/mtls-edge-truststore/v2/error-types/ca-set-not-found",
+  						"type": "/mtls-edge-truststore/error-types/ca-set-not-found",
   						"title": "CA set not found.",
   						"status": 404,
   						"detail": "Cannot get CA set version as the CA set with caSetId 123 is not found.",

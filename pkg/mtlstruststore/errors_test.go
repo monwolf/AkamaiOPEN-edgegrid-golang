@@ -36,13 +36,13 @@ func TestNewError(t *testing.T) {
     "detail": "The type of Parameter caSetId is invalid.",
     "status": 400,
     "title": "Type mismatch for any of path variable or query param or both.",
-    "type": "/mtls-edge-truststore/v2/error-types/path-variable-query-param-type-mismatch"
+    "type": "/mtls-edge-truststore/error-types/path-variable-query-param-type-mismatch"
 }`),
 				),
 				Request: req,
 			},
 			expected: &Error{
-				Type:   "/mtls-edge-truststore/v2/error-types/path-variable-query-param-type-mismatch",
+				Type:   "/mtls-edge-truststore/error-types/path-variable-query-param-type-mismatch",
 				Title:  "Type mismatch for any of path variable or query param or both.",
 				Detail: "The type of Parameter caSetId is invalid.",
 				Status: http.StatusBadRequest,
@@ -69,13 +69,13 @@ func TestNewError(t *testing.T) {
     ],
     "status": 400,
     "title": "Invalid field value.",
-    "type": "/mtls-edge-truststore/v2/error-types/invalid-field"
+    "type": "/mtls-edge-truststore/error-types/invalid-field"
 }`),
 				),
 				Request: req,
 			},
 			expected: &Error{
-				Type:   "/mtls-edge-truststore/v2/error-types/invalid-field",
+				Type:   "/mtls-edge-truststore/error-types/invalid-field",
 				Title:  "Invalid field value.",
 				Status: http.StatusBadRequest,
 				ContextInfo: map[string]any{
@@ -102,13 +102,13 @@ func TestNewError(t *testing.T) {
     "detail": "Cannot get CA set as the CA set with caSetId 0 is not found.",
     "status": 404,
     "title": "CA set is not found.",
-    "type": "/mtls-edge-truststore/v2/error-types/ca-set-not-found"
+    "type": "/mtls-edge-truststore/error-types/ca-set-not-found"
 }`),
 				),
 				Request: req,
 			},
 			expected: &Error{
-				Type:   "/mtls-edge-truststore/v2/error-types/ca-set-not-found",
+				Type:   "/mtls-edge-truststore/error-types/ca-set-not-found",
 				Title:  "CA set is not found.",
 				Detail: "Cannot get CA set as the CA set with caSetId 0 is not found.",
 				Status: http.StatusNotFound,

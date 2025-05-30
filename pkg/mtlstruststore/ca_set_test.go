@@ -235,7 +235,7 @@ func TestGetCASet(t *testing.T) {
 				"detail": "Cannot get CA set as the CA set with caSetId 10 is not found.",
 				"status": 404,
 				"title": "CA set is not found.",
-				"type": "/mtls-edge-truststore/v2/error-types/ca-set-not-found"
+				"type": "/mtls-edge-truststore/error-types/ca-set-not-found"
 			}`,
 			withError: func(t *testing.T, err error) {
 				assert.True(t, errors.Is(err, ErrGetCASetNotFound))
@@ -786,7 +786,7 @@ func TestListCASetAssociations(t *testing.T) {
   "detail" : "Cannot get CA set associations as the CA set with caSetId 2 is not found.",
   "status" : 404,
   "title" : "CA set is not found.",
-  "type" : "/mtls-edge-truststore/v2/error-types/ca-set-not-found"
+  "type" : "/mtls-edge-truststore/error-types/ca-set-not-found"
 }`,
 			withError: func(t *testing.T, err error) {
 				assert.True(t, errors.Is(err, ErrGetCASetNotFound), "want: %s; got: %s", ErrGetCASetNotFound, err)
@@ -806,7 +806,7 @@ func TestListCASetAssociations(t *testing.T) {
   "detail" : "There are issues fetching the information about associations at this time. The request timed out. Try again later.",
   "status" : 504,
   "title" : "Couldn't fetch associations details. Timeout occurred.",
-  "type" : "/mtls-edge-truststore/v2/error-types/cannot-get-ca-set-associations-timeout"
+  "type" : "/mtls-edge-truststore/error-types/cannot-get-ca-set-associations-timeout"
 }`,
 			withError: func(t *testing.T, err error) {
 				assert.True(t, errors.Is(err, ErrFetchAssociationsTimeout), "want: %s; got: %s", ErrFetchAssociationsTimeout, err)
@@ -984,7 +984,7 @@ func TestCloneCASet(t *testing.T) {
     "detail": "CA set with caSetId 1 does not contain any versions. At least one version must be present to clone the CA set.",
     "status": 400,
     "title": "CA set does not contain any versions.",
-    "type": "/mtls-edge-truststore/v2/error-types/missing-caset-version"
+    "type": "/mtls-edge-truststore/error-types/missing-caset-version"
 }`,
 			withError: func(t *testing.T, err error) {
 				assert.True(t, errors.Is(err, ErrMissingCaCertVersion), "want: %s; got: %s", ErrMissingCaCertVersion, err)
@@ -1004,7 +1004,7 @@ func TestCloneCASet(t *testing.T) {
 		 "detail" : "Cannot clone CA set as the CA set with caSetId 2 is not found.",
 		 "status" : 404,
 		 "title" : "CA set is not found.",
-		 "type" : "/mtls-edge-truststore/v2/error-types/ca-set-not-found"
+		 "type" : "/mtls-edge-truststore/error-types/ca-set-not-found"
 		}`,
 			withError: func(t *testing.T, err error) {
 				assert.True(t, errors.Is(err, ErrGetCASetNotFound), "want: %s; got: %s", ErrGetCASetNotFound, err)
@@ -1019,7 +1019,7 @@ func TestCloneCASet(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/clone?cloneFromVersion=2",
 			responseStatus: http.StatusNotFound,
 			responseBody: `{
-  "type": "/mtls-edge-truststore/v2/error-types/ca-set-version-not-found",
+  "type": "/mtls-edge-truststore/error-types/ca-set-version-not-found",
   "title": "CA set version not found",
   "status": 404,
   "detail": "Cannot clone CA set as the CA set version with version 2 is not found in the CA set under caSetName test1.",
@@ -1041,7 +1041,7 @@ func TestCloneCASet(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/clone",
 			responseStatus: http.StatusConflict,
 			responseBody: `{
-  "type": "/mtls-edge-truststore/v2/error-types/ca-set-name-is-not-unique",
+  "type": "/mtls-edge-truststore/error-types/ca-set-name-is-not-unique",
   "title": "CA set name already exists",
   "status": 409,
   "detail": "CA set with caSetName new-set cannot be created as another CA set with the same name exists in the account with accountId 1-ACC.",
@@ -1062,7 +1062,7 @@ func TestCloneCASet(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/clone",
 			responseStatus: http.StatusUnprocessableEntity,
 			responseBody: `{
-  "type": "/mtls-edge-truststore/v2/error-types/ca-set-limit-reached",
+  "type": "/mtls-edge-truststore/error-types/ca-set-limit-reached",
   "title": "Cannot create a new CA set. Maximum allowed CA set limit has been reached.",
   "status": 422,
   "detail": "Cannot create CA set as you have already reached or exceeded the maximum allowed CA set limit of 2 for your account. Please delete any unused or unwanted CA sets before you attempt to create a new CA set.",
@@ -1192,7 +1192,7 @@ func TestGetCASetDeletionStatus(t *testing.T) {
  "detail" : "Cannot get CA set deletions as the CA set with caSetId 2 is not found.",
  "status" : 404,
  "title" : "CA set is not found.",
- "type" : "/mtls-edge-truststore/v2/error-types/ca-set-not-found"
+ "type" : "/mtls-edge-truststore/error-types/ca-set-not-found"
 }`,
 			withError: func(t *testing.T, err error) {
 				assert.True(t, errors.Is(err, ErrGetCASetNotFound), "want: %s; got: %s", ErrGetCASetNotFound, err)
@@ -1211,7 +1211,7 @@ func TestGetCASetDeletionStatus(t *testing.T) {
     "detail": "No active deletions were found for CA Certificate Set with set ID 1.",
     "status": 400,
     "title": "No active cert deletions found",
-    "type": "/mtls-edge-truststore/v2/error-types/no-active-cert-deletions"
+    "type": "/mtls-edge-truststore/error-types/no-active-cert-deletions"
 }`,
 			withError: func(t *testing.T, err error) {
 				assert.True(t, errors.Is(err, ErrNoActiveCertDeletions), "want: %s; got: %s", ErrNoActiveCertDeletions, err)
@@ -1395,7 +1395,6 @@ func TestListCASetActivities(t *testing.T) {
 				DeletedDate: ptr.To(test.NewTimeFromString(t, "2025-04-18T11:31:40.225213Z")),
 			},
 		},
-
 		"missing required params - validation error": {
 			params: ListCASetActivitiesRequest{},
 			withError: func(t *testing.T, err error) {
@@ -1415,7 +1414,7 @@ func TestListCASetActivities(t *testing.T) {
     "detail": "Cannot get CA set activities as the CA set with caSetId 2 is not found.",
     "status": 404,
     "title": "CA set is not found.",
-    "type": "/mtls-edge-truststore/v2/error-types/ca-set-not-found"
+    "type": "/mtls-edge-truststore/error-types/ca-set-not-found"
 }`,
 			withError: func(t *testing.T, err error) {
 				assert.True(t, errors.Is(err, ErrGetCASetNotFound), "want: %s; got: %s", ErrGetCASetNotFound, err)

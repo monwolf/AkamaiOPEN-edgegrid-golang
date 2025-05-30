@@ -228,7 +228,7 @@ func TestDeactivateCASetVersion(t *testing.T) {
 					"detail" : "CA set cannot be deactivated as CA set with caSetId 1 links to several Certificate Provisioning System enrollments. You need to unlink the CA set from the enrollments to proceed. See accompanying response data for enrollment details.",
 					"status" : 409,
 					"title" : "CA set is linked to enrollments.",
-					"type" : "/mtls-edge-truststore/v2/error-types/ca-set-bound-to-slot-in-cps"
+					"type" : "/mtls-edge-truststore/error-types/ca-set-bound-to-slot-in-cps"
 				}`,
 			withError: func(t *testing.T, err error) {
 				assert.True(t, errors.Is(err, ErrCASetBoundToSlotInCPS))
@@ -261,7 +261,7 @@ func TestDeactivateCASetVersion(t *testing.T) {
 					"detail" : "CA set cannot be deactivated CA set with caSetId 1 links to several Property Manager hostnames. You need to unlink the CA set from the hostnames to proceed. See accompanying response data for hostname details.",
 					"status" : 409,
 					"title" : "CA set is linked to hostnames.",
-					"type" : "/mtls-edge-truststore/v2/error-types/ca-set-bound-to-hostname"
+					"type" : "/mtls-edge-truststore/error-types/ca-set-bound-to-hostname"
 				}`,
 			withError: func(t *testing.T, err error) {
 				assert.True(t, errors.Is(err, ErrCASetBoundToHostname))
@@ -289,7 +289,7 @@ func TestDeactivateCASetVersion(t *testing.T) {
 					"detail" : "CA set with caSetId 1 and version 1 cannot be DEACTIVATED as another activation request is in progress for the CA set on the PRODUCTION network. Hypermedia link to the activation is attached.",
 					"status" : 409,
 					"title" : "Another activation request is in progress in the CA set.",
-					"type" : "/mtls-edge-truststore/v2/error-types/another-activation-request-in-progress-in-the-ca-set"
+					"type" : "/mtls-edge-truststore/error-types/another-activation-request-in-progress-in-the-ca-set"
 				}`,
 			withError: func(t *testing.T, err error) {
 				assert.True(t, errors.Is(err, ErrAnotherActivationInProgress))
@@ -317,7 +317,7 @@ func TestDeactivateCASetVersion(t *testing.T) {
 					"detail" : "CA set version with version 1 cannot be DEACTIVATED as another deactivation request is in progress for the CA set with caSetId 1 on the STAGING network. Hypermedia link to the deactivation is attached.",
 					"status" : 409,
 					"title" : "Another deactivation request is in progress in the CA set.",
-					"type" : "/mtls-edge-truststore/v2/error-types/another-deactivation-request-in-progress-in-the-ca-set"
+					"type" : "/mtls-edge-truststore/error-types/another-deactivation-request-in-progress-in-the-ca-set"
 				}`,
 			withError: func(t *testing.T, err error) {
 				assert.True(t, errors.Is(err, ErrAnotherDeactivationInProgress))
@@ -343,7 +343,7 @@ func TestDeactivateCASetVersion(t *testing.T) {
 					"detail" : "CA set version with version 1 cannot be deactivated as it is not active on the STAGING network.",
 					"status" : 409,
 					"title" : "CA set version cannot be deactivated as it is not active on the network.",
-					"type" : "/mtls-edge-truststore/v2/error-types/ca-set-version-not-active-on-network"
+					"type" : "/mtls-edge-truststore/error-types/ca-set-version-not-active-on-network"
 				}`,
 			withError: func(t *testing.T, err error) {
 				assert.True(t, errors.Is(err, ErrCASetVersionNotActiveOnNetwork))
@@ -490,7 +490,7 @@ func TestGetCASetVersionActivation(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/10/versions/1/activations/84572",
 			responseStatus: http.StatusNotFound,
 			responseBody: `{
-				"type": "/mtls-edge-truststore/v2/error-types/ca-set-not-found",
+				"type": "/mtls-edge-truststore/error-types/ca-set-not-found",
 				"title": "CA set not found.",
 				"status": 404,
 				"detail": "Cannot get activation or deactivation status as the CA set with caSetId 10 is not found.",
@@ -511,7 +511,7 @@ func TestGetCASetVersionActivation(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/2/versions/12/activations/84572",
 			responseStatus: http.StatusNotFound,
 			responseBody: `{
-				"type": "/mtls-edge-truststore/v2/error-types/ca-set-version-not-found",
+				"type": "/mtls-edge-truststore/error-types/ca-set-version-not-found",
 				"title": "CA set version not found",
 				"status": 404,
 				"detail": "Cannot get activation or deactivation status as the version 12 is not found in the CA set under caSetName test1.",
@@ -543,7 +543,7 @@ func TestGetCASetVersionActivation(t *testing.T) {
 				"detail" : "Cannot get activation or deactivation status as the activation or deactivation request with activationId 2 is not found in CA set version with version 1 under CA set with caSetId 2.",
 				"status" : 404,
 				"title" : "Activation or Deactivation Request is not found.",
-				"type" : "/mtls-edge-truststore/v2/error-types/activation-or-deactivation-request-not-found"
+				"type" : "/mtls-edge-truststore/error-types/activation-or-deactivation-request-not-found"
 			}`,
 			withError: func(t *testing.T, err error) {
 				assert.True(t, errors.Is(err, ErrGetCASetActivationNotFound))
@@ -664,7 +664,7 @@ func TestListCASetVersionActivations(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1000/versions/2/activations",
 			responseStatus: http.StatusNotFound,
 			responseBody: `{
-				"type": "/mtls-edge-truststore/v2/error-types/ca-set-not-found",
+				"type": "/mtls-edge-truststore/error-types/ca-set-not-found",
 				"title": "CA set not found.",
 				"status": 404,
 				"detail": "Cannot get CA set activations as the CA set with caSetId 1000 is not found.",
@@ -684,7 +684,7 @@ func TestListCASetVersionActivations(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1000/versions/2/activations",
 			responseStatus: http.StatusNotFound,
 			responseBody: `{
-				"type": "/mtls-edge-truststore/v2/error-types/ca-set-version-not-found",
+				"type": "/mtls-edge-truststore/error-types/ca-set-version-not-found",
 				"title": "CA set version not found",
 				"status": 404,
 				"detail": "Cannot get CA set activations as the CA set version with version 2 is not found in the CA set under caSetName foo.",
@@ -857,7 +857,7 @@ func TestListCASetActivations(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1000/activations",
 			responseStatus: http.StatusNotFound,
 			responseBody: `{
-				"type": "/mtls-edge-truststore/v2/error-types/ca-set-not-found",
+				"type": "/mtls-edge-truststore/error-types/ca-set-not-found",
 				"title": "CA set not found.",
 				"status": 404,
 				"detail": "Cannot get CA set activations as the CA set with caSetId 1000 is not found.",

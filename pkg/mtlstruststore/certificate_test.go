@@ -139,7 +139,7 @@ func TestValidateCertificates(t *testing.T) {
     ],
     "status": 400,
     "title": "Certificate(s) has failed validation.",
-    "type": "/mtls-edge-truststore/v2/error-types/certificate-validation-failure"
+    "type": "/mtls-edge-truststore/error-types/certificate-validation-failure"
 }`,
 			withError: func(t *testing.T, err error) {
 				assert.True(t, errors.Is(err, ErrCertValidationFailure), "want: %s; got: %s", ErrCertValidationFailure, err)
@@ -178,7 +178,7 @@ func TestValidateCertificates(t *testing.T) {
     } ],
     "status" : 400,
     "title" : "Certificate(s) has failed validation.",
-    "type" : "/mtls-edge-truststore/v2/error-types/certificate-validation-failure"
+    "type" : "/mtls-edge-truststore/error-types/certificate-validation-failure"
 }`,
 			withError: func(t *testing.T, err error) {
 				assert.True(t, errors.Is(err, ErrCertValidationFailure), "want: %s; got: %s", ErrCertValidationFailure, err)
