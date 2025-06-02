@@ -74,7 +74,10 @@ func TestValidateCertificates(t *testing.T) {
             "startDate": "2023-04-25T23:22:06Z",
             "subject": "EMAILADDRESS=test2@example.com, CN=test-example1.com, OU=Media BU, O=Akamai, L=SF, ST=CA, C=US"
         }
-    ]
+    ],
+    "validation": {
+        "warnings": []
+    }
 }`,
 			expectedResponse: &ValidateCertificatesResponse{
 				AllowInsecureSHA1: false,
@@ -99,6 +102,108 @@ func TestValidateCertificates(t *testing.T) {
 						SignatureAlgorithm: "SHA256WITHRSA",
 						StartDate:          test.NewTimeFromString(t, "2023-04-25T23:22:06Z"),
 						Subject:            "EMAILADDRESS=test2@example.com, CN=test-example1.com, OU=Media BU, O=Akamai, L=SF, ST=CA, C=US",
+					},
+				},
+				Validation: Validation{Warnings: []Warning{}},
+			},
+		},
+		"200 - valid certs but there is a duplication (warning)": {
+			params: ValidateCertificatesRequest{
+				Certificates: []ValidateCertificate{
+					{
+						CertificatePEM: "-----BEGIN CERTIFICATE-----\nCERT1\n-----END CERTIFICATE-----",
+					},
+					{
+						CertificatePEM: "-----BEGIN CERTIFICATE-----\nCERT1\n-----END CERTIFICATE-----",
+					},
+				},
+			},
+			expectedPath: "/mtls-edge-truststore/v2/certificates/validate",
+			expectedRequestBody: `{
+	"allowInsecureSha1":false,
+	"certificates": [
+		{
+			"certificatePem": "-----BEGIN CERTIFICATE-----\nCERT1\n-----END CERTIFICATE-----"
+		},
+		{
+			"certificatePem": "-----BEGIN CERTIFICATE-----\nCERT1\n-----END CERTIFICATE-----"
+		}
+	]
+}`,
+			responseStatus: http.StatusOK,
+			responseBody: `{
+    "allowInsecureSha1": false,
+    "certificates": [
+        {
+            "certificatePem": "-----BEGIN CERTIFICATE-----\nCERT1\n-----END CERTIFICATE-----",
+            "endDate": "2033-04-22T22:49:13Z",
+            "fingerprint": "aeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeae",
+            "issuer": "EMAILADDRESS=test1@example.com, CN=duplicate-test-cn.com, OU=Media BU, O=Akamai, L=SF, ST=CA, C=US",
+            "serialNumber": "dfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdf",
+            "signatureAlgorithm": "SHA256WITHRSA",
+            "startDate": "2023-04-25T22:49:13Z",
+            "subject": "EMAILADDRESS=test1@example.com, CN=duplicate-test-cn.com, OU=Media BU, O=Akamai, L=SF, ST=CA, C=US"
+        },
+        {
+            "certificatePem": "-----BEGIN CERTIFICATE-----\nCERT1\n-----END CERTIFICATE-----",
+            "endDate": "2033-04-22T22:49:13Z",
+            "fingerprint": "aeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeae",
+            "issuer": "EMAILADDRESS=test1@example.com, CN=duplicate-test-cn.com, OU=Media BU, O=Akamai, L=SF, ST=CA, C=US",
+            "serialNumber": "dfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdf",
+            "signatureAlgorithm": "SHA256WITHRSA",
+            "startDate": "2023-04-25T22:49:13Z",
+            "subject": "EMAILADDRESS=test1@example.com, CN=duplicate-test-cn.com, OU=Media BU, O=Akamai, L=SF, ST=CA, C=US"
+        }
+    ],
+    "validation": {
+        "warnings": [
+            {
+                "contextInfo": {
+                    "fingerPrint": "aeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeae"
+                },
+                "detail": "The certificate with the fingerprint aeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeae has been submitted more than once. Duplicate certificates are not allowed.",
+                "pointer": "/certificates/1",
+                "title": "Duplicate certificate has been submitted in the certificates.",
+                "type": "/mtls-edge-truststore/v2/error-types/duplicate-certificate"
+            }
+        ]
+    }
+}`,
+			expectedResponse: &ValidateCertificatesResponse{
+				AllowInsecureSHA1: false,
+				Certificates: []ValidateCertificateResponse{
+					{
+						CertificatePEM:     "-----BEGIN CERTIFICATE-----\nCERT1\n-----END CERTIFICATE-----",
+						EndDate:            test.NewTimeFromString(t, "2033-04-22T22:49:13Z"),
+						Fingerprint:        "aeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeae",
+						Issuer:             "EMAILADDRESS=test1@example.com, CN=duplicate-test-cn.com, OU=Media BU, O=Akamai, L=SF, ST=CA, C=US",
+						SerialNumber:       "dfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdf",
+						SignatureAlgorithm: "SHA256WITHRSA",
+						StartDate:          test.NewTimeFromString(t, "2023-04-25T22:49:13Z"),
+						Subject:            "EMAILADDRESS=test1@example.com, CN=duplicate-test-cn.com, OU=Media BU, O=Akamai, L=SF, ST=CA, C=US",
+					},
+					{
+						CertificatePEM:     "-----BEGIN CERTIFICATE-----\nCERT1\n-----END CERTIFICATE-----",
+						EndDate:            test.NewTimeFromString(t, "2033-04-22T22:49:13Z"),
+						Fingerprint:        "aeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeae",
+						Issuer:             "EMAILADDRESS=test1@example.com, CN=duplicate-test-cn.com, OU=Media BU, O=Akamai, L=SF, ST=CA, C=US",
+						SerialNumber:       "dfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdf",
+						SignatureAlgorithm: "SHA256WITHRSA",
+						StartDate:          test.NewTimeFromString(t, "2023-04-25T22:49:13Z"),
+						Subject:            "EMAILADDRESS=test1@example.com, CN=duplicate-test-cn.com, OU=Media BU, O=Akamai, L=SF, ST=CA, C=US",
+					},
+				},
+				Validation: Validation{
+					Warnings: []Warning{
+						{
+							ContextInfo: map[string]interface{}{
+								"fingerPrint": "aeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeae",
+							},
+							Detail:  "The certificate with the fingerprint aeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeae has been submitted more than once. Duplicate certificates are not allowed.",
+							Pointer: "/certificates/1",
+							Title:   "Duplicate certificate has been submitted in the certificates.",
+							Type:    "/mtls-edge-truststore/v2/error-types/duplicate-certificate",
+						},
 					},
 				},
 			},
@@ -191,14 +296,15 @@ func TestValidateCertificates(t *testing.T) {
 			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				assert.Equal(t, test.expectedPath, r.URL.String())
 				assert.Equal(t, http.MethodPost, r.Method)
-				w.WriteHeader(test.responseStatus)
-				_, err := w.Write([]byte(test.responseBody))
-				assert.NoError(t, err)
 				if test.expectedRequestBody != "" {
 					body, err := io.ReadAll(r.Body)
 					assert.NoError(t, err)
 					assert.JSONEq(t, test.expectedRequestBody, string(body))
 				}
+
+				w.WriteHeader(test.responseStatus)
+				_, err := w.Write([]byte(test.responseBody))
+				assert.NoError(t, err)
 			}))
 			client := mockAPIClient(t, mockServer)
 			result, err := client.ValidateCertificates(context.Background(), test.params)

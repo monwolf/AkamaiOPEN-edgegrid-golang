@@ -72,7 +72,10 @@ func TestCreateCASetVersion(t *testing.T) {
 					  "createdDate": "2025-04-10T00:00:00Z",
 					  "createdBy": "tester"
 					}
-				  ]
+				  ],
+				  "validation": {
+					"warnings": []
+				  }
 				}`,
 			expectedPath: `/mtls-edge-truststore/v2/ca-sets/123/versions`,
 			expectedResponse: &CreateCASetVersionResponse{
@@ -102,6 +105,119 @@ func TestCreateCASetVersion(t *testing.T) {
 						CreatedBy:          "tester",
 					},
 				},
+				Validation: &Validation{Warnings: []Warning{}},
+			},
+		},
+		"201 with duplicated certificates (warning)": {
+			request: CreateCASetVersionRequest{
+				CASetID: "123",
+				Body: CreateCASetVersionRequestBody{
+					AllowInsecureSHA1: false,
+					Description:       ptr.To("Test CA Set Version"),
+					Certificates: []CertificateRequest{
+						{
+							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+						},
+						{
+							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+						},
+					},
+				},
+			},
+			expectedRequestBody: `{
+				  "allowInsecureSha1": false,
+				  "description": "Test CA Set Version",
+				  "certificates": [
+					{
+					  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
+					},
+					{
+					  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
+					}
+				  ]}`,
+			responseStatus: http.StatusCreated,
+			responseBody: `{
+				"caSetId": "123",
+				"version": 1,
+				"caSetName": "Test CA Set",
+				"versionLink": "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
+				"description": "Test CA Set Version",
+				"allowInsecureSha1": false,
+				"stagingStatus": "PENDING",
+				"productionStatus": "PENDING",
+				"createdDate": "2025-04-10T00:00:00Z",
+				"createdBy": "tester",
+				"modifiedDate": "2025-04-10T00:00:00Z",
+				"modifiedBy": "tester",
+				"certificates": [
+					{
+						"subject": "Test Subject",
+						"issuer": "Test Issuer",
+						"endDate": "2025-12-31T00:00:00Z",
+						"startDate": "2025-01-01T00:00:00Z",
+						"fingerprint": "abc123",
+						"certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+						"serialNumber": "123456789",
+						"signatureAlgorithm": "SHA256WithRSA",
+						"createdDate": "2025-04-10T00:00:00Z",
+						"createdBy": "tester"
+					}
+				],
+				"validation": {
+					"warnings": [
+						{
+							"contextInfo": {
+								"description": null,
+								"fingerprint": "abc123"
+							},
+							"detail": "The certificate with the fingerprint abc123 has been submitted more than once. Duplicate certificates are not allowed.",
+							"pointer": "/certificates/1",
+							"title": "Duplicate certificate has been submitted in the certificates.",
+							"type": "/mtls-edge-truststore/error-types/duplicate-certificate"
+						}
+					]
+				}
+			}`,
+			expectedPath: `/mtls-edge-truststore/v2/ca-sets/123/versions`,
+			expectedResponse: &CreateCASetVersionResponse{
+				CASetID:           "123",
+				Version:           1,
+				CASetName:         "Test CA Set",
+				VersionLink:       "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
+				Description:       "Test CA Set Version",
+				AllowInsecureSHA1: false,
+				StagingStatus:     "PENDING",
+				ProductionStatus:  "PENDING",
+				CreatedDate:       test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
+				CreatedBy:         "tester",
+				ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2025-04-10T00:00:00Z")),
+				ModifiedBy:        ptr.To("tester"),
+				Certificates: []CertificateResponse{
+					{
+						Subject:            "Test Subject",
+						Issuer:             "Test Issuer",
+						StartDate:          test.NewTimeFromString(t, "2025-01-01T00:00:00Z"),
+						EndDate:            test.NewTimeFromString(t, "2025-12-31T00:00:00Z"),
+						Fingerprint:        "abc123",
+						CertificatePEM:     "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+						SerialNumber:       "123456789",
+						SignatureAlgorithm: "SHA256WithRSA",
+						CreatedDate:        test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
+						CreatedBy:          "tester",
+					},
+				},
+				Validation: &Validation{Warnings: []Warning{
+					{
+						ContextInfo: map[string]any{
+							"description": nil,
+							"fingerprint": "abc123",
+						},
+						Detail:  "The certificate with the fingerprint abc123 has been submitted more than once. Duplicate certificates are not allowed.",
+						Pointer: "/certificates/1",
+						Title:   "Duplicate certificate has been submitted in the certificates.",
+						Type:    "/mtls-edge-truststore/error-types/duplicate-certificate",
+					},
+				}},
 			},
 		},
 		"Validation error - CA Set version description greater than max allowed length": {
@@ -439,7 +555,6 @@ func TestCreateCASetVersion(t *testing.T) {
 				assert.True(t, errors.Is(err, ErrCaSetVersionIsDuplicate))
 			},
 		},
-		//"[TODO: Warning in Response] Warning Response - Body contains duplicate certificates (based on fingerPrint)":{},
 		"Internal server error": {
 			request: CreateCASetVersionRequest{
 				CASetID: "123",
@@ -588,6 +703,103 @@ func TestCloneCASetVersion(t *testing.T) {
 				},
 			},
 		},
+		"201 Successful creation but with expired certificate (warning)": {
+			request: CloneCASetVersionRequest{
+				CASetID: "123",
+				Version: 1,
+			},
+			responseStatus: http.StatusCreated,
+			responseBody: `
+					{
+					  "caSetId": "123",
+					  "version": 1,
+					  "caSetName": "Test CA Set",
+					  "versionLink": "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
+					  "description": "Test CA Set Version",
+					  "allowInsecureSha1": false,
+					  "stagingStatus": "PENDING",
+					  "productionStatus": "PENDING",
+					  "createdDate": "2025-04-10T00:00:00Z",
+					  "createdBy": "tester",
+					  "modifiedDate": "2025-04-10T00:00:00Z",
+					  "modifiedBy": "tester",
+					  "certificates": [
+						{
+						  "subject": "Test Subject",
+						  "issuer": "Test Issuer",
+						  "endDate": "2025-12-31T00:00:00Z",
+						  "startDate": "2025-01-01T00:00:00Z",
+						  "fingerprint": "abc123",
+						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+						  "serialNumber": "123456789",
+						  "signatureAlgorithm": "SHA256WithRSA",
+						  "createdDate": "2025-04-10T00:00:00Z",
+						  "createdBy": "tester"
+						}
+					  ],
+					  "validation": {
+					  "warnings": [
+					    {
+					        "contextInfo": {
+					            "checkDate": "2025-05-14T09:30:52Z",
+					            "description": null,
+					            "expiryDate": "2025-04-06T09:35:20Z",
+					            "fingerPrint": "abc123",
+					            "subject": "CN=localhost, OU=Unit, O=Organization, L=City, ST=State, C=US"
+					        },
+					        "detail": "The certificate with subject CN=localhost, OU=Unit, O=Organization, L=City, ST=State, C=US and fingerprint abc123 has expired. Expiry date is 2025-04-06T09:35:20Z. The check was performed on 2025-05-14T09:30:52Z.",
+					        "title": "The certificate has expired.",
+					        "type": "/mtls-edge-truststore/v2/error-types/expired-certificate"
+					    }
+					  ]
+					  }
+					}`,
+			expectedPath: `/mtls-edge-truststore/v2/ca-sets/123/versions/1/clone`,
+			expectedResponse: &CloneCASetVersionResponse{
+				CASetID:           "123",
+				Version:           1,
+				CASetName:         "Test CA Set",
+				VersionLink:       "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
+				Description:       "Test CA Set Version",
+				AllowInsecureSHA1: false,
+				StagingStatus:     "PENDING",
+				ProductionStatus:  "PENDING",
+				CreatedDate:       test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
+				CreatedBy:         "tester",
+				ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2025-04-10T00:00:00Z")),
+				ModifiedBy:        ptr.To("tester"),
+				Certificates: []CertificateResponse{
+					{
+						Subject:            "Test Subject",
+						Issuer:             "Test Issuer",
+						StartDate:          test.NewTimeFromString(t, "2025-01-01T00:00:00Z"),
+						EndDate:            test.NewTimeFromString(t, "2025-12-31T00:00:00Z"),
+						Fingerprint:        "abc123",
+						CertificatePEM:     "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+						SerialNumber:       "123456789",
+						SignatureAlgorithm: "SHA256WithRSA",
+						CreatedDate:        test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
+						CreatedBy:          "tester",
+					},
+				},
+				Validation: &Validation{
+					Warnings: []Warning{
+						{
+							ContextInfo: map[string]any{
+								"checkDate":   "2025-05-14T09:30:52Z",
+								"description": nil,
+								"expiryDate":  "2025-04-06T09:35:20Z",
+								"fingerPrint": "abc123",
+								"subject":     "CN=localhost, OU=Unit, O=Organization, L=City, ST=State, C=US",
+							},
+							Detail: "The certificate with subject CN=localhost, OU=Unit, O=Organization, L=City, ST=State, C=US and fingerprint abc123 has expired. Expiry date is 2025-04-06T09:35:20Z. The check was performed on 2025-05-14T09:30:52Z.",
+							Title:  "The certificate has expired.",
+							Type:   "/mtls-edge-truststore/v2/error-types/expired-certificate",
+						},
+					},
+				},
+			},
+		},
 		"Validation error - missing CASetID and Version": {
 			request: CloneCASetVersionRequest{},
 			withError: func(t *testing.T, err error) {
@@ -664,7 +876,6 @@ func TestCloneCASetVersion(t *testing.T) {
 				assert.True(t, errors.Is(err, ErrCASetDeleteRequestInProgress))
 			},
 		},
-		//"[TODO: Warning in Response] Error Response - Clone CA set version with expired certs": {},
 		"Error Response - Maximum allowed versions in a CA set limit reached": {
 			request: CloneCASetVersionRequest{
 				CASetID: "1",
@@ -779,7 +990,8 @@ func TestGetCASetVersion(t *testing.T) {
 						"createdDate":"2025-04-10T00:00:00Z",
 						"createdBy":"tester"
 					}
-				]
+				],
+				"validation": null
 			}`,
 			expectedResponse: &GetCASetVersionResponse{
 				CASetID:           "123",
@@ -978,6 +1190,121 @@ func TestUpdateCASetVersion(t *testing.T) {
 						CreatedBy:          "tester",
 					},
 				},
+			},
+		},
+		"200 Successful update but with duplicated certificates (warning)": {
+			request: UpdateCASetVersionRequest{
+				CASetID: "123",
+				Version: 1,
+				Body: UpdateCASetVersionRequestBody{
+					AllowInsecureSHA1: false,
+					Description:       "Test CA Set Version",
+					Certificates: []CertificateRequest{
+						{
+							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+						},
+						{
+							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+						},
+					},
+				},
+			},
+			expectedRequestBody: `{
+					  "allowInsecureSha1": false,
+					  "certificates": [
+						{
+						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
+						},
+						{
+						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
+						}
+					  ],
+					  "description": "Test CA Set Version"
+					}`,
+			responseStatus: http.StatusOK,
+			responseBody: `
+					{
+					  "caSetId": "123",
+					  "version": 1,
+					  "caSetName": "Test CA Set",
+					  "versionLink": "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
+					  "description": "Test CA Set Version",
+					  "allowInsecureSha1": false,
+					  "stagingStatus": "PENDING",
+					  "productionStatus": "PENDING",
+					  "createdDate": "2025-04-10T00:00:00Z",
+					  "createdBy": "tester",
+					  "modifiedDate": "2025-04-10T00:00:00Z",
+					  "modifiedBy": "tester",
+					  "certificates": [
+						{
+						  "subject": "Test Subject",
+						  "issuer": "Test Issuer",
+						  "endDate": "2025-12-31T00:00:00Z",
+						  "startDate": "2025-01-01T00:00:00Z",
+						  "fingerprint": "abc123",
+						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+						  "serialNumber": "123456789",
+						  "signatureAlgorithm": "SHA256WithRSA",
+						  "createdDate": "2025-04-10T00:00:00Z",
+						  "createdBy": "tester"
+						}
+					  ],
+					  "validation": {
+						  "warnings": [
+							  {
+								  "contextInfo": {
+									  "description": null,
+									  "fingerprint": "abc123"
+								  },
+								  "detail": "The certificate with the fingerprint abc123 has been submitted more than once. Duplicate certificates are not allowed.",
+								  "pointer": "/certificates/1",
+								  "title": "Duplicate certificate has been submitted in the certificates.",
+								  "type": "/mtls-edge-truststore/error-types/duplicate-certificate"
+							  }
+						  ]
+					  }
+					}`,
+			expectedPath: `/mtls-edge-truststore/v2/ca-sets/123/versions/1`,
+			expectedResponse: &UpdateCASetVersionResponse{
+				CASetID:           "123",
+				Version:           1,
+				CASetName:         "Test CA Set",
+				VersionLink:       "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
+				Description:       "Test CA Set Version",
+				AllowInsecureSHA1: false,
+				StagingStatus:     "PENDING",
+				ProductionStatus:  "PENDING",
+				CreatedDate:       test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
+				CreatedBy:         "tester",
+				ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2025-04-10T00:00:00Z")),
+				ModifiedBy:        ptr.To("tester"),
+				Certificates: []CertificateResponse{
+					{
+						Subject:            "Test Subject",
+						Issuer:             "Test Issuer",
+						StartDate:          test.NewTimeFromString(t, "2025-01-01T00:00:00Z"),
+						EndDate:            test.NewTimeFromString(t, "2025-12-31T00:00:00Z"),
+						Fingerprint:        "abc123",
+						CertificatePEM:     "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+						SerialNumber:       "123456789",
+						SignatureAlgorithm: "SHA256WithRSA",
+						CreatedDate:        test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
+						CreatedBy:          "tester",
+					},
+				},
+				Validation: &Validation{Warnings: []Warning{
+					{
+						ContextInfo: map[string]any{
+							"description": nil,
+							"fingerprint": "abc123",
+						},
+						Detail:  "The certificate with the fingerprint abc123 has been submitted more than once. Duplicate certificates are not allowed.",
+						Pointer: "/certificates/1",
+						Title:   "Duplicate certificate has been submitted in the certificates.",
+						Type:    "/mtls-edge-truststore/error-types/duplicate-certificate",
+					},
+				}},
 			},
 		},
 		"Validation error - CA Set version description greater than max allowed length": {
@@ -1575,7 +1902,8 @@ func TestListCASetVersion(t *testing.T) {
 							   "createdBy": "jsmith2",
 							   "description": "Optional description for the certificate"
 							}
-						 ]
+						 ],
+						 "validation": null
 					  },
 					  {
 						 "caSetId" : "1000",
@@ -1617,7 +1945,8 @@ func TestListCASetVersion(t *testing.T) {
 							   "createdBy": "jsmith2",
 							   "description": "Optional description for the certificate"
 							}
-						 ]
+						 ],
+						 "validation": null
 					  }
 				   ]
 				}`,
@@ -1711,7 +2040,7 @@ func TestListCASetVersion(t *testing.T) {
 				},
 			},
 		},
-		"200 Successfully Lists versions with optional params": {
+		"200 Successfully Lists versions with activeVersionsOnly=true and includeCertificates=true": {
 			request: ListCASetVersionsRequest{
 				CASetID:             "123",
 				IncludeCertificates: true,
@@ -1761,7 +2090,8 @@ func TestListCASetVersion(t *testing.T) {
 							   "createdBy": "jsmith2",
 							   "description": "Optional description for the certificate"
 							}
-						 ]
+						 ],
+						 "validation": null
 					  },
 					  {
 						 "caSetId" : "1000",
@@ -1803,7 +2133,8 @@ func TestListCASetVersion(t *testing.T) {
 							   "createdBy": "jsmith2",
 							   "description": "Optional description for the certificate"
 							}
-						 ]
+						 ],
+						 "validation": null
 					  }
 				   ]
 				}`,
@@ -1896,7 +2227,7 @@ func TestListCASetVersion(t *testing.T) {
 				},
 			},
 		},
-		"200 Successfully Lists versions with optional params 2": {
+		"200 Successfully Lists versions with activeVersionsOnly=true": {
 			request: ListCASetVersionsRequest{
 				CASetID:             "1000",
 				IncludeCertificates: false,
@@ -1918,7 +2249,8 @@ func TestListCASetVersion(t *testing.T) {
 						 "createdDate": "2023-01-10T11:00:00Z",
 						 "createdBy": "jsmith",
 						 "modifiedDate": "2023-01-10T12:00:00Z",
-						 "modifiedBy": "jsmith"
+						 "modifiedBy": "jsmith",
+						 "validation": null
 					  },
 					  {
 						 "caSetId" : "1000",
@@ -1932,7 +2264,8 @@ func TestListCASetVersion(t *testing.T) {
 						 "createdDate": "2023-01-10T11:00:00Z",
 						 "createdBy": "jsmith",
 						 "modifiedDate": "2023-01-10T12:00:00Z",
-						 "modifiedBy": "jsmith"
+						 "modifiedBy": "jsmith",
+						 "validation": null
 					  }
 				   ]
 				}`,

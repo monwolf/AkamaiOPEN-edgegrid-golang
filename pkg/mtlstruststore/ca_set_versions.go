@@ -147,6 +147,20 @@ type (
 		Description string `json:"description,omitempty"`
 	}
 
+	// Validation represents the validation results for a CA Set version, its certificates or activation.
+	Validation struct {
+		Warnings []Warning `json:"warnings"`
+	}
+
+	// Warning represents a data about single validation warning.
+	Warning struct {
+		ContextInfo map[string]any `json:"contextInfo"`
+		Type        string         `json:"type"`
+		Title       string         `json:"title"`
+		Detail      string         `json:"detail"`
+		Pointer     string         `json:"pointer"`
+	}
+
 	// CreateCASetVersionResponse represents the response returned after creating a new CA Set version.
 	CreateCASetVersionResponse CASetVersion
 
@@ -219,6 +233,9 @@ type (
 
 		// Certificates is a list of valid root or intermediate certificates. At least one is required.
 		Certificates []CertificateResponse `json:"certificates"`
+
+		// Validation contains any warnings or errors related to the CA Set version.
+		Validation *Validation `json:"validation"`
 	}
 )
 

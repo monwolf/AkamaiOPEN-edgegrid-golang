@@ -83,6 +83,9 @@ type (
 		// RetryAfter is a time in seconds when CA set version activation/deletion status can be checked again. Usually 300 seconds.
 		// This header value is returned only if the CA set version activation/deletion status is "IN_PROGRESS".
 		RetryAfter time.Duration
+
+		// Validation contains validation information for the activation.
+		Validation *Validation `json:"validation"`
 	}
 
 	// DeactivateCASetVersionResponse contains response from DeactivateCASetVersion.

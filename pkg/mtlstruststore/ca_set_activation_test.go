@@ -50,6 +50,9 @@ func TestActivateCASetVersion(t *testing.T) {
 					"activationStatus": "IN_PROGRESS",
 					"activationType": "ACTIVATE",
 					"percentComplete": 0,
+					"validation": {
+						"warnings": []
+					},
 					"version": 1,
 					"versionLink": "/mtls-edge-truststore/v2/ca-sets/199/versions/1"
 				}`,
@@ -70,9 +73,74 @@ func TestActivateCASetVersion(t *testing.T) {
 				PercentComplete:  0,
 				Version:          1,
 				VersionLink:      "/mtls-edge-truststore/v2/ca-sets/199/versions/1",
+				Validation:       &Validation{Warnings: []Warning{}},
 			},
 		},
-		//"202 Accepted with warning TODO": {},
+		"202 Accepted with warning": {
+			request: ActivateCASetVersionRequest{
+				CASetID: "199",
+				Version: 1,
+				Network: ActivationNetworkProduction,
+			},
+			expectedRequestBody: `{"network":"PRODUCTION"}`,
+			expectedPath:        "/mtls-edge-truststore/v2/ca-sets/199/versions/1/activate",
+			responseStatus:      http.StatusAccepted,
+			responseBody: `
+				{
+					"activationId": 84707,
+					"activationLink": "/mtls-edge-truststore/v2/ca-sets/199/versions/1/activations/84707",
+					"caSetId": "199",
+					"caSetName": "test1",
+					"caSetLink": "/mtls-edge-truststore/v2/ca-sets/199",
+					"createdBy": "jsmith@example.com",
+					"createdDate": "2023-06-01T23:02:29.876Z",
+					"failureReason": null,
+					"modifiedBy": null,
+					"modifiedDate": null,
+					"network": "STAGING",
+					"activationStatus": "IN_PROGRESS",
+					"activationType": "ACTIVATE",
+					"percentComplete": 0,
+					"validation": {
+						"warnings": [
+							{
+								"detail": "A request was submitted to activate the CA set version on production without activating on staging first. While this is allowed, it is highly recommended to first deploy the CA set version on staging network and ensure that there are no issues in serving the traffic.",
+								"title": "Request was submitted to activate the CA set version on production without activating on staging first.",
+								"type": "/mtls-edge-truststore/error-types/activate-version-on-production-without-activating-on-staging"
+							}
+						]
+					},
+					"version": 1,
+					"versionLink": "/mtls-edge-truststore/v2/ca-sets/199/versions/1"
+				}`,
+			expectedResponse: &ActivateCASetVersionResponse{
+				ActivationID:     84707,
+				ActivationLink:   "/mtls-edge-truststore/v2/ca-sets/199/versions/1/activations/84707",
+				CASetID:          "199",
+				CASetName:        "test1",
+				CASetLink:        "/mtls-edge-truststore/v2/ca-sets/199",
+				CreatedBy:        "jsmith@example.com",
+				CreatedDate:      test.NewTimeFromString(t, "2023-06-01T23:02:29.876Z"),
+				FailureReason:    nil,
+				ModifiedBy:       nil,
+				ModifiedDate:     nil,
+				Network:          "STAGING",
+				ActivationStatus: "IN_PROGRESS",
+				ActivationType:   "ACTIVATE",
+				PercentComplete:  0,
+				Version:          1,
+				VersionLink:      "/mtls-edge-truststore/v2/ca-sets/199/versions/1",
+				Validation: &Validation{
+					Warnings: []Warning{
+						{
+							Detail: "A request was submitted to activate the CA set version on production without activating on staging first. While this is allowed, it is highly recommended to first deploy the CA set version on staging network and ensure that there are no issues in serving the traffic.",
+							Title:  "Request was submitted to activate the CA set version on production without activating on staging first.",
+							Type:   "/mtls-edge-truststore/error-types/activate-version-on-production-without-activating-on-staging",
+						},
+					},
+				},
+			},
+		},
 		"missing required request param - validation error": {
 			request: ActivateCASetVersionRequest{},
 			withError: func(t *testing.T, err error) {
@@ -179,6 +247,9 @@ func TestDeactivateCASetVersion(t *testing.T) {
 					"activationStatus": "IN_PROGRESS",
 					"activationType": "DEACTIVATE",
 					"percentComplete": 0,
+					"validation": {
+						"warnings": []
+					},
 					"version": 1,
 					"versionLink": "/mtls-edge-truststore/v2/ca-sets/199/versions/1"
 				}`,
@@ -199,9 +270,74 @@ func TestDeactivateCASetVersion(t *testing.T) {
 				PercentComplete:  0,
 				Version:          1,
 				VersionLink:      "/mtls-edge-truststore/v2/ca-sets/199/versions/1",
+				Validation:       &Validation{Warnings: []Warning{}},
 			},
 		},
-		//"202 Accepted with warning TODO": {},
+		"202 Accepted with warning": {
+			request: DeactivateCASetVersionRequest{
+				CASetID: "199",
+				Version: 1,
+				Network: ActivationNetworkProduction,
+			},
+			expectedRequestBody: `{"network":"PRODUCTION"}`,
+			expectedPath:        "/mtls-edge-truststore/v2/ca-sets/199/versions/1/deactivate",
+			responseStatus:      http.StatusAccepted,
+			responseBody: `
+				{
+					"activationId": 84707,
+					"activationLink": "/mtls-edge-truststore/v2/ca-sets/199/versions/1/activations/84707",
+					"caSetId": "199",
+					"caSetName": "test1",
+					"caSetLink": "/mtls-edge-truststore/v2/ca-sets/199",
+					"createdBy": "jsmith@example.com",
+					"createdDate": "2023-06-01T23:02:29.876Z",
+					"failureReason": null,
+					"modifiedBy": null,
+					"modifiedDate": null,
+					"network": "STAGING",
+					"activationStatus": "IN_PROGRESS",
+					"activationType": "DEACTIVATE",
+					"percentComplete": 0,
+					"validation": {
+						"warnings": [
+							{
+								"detail": "Example warning detail",
+								"title": "Example warning title",
+								"type": "/mtls-edge-truststore/error-types/example-type"
+							}
+						]
+					},
+					"version": 1,
+					"versionLink": "/mtls-edge-truststore/v2/ca-sets/199/versions/1"
+				}`,
+			expectedResponse: &DeactivateCASetVersionResponse{
+				ActivationID:     84707,
+				ActivationLink:   "/mtls-edge-truststore/v2/ca-sets/199/versions/1/activations/84707",
+				CASetID:          "199",
+				CASetName:        "test1",
+				CASetLink:        "/mtls-edge-truststore/v2/ca-sets/199",
+				CreatedBy:        "jsmith@example.com",
+				CreatedDate:      test.NewTimeFromString(t, "2023-06-01T23:02:29.876Z"),
+				FailureReason:    nil,
+				ModifiedBy:       nil,
+				ModifiedDate:     nil,
+				Network:          "STAGING",
+				ActivationStatus: "IN_PROGRESS",
+				ActivationType:   "DEACTIVATE",
+				PercentComplete:  0,
+				Version:          1,
+				VersionLink:      "/mtls-edge-truststore/v2/ca-sets/199/versions/1",
+				Validation: &Validation{
+					Warnings: []Warning{
+						{
+							Detail: "Example warning detail",
+							Title:  "Example warning title",
+							Type:   "/mtls-edge-truststore/error-types/example-type",
+						},
+					},
+				},
+			},
+		},
 		"Error Response - CA Set is associated with a slot in CPS (Commercial)": {
 			request: DeactivateCASetVersionRequest{
 				CASetID: "199",
@@ -450,6 +586,7 @@ func TestGetCASetVersionActivation(t *testing.T) {
 					 "caSetName": "test1",
 					 "caSetLink": "/mtls-edge-truststore/v2/ca-sets/1000",  
 					 "percentComplete": 0,
+					 "validation": null,
 					 "version": 1,
 					 "versionLink": "/mtls-edge-truststore/v2/ca-sets/1000/versions/1",
 					 "network": "STAGING",
@@ -679,7 +816,9 @@ func TestListCASetVersionActivations(t *testing.T) {
 					 "activationLink": "/mtls-edge-truststore/v2/ca-sets/1000/versions/2/activations/84571",
 					 "caSetId": "1000",
 					 "caSetName": "test1",
-					 "caSetLink": "/mtls-edge-truststore/v2/ca-sets/1000",          
+					 "caSetLink": "/mtls-edge-truststore/v2/ca-sets/1000",
+					 "percentComplete": 100,
+					 "validation": null,
 					 "version": 2,
 					 "versionLink": "/mtls-edge-truststore/v2/ca-sets/1000/versions/3",
 					 "network": "STAGING",
@@ -687,6 +826,7 @@ func TestListCASetVersionActivations(t *testing.T) {
 					 "activationStatus": "COMPLETE",
 					 "createdDate": "2023-01-11T11:00:00Z",
 					 "createdBy": "someone",
+					"failureReason": null,
 					 "modifiedDate": "2023-01-11T12:00:00Z",
 					 "modifiedBy": "someone"
 				  }
@@ -700,6 +840,7 @@ func TestListCASetVersionActivations(t *testing.T) {
 						CASetID:          "1000",
 						CASetName:        "test1",
 						CASetLink:        "/mtls-edge-truststore/v2/ca-sets/1000",
+						PercentComplete:  100,
 						Version:          2,
 						VersionLink:      "/mtls-edge-truststore/v2/ca-sets/1000/versions/3",
 						Network:          "STAGING",
@@ -835,6 +976,7 @@ func TestListCASetActivations(t *testing.T) {
 					 "caSetName": "test1",
 					 "caSetLink": "/mtls-edge-truststore/v2/ca-sets/1000",
 					 "percentComplete": 100,
+					 "validation": null,
 					 "version": 1,
 					 "versionLink": "/mtls-edge-truststore/v2/ca-sets/1000/versions/2",
 					 "network": "STAGING",
@@ -853,6 +995,7 @@ func TestListCASetActivations(t *testing.T) {
 					 "caSetName": "test1",
 					 "caSetLink": "/mtls-edge-truststore/v2/ca-sets/1000",
 					 "percentComplete": 0,
+					 "validation": null,
 					 "version": 2,
 					 "versionLink": "/mtls-edge-truststore/v2/ca-sets/1000/versions/3",
 					 "network": "STAGING",

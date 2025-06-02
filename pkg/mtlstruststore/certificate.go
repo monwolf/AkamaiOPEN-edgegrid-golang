@@ -37,6 +37,9 @@ type (
 
 		// Certificates is a collection of certificates where each element represents the details of one certificate and validationResults where each element represents the result of validation for a given certificate. validationResults is null in case of successful validation.
 		Certificates []ValidateCertificateResponse `json:"certificates"`
+
+		// Validation is the validation result of the request.
+		Validation Validation `json:"validation"`
 	}
 
 	// ValidateCertificateResponse holds response about one certificate for ValidateCertificates.
