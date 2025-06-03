@@ -1859,7 +1859,7 @@ func TestListCASetVersion(t *testing.T) {
 				CASetID: "123",
 			},
 			responseStatus: http.StatusOK,
-			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions?",
+			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions",
 			responseBody: `{
 				   "versions": [
 					  {
@@ -2314,7 +2314,7 @@ func TestListCASetVersion(t *testing.T) {
 				CASetID: "123",
 			},
 			responseStatus: http.StatusNotFound,
-			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions?",
+			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions",
 			responseBody: `
 					{
   						"type": "/mtls-edge-truststore/error-types/ca-set-not-found",

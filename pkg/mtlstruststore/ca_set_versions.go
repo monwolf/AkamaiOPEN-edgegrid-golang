@@ -457,6 +457,13 @@ func (m *mtlstruststore) ListCASetVersions(ctx context.Context, params ListCASet
 		return nil, fmt.Errorf("%s: %w: %s", ErrListCASetVersions, ErrStructValidation, err)
 	}
 
+	uri, err := url.Parse(fmt.Sprintf(
+		"/mtls-edge-truststore/v2/ca-sets/%s/versions", params.CASetID),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrListCASetVersions, err)
+	}
+
 	query := url.Values{}
 	if params.IncludeCertificates {
 		query.Set("includeCertificates", strconv.FormatBool(params.IncludeCertificates))
@@ -466,14 +473,7 @@ func (m *mtlstruststore) ListCASetVersions(ctx context.Context, params ListCASet
 		query.Set("activeVersionsOnly", strconv.FormatBool(params.ActiveVersionsOnly))
 	}
 
-	uri, err := url.Parse(fmt.Sprintf(
-		"/mtls-edge-truststore/v2/ca-sets/%s/versions?%s",
-		params.CASetID,
-		query.Encode()),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrListCASetVersions, err)
-	}
+	uri.RawQuery = query.Encode()
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri.String(), nil)
 	if err != nil {
