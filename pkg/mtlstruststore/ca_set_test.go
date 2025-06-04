@@ -1114,12 +1114,12 @@ func TestGetCASetDeletionStatus(t *testing.T) {
 		expectedResponse *GetCASetDeletionStatusResponse
 		withError        func(*testing.T, error)
 	}{
-		"200 - in progress": {
+		"202 - in progress": {
 			params: GetCASetDeletionStatusRequest{
 				CASetID: "1",
 			},
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/status/delete",
-			responseStatus: http.StatusOK,
+			responseStatus: http.StatusAccepted,
 			responseHeaders: map[string]string{
 				"Retry-After": "300",
 			},
@@ -1171,6 +1171,61 @@ func TestGetCASetDeletionStatus(t *testing.T) {
 				Status:           "IN_PROGRESS",
 				StatusLink:       "/mtls-edge-truststore/v2/ca-sets/1/status/delete",
 				RetryAfter:       300 * time.Second,
+			},
+		},
+		"200 - completed": {
+			params: GetCASetDeletionStatusRequest{
+				CASetID: "1",
+			},
+			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/status/delete",
+			responseStatus: http.StatusOK,
+			responseBody: `{
+    "caSetId": "1",
+    "caSetLink": "/mtls-edge-truststore/v2/ca-sets/1",
+    "caSetName": "test1",
+    "deletions": [
+        {
+            "failureReason": null,
+            "network": "PRODUCTION",
+            "percentComplete": 100,
+            "status": "COMPLETE"
+        },
+        {
+            "failureReason": null,
+            "network": "STAGING",
+            "percentComplete": 100,
+            "status": "COMPLETE"
+        }
+    ],
+    "endTime": "2025-04-15T12:13:30.082Z",
+    "estimatedEndTime": null,
+    "failureReason": null,
+    "resourceMethod": "delete",
+    "startTime": "2025-04-15T12:10:02.039Z",
+    "status": "COMPLETE",
+    "statusLink": "/mtls-edge-truststore/v2/ca-sets/1/status/delete"
+}`,
+			expectedResponse: &GetCASetDeletionStatusResponse{
+				CASetID:   "1",
+				CASetLink: "/mtls-edge-truststore/v2/ca-sets/1",
+				CASetName: "test1",
+				Deletions: []CASetNetworkDeleteStatus{
+					{
+						Network:         "PRODUCTION",
+						PercentComplete: 100,
+						Status:          "COMPLETE",
+					},
+					{
+						Network:         "STAGING",
+						PercentComplete: 100,
+						Status:          "COMPLETE",
+					},
+				},
+				EndTime:        ptr.To(test.NewTimeFromString(t, "2025-04-15T12:13:30.082Z")),
+				ResourceMethod: ptr.To("delete"),
+				StartTime:      test.NewTimeFromString(t, "2025-04-15T12:10:02.039Z"),
+				Status:         "COMPLETE",
+				StatusLink:     "/mtls-edge-truststore/v2/ca-sets/1/status/delete",
 			},
 		},
 		"missing required params - validation error": {

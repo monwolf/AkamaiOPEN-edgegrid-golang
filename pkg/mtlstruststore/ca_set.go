@@ -680,7 +680,7 @@ func (m *mtlstruststore) GetCASetDeletionStatus(ctx context.Context, params GetC
 	}
 	defer session.CloseResponseBody(resp)
 
-	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusSeeOther { //ToDo: The SeeOther does not work well yet, Q81
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusAccepted {
 		return nil, m.Error(resp)
 	}
 
