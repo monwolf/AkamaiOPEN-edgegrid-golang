@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/internal/test"
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/ptr"
@@ -576,7 +575,7 @@ func TestGetCASetVersionActivation(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1000/versions/1/activations/84572",
 			responseStatus: http.StatusAccepted,
 			responseHeaders: map[string]string{
-				"Retry-After": "300",
+				"Retry-After": "2023-01-10T11:05:00Z",
 			},
 			responseBody: `
 				{
@@ -615,7 +614,7 @@ func TestGetCASetVersionActivation(t *testing.T) {
 				FailureReason:    nil,
 				ModifiedDate:     ptr.To(test.NewTimeFromString(t, "2023-01-10T12:00:00Z")),
 				ModifiedBy:       ptr.To("someone"),
-				RetryAfter:       300 * time.Second,
+				RetryAfter:       ptr.To(test.NewTimeFromString(t, "2023-01-10T11:05:00Z")),
 			},
 		},
 		"200 OK": {

@@ -14,7 +14,6 @@ import (
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/edgegriderr"
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/session"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/spf13/cast"
 )
 
 type (
@@ -250,9 +249,10 @@ type (
 		// Deletions is a list of status for each network about CA set deletion.
 		Deletions []CASetNetworkDeleteStatus `json:"deletions"`
 
-		// RetryAfter is a time in seconds when CA set deletion status can be checked again. Usually 300 seconds.
+		// RetryAfter is a time when CA set deletion status can be checked again.
+		// Usually 300 seconds after the deletion request was made.
 		// This header value is returned only if the CA set deletion status is "IN_PROGRESS".
-		RetryAfter time.Duration
+		RetryAfter *time.Time
 	}
 
 	// CASetNetworkDeleteStatus holds information about one network for GetCASetDeleteStatus response.
@@ -684,9 +684,13 @@ func (m *mtlstruststore) GetCASetDeletionStatus(ctx context.Context, params GetC
 		return nil, m.Error(resp)
 	}
 
-	// Get the Retry-After header to return the caller
-	if retryAfter := resp.Header.Get("Retry-After"); retryAfter != "" {
-		result.RetryAfter = time.Duration(cast.ToInt(retryAfter)) * time.Second
+	if resp.Header.Get("Retry-After") != "" {
+		after, err := time.Parse(time.RFC3339, resp.Header.Get("Retry-After"))
+		if err != nil {
+			return nil, fmt.Errorf("%w: failed to parse Retry-After header: %s",
+				ErrGetCASetDeletionStatus, err)
+		}
+		result.RetryAfter = &after
 	}
 
 	return &result, nil

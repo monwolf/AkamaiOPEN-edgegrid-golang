@@ -11,7 +11,6 @@ import (
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/edgegriderr"
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/session"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/spf13/cast"
 )
 
 type (
@@ -80,9 +79,10 @@ type (
 		// VersionLink is the link to the CA set version.
 		VersionLink string `json:"versionLink"`
 
-		// RetryAfter is a time in seconds when CA set version activation/deletion status can be checked again. Usually 300 seconds.
+		// RetryAfter is a time when CA set version activation/deletion status can be checked again.
+		// Usually 300 seconds after the activation request is made.
 		// This header value is returned only if the CA set version activation/deletion status is "IN_PROGRESS".
-		RetryAfter time.Duration
+		RetryAfter *time.Time
 
 		// Validation contains validation information for the activation.
 		Validation *Validation `json:"validation"`
@@ -297,9 +297,13 @@ func (m *mtlstruststore) GetCASetVersionActivation(ctx context.Context, params G
 		return nil, m.Error(resp)
 	}
 
-	// Get the Retry-After header to return the caller
-	if retryAfter := resp.Header.Get("Retry-After"); retryAfter != "" {
-		result.RetryAfter = time.Duration(cast.ToInt(retryAfter)) * time.Second
+	if resp.Header.Get("Retry-After") != "" {
+		after, err := time.Parse(time.RFC3339, resp.Header.Get("Retry-After"))
+		if err != nil {
+			return nil, fmt.Errorf("%w: failed to parse Retry-After header: %s",
+				ErrGetCASetActivation, err)
+		}
+		result.RetryAfter = &after
 	}
 
 	return &result, nil

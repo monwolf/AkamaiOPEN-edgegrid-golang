@@ -8,7 +8,6 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/internal/test"
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/ptr"
@@ -1121,7 +1120,7 @@ func TestGetCASetDeletionStatus(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/status/delete",
 			responseStatus: http.StatusAccepted,
 			responseHeaders: map[string]string{
-				"Retry-After": "300",
+				"Retry-After": "2025-04-15T12:15:02Z",
 			},
 			responseBody: `{
     "caSetId": "1",
@@ -1170,7 +1169,7 @@ func TestGetCASetDeletionStatus(t *testing.T) {
 				StartTime:        test.NewTimeFromString(t, "2025-04-15T12:10:02.039Z"),
 				Status:           "IN_PROGRESS",
 				StatusLink:       "/mtls-edge-truststore/v2/ca-sets/1/status/delete",
-				RetryAfter:       300 * time.Second,
+				RetryAfter:       ptr.To(test.NewTimeFromString(t, "2025-04-15T12:15:02Z")),
 			},
 		},
 		"200 - completed": {
