@@ -470,7 +470,7 @@ func TestListCASet(t *testing.T) {
 				ActivatedOn: "PROD",
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "list ca sets failed: struct validation: ActivatedOn: value 'prod' is invalid. Must be one of: 'staging', 'production' or 'staging+production'", err.Error())
+				assert.Equal(t, "list ca sets failed: struct validation: ActivatedOn: value 'prod' is invalid. Must be one of: 'staging', 'production', 'staging+production' or 'production+staging'.", err.Error())
 			},
 		},
 		"name prefix too long - validation error": {

@@ -338,6 +338,8 @@ const (
 	NetworkProduction Network = "production"
 	// NetworkStagingAndProduction represents staging and production networks.
 	NetworkStagingAndProduction Network = "staging+production"
+	// NetworkProductionAndStaging also represents staging and production networks.
+	NetworkProductionAndStaging Network = "production+staging"
 
 	// CASetNamePattern is the regex pattern for CA set name.
 	CASetNamePattern string = `^[%.a-zA-Z0-9_-]+$`
@@ -414,9 +416,9 @@ func (r DeleteCASetRequest) Validate() error {
 
 // Validate validates ActivationNetwork.
 func (n Network) Validate() validation.InRule {
-	return validation.In(NetworkStaging, NetworkProduction, NetworkStagingAndProduction).
-		Error(fmt.Sprintf("value '%s' is invalid. Must be one of: '%s', '%s' or '%s'",
-			n, NetworkStaging, NetworkProduction, NetworkStagingAndProduction))
+	return validation.In(NetworkStaging, NetworkProduction, NetworkStagingAndProduction, NetworkProductionAndStaging).
+		Error(fmt.Sprintf("value '%s' is invalid. Must be one of: '%s', '%s', '%s' or '%s'.",
+			n, NetworkStaging, NetworkProduction, NetworkStagingAndProduction, NetworkProductionAndStaging))
 }
 
 func validateCASetName() validation.StringRule {
