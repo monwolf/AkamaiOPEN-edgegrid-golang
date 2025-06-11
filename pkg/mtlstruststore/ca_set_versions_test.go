@@ -108,6 +108,87 @@ func TestCreateCASetVersion(t *testing.T) {
 				Validation: &Validation{Warnings: []Warning{}},
 			},
 		},
+		"201 Successful creation without version description": {
+			request: CreateCASetVersionRequest{
+				CASetID: "123",
+				Body: CreateCASetVersionRequestBody{
+					AllowInsecureSHA1: false,
+					Certificates: []CertificateRequest{
+						{
+							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+						},
+					},
+				},
+			},
+			expectedRequestBody: `{
+				  "allowInsecureSha1": false,
+				  "certificates": [
+					{
+					  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
+					}
+				  ]}`,
+			responseStatus: http.StatusCreated,
+			responseBody: `{
+				  "caSetId": "123",
+				  "version": 1,
+				  "caSetName": "Test CA Set",
+				  "versionLink": "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
+				  "description": null,
+				  "allowInsecureSha1": false,
+				  "stagingStatus": "PENDING",
+				  "productionStatus": "PENDING",
+				  "createdDate": "2025-04-10T00:00:00Z",
+				  "createdBy": "tester",
+				  "modifiedDate": "2025-04-10T00:00:00Z",
+				  "modifiedBy": "tester",
+				  "certificates": [
+					{
+					  "subject": "Test Subject",
+					  "issuer": "Test Issuer",
+					  "endDate": "2025-12-31T00:00:00Z",
+					  "startDate": "2025-01-01T00:00:00Z",
+					  "fingerprint": "abc123",
+					  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+					  "serialNumber": "123456789",
+					  "signatureAlgorithm": "SHA256WithRSA",
+					  "createdDate": "2025-04-10T00:00:00Z",
+					  "createdBy": "tester"
+					}
+				  ],
+				  "validation": {
+					"warnings": []
+				  }
+				}`,
+			expectedPath: `/mtls-edge-truststore/v2/ca-sets/123/versions`,
+			expectedResponse: &CreateCASetVersionResponse{
+				CASetID:           "123",
+				Version:           1,
+				CASetName:         "Test CA Set",
+				VersionLink:       "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
+				AllowInsecureSHA1: false,
+				StagingStatus:     "PENDING",
+				ProductionStatus:  "PENDING",
+				CreatedDate:       test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
+				CreatedBy:         "tester",
+				ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2025-04-10T00:00:00Z")),
+				ModifiedBy:        ptr.To("tester"),
+				Certificates: []CertificateResponse{
+					{
+						Subject:            "Test Subject",
+						Issuer:             "Test Issuer",
+						StartDate:          test.NewTimeFromString(t, "2025-01-01T00:00:00Z"),
+						EndDate:            test.NewTimeFromString(t, "2025-12-31T00:00:00Z"),
+						Fingerprint:        "abc123",
+						CertificatePEM:     "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+						SerialNumber:       "123456789",
+						SignatureAlgorithm: "SHA256WithRSA",
+						CreatedDate:        test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
+						CreatedBy:          "tester",
+					},
+				},
+				Validation: &Validation{Warnings: []Warning{}},
+			},
+		},
 		"201 with duplicated certificates (warning)": {
 			request: CreateCASetVersionRequest{
 				CASetID: "123",

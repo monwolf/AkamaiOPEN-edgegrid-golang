@@ -28,7 +28,7 @@ type (
 		AllowInsecureSHA1 bool `json:"allowInsecureSha1"`
 
 		// Description is an optional description for the can set.
-		Description *string `json:"description"`
+		Description *string `json:"description,omitempty"`
 
 		// Certificates is a list of valid root or intermediate certificates. At least one is required.
 		Certificates []CertificateRequest `json:"certificates"`
