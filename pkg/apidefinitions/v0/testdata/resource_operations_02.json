@@ -46,6 +46,36 @@
           }
         ]
       }
+    },
+    "/login": {
+      "test-login": {
+        "method": "POST",
+        "purpose": "login",
+        "multistepGroupName": "msg-group-test",
+        "parameters": {
+          "username": {
+            "referenceParameterLocation": "USER_EMAIL"
+          }
+        },
+        "successConditions": [
+          {
+            "positiveMatch": true,
+            "type": "HTTP_STATUS",
+            "values": [
+              "200"
+            ]
+          }
+        ],
+        "stepSuccessConditions": [
+          {
+            "positiveMatch": true,
+            "type": "HTTP_STATUS",
+            "values": [
+              "200"
+            ]
+          }
+        ]
+      }
     }
   }
 }

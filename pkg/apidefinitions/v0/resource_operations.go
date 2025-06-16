@@ -61,10 +61,12 @@ type (
 	Operation struct {
 		Method                *string                                            `json:"method"`
 		Purpose               *string                                            `json:"purpose"`
+		MultistepGroupName    *string                                            `json:"multistepGroupName,omitempty"`
 		Parameters            *orderedmap.OrderedMap[string, OperationParameter] `json:"parameters,omitempty"`
 		Conditions            []ParameterPathCondition                           `json:"conditions,omitempty"`
 		FailureConditions     []OperationCondition                               `json:"failureConditions,omitempty"`
 		SuccessConditions     []OperationCondition                               `json:"successConditions,omitempty"`
+		StepSuccessConditions []OperationCondition                               `json:"stepSuccessConditions,omitempty"`
 		OriginUserIDCondition *OperationCondition                                `json:"originUserIdCondition,omitempty"`
 	}
 
@@ -90,9 +92,10 @@ type (
 
 	// OperationParameter parameter details
 	OperationParameter struct {
-		Path         []string `json:"path,omitempty"`
-		Location     *string  `json:"location,omitempty"`
-		UsedForLogin *bool    `json:"usedForLogin,omitempty"`
+		Path                       []string `json:"path,omitempty"`
+		Location                   *string  `json:"location,omitempty"`
+		ReferenceParameterLocation *string  `json:"referenceParameterLocation,omitempty"`
+		UsedForLogin               *bool    `json:"usedForLogin,omitempty"`
 	}
 )
 

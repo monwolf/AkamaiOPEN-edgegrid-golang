@@ -370,6 +370,37 @@ func getResourceOperationResponse() *GetResourceOperationResponse {
 
 	resourceOperations.Set("/index.php*", operationsForIndex)
 
+	operationsForLogin := orderedmap.New[string, Operation]()
+
+	operationsForLogin.Set("test-login", Operation{
+		Method:             ptr.To("POST"),
+		Purpose:            ptr.To("login"),
+		MultistepGroupName: ptr.To("msg-group-test"),
+		Parameters: func() *orderedmap.OrderedMap[string, OperationParameter] {
+			omap := orderedmap.New[string, OperationParameter]()
+			omap.Set("username", OperationParameter{
+				ReferenceParameterLocation: ptr.To("USER_EMAIL"),
+			})
+			return omap
+		}(),
+		SuccessConditions: []OperationCondition{
+			{
+				PositiveMatch: ptr.To(true),
+				Type:          ptr.To("HTTP_STATUS"),
+				Values:        []string{"200"},
+			},
+		},
+		StepSuccessConditions: []OperationCondition{
+			{
+				PositiveMatch: ptr.To(true),
+				Type:          ptr.To("HTTP_STATUS"),
+				Values:        []string{"200"},
+			},
+		},
+	})
+
+	resourceOperations.Set("/login", operationsForLogin)
+
 	var getResourceOperationResponse = GetResourceOperationResponse{
 		ResourceOperations: resourceOperations,
 	}
