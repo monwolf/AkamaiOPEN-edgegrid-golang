@@ -187,7 +187,7 @@ func TestGetNamespace(t *testing.T) {
 		expectedPath   string
 		responseStatus int
 		responseBody   string
-		expectedResult *Namespace
+		expectedResult *GetNamespaceResponse
 	}{
 		"200 OK - production": {
 			params: GetEdgeKVNamespaceRequest{
@@ -197,16 +197,18 @@ func TestGetNamespace(t *testing.T) {
 			expectedPath:   "/edgekv/v1/networks/production/namespaces/testNs",
 			responseStatus: http.StatusOK,
 			responseBody: `{
-				"namespace": "testNs",
-				"retentionInSeconds": 0,
+				"retentionInSeconds": 86400,
 				"geoLocation": "EU",
-				"groupId": 0
+				"namespaceStatus": "READY",
+				"groupId": 123456,
+				"namespace": "testNs"
 			}`,
-			expectedResult: &Namespace{
-				Name:        "testNs",
-				Retention:   ptr.To(0),
-				GeoLocation: "EU",
-				GroupID:     ptr.To(0),
+			expectedResult: &GetNamespaceResponse{
+				Name:            "testNs",
+				Retention:       ptr.To(86400),
+				GeoLocation:     "EU",
+				GroupID:         ptr.To(123456),
+				NamespaceStatus: "READY",
 			},
 		},
 		"200 OK - staging": {
@@ -217,16 +219,42 @@ func TestGetNamespace(t *testing.T) {
 			expectedPath:   "/edgekv/v1/networks/staging/namespaces/testNs",
 			responseStatus: http.StatusOK,
 			responseBody: `{
-				"namespace": "testNs",
 				"retentionInSeconds": 86400,
 				"geoLocation": "US",
-				"groupId": 0
+				"namespaceStatus": "READY",
+				"groupId": 123456,
+				"namespace": "testNs"
 			}`,
-			expectedResult: &Namespace{
-				Name:        "testNs",
-				Retention:   ptr.To(86400),
-				GeoLocation: "US",
-				GroupID:     ptr.To(0),
+			expectedResult: &GetNamespaceResponse{
+				Name:            "testNs",
+				Retention:       ptr.To(86400),
+				GeoLocation:     "US",
+				GroupID:         ptr.To(123456),
+				NamespaceStatus: "READY",
+			},
+		},
+		"200 OK - scheduled to remove": {
+			params: GetEdgeKVNamespaceRequest{
+				Network: NamespaceStagingNetwork,
+				Name:    "testNs",
+			},
+			expectedPath:   "/edgekv/v1/networks/staging/namespaces/testNs",
+			responseStatus: http.StatusOK,
+			responseBody: `{
+				"retentionInSeconds": 86400,
+				"geoLocation": "US",
+				"scheduledDeleteTime": "2025-06-12T10:38:33.779Z",
+				"namespaceStatus": "DELETING",
+				"groupId": 123456,
+				"namespace": "testNs"
+			}`,
+			expectedResult: &GetNamespaceResponse{
+				Retention:           ptr.To(86400),
+				GeoLocation:         "US",
+				GroupID:             ptr.To(123456),
+				Name:                "testNs",
+				ScheduledDeleteTime: ptr.To(test.NewTimeFromString(t, "2025-06-12T10:38:33.779Z")),
+				NamespaceStatus:     "DELETING",
 			},
 		},
 		"400 bad request - namespace does not exist": {
@@ -315,7 +343,7 @@ func TestCreateNamespace(t *testing.T) {
 		"200 OK - production": {
 			params: CreateEdgeKVNamespaceRequest{
 				Network: NamespaceProductionNetwork,
-				Namespace: Namespace{
+				NamespaceRequest: NamespaceRequest{
 					Name:        "testNs",
 					Retention:   ptr.To(0),
 					GeoLocation: "EU",
@@ -340,7 +368,7 @@ func TestCreateNamespace(t *testing.T) {
 		"200 OK - staging": {
 			params: CreateEdgeKVNamespaceRequest{
 				Network: NamespaceStagingNetwork,
-				Namespace: Namespace{
+				NamespaceRequest: NamespaceRequest{
 					Name:      "testNs",
 					Retention: ptr.To(86400),
 					GroupID:   ptr.To(123),
@@ -364,7 +392,7 @@ func TestCreateNamespace(t *testing.T) {
 		"400 bad request - invalid geoLocation for staging network": {
 			params: CreateEdgeKVNamespaceRequest{
 				Network: NamespaceStagingNetwork,
-				Namespace: Namespace{
+				NamespaceRequest: NamespaceRequest{
 					Name:        "testNs",
 					Retention:   ptr.To(0),
 					GeoLocation: "JP",
@@ -402,7 +430,7 @@ func TestCreateNamespace(t *testing.T) {
 		"400 bad request - geoLocation for production network": {
 			params: CreateEdgeKVNamespaceRequest{
 				Network: NamespaceProductionNetwork,
-				Namespace: Namespace{
+				NamespaceRequest: NamespaceRequest{
 					Name:        "testNs",
 					Retention:   ptr.To(0),
 					GeoLocation: "INVALID",
@@ -440,7 +468,7 @@ func TestCreateNamespace(t *testing.T) {
 		"413 payload too large": {
 			params: CreateEdgeKVNamespaceRequest{
 				Network: NamespaceStagingNetwork,
-				Namespace: Namespace{
+				NamespaceRequest: NamespaceRequest{
 					Name:      "testNs",
 					Retention: ptr.To(0),
 					GroupID:   ptr.To(0),
@@ -487,7 +515,7 @@ func TestCreateNamespace(t *testing.T) {
 		"retention less than 86400": {
 			params: CreateEdgeKVNamespaceRequest{
 				Network: NamespaceStagingNetwork,
-				Namespace: Namespace{
+				NamespaceRequest: NamespaceRequest{
 					Name:      "testNs",
 					Retention: ptr.To(86399),
 					GroupID:   ptr.To(0),
@@ -501,7 +529,7 @@ func TestCreateNamespace(t *testing.T) {
 		"retention more than 315360000": {
 			params: CreateEdgeKVNamespaceRequest{
 				Network: NamespaceStagingNetwork,
-				Namespace: Namespace{
+				NamespaceRequest: NamespaceRequest{
 					Name:      "testNs",
 					Retention: ptr.To(315360001),
 					GroupID:   ptr.To(0),
@@ -515,7 +543,7 @@ func TestCreateNamespace(t *testing.T) {
 		"namespace name too long": {
 			params: CreateEdgeKVNamespaceRequest{
 				Network: NamespaceStagingNetwork,
-				Namespace: Namespace{
+				NamespaceRequest: NamespaceRequest{
 					Name:      "namespaceNameThatHasMoreThan32Letters",
 					Retention: ptr.To(0),
 					GroupID:   ptr.To(0),
@@ -529,7 +557,7 @@ func TestCreateNamespace(t *testing.T) {
 		"groupID less than 0": {
 			params: CreateEdgeKVNamespaceRequest{
 				Network: NamespaceStagingNetwork,
-				Namespace: Namespace{
+				NamespaceRequest: NamespaceRequest{
 					Name:      "groupIDLessThan0",
 					Retention: ptr.To(0),
 					GroupID:   ptr.To(-1),
@@ -570,30 +598,32 @@ func TestUpdateNamespace(t *testing.T) {
 		expectedPath   string
 		responseStatus int
 		responseBody   string
-		expectedResult *Namespace
+		expectedResult *UpdateNamespaceResponse
 	}{
 		"200 OK - production": {
 			params: UpdateEdgeKVNamespaceRequest{
 				Network: NamespaceProductionNetwork,
 				UpdateNamespace: UpdateNamespace{
 					Name:      "testNs",
-					Retention: ptr.To(86400),
-					GroupID:   ptr.To(0),
+					Retention: ptr.To(86410),
+					GroupID:   ptr.To(123456),
 				},
 			},
 			expectedPath:   "/edgekv/v1/networks/production/namespaces/testNs",
 			responseStatus: http.StatusOK,
 			responseBody: `{
-				"namespace": "testNs",
-				"retentionInSeconds": 86400,
+				"retentionInSeconds": 86410,
 				"geoLocation": "EU",
-				"groupId": 0
+				"namespaceStatus": "READY",
+				"groupId": 123456,
+				"namespace": "testNs"
 			}`,
-			expectedResult: &Namespace{
-				Name:        "testNs",
-				Retention:   ptr.To(86400),
-				GeoLocation: "EU",
-				GroupID:     ptr.To(0),
+			expectedResult: &UpdateNamespaceResponse{
+				Name:            "testNs",
+				Retention:       ptr.To(86410),
+				GeoLocation:     "EU",
+				GroupID:         ptr.To(123456),
+				NamespaceStatus: "READY",
 			},
 		},
 		"200 OK - staging": {
@@ -601,23 +631,25 @@ func TestUpdateNamespace(t *testing.T) {
 				Network: NamespaceStagingNetwork,
 				UpdateNamespace: UpdateNamespace{
 					Name:      "testNs",
-					Retention: ptr.To(86400),
-					GroupID:   ptr.To(123),
+					Retention: ptr.To(86410),
+					GroupID:   ptr.To(123456),
 				},
 			},
 			expectedPath:   "/edgekv/v1/networks/staging/namespaces/testNs",
 			responseStatus: http.StatusOK,
 			responseBody: `{
-				"namespace": "testNs",
-				"retentionInSeconds": 86400,
+				"retentionInSeconds": 86410,
 				"geoLocation": "US",
-				"groupId": 123
+				"namespaceStatus": "READY",
+				"groupId": 123456,
+				"namespace": "testNs"
 			}`,
-			expectedResult: &Namespace{
-				Name:        "testNs",
-				Retention:   ptr.To(86400),
-				GeoLocation: "US",
-				GroupID:     ptr.To(123),
+			expectedResult: &UpdateNamespaceResponse{
+				Name:            "testNs",
+				Retention:       ptr.To(86410),
+				GeoLocation:     "US",
+				GroupID:         ptr.To(123456),
+				NamespaceStatus: "READY",
 			},
 		},
 		"409 conflict": {

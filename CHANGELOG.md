@@ -2,8 +2,19 @@
 
 ## X.X.X (X X, X)
 
+### BREAKING CHANGES:
+
+* EdgeKV
+  * Replaced response struct in `GetEdgeKVNamespace` as `*GetNamespaceResponse`
+  * Replaced response struct in `UpdateEdgeKVNamespace` as `*UpdateNamespaceResponse`
+  * Replaced `Namespace` field in `CreateEdgeKVNamespaceRequest` with `NamespaceRequest` struct
+
 ### FEATURES/ENHANCEMENTS:
 
+* EdgeKV
+  * Added `ScheduledDeleteTime` and `NamespaceStatus` fields to the following structures:
+    * `GetNamespaceResponse`
+    * `UpdateNamespaceResponse`
 
 
 

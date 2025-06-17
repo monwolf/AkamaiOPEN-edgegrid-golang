@@ -15,47 +15,111 @@ import (
 type (
 	// ListEdgeKVNamespacesRequest contains path parameters used to list namespaces
 	ListEdgeKVNamespacesRequest struct {
+		// Network is an enum environment to execute the API request on.
 		Network NamespaceNetwork
+
+		// Details describes whether to return all namespace attributes or only names.
 		Details bool
 	}
 
-	// GetEdgeKVNamespaceRequest contains path parameters used to fetch a namespace
+	// GetEdgeKVNamespaceRequest contains path parameters used to fetch a namespace.
 	GetEdgeKVNamespaceRequest struct {
+		// Network is an enum environment to execute the API request on.
 		Network NamespaceNetwork
-		Name    string
+
+		// Name is a unique identifier for each namespace.
+		Name string
 	}
 
-	// CreateEdgeKVNamespaceRequest contains path parameter and request body used to create a namespace
+	// CreateEdgeKVNamespaceRequest contains path parameter and request body used to create a namespace.
 	CreateEdgeKVNamespaceRequest struct {
+		// Network is an enum environment to execute the API request on.
 		Network NamespaceNetwork
-		Namespace
+
+		// NamespaceRequest contains request body to create a namespace.
+		NamespaceRequest
 	}
 
-	// UpdateEdgeKVNamespaceRequest contains path parameters and request body used to update a namespace
+	// UpdateEdgeKVNamespaceRequest contains path parameters and request body used to update a namespace.
 	UpdateEdgeKVNamespaceRequest struct {
+		// Network is an enum environment to execute the API request on.
 		Network NamespaceNetwork
+
+		// UpdateNamespace contains request body to update a namespace.
 		UpdateNamespace
 	}
 
-	// ListEdgeKVNamespacesResponse represents a response object returned when listing namespaces
+	// ListEdgeKVNamespacesResponse represents a response object returned when listing namespaces.
 	ListEdgeKVNamespacesResponse struct {
+		// Namespaces a list of namespace identifiers for the specified network.
 		Namespaces []Namespace `json:"namespaces"`
 	}
 
-	// Namespace represents a namespace object and a request body used to create a namespace
+	// NamespaceRequest represents a namespace object to create a namespace.
+	NamespaceRequest struct {
+		// Name is a unique identifier for each namespace.
+		Name string `json:"namespace"`
+
+		// GeoLocation specifies the storage location for data.
+		GeoLocation string `json:"geoLocation"`
+
+		// Retention is a retention period of underlying data, represented in seconds.
+		Retention *int `json:"retentionInSeconds"`
+
+		// GroupID is an access group the namespace is assigned to.
+		GroupID *int `json:"groupId"`
+	}
+
+	// GetNamespaceResponse represents a response object details for the specified namespace.
+	GetNamespaceResponse struct {
+		// Name is a unique identifier for each namespace.
+		Name string `json:"namespace"`
+
+		// GeoLocation specifies the storage location for data.
+		GeoLocation string `json:"geoLocation"`
+
+		// Retention is a retention period of underlying data, represented in seconds.
+		Retention *int `json:"retentionInSeconds"`
+
+		// GroupID is an access group the namespace is assigned to.
+		GroupID *int `json:"groupId"`
+
+		// ScheduledDeleteTime specifies the scheduled time for a namespace delete.
+		ScheduledDeleteTime *time.Time `json:"scheduledDeleteTime"`
+
+		// NamespaceStatus specifies the current status of the namespace.
+		NamespaceStatus string `json:"namespaceStatus"`
+	}
+
+	// Namespace represents a namespace object.
 	Namespace struct {
-		Name        string `json:"namespace"`
-		GeoLocation string `json:"geoLocation,omitempty"`
-		Retention   *int   `json:"retentionInSeconds,omitempty"`
-		GroupID     *int   `json:"groupId,omitempty"`
+		// Name is a unique identifier for each namespace.
+		Name string `json:"namespace"`
+
+		// GeoLocation specifies the storage location for data.
+		GeoLocation string `json:"geoLocation"`
+
+		// Retention is a retention period of underlying data, represented in seconds.
+		Retention *int `json:"retentionInSeconds"`
+
+		// GroupID is an access group the namespace is assigned to.
+		GroupID *int `json:"groupId"`
 	}
 
 	// UpdateNamespace represents a request body used to update a namespace
 	UpdateNamespace struct {
-		Name      string `json:"namespace"`
-		Retention *int   `json:"retentionInSeconds"`
-		GroupID   *int   `json:"groupId"`
+		// Name is a unique identifier for each namespace.
+		Name string `json:"namespace"`
+
+		// Retention is a retention period of underlying data, represented in seconds.
+		Retention *int `json:"retentionInSeconds"`
+
+		// GroupID is an access group the namespace is assigned to.
+		GroupID *int `json:"groupId"`
 	}
+
+	// UpdateNamespaceResponse represents a response object details for the specified namespace.
+	UpdateNamespaceResponse GetNamespaceResponse
 
 	// NamespaceNetwork represents available namespace network types
 	NamespaceNetwork string
@@ -312,7 +376,7 @@ func (e *edgeworkers) ListEdgeKVNamespaces(ctx context.Context, params ListEdgeK
 	return &result, nil
 }
 
-func (e *edgeworkers) GetEdgeKVNamespace(ctx context.Context, params GetEdgeKVNamespaceRequest) (*Namespace, error) {
+func (e *edgeworkers) GetEdgeKVNamespace(ctx context.Context, params GetEdgeKVNamespaceRequest) (*GetNamespaceResponse, error) {
 	logger := e.Log(ctx)
 	logger.Debug("GetEdgeKVNamespace")
 
@@ -326,7 +390,7 @@ func (e *edgeworkers) GetEdgeKVNamespace(ctx context.Context, params GetEdgeKVNa
 		return nil, fmt.Errorf("%w: failed to create request: %s", ErrGetEdgeKVNamespace, err.Error())
 	}
 
-	var result Namespace
+	var result GetNamespaceResponse
 	resp, err := e.Exec(req, &result)
 	if err != nil {
 		return nil, fmt.Errorf("%w: request failed: %s", ErrGetEdgeKVNamespace, err.Error())
@@ -355,7 +419,7 @@ func (e *edgeworkers) CreateEdgeKVNamespace(ctx context.Context, params CreateEd
 	}
 
 	var result Namespace
-	resp, err := e.Exec(req, &result, params.Namespace)
+	resp, err := e.Exec(req, &result, params.NamespaceRequest)
 	if err != nil {
 		return nil, fmt.Errorf("%w: request failed: %s", ErrCreateEdgeKVNamespace, err.Error())
 	}
@@ -368,7 +432,7 @@ func (e *edgeworkers) CreateEdgeKVNamespace(ctx context.Context, params CreateEd
 	return &result, nil
 }
 
-func (e *edgeworkers) UpdateEdgeKVNamespace(ctx context.Context, params UpdateEdgeKVNamespaceRequest) (*Namespace, error) {
+func (e *edgeworkers) UpdateEdgeKVNamespace(ctx context.Context, params UpdateEdgeKVNamespaceRequest) (*UpdateNamespaceResponse, error) {
 	logger := e.Log(ctx)
 	logger.Debug("UpdateEdgeKVNamespace")
 
@@ -382,7 +446,7 @@ func (e *edgeworkers) UpdateEdgeKVNamespace(ctx context.Context, params UpdateEd
 		return nil, fmt.Errorf("%w: failed to create request: %s", ErrUpdateEdgeKVNamespace, err.Error())
 	}
 
-	var result Namespace
+	var result UpdateNamespaceResponse
 	resp, err := e.Exec(req, &result, params.UpdateNamespace)
 	if err != nil {
 		return nil, fmt.Errorf("%w: request failed: %s", ErrUpdateEdgeKVNamespace, err.Error())
