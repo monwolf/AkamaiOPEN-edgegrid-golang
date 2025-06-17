@@ -55,9 +55,9 @@ func TestCreateCASetVersion(t *testing.T) {
 				  "allowInsecureSha1": false,
 				  "stagingStatus": "PENDING",
 				  "productionStatus": "PENDING",
-				  "createdDate": "2025-04-10T00:00:00Z",
+				  "createdDate": "2025-04-10T00:00:00.739971Z",
 				  "createdBy": "tester",
-				  "modifiedDate": "2025-04-10T00:00:00Z",
+				  "modifiedDate": "2025-04-10T00:00:00.347834Z",
 				  "modifiedBy": "tester",
 				  "certificates": [
 					{
@@ -69,7 +69,7 @@ func TestCreateCASetVersion(t *testing.T) {
 					  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
 					  "serialNumber": "123456789",
 					  "signatureAlgorithm": "SHA256WithRSA",
-					  "createdDate": "2025-04-10T00:00:00Z",
+					  "createdDate": "2025-04-10T00:00:00.489392Z",
 					  "createdBy": "tester"
 					}
 				  ],
@@ -87,9 +87,9 @@ func TestCreateCASetVersion(t *testing.T) {
 				AllowInsecureSHA1: false,
 				StagingStatus:     "PENDING",
 				ProductionStatus:  "PENDING",
-				CreatedDate:       test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
+				CreatedDate:       test.NewTimeFromString(t, "2025-04-10T00:00:00.739971Z"),
 				CreatedBy:         "tester",
-				ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2025-04-10T00:00:00Z")),
+				ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2025-04-10T00:00:00.347834Z")),
 				ModifiedBy:        ptr.To("tester"),
 				Certificates: []CertificateResponse{
 					{
@@ -101,7 +101,7 @@ func TestCreateCASetVersion(t *testing.T) {
 						CertificatePEM:     "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
 						SerialNumber:       "123456789",
 						SignatureAlgorithm: "SHA256WithRSA",
-						CreatedDate:        test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
+						CreatedDate:        test.NewTimeFromString(t, "2025-04-10T00:00:00.489392Z"),
 						CreatedBy:          "tester",
 					},
 				},
@@ -137,9 +137,9 @@ func TestCreateCASetVersion(t *testing.T) {
 				  "allowInsecureSha1": false,
 				  "stagingStatus": "PENDING",
 				  "productionStatus": "PENDING",
-				  "createdDate": "2025-04-10T00:00:00Z",
+				  "createdDate": "2025-04-10T00:00:00.739971Z",
 				  "createdBy": "tester",
-				  "modifiedDate": "2025-04-10T00:00:00Z",
+				  "modifiedDate": "2025-04-10T00:00:00.347834Z",
 				  "modifiedBy": "tester",
 				  "certificates": [
 					{
@@ -151,7 +151,7 @@ func TestCreateCASetVersion(t *testing.T) {
 					  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
 					  "serialNumber": "123456789",
 					  "signatureAlgorithm": "SHA256WithRSA",
-					  "createdDate": "2025-04-10T00:00:00Z",
+					  "createdDate": "2025-04-10T00:00:00.489392Z",
 					  "createdBy": "tester"
 					}
 				  ],
@@ -168,9 +168,9 @@ func TestCreateCASetVersion(t *testing.T) {
 				AllowInsecureSHA1: false,
 				StagingStatus:     "PENDING",
 				ProductionStatus:  "PENDING",
-				CreatedDate:       test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
+				CreatedDate:       test.NewTimeFromString(t, "2025-04-10T00:00:00.739971Z"),
 				CreatedBy:         "tester",
-				ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2025-04-10T00:00:00Z")),
+				ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2025-04-10T00:00:00.347834Z")),
 				ModifiedBy:        ptr.To("tester"),
 				Certificates: []CertificateResponse{
 					{
@@ -182,7 +182,7 @@ func TestCreateCASetVersion(t *testing.T) {
 						CertificatePEM:     "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
 						SerialNumber:       "123456789",
 						SignatureAlgorithm: "SHA256WithRSA",
-						CreatedDate:        test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
+						CreatedDate:        test.NewTimeFromString(t, "2025-04-10T00:00:00.489392Z"),
 						CreatedBy:          "tester",
 					},
 				},
@@ -226,9 +226,9 @@ func TestCreateCASetVersion(t *testing.T) {
 				"allowInsecureSha1": false,
 				"stagingStatus": "PENDING",
 				"productionStatus": "PENDING",
-				"createdDate": "2025-04-10T00:00:00Z",
+				"createdDate": "2025-04-10T00:00:00.739971Z",
 				"createdBy": "tester",
-				"modifiedDate": "2025-04-10T00:00:00Z",
+				"modifiedDate": "2025-04-10T00:00:00.347834Z",
 				"modifiedBy": "tester",
 				"certificates": [
 					{
@@ -240,7 +240,7 @@ func TestCreateCASetVersion(t *testing.T) {
 						"certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
 						"serialNumber": "123456789",
 						"signatureAlgorithm": "SHA256WithRSA",
-						"createdDate": "2025-04-10T00:00:00Z",
+						"createdDate": "2025-04-10T00:00:00.489392Z",
 						"createdBy": "tester"
 					}
 				],
@@ -269,9 +269,9 @@ func TestCreateCASetVersion(t *testing.T) {
 				AllowInsecureSHA1: false,
 				StagingStatus:     "PENDING",
 				ProductionStatus:  "PENDING",
-				CreatedDate:       test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
+				CreatedDate:       test.NewTimeFromString(t, "2025-04-10T00:00:00.739971Z"),
 				CreatedBy:         "tester",
-				ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2025-04-10T00:00:00Z")),
+				ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2025-04-10T00:00:00.347834Z")),
 				ModifiedBy:        ptr.To("tester"),
 				Certificates: []CertificateResponse{
 					{
@@ -283,7 +283,7 @@ func TestCreateCASetVersion(t *testing.T) {
 						CertificatePEM:     "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
 						SerialNumber:       "123456789",
 						SignatureAlgorithm: "SHA256WithRSA",
-						CreatedDate:        test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
+						CreatedDate:        test.NewTimeFromString(t, "2025-04-10T00:00:00.489392Z"),
 						CreatedBy:          "tester",
 					},
 				},
@@ -735,9 +735,9 @@ func TestCloneCASetVersion(t *testing.T) {
 					  "allowInsecureSha1": false,
 					  "stagingStatus": "PENDING",
 					  "productionStatus": "PENDING",
-					  "createdDate": "2025-04-10T00:00:00Z",
+					  "createdDate": "2025-04-10T00:00:00.123456Z",
 					  "createdBy": "tester",
-					  "modifiedDate": "2025-04-10T00:00:00Z",
+					  "modifiedDate": "2025-04-10T00:00:00.789012Z",
 					  "modifiedBy": "tester",
 					  "certificates": [
 						{
@@ -749,7 +749,7 @@ func TestCloneCASetVersion(t *testing.T) {
 						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
 						  "serialNumber": "123456789",
 						  "signatureAlgorithm": "SHA256WithRSA",
-						  "createdDate": "2025-04-10T00:00:00Z",
+						  "createdDate": "2025-04-10T00:00:00.121212Z",
 						  "createdBy": "tester"
 						}
 					  ]
@@ -764,9 +764,9 @@ func TestCloneCASetVersion(t *testing.T) {
 				AllowInsecureSHA1: false,
 				StagingStatus:     "PENDING",
 				ProductionStatus:  "PENDING",
-				CreatedDate:       test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
+				CreatedDate:       test.NewTimeFromString(t, "2025-04-10T00:00:00.123456Z"),
 				CreatedBy:         "tester",
-				ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2025-04-10T00:00:00Z")),
+				ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2025-04-10T00:00:00.789012Z")),
 				ModifiedBy:        ptr.To("tester"),
 				Certificates: []CertificateResponse{
 					{
@@ -778,7 +778,7 @@ func TestCloneCASetVersion(t *testing.T) {
 						CertificatePEM:     "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
 						SerialNumber:       "123456789",
 						SignatureAlgorithm: "SHA256WithRSA",
-						CreatedDate:        test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
+						CreatedDate:        test.NewTimeFromString(t, "2025-04-10T00:00:00.121212Z"),
 						CreatedBy:          "tester",
 					},
 				},
@@ -800,9 +800,9 @@ func TestCloneCASetVersion(t *testing.T) {
 					  "allowInsecureSha1": false,
 					  "stagingStatus": "PENDING",
 					  "productionStatus": "PENDING",
-					  "createdDate": "2025-04-10T00:00:00Z",
+					  "createdDate": "2025-04-10T00:00:00.123456Z",
 					  "createdBy": "tester",
-					  "modifiedDate": "2025-04-10T00:00:00Z",
+					  "modifiedDate": "2025-04-10T00:00:00.789012Z",
 					  "modifiedBy": "tester",
 					  "certificates": [
 						{
@@ -814,7 +814,7 @@ func TestCloneCASetVersion(t *testing.T) {
 						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
 						  "serialNumber": "123456789",
 						  "signatureAlgorithm": "SHA256WithRSA",
-						  "createdDate": "2025-04-10T00:00:00Z",
+						  "createdDate": "2025-04-10T00:00:00.121212Z",
 						  "createdBy": "tester"
 						}
 					  ],
@@ -845,9 +845,9 @@ func TestCloneCASetVersion(t *testing.T) {
 				AllowInsecureSHA1: false,
 				StagingStatus:     "PENDING",
 				ProductionStatus:  "PENDING",
-				CreatedDate:       test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
+				CreatedDate:       test.NewTimeFromString(t, "2025-04-10T00:00:00.123456Z"),
 				CreatedBy:         "tester",
-				ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2025-04-10T00:00:00Z")),
+				ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2025-04-10T00:00:00.789012Z")),
 				ModifiedBy:        ptr.To("tester"),
 				Certificates: []CertificateResponse{
 					{
@@ -859,7 +859,7 @@ func TestCloneCASetVersion(t *testing.T) {
 						CertificatePEM:     "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
 						SerialNumber:       "123456789",
 						SignatureAlgorithm: "SHA256WithRSA",
-						CreatedDate:        test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
+						CreatedDate:        test.NewTimeFromString(t, "2025-04-10T00:00:00.121212Z"),
 						CreatedBy:          "tester",
 					},
 				},
@@ -1054,9 +1054,9 @@ func TestGetCASetVersion(t *testing.T) {
 				"allowInsecureSha1":false,
 				"stagingStatus":"PENDING",
 				"productionStatus":"PENDING",
-				"createdDate":"2025-04-10T00:00:00Z",
+				"createdDate":"2025-04-10T00:00:00.077115Z",
 				"createdBy":"tester",
-				"modifiedDate":"2025-04-10T00:00:00Z",
+				"modifiedDate":"2025-04-10T00:00:00.799528Z",
 				"modifiedBy":"tester",
 				"certificates":[
 					{
@@ -1068,7 +1068,7 @@ func TestGetCASetVersion(t *testing.T) {
 						"certificatePem":"-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
 						"serialNumber":"123456789",
 						"signatureAlgorithm":"SHA256WithRSA",
-						"createdDate":"2025-04-10T00:00:00Z",
+						"createdDate":"2025-04-10T00:00:00.927465Z",
 						"createdBy":"tester"
 					}
 				],
@@ -1083,9 +1083,9 @@ func TestGetCASetVersion(t *testing.T) {
 				AllowInsecureSHA1: false,
 				StagingStatus:     "PENDING",
 				ProductionStatus:  "PENDING",
-				CreatedDate:       test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
+				CreatedDate:       test.NewTimeFromString(t, "2025-04-10T00:00:00.077115Z"),
 				CreatedBy:         "tester",
-				ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2025-04-10T00:00:00Z")),
+				ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2025-04-10T00:00:00.799528Z")),
 				ModifiedBy:        ptr.To("tester"),
 				Certificates: []CertificateResponse{
 					{
@@ -1097,7 +1097,7 @@ func TestGetCASetVersion(t *testing.T) {
 						CertificatePEM:     "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
 						SerialNumber:       "123456789",
 						SignatureAlgorithm: "SHA256WithRSA",
-						CreatedDate:        test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
+						CreatedDate:        test.NewTimeFromString(t, "2025-04-10T00:00:00.927465Z"),
 						CreatedBy:          "tester",
 					},
 				},
@@ -1224,9 +1224,9 @@ func TestUpdateCASetVersion(t *testing.T) {
 					  "allowInsecureSha1": false,
 					  "stagingStatus": "PENDING",
 					  "productionStatus": "PENDING",
-					  "createdDate": "2025-04-10T00:00:00Z",
+					  "createdDate": "2025-04-10T00:00:00.986647Z",
 					  "createdBy": "tester",
-					  "modifiedDate": "2025-04-10T00:00:00Z",
+					  "modifiedDate": "2025-04-10T00:00:00.029349Z",
 					  "modifiedBy": "tester",
 					  "certificates": [
 						{
@@ -1238,7 +1238,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
 						  "serialNumber": "123456789",
 						  "signatureAlgorithm": "SHA256WithRSA",
-						  "createdDate": "2025-04-10T00:00:00Z",
+						  "createdDate": "2025-04-10T00:00:00.959343Z",
 						  "createdBy": "tester"
 						}
 					  ]
@@ -1253,9 +1253,9 @@ func TestUpdateCASetVersion(t *testing.T) {
 				AllowInsecureSHA1: false,
 				StagingStatus:     "PENDING",
 				ProductionStatus:  "PENDING",
-				CreatedDate:       test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
+				CreatedDate:       test.NewTimeFromString(t, "2025-04-10T00:00:00.986647Z"),
 				CreatedBy:         "tester",
-				ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2025-04-10T00:00:00Z")),
+				ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2025-04-10T00:00:00.029349Z")),
 				ModifiedBy:        ptr.To("tester"),
 				Certificates: []CertificateResponse{
 					{
@@ -1267,7 +1267,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 						CertificatePEM:     "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
 						SerialNumber:       "123456789",
 						SignatureAlgorithm: "SHA256WithRSA",
-						CreatedDate:        test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
+						CreatedDate:        test.NewTimeFromString(t, "2025-04-10T00:00:00.959343Z"),
 						CreatedBy:          "tester",
 					},
 				},
@@ -1313,9 +1313,9 @@ func TestUpdateCASetVersion(t *testing.T) {
 					  "allowInsecureSha1": false,
 					  "stagingStatus": "PENDING",
 					  "productionStatus": "PENDING",
-					  "createdDate": "2025-04-10T00:00:00Z",
+					  "createdDate": "2025-04-10T00:00:00.986647Z",
 					  "createdBy": "tester",
-					  "modifiedDate": "2025-04-10T00:00:00Z",
+					  "modifiedDate": "2025-04-10T00:00:00.029349Z",
 					  "modifiedBy": "tester",
 					  "certificates": [
 						{
@@ -1327,7 +1327,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
 						  "serialNumber": "123456789",
 						  "signatureAlgorithm": "SHA256WithRSA",
-						  "createdDate": "2025-04-10T00:00:00Z",
+						  "createdDate": "2025-04-10T00:00:00.959343Z",
 						  "createdBy": "tester"
 						}
 					  ],
@@ -1356,9 +1356,9 @@ func TestUpdateCASetVersion(t *testing.T) {
 				AllowInsecureSHA1: false,
 				StagingStatus:     "PENDING",
 				ProductionStatus:  "PENDING",
-				CreatedDate:       test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
+				CreatedDate:       test.NewTimeFromString(t, "2025-04-10T00:00:00.986647Z"),
 				CreatedBy:         "tester",
-				ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2025-04-10T00:00:00Z")),
+				ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2025-04-10T00:00:00.029349Z")),
 				ModifiedBy:        ptr.To("tester"),
 				Certificates: []CertificateResponse{
 					{
@@ -1370,7 +1370,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 						CertificatePEM:     "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
 						SerialNumber:       "123456789",
 						SignatureAlgorithm: "SHA256WithRSA",
-						CreatedDate:        test.NewTimeFromString(t, "2025-04-10T00:00:00Z"),
+						CreatedDate:        test.NewTimeFromString(t, "2025-04-10T00:00:00.959343Z"),
 						CreatedBy:          "tester",
 					},
 				},
@@ -1926,7 +1926,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 	}
 }
 
-func TestListCASetVersion(t *testing.T) {
+func TestListCASetVersions(t *testing.T) {
 	tests := map[string]struct {
 		request          ListCASetVersionsRequest
 		responseStatus   int
@@ -1952,9 +1952,9 @@ func TestListCASetVersion(t *testing.T) {
 						 "allowInsecureSha1": false,
 						 "stagingStatus": "ACTIVE",
 						 "productionStatus": "INACTIVE",
-						 "createdDate": "2023-01-10T11:00:00Z",
+						 "createdDate": "2023-01-10T11:00:00.435643Z",
 						 "createdBy": "jsmith",
-						 "modifiedDate": "2023-01-10T12:00:00Z",
+						 "modifiedDate": "2023-01-10T12:00:00.925684Z",
 						 "modifiedBy": "jsmith",
 						 "certificates": [
 							{
@@ -1966,7 +1966,7 @@ func TestListCASetVersion(t *testing.T) {
 							   "certificatePem": "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 							   "serialNumber": "11612024106234270900",
 							   "signatureAlgorithm": "SHA256WITHRSA",
-							   "createdDate": "2020-04-07T17:33:39Z",
+							   "createdDate": "2020-04-07T17:33:39.247917Z",
 							   "createdBy": "jsmith2",
 							   "description": "Optional description for the certificate"
 							},
@@ -1979,7 +1979,7 @@ func TestListCASetVersion(t *testing.T) {
 							   "certificatePem": "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 							   "serialNumber": "11612024106234270901",
 							   "signatureAlgorithm": "SHA256WITHRSA",
-							   "createdDate": "2020-04-07T17:33:39Z",
+							   "createdDate": "2020-04-07T17:33:39.883429Z",
 							   "createdBy": "jsmith2",
 							   "description": "Optional description for the certificate"
 							}
@@ -1995,9 +1995,9 @@ func TestListCASetVersion(t *testing.T) {
 						 "allowInsecureSha1": true,
 						 "stagingStatus": "ACTIVE",
 						 "productionStatus": "INACTIVE",
-						 "createdDate": "2023-01-10T11:00:00Z",
+						 "createdDate": "2023-01-10T11:00:00.876324Z",
 						 "createdBy": "jsmith",
-						 "modifiedDate": "2023-01-10T12:00:00Z",
+						 "modifiedDate": "2023-01-10T12:00:00.897323Z",
 						 "modifiedBy": "jsmith",
 						 "certificates": [
 							{
@@ -2009,7 +2009,7 @@ func TestListCASetVersion(t *testing.T) {
 							   "certificatePem": "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 							   "serialNumber": "11612024106234270900",
 							   "signatureAlgorithm": "SHA256WITHRSA",
-							   "createdDate": "2020-04-07T17:33:39Z",
+							   "createdDate": "2020-04-07T17:33:39.247917Z",
 							   "createdBy": "jsmith2",
 							   "description": "Optional description for the certificate"
 							},
@@ -2022,7 +2022,7 @@ func TestListCASetVersion(t *testing.T) {
 							   "certificatePem": "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 							   "serialNumber": "11612024106234270901",
 							   "signatureAlgorithm": "SHA256WITHRSA",
-							   "createdDate": "2020-04-07T17:33:39Z",
+							   "createdDate": "2020-04-07T17:33:39.738219Z",
 							   "createdBy": "jsmith2",
 							   "description": "Optional description for the certificate"
 							}
@@ -2042,9 +2042,9 @@ func TestListCASetVersion(t *testing.T) {
 						AllowInsecureSHA1: false,
 						StagingStatus:     "ACTIVE",
 						ProductionStatus:  "INACTIVE",
-						CreatedDate:       test.NewTimeFromString(t, "2023-01-10T11:00:00Z"),
+						CreatedDate:       test.NewTimeFromString(t, "2023-01-10T11:00:00.435643Z"),
 						CreatedBy:         "jsmith",
-						ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2023-01-10T12:00:00Z")),
+						ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2023-01-10T12:00:00.925684Z")),
 						ModifiedBy:        ptr.To("jsmith"),
 						Certificates: []CertificateResponse{
 							{
@@ -2056,7 +2056,7 @@ func TestListCASetVersion(t *testing.T) {
 								CertificatePEM:     "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 								SerialNumber:       "11612024106234270900",
 								SignatureAlgorithm: "SHA256WITHRSA",
-								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
+								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39.247917Z"),
 								CreatedBy:          "jsmith2",
 								Description:        "Optional description for the certificate",
 							},
@@ -2069,7 +2069,7 @@ func TestListCASetVersion(t *testing.T) {
 								CertificatePEM:     "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 								SerialNumber:       "11612024106234270901",
 								SignatureAlgorithm: "SHA256WITHRSA",
-								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
+								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39.883429Z"),
 								CreatedBy:          "jsmith2",
 								Description:        "Optional description for the certificate",
 							},
@@ -2085,9 +2085,9 @@ func TestListCASetVersion(t *testing.T) {
 						AllowInsecureSHA1: true,
 						StagingStatus:     "ACTIVE",
 						ProductionStatus:  "INACTIVE",
-						CreatedDate:       test.NewTimeFromString(t, "2023-01-10T11:00:00Z"),
+						CreatedDate:       test.NewTimeFromString(t, "2023-01-10T11:00:00.876324Z"),
 						CreatedBy:         "jsmith",
-						ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2023-01-10T12:00:00Z")),
+						ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2023-01-10T12:00:00.897323Z")),
 						ModifiedBy:        ptr.To("jsmith"),
 						Certificates: []CertificateResponse{
 							{
@@ -2099,7 +2099,7 @@ func TestListCASetVersion(t *testing.T) {
 								CertificatePEM:     "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 								SerialNumber:       "11612024106234270900",
 								SignatureAlgorithm: "SHA256WITHRSA",
-								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
+								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39.247917Z"),
 								CreatedBy:          "jsmith2",
 								Description:        "Optional description for the certificate",
 							},
@@ -2112,7 +2112,7 @@ func TestListCASetVersion(t *testing.T) {
 								CertificatePEM:     "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 								SerialNumber:       "11612024106234270901",
 								SignatureAlgorithm: "SHA256WITHRSA",
-								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
+								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39.738219Z"),
 								CreatedBy:          "jsmith2",
 								Description:        "Optional description for the certificate",
 							},
@@ -2140,9 +2140,9 @@ func TestListCASetVersion(t *testing.T) {
 						 "allowInsecureSha1": false,
 						 "stagingStatus": "ACTIVE",
 						 "productionStatus": "ACTIVE",
-						 "createdDate": "2023-01-10T11:00:00Z",
+						 "createdDate": "2023-01-10T11:00:00.633918Z",
 						 "createdBy": "jsmith",
-						 "modifiedDate": "2023-01-10T12:00:00Z",
+						 "modifiedDate": "2023-01-10T12:00:00.733190Z",
 						 "modifiedBy": "jsmith",
 						 "certificates": [
 							{
@@ -2154,7 +2154,7 @@ func TestListCASetVersion(t *testing.T) {
 							   "certificatePem": "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 							   "serialNumber": "11612024106234270900",
 							   "signatureAlgorithm": "SHA256WITHRSA",
-							   "createdDate": "2020-04-07T17:33:39Z",
+							   "createdDate": "2020-04-07T17:33:39.110283Z",
 							   "createdBy": "jsmith2",
 							   "description": "Optional description for the certificate"
 							},
@@ -2167,7 +2167,7 @@ func TestListCASetVersion(t *testing.T) {
 							   "certificatePem": "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 							   "serialNumber": "11612024106234270901",
 							   "signatureAlgorithm": "SHA256WITHRSA",
-							   "createdDate": "2020-04-07T17:33:39Z",
+							   "createdDate": "2020-04-07T17:33:39.110553Z",
 							   "createdBy": "jsmith2",
 							   "description": "Optional description for the certificate"
 							}
@@ -2183,9 +2183,9 @@ func TestListCASetVersion(t *testing.T) {
 						 "allowInsecureSha1": true,
 						 "stagingStatus": "ACTIVE",
 						 "productionStatus": "ACTIVE",
-						 "createdDate": "2023-01-10T11:00:00Z",
+						 "createdDate": "2023-01-10T11:00:00.633919Z",
 						 "createdBy": "jsmith",
-						 "modifiedDate": "2023-01-10T12:00:00Z",
+						 "modifiedDate": "2023-01-10T12:00:00.733191Z",
 						 "modifiedBy": "jsmith",
 						 "certificates": [
 							{
@@ -2197,7 +2197,7 @@ func TestListCASetVersion(t *testing.T) {
 							   "certificatePem": "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 							   "serialNumber": "11612024106234270900",
 							   "signatureAlgorithm": "SHA256WITHRSA",
-							   "createdDate": "2020-04-07T17:33:39Z",
+							   "createdDate": "2020-04-07T17:33:39.110284Z",
 							   "createdBy": "jsmith2",
 							   "description": "Optional description for the certificate"
 							},
@@ -2210,7 +2210,7 @@ func TestListCASetVersion(t *testing.T) {
 							   "certificatePem": "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 							   "serialNumber": "11612024106234270901",
 							   "signatureAlgorithm": "SHA256WITHRSA",
-							   "createdDate": "2020-04-07T17:33:39Z",
+							   "createdDate": "2020-04-07T17:33:39.110443Z",
 							   "createdBy": "jsmith2",
 							   "description": "Optional description for the certificate"
 							}
@@ -2230,9 +2230,9 @@ func TestListCASetVersion(t *testing.T) {
 						AllowInsecureSHA1: false,
 						StagingStatus:     "ACTIVE",
 						ProductionStatus:  "ACTIVE",
-						CreatedDate:       test.NewTimeFromString(t, "2023-01-10T11:00:00Z"),
+						CreatedDate:       test.NewTimeFromString(t, "2023-01-10T11:00:00.633918Z"),
 						CreatedBy:         "jsmith",
-						ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2023-01-10T12:00:00Z")),
+						ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2023-01-10T12:00:00.733190Z")),
 						ModifiedBy:        ptr.To("jsmith"),
 						Certificates: []CertificateResponse{
 							{
@@ -2244,7 +2244,7 @@ func TestListCASetVersion(t *testing.T) {
 								CertificatePEM:     "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 								SerialNumber:       "11612024106234270900",
 								SignatureAlgorithm: "SHA256WITHRSA",
-								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
+								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39.110283Z"),
 								CreatedBy:          "jsmith2",
 								Description:        "Optional description for the certificate",
 							},
@@ -2257,7 +2257,7 @@ func TestListCASetVersion(t *testing.T) {
 								CertificatePEM:     "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 								SerialNumber:       "11612024106234270901",
 								SignatureAlgorithm: "SHA256WITHRSA",
-								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
+								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39.110553Z"),
 								CreatedBy:          "jsmith2",
 								Description:        "Optional description for the certificate",
 							},
@@ -2272,9 +2272,9 @@ func TestListCASetVersion(t *testing.T) {
 						AllowInsecureSHA1: true,
 						StagingStatus:     "ACTIVE",
 						ProductionStatus:  "ACTIVE",
-						CreatedDate:       test.NewTimeFromString(t, "2023-01-10T11:00:00Z"),
+						CreatedDate:       test.NewTimeFromString(t, "2023-01-10T11:00:00.633919Z"),
 						CreatedBy:         "jsmith",
-						ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2023-01-10T12:00:00Z")),
+						ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2023-01-10T12:00:00.733191Z")),
 						ModifiedBy:        ptr.To("jsmith"),
 						Certificates: []CertificateResponse{
 							{
@@ -2286,7 +2286,7 @@ func TestListCASetVersion(t *testing.T) {
 								CertificatePEM:     "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 								SerialNumber:       "11612024106234270900",
 								SignatureAlgorithm: "SHA256WITHRSA",
-								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
+								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39.110284Z"),
 								CreatedBy:          "jsmith2",
 								Description:        "Optional description for the certificate",
 							},
@@ -2299,7 +2299,7 @@ func TestListCASetVersion(t *testing.T) {
 								CertificatePEM:     "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 								SerialNumber:       "11612024106234270901",
 								SignatureAlgorithm: "SHA256WITHRSA",
-								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
+								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39.110443Z"),
 								CreatedBy:          "jsmith2",
 								Description:        "Optional description for the certificate",
 							},
@@ -2327,9 +2327,9 @@ func TestListCASetVersion(t *testing.T) {
 						 "allowInsecureSha1": false,
 						 "stagingStatus": "ACTIVE",
 						 "productionStatus": "ACTIVE",
-						 "createdDate": "2023-01-10T11:00:00Z",
+						 "createdDate": "2023-01-10T11:00:00.633918Z",
 						 "createdBy": "jsmith",
-						 "modifiedDate": "2023-01-10T12:00:00Z",
+						 "modifiedDate": "2023-01-10T12:00:00.733190Z",
 						 "modifiedBy": "jsmith",
 						 "validation": null
 					  },
@@ -2342,9 +2342,9 @@ func TestListCASetVersion(t *testing.T) {
 						 "allowInsecureSha1": true,
 						 "stagingStatus": "ACTIVE",
 						 "productionStatus": "ACTIVE",
-						 "createdDate": "2023-01-10T11:00:00Z",
+						 "createdDate": "2023-01-10T11:00:00.633919Z",
 						 "createdBy": "jsmith",
-						 "modifiedDate": "2023-01-10T12:00:00Z",
+						 "modifiedDate": "2023-01-10T12:00:00.733191Z",
 						 "modifiedBy": "jsmith",
 						 "validation": null
 					  }
@@ -2361,9 +2361,9 @@ func TestListCASetVersion(t *testing.T) {
 						AllowInsecureSHA1: false,
 						StagingStatus:     "ACTIVE",
 						ProductionStatus:  "ACTIVE",
-						CreatedDate:       test.NewTimeFromString(t, "2023-01-10T11:00:00Z"),
+						CreatedDate:       test.NewTimeFromString(t, "2023-01-10T11:00:00.633918Z"),
 						CreatedBy:         "jsmith",
-						ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2023-01-10T12:00:00Z")),
+						ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2023-01-10T12:00:00.733190Z")),
 						ModifiedBy:        ptr.To("jsmith"),
 					},
 					{
@@ -2376,9 +2376,9 @@ func TestListCASetVersion(t *testing.T) {
 						AllowInsecureSHA1: true,
 						StagingStatus:     "ACTIVE",
 						ProductionStatus:  "ACTIVE",
-						CreatedDate:       test.NewTimeFromString(t, "2023-01-10T11:00:00Z"),
+						CreatedDate:       test.NewTimeFromString(t, "2023-01-10T11:00:00.633919Z"),
 						CreatedBy:         "jsmith",
-						ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2023-01-10T12:00:00Z")),
+						ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2023-01-10T12:00:00.733191Z")),
 						ModifiedBy:        ptr.To("jsmith"),
 					},
 				},
@@ -2467,7 +2467,7 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 					  "certificatePem": "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 					  "serialNumber": "11612024106234272000",
 					  "signatureAlgorithm": "SHA256WITHRSA",
-					  "createdDate": "2020-04-07T17:33:39Z",
+					  "createdDate": "2020-04-07T17:33:39.110283Z",
 					  "description": "Optional description for the certificate",
 					  "createdBy": "jsmith2"
 					},
@@ -2480,7 +2480,7 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 					  "certificatePem": "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 					  "serialNumber": "11612024106234272000",
 					  "signatureAlgorithm": "SHA256WITHRSA",
-					  "createdDate": "2020-04-07T17:33:39Z",
+					  "createdDate": "2020-04-07T17:33:39.110284Z",
 					  "description": "Optional description for the certificate",
 					  "createdBy": "jsmith2"
 					}
@@ -2500,7 +2500,7 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 						CertificatePEM:     "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 						SerialNumber:       "11612024106234272000",
 						SignatureAlgorithm: "SHA256WITHRSA",
-						CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
+						CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39.110283Z"),
 						Description:        "Optional description for the certificate",
 						CreatedBy:          "jsmith2",
 					},
@@ -2513,7 +2513,7 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 						CertificatePEM:     "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 						SerialNumber:       "11612024106234272000",
 						SignatureAlgorithm: "SHA256WITHRSA",
-						CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
+						CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39.110284Z"),
 						Description:        "Optional description for the certificate",
 						CreatedBy:          "jsmith2",
 					},
@@ -2543,7 +2543,7 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 					  "certificatePem": "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 					  "serialNumber": "11612024106234272000",
 					  "signatureAlgorithm": "SHA256WITHRSA",
-					  "createdDate": "2020-04-07T17:33:39Z",
+					  "createdDate": "2020-04-07T17:33:39.110283Z",
 					  "description": "Optional description for the certificate",
 					  "createdBy": "jsmith2"
 					},
@@ -2556,7 +2556,7 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 					  "certificatePem": "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 					  "serialNumber": "11612024106234272000",
 					  "signatureAlgorithm": "SHA256WITHRSA",
-					  "createdDate": "2020-04-07T17:33:39Z",
+					  "createdDate": "2020-04-07T17:33:39.110284Z",
 					  "description": "Optional description for the certificate",
 					  "createdBy": "jsmith2"
 					}
@@ -2576,7 +2576,7 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 						CertificatePEM:     "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 						SerialNumber:       "11612024106234272000",
 						SignatureAlgorithm: "SHA256WITHRSA",
-						CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
+						CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39.110283Z"),
 						Description:        "Optional description for the certificate",
 						CreatedBy:          "jsmith2",
 					},
@@ -2589,7 +2589,7 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 						CertificatePEM:     "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
 						SerialNumber:       "11612024106234272000",
 						SignatureAlgorithm: "SHA256WITHRSA",
-						CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
+						CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39.110284Z"),
 						Description:        "Optional description for the certificate",
 						CreatedBy:          "jsmith2",
 					},
