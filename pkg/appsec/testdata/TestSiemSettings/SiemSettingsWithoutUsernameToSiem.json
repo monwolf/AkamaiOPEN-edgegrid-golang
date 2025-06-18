@@ -1,10 +1,7 @@
 {
     "enableForAllPolicies": true,
     "enableSiem": true,
-    "includeJA4FingerprintToSiem": false,
-    "enabledBotmanSiemEvents": false,
     "siemDefinitionId": 1,
-    "UsernameToSiem": true,
     "exceptions":[
       {
         "actionTypes": [

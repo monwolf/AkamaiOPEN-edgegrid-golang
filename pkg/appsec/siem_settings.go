@@ -44,6 +44,7 @@ type (
 		SiemDefinitionID            int         `json:"siemDefinitionId"`
 		FirewallPolicyIDs           []string    `json:"firewallPolicyIds"`
 		Exceptions                  []Exception `json:"exceptions"`
+		UsernameToSiem              bool        `json:"usernameToSiem"`
 	}
 
 	// GetSiemSettingRequest is used to retrieve the SIEM settings for a configuration.
@@ -80,6 +81,7 @@ type (
 		SiemDefinitionID            int         `json:"siemDefinitionId"`
 		FirewallPolicyIDs           []string    `json:"firewallPolicyIds"`
 		Exceptions                  []Exception `json:"exceptions,omitempty"`
+		UsernameToSiem              *bool       `json:"usernameToSiem,omitempty"`
 	}
 
 	// UpdateSiemSettingsResponse is returned from a call to UpdateSiemSettings.
@@ -91,6 +93,7 @@ type (
 		SiemDefinitionID            int         `json:"siemDefinitionId"`
 		FirewallPolicyIDs           []string    `json:"firewallPolicyIds"`
 		Exceptions                  []Exception `json:"exceptions"`
+		UsernameToSiem              bool        `json:"usernameToSiem"`
 	}
 
 	// RemoveSiemSettingsRequest is used to remove the SIEM settings for a configuration.

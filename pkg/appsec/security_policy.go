@@ -145,14 +145,15 @@ type (
 
 	// SecurityControls is returned as part of GetSecurityPoliciesResponse and similar responses.
 	SecurityControls struct {
-		ApplyAPIConstraints           bool `json:"applyApiConstraints,omitempty"`
-		ApplyApplicationLayerControls bool `json:"applyApplicationLayerControls,omitempty"`
-		ApplyBotmanControls           bool `json:"applyBotmanControls,omitempty"`
-		ApplyMalwareControls          bool `json:"applyMalwareControls,omitempty"`
-		ApplyNetworkLayerControls     bool `json:"applyNetworkLayerControls,omitempty"`
-		ApplyRateControls             bool `json:"applyRateControls,omitempty"`
-		ApplyReputationControls       bool `json:"applyReputationControls,omitempty"`
-		ApplySlowPostControls         bool `json:"applySlowPostControls,omitempty"`
+		ApplyAPIConstraints            bool `json:"applyApiConstraints,omitempty"`
+		ApplyApplicationLayerControls  bool `json:"applyApplicationLayerControls,omitempty"`
+		ApplyAccountProtectionControls bool `json:"applyAccountProtectionControls,omitempty"`
+		ApplyBotmanControls            bool `json:"applyBotmanControls,omitempty"`
+		ApplyMalwareControls           bool `json:"applyMalwareControls,omitempty"`
+		ApplyNetworkLayerControls      bool `json:"applyNetworkLayerControls,omitempty"`
+		ApplyRateControls              bool `json:"applyRateControls,omitempty"`
+		ApplyReputationControls        bool `json:"applyReputationControls,omitempty"`
+		ApplySlowPostControls          bool `json:"applySlowPostControls,omitempty"`
 	}
 )
 

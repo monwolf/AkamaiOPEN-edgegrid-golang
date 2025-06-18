@@ -191,14 +191,15 @@ type (
 			Name                    string `json:"name"`
 			HasRatePolicyWithAPIKey bool   `json:"hasRatePolicyWithApiKey"`
 			SecurityControls        struct {
-				ApplyAPIConstraints           bool `json:"applyApiConstraints"`
-				ApplyApplicationLayerControls bool `json:"applyApplicationLayerControls"`
-				ApplyBotmanControls           bool `json:"applyBotmanControls"`
-				ApplyNetworkLayerControls     bool `json:"applyNetworkLayerControls"`
-				ApplyRateControls             bool `json:"applyRateControls"`
-				ApplyReputationControls       bool `json:"applyReputationControls"`
-				ApplySlowPostControls         bool `json:"applySlowPostControls"`
-				ApplyMalwareControls          bool `json:"applyMalwareControls"`
+				ApplyAccountProtectionControls bool `json:"applyAccountProtectionControls"`
+				ApplyAPIConstraints            bool `json:"applyApiConstraints"`
+				ApplyApplicationLayerControls  bool `json:"applyApplicationLayerControls"`
+				ApplyBotmanControls            bool `json:"applyBotmanControls"`
+				ApplyNetworkLayerControls      bool `json:"applyNetworkLayerControls"`
+				ApplyRateControls              bool `json:"applyRateControls"`
+				ApplyReputationControls        bool `json:"applyReputationControls"`
+				ApplySlowPostControls          bool `json:"applySlowPostControls"`
+				ApplyMalwareControls           bool `json:"applyMalwareControls"`
 			} `json:"securityControls"`
 			WebApplicationFirewall struct {
 				RuleActions []struct {
@@ -235,6 +236,7 @@ type (
 			PenaltyBoxConditions           *SecurityPoliciesPenaltyBoxConditions `json:"penaltyBoxConditions,omitempty"`
 			EvaluationPenaltyBoxConditions *SecurityPoliciesPenaltyBoxConditions `json:"evaluationPenaltyBoxConditions,omitempty"`
 			SlowPost                       *SlowPostexp                          `json:"slowPost,omitempty"`
+			AccountProtection              *AccountProtection                    `json:"accountProtection,omitempty"`
 			LoggingOverrides               *LoggingOverridesexp                  `json:"loggingOverrides,omitempty"`
 			AttackPayloadLoggingOverrides  *AttackPayloadLoggingOverrides        `json:"attackPayloadLoggingOverrides,omitempty"`
 			PragmaHeader                   *GetAdvancedSettingsPragmaResponse    `json:"pragmaHeader,omitempty"`
@@ -604,6 +606,8 @@ type (
 		BotAnalyticsCookieSettings              map[string]interface{} `json:"botAnalyticsCookieSettings,omitempty"`
 		ClientSideSecuritySettings              map[string]interface{} `json:"clientSideSecuritySettings,omitempty"`
 		TransactionalEndpointProtectionSettings map[string]interface{} `json:"transactionalEndpointProtectionSettings,omitempty"`
+		UserRiskResponseStrategySettings        map[string]interface{} `json:"userRiskResponseStrategySettings,omitempty"`
+		UserAllowListIdSettings                 map[string]interface{} `json:"userAllowListIdSettings,omitempty"`
 	}
 
 	// ResponseActions is returned as part of GetExportConfigurationResponse
@@ -627,6 +631,12 @@ type (
 		ContentProtectionRules                    []map[string]interface{} `json:"contentProtectionRules,omitempty"`
 		ContentProtectionRuleSequence             []string                 `json:"contentProtectionRuleSequence,omitempty"`
 		ContentProtectionJavaScriptInjectionRules []map[string]interface{} `json:"contentProtectionJavaScriptInjectionRules,omitempty"`
+	}
+
+	// AccountProtection is returned as part of GetExportConfigurationResponse
+	AccountProtection struct {
+		GeneralSettings        map[string]interface{}   `json:"generalSettings,omitempty"`
+		TransactionalEndpoints []map[string]interface{} `json:"transactionalEndpoints,omitempty"`
 	}
 
 	// TransactionalEndpoints is returned as port of GetExportConfigurationResponse

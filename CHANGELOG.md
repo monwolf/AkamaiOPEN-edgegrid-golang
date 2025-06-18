@@ -74,7 +74,26 @@
     * GetResourceOperation
     * UpdateResourceOperation
     * DeleteResourceOperation
+    
+* Account Protector
+  * Added new methods for account protector
+    * [GetGeneralSettings](https://techdocs.akamai.com/account-protector/reference/get-account-protection-settings)
+    * [UpdateGeneralSettings](https://techdocs.akamai.com/account-protector/reference/put-account-protection-settings)
+    * [ListTransactionalEndpoints](https://techdocs.akamai.com/account-protector/reference/get-account-protection)
+    * [GetTransactionalEndpointByID](https://techdocs.akamai.com/account-protector/reference/get-account-protection-op)
+    * [CreateTransactionalEndpoint](https://techdocs.akamai.com/account-protector/reference/post-account-protection)
+    * [UpdateTransactionalEndpoint](https://techdocs.akamai.com/account-protector/reference/put-account-protection-op)
+    * [RemoveTransactionalEndpoint](https://techdocs.akamai.com/account-protector/reference/delete-account-protection-op)
+    * [GetUserRiskResponseStrategy](https://techdocs.akamai.com/account-protector/reference/get-user-risk-response-strategy)
+    * [UpdateUserRiskResponseStrategy](https://techdocs.akamai.com/account-protector/reference/put-user-risk-response-strategy)
+    * [GetUserAllowListID](https://techdocs.akamai.com/account-protector/reference/get-user-allow-list)
+    * [UpdateUserAllowListID](https://techdocs.akamai.com/account-protector/reference/put-get-user-allow-list)
+    * [DeleteUserAllowListID](https://techdocs.akamai.com/account-protector/reference/delete-get-user-allow-list)
 
+* Appsec 
+    * Added [ApplyAccountProtectionControls] in all security controls
+    * Added [AccountProtection] in export configuration
+    * Added [UsernameToSiem] field in siem settings
 
 
 

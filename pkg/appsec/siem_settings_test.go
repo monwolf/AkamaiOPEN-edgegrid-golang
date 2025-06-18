@@ -169,6 +169,7 @@ func TestAppSec_GetSiemSettings(t *testing.T) {
 func TestAppSec_UpdateSiemSettings(t *testing.T) {
 	result := UpdateSiemSettingsResponse{}
 	resultWithoutEnabledBotman := UpdateSiemSettingsResponse{}
+	resultWithoutUsernameToSiem := UpdateSiemSettingsResponse{}
 
 	respData := compactJSON(loadFixtureBytes("testdata/TestSiemSettings/SiemSettings.json"))
 	err := json.Unmarshal([]byte(respData), &result)
@@ -176,6 +177,10 @@ func TestAppSec_UpdateSiemSettings(t *testing.T) {
 
 	respDataWithoutEnableBotman := compactJSON(loadFixtureBytes("testdata/TestSiemSettings/SiemSettingsWithoutEnabledBotmanSiem.json"))
 	err = json.Unmarshal([]byte(respDataWithoutEnableBotman), &resultWithoutEnabledBotman)
+	require.NoError(t, err)
+
+	respDataWithoutUsernameToSiem := compactJSON(loadFixtureBytes("testdata/TestSiemSettings/SiemSettingsWithoutUsernameToSiem.json"))
+	err = json.Unmarshal([]byte(respDataWithoutUsernameToSiem), &resultWithoutUsernameToSiem)
 	require.NoError(t, err)
 
 	req := UpdateSiemSettingsRequest{}
@@ -200,6 +205,7 @@ func TestAppSec_UpdateSiemSettings(t *testing.T) {
 				Version:                 15,
 				EnableSiem:              true,
 				EnabledBotmanSiemEvents: ptr.To(false),
+				UsernameToSiem:          ptr.To(true),
 				Exceptions: []Exception{
 					{
 						ActionTypes: []string{"*"},
@@ -249,6 +255,34 @@ func TestAppSec_UpdateSiemSettings(t *testing.T) {
 			responseStatus:   http.StatusCreated,
 			responseBody:     respDataWithoutEnableBotman,
 			expectedResponse: &resultWithoutEnabledBotman,
+			expectedPath:     "/appsec/v1/configs/43253/versions/15/siem",
+		},
+		"200 Success without UsernameToSiem": {
+			params: UpdateSiemSettingsRequest{
+				ConfigID:   43253,
+				Version:    15,
+				EnableSiem: true,
+				Exceptions: []Exception{
+					{
+						ActionTypes: []string{"*"},
+						Protection:  "botmanagement",
+					},
+					{
+						ActionTypes: []string{"deny"},
+						Protection:  "ipgeo",
+					},
+					{
+						ActionTypes: []string{"alert"},
+						Protection:  "rate",
+					},
+				},
+			},
+			headers: http.Header{
+				"Content-Type": []string{"application/json;charset=UTF-8"},
+			},
+			responseStatus:   http.StatusCreated,
+			responseBody:     respDataWithoutUsernameToSiem,
+			expectedResponse: &resultWithoutUsernameToSiem,
 			expectedPath:     "/appsec/v1/configs/43253/versions/15/siem",
 		},
 		"400 Bad Request action types": {

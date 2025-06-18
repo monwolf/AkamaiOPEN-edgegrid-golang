@@ -58,12 +58,13 @@ type (
 
 	// HostnameCoverageMatchTargetEffectiveSecurityControls describes the effective security controls for a website target.
 	HostnameCoverageMatchTargetEffectiveSecurityControls struct {
-		ApplyApplicationLayerControls bool `json:"applyApplicationLayerControls"`
-		ApplyBotmanControls           bool `json:"applyBotmanControls"`
-		ApplyNetworkLayerControls     bool `json:"applyNetworkLayerControls"`
-		ApplyRateControls             bool `json:"applyRateControls"`
-		ApplyReputationControls       bool `json:"applyReputationControls"`
-		ApplySlowPostControls         bool `json:"applySlowPostControls"`
+		ApplyAccountProtectionControls bool `json:"applyAccountProtectionControls"`
+		ApplyApplicationLayerControls  bool `json:"applyApplicationLayerControls"`
+		ApplyBotmanControls            bool `json:"applyBotmanControls"`
+		ApplyNetworkLayerControls      bool `json:"applyNetworkLayerControls"`
+		ApplyRateControls              bool `json:"applyRateControls"`
+		ApplyReputationControls        bool `json:"applyReputationControls"`
+		ApplySlowPostControls          bool `json:"applySlowPostControls"`
 	}
 )
 
