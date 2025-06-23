@@ -61,13 +61,13 @@ type (
 		Name string `json:"namespace"`
 
 		// GeoLocation specifies the storage location for data.
-		GeoLocation string `json:"geoLocation"`
+		GeoLocation string `json:"geoLocation,omitempty"`
 
 		// Retention is a retention period of underlying data, represented in seconds.
-		Retention *int `json:"retentionInSeconds"`
+		Retention *int `json:"retentionInSeconds,omitempty"`
 
 		// GroupID is an access group the namespace is assigned to.
-		GroupID *int `json:"groupId"`
+		GroupID *int `json:"groupId,omitempty"`
 	}
 
 	// GetNamespaceResponse represents a response object details for the specified namespace.
