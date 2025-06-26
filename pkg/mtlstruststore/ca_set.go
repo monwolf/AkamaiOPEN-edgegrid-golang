@@ -44,7 +44,7 @@ type (
 		CASetStatus string `json:"caSetStatus"`
 
 		// Description is a description of the CA set.
-		Description string `json:"description"`
+		Description *string `json:"description"`
 
 		// LatestVersionLink is the hypermedia link for newly created / cloned version in a CA set.
 		LatestVersionLink *string `json:"latestVersionLink"`
@@ -252,7 +252,7 @@ type (
 		// RetryAfter is a time when CA set deletion status can be checked again.
 		// Usually 300 seconds after the deletion request was made.
 		// This header value is returned only if the CA set deletion status is "IN_PROGRESS".
-		RetryAfter *time.Time
+		RetryAfter time.Time
 	}
 
 	// CASetNetworkDeleteStatus holds information about one network for GetCASetDeleteStatus response.
@@ -692,7 +692,7 @@ func (m *mtlstruststore) GetCASetDeletionStatus(ctx context.Context, params GetC
 			return nil, fmt.Errorf("%w: failed to parse Retry-After header: %s",
 				ErrGetCASetDeletionStatus, err)
 		}
-		result.RetryAfter = &after
+		result.RetryAfter = after
 	}
 
 	return &result, nil

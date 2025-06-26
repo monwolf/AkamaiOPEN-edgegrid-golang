@@ -83,11 +83,11 @@ var (
 	// ErrCertificateLimitReached is returned when the count of certificates submitted in the request body exceeds the limit allowed for the Version.
 	ErrCertificateLimitReached = errors.New("submitted certificates exceed the maximum allowed certificates limit")
 
-	// ErrCaSetVersionLimitReached is returned when the number of ca set versions has reached the limit.
-	ErrCaSetVersionLimitReached = errors.New("maximum allowed ca set version's limit has been reached")
+	// ErrCASetVersionLimitReached is returned when the number of ca set versions has reached the limit.
+	ErrCASetVersionLimitReached = errors.New("maximum allowed ca set version's limit has been reached")
 
-	// ErrCaSetVersionIsDuplicate is returned when a version with same certificates exists in the ca set.
-	ErrCaSetVersionIsDuplicate = errors.New("a version with same certificates exists in the ca set")
+	// ErrCASetVersionIsDuplicate is returned when a version with same certificates exists in the ca set.
+	ErrCASetVersionIsDuplicate = errors.New("a version with same certificates exists in the ca set")
 
 	// ErrCASetBoundToSlotInCPS is returned when the CA set is bound to a slot in CPS.
 	ErrCASetBoundToSlotInCPS = errors.New("ca set bound to slot in CPS")
@@ -107,11 +107,11 @@ var (
 	// ErrFetchAssociationsTimeout is returned when ListCASetAssociations fails on timeout.
 	ErrFetchAssociationsTimeout = errors.New("fetching associations for ca set got timed out")
 
-	// ErrMissingCaCertVersion is returned when attempting to clone a ca set without any version.
-	ErrMissingCaCertVersion = errors.New("ca set does not contain any version")
+	// ErrMissingCASetVersion is returned when attempting to clone a ca set without any version.
+	ErrMissingCASetVersion = errors.New("ca set does not contain any version")
 
-	// ErrCaSetNameNotUnique is returned when provided ca set name already exists.
-	ErrCaSetNameNotUnique = errors.New("ca set name is not unique")
+	// ErrCASetNameNotUnique is returned when provided ca set name already exists.
+	ErrCASetNameNotUnique = errors.New("ca set name is not unique")
 
 	// ErrCASetLimitReached is returned when ca set limit is reached.
 	ErrCASetLimitReached = errors.New("reached ca set limit")
@@ -200,11 +200,11 @@ func (e *Error) Is(target error) bool {
 		return e.Status == http.StatusUnprocessableEntity && e.Type == certificateLimitReached
 	}
 
-	if errors.Is(target, ErrCaSetVersionLimitReached) {
+	if errors.Is(target, ErrCASetVersionLimitReached) {
 		return e.Status == http.StatusUnprocessableEntity && e.Type == caSetVersionLimitReached
 	}
 
-	if errors.Is(target, ErrCaSetVersionIsDuplicate) {
+	if errors.Is(target, ErrCASetVersionIsDuplicate) {
 		return e.Status == http.StatusUnprocessableEntity && e.Type == caSetVersionDuplicate
 	}
 
@@ -232,11 +232,11 @@ func (e *Error) Is(target error) bool {
 		return e.Status == http.StatusGatewayTimeout && e.Type == fetchAssociationsTimeout
 	}
 
-	if errors.Is(target, ErrMissingCaCertVersion) {
+	if errors.Is(target, ErrMissingCASetVersion) {
 		return e.Status == http.StatusBadRequest && e.Type == missingCaCertVersion
 	}
 
-	if errors.Is(target, ErrCaSetNameNotUnique) {
+	if errors.Is(target, ErrCASetNameNotUnique) {
 		return e.Status == http.StatusConflict && e.Type == caSetNameNotUnique
 	}
 

@@ -144,7 +144,7 @@ type (
 		CreatedBy string `json:"createdBy"`
 
 		// Description is an optional description of the certificate.
-		Description string `json:"description,omitempty"`
+		Description *string `json:"description"`
 	}
 
 	// Validation represents the validation results for a CA Set version, its certificates or activation.
@@ -208,7 +208,7 @@ type (
 		VersionLink string `json:"versionLink"`
 
 		// Description is an optional description for the version.
-		Description string `json:"description"`
+		Description *string `json:"description"`
 
 		// AllowInsecureSHA1 indicates whether SHA-1 certificates are allowed.
 		AllowInsecureSHA1 bool `json:"allowInsecureSHA1"`

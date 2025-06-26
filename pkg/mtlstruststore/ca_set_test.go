@@ -62,7 +62,7 @@ func TestCreateCASet(t *testing.T) {
 				CreatedDate:           test.NewTimeFromString(t, "2025-04-01T15:33:48.464941Z"),
 				DeletedBy:             nil,
 				DeletedDate:           nil,
-				Description:           "",
+				Description:           ptr.To(""),
 				LatestVersion:         nil,
 				LatestVersionLink:     nil,
 				ProductionVersion:     nil,
@@ -205,7 +205,7 @@ func TestGetCASet(t *testing.T) {
 				CreatedDate:           test.NewTimeFromString(t, "2025-04-01T15:33:48.464941Z"),
 				DeletedBy:             nil,
 				DeletedDate:           nil,
-				Description:           "",
+				Description:           ptr.To(""),
 				LatestVersion:         nil,
 				LatestVersionLink:     nil,
 				ProductionVersion:     nil,
@@ -374,7 +374,7 @@ func TestListCASets(t *testing.T) {
 						CreatedDate:           test.NewTimeFromString(t, "2025-04-01T15:33:48.464941Z"),
 						DeletedBy:             nil,
 						DeletedDate:           nil,
-						Description:           "",
+						Description:           ptr.To(""),
 						LatestVersion:         nil,
 						LatestVersionLink:     nil,
 						ProductionVersion:     nil,
@@ -393,7 +393,7 @@ func TestListCASets(t *testing.T) {
 						CreatedDate:           test.NewTimeFromString(t, "2023-10-17T23:04:52.491822Z"),
 						DeletedBy:             nil,
 						DeletedDate:           nil,
-						Description:           "Imported from Techpreview TCM",
+						Description:           ptr.To("Imported from Techpreview TCM"),
 						LatestVersion:         ptr.To(int64(2)),
 						LatestVersionLink:     ptr.To("/mtls-edge-truststore/v2/ca-sets/80431/versions/2"),
 						ProductionVersion:     ptr.To(int64(2)),
@@ -412,7 +412,7 @@ func TestListCASets(t *testing.T) {
 						CreatedDate:           test.NewTimeFromString(t, "2023-10-17T23:04:52.884782Z"),
 						DeletedBy:             ptr.To("migration_run"),
 						DeletedDate:           ptr.To(test.NewTimeFromString(t, "2025-06-04T12:19:33.095023Z")),
-						Description:           "Imported from Techpreview TCM",
+						Description:           ptr.To("Imported from Techpreview TCM"),
 						LatestVersion:         ptr.To(int64(3)),
 						LatestVersionLink:     ptr.To("/mtls-edge-truststore/v2/ca-sets/75201/versions/3"),
 						ProductionVersion:     nil,
@@ -883,7 +883,7 @@ func TestCloneCASet(t *testing.T) {
 				CASetStatus:       "NOT_DELETED",
 				CreatedBy:         "user1",
 				CreatedDate:       test.NewTimeFromString(t, "2025-04-10T07:03:32.987904Z"),
-				Description:       "New CA Set",
+				Description:       ptr.To("New CA Set"),
 				LatestVersion:     ptr.To(int64(1)),
 				LatestVersionLink: ptr.To("/mtls-edge-truststore/v2/ca-sets/2/versions/1"),
 				VersionsLink:      "/mtls-edge-truststore/v2/ca-sets/2/versions/",
@@ -929,7 +929,7 @@ func TestCloneCASet(t *testing.T) {
 				CASetStatus:       "NOT_DELETED",
 				CreatedBy:         "user1",
 				CreatedDate:       test.NewTimeFromString(t, "2025-04-10T07:03:32.987904Z"),
-				Description:       "New CA Set",
+				Description:       ptr.To("New CA Set"),
 				LatestVersion:     ptr.To(int64(1)),
 				LatestVersionLink: ptr.To("/mtls-edge-truststore/v2/ca-sets/2/versions/1"),
 				VersionsLink:      "/mtls-edge-truststore/v2/ca-sets/2/versions/",
@@ -986,7 +986,7 @@ func TestCloneCASet(t *testing.T) {
     "type": "/mtls-edge-truststore/error-types/missing-caset-version"
 }`,
 			withError: func(t *testing.T, err error) {
-				assert.True(t, errors.Is(err, ErrMissingCaCertVersion), "want: %s; got: %s", ErrMissingCaCertVersion, err)
+				assert.True(t, errors.Is(err, ErrMissingCASetVersion), "want: %s; got: %s", ErrMissingCASetVersion, err)
 			},
 		},
 		"404 ca set not found": {
@@ -1050,7 +1050,7 @@ func TestCloneCASet(t *testing.T) {
   }
 }`,
 			withError: func(t *testing.T, err error) {
-				assert.True(t, errors.Is(err, ErrCaSetNameNotUnique), "want: %s; got: %s", ErrCaSetNameNotUnique, err)
+				assert.True(t, errors.Is(err, ErrCASetNameNotUnique), "want: %s; got: %s", ErrCASetNameNotUnique, err)
 			},
 		},
 		"422 reached limit": {
@@ -1169,7 +1169,7 @@ func TestGetCASetDeletionStatus(t *testing.T) {
 				StartTime:        test.NewTimeFromString(t, "2025-04-15T12:10:02.039140Z"),
 				Status:           "IN_PROGRESS",
 				StatusLink:       "/mtls-edge-truststore/v2/ca-sets/1/status/delete",
-				RetryAfter:       ptr.To(test.NewTimeFromString(t, "2025-04-15T12:15:02Z")),
+				RetryAfter:       test.NewTimeFromString(t, "2025-04-15T12:15:02Z"),
 			},
 		},
 		"200 - completed": {

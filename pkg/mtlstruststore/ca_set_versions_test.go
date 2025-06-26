@@ -83,7 +83,7 @@ func TestCreateCASetVersion(t *testing.T) {
 				Version:           1,
 				CASetName:         "Test CA Set",
 				VersionLink:       "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
-				Description:       "Test CA Set Version",
+				Description:       ptr.To("Test CA Set Version"),
 				AllowInsecureSHA1: false,
 				StagingStatus:     "PENDING",
 				ProductionStatus:  "PENDING",
@@ -265,7 +265,7 @@ func TestCreateCASetVersion(t *testing.T) {
 				Version:           1,
 				CASetName:         "Test CA Set",
 				VersionLink:       "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
-				Description:       "Test CA Set Version",
+				Description:       ptr.To("Test CA Set Version"),
 				AllowInsecureSHA1: false,
 				StagingStatus:     "PENDING",
 				ProductionStatus:  "PENDING",
@@ -451,7 +451,7 @@ func TestCreateCASetVersion(t *testing.T) {
 						}
 					}`,
 			withError: func(t *testing.T, err error) {
-				assert.True(t, errors.Is(err, ErrCaSetVersionLimitReached))
+				assert.True(t, errors.Is(err, ErrCASetVersionLimitReached))
 			},
 		},
 		"Error Response - Maximum allowed certificates in a version limit reached": {
@@ -633,7 +633,7 @@ func TestCreateCASetVersion(t *testing.T) {
             }
         }`,
 			withError: func(t *testing.T, err error) {
-				assert.True(t, errors.Is(err, ErrCaSetVersionIsDuplicate))
+				assert.True(t, errors.Is(err, ErrCASetVersionIsDuplicate))
 			},
 		},
 		"Internal server error": {
@@ -760,7 +760,7 @@ func TestCloneCASetVersion(t *testing.T) {
 				Version:           1,
 				CASetName:         "Test CA Set",
 				VersionLink:       "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
-				Description:       "Test CA Set Version",
+				Description:       ptr.To("Test CA Set Version"),
 				AllowInsecureSHA1: false,
 				StagingStatus:     "PENDING",
 				ProductionStatus:  "PENDING",
@@ -841,7 +841,7 @@ func TestCloneCASetVersion(t *testing.T) {
 				Version:           1,
 				CASetName:         "Test CA Set",
 				VersionLink:       "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
-				Description:       "Test CA Set Version",
+				Description:       ptr.To("Test CA Set Version"),
 				AllowInsecureSHA1: false,
 				StagingStatus:     "PENDING",
 				ProductionStatus:  "PENDING",
@@ -977,7 +977,7 @@ func TestCloneCASetVersion(t *testing.T) {
 						}
 					}`,
 			withError: func(t *testing.T, err error) {
-				assert.True(t, errors.Is(err, ErrCaSetVersionLimitReached))
+				assert.True(t, errors.Is(err, ErrCASetVersionLimitReached))
 			},
 		},
 		"Internal server error": {
@@ -1079,7 +1079,7 @@ func TestGetCASetVersion(t *testing.T) {
 				Version:           1,
 				CASetName:         "Test CA Set",
 				VersionLink:       "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
-				Description:       "Test CA Set Version",
+				Description:       ptr.To("Test CA Set Version"),
 				AllowInsecureSHA1: false,
 				StagingStatus:     "PENDING",
 				ProductionStatus:  "PENDING",
@@ -1249,7 +1249,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 				Version:           1,
 				CASetName:         "Test CA Set",
 				VersionLink:       "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
-				Description:       "Test CA Set Version",
+				Description:       ptr.To("Test CA Set Version"),
 				AllowInsecureSHA1: false,
 				StagingStatus:     "PENDING",
 				ProductionStatus:  "PENDING",
@@ -1352,7 +1352,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 				Version:           1,
 				CASetName:         "Test CA Set",
 				VersionLink:       "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
-				Description:       "Test CA Set Version",
+				Description:       ptr.To("Test CA Set Version"),
 				AllowInsecureSHA1: false,
 				StagingStatus:     "PENDING",
 				ProductionStatus:  "PENDING",
@@ -2038,7 +2038,7 @@ func TestListCASetVersions(t *testing.T) {
 						Version:           1,
 						CASetName:         "test1",
 						VersionLink:       "/mtls-edge-truststore/v2/ca-sets/1000/versions/1",
-						Description:       "Optional description for this version.",
+						Description:       ptr.To("Optional description for this version."),
 						AllowInsecureSHA1: false,
 						StagingStatus:     "ACTIVE",
 						ProductionStatus:  "INACTIVE",
@@ -2058,7 +2058,7 @@ func TestListCASetVersions(t *testing.T) {
 								SignatureAlgorithm: "SHA256WITHRSA",
 								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39.247917Z"),
 								CreatedBy:          "jsmith2",
-								Description:        "Optional description for the certificate",
+								Description:        ptr.To("Optional description for the certificate"),
 							},
 							{
 								Subject:            "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate1.tcm-11-example.com",
@@ -2071,7 +2071,7 @@ func TestListCASetVersions(t *testing.T) {
 								SignatureAlgorithm: "SHA256WITHRSA",
 								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39.883429Z"),
 								CreatedBy:          "jsmith2",
-								Description:        "Optional description for the certificate",
+								Description:        ptr.To("Optional description for the certificate"),
 							},
 						},
 					},
@@ -2081,7 +2081,7 @@ func TestListCASetVersions(t *testing.T) {
 
 						CASetName:         "test1",
 						VersionLink:       "/mtls-edge-truststore/v2/ca-sets/1000/versions/2",
-						Description:       "", // null in JSON maps to empty string in Go
+						Description:       nil,
 						AllowInsecureSHA1: true,
 						StagingStatus:     "ACTIVE",
 						ProductionStatus:  "INACTIVE",
@@ -2101,7 +2101,7 @@ func TestListCASetVersions(t *testing.T) {
 								SignatureAlgorithm: "SHA256WITHRSA",
 								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39.247917Z"),
 								CreatedBy:          "jsmith2",
-								Description:        "Optional description for the certificate",
+								Description:        ptr.To("Optional description for the certificate"),
 							},
 							{
 								Subject:            "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate1.tcm-11-example.com",
@@ -2114,7 +2114,7 @@ func TestListCASetVersions(t *testing.T) {
 								SignatureAlgorithm: "SHA256WITHRSA",
 								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39.738219Z"),
 								CreatedBy:          "jsmith2",
-								Description:        "Optional description for the certificate",
+								Description:        ptr.To("Optional description for the certificate"),
 							},
 						},
 					},
@@ -2226,7 +2226,7 @@ func TestListCASetVersions(t *testing.T) {
 						Version:           1,
 						CASetName:         "test1",
 						VersionLink:       "/mtls-edge-truststore/v2/ca-sets/1000/versions/1",
-						Description:       "Optional description for this version.",
+						Description:       ptr.To("Optional description for this version."),
 						AllowInsecureSHA1: false,
 						StagingStatus:     "ACTIVE",
 						ProductionStatus:  "ACTIVE",
@@ -2246,7 +2246,7 @@ func TestListCASetVersions(t *testing.T) {
 								SignatureAlgorithm: "SHA256WITHRSA",
 								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39.110283Z"),
 								CreatedBy:          "jsmith2",
-								Description:        "Optional description for the certificate",
+								Description:        ptr.To("Optional description for the certificate"),
 							},
 							{
 								Subject:            "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate1.tcm-11-example.com",
@@ -2259,7 +2259,7 @@ func TestListCASetVersions(t *testing.T) {
 								SignatureAlgorithm: "SHA256WITHRSA",
 								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39.110553Z"),
 								CreatedBy:          "jsmith2",
-								Description:        "Optional description for the certificate",
+								Description:        ptr.To("Optional description for the certificate"),
 							},
 						},
 					},
@@ -2268,7 +2268,7 @@ func TestListCASetVersions(t *testing.T) {
 						Version:           2,
 						CASetName:         "test1",
 						VersionLink:       "/mtls-edge-truststore/v2/ca-sets/1000/versions/2",
-						Description:       "", // null in JSON maps to empty string in Go
+						Description:       nil,
 						AllowInsecureSHA1: true,
 						StagingStatus:     "ACTIVE",
 						ProductionStatus:  "ACTIVE",
@@ -2288,7 +2288,7 @@ func TestListCASetVersions(t *testing.T) {
 								SignatureAlgorithm: "SHA256WITHRSA",
 								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39.110284Z"),
 								CreatedBy:          "jsmith2",
-								Description:        "Optional description for the certificate",
+								Description:        ptr.To("Optional description for the certificate"),
 							},
 							{
 								Subject:            "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate1.tcm-11-example.com",
@@ -2301,7 +2301,7 @@ func TestListCASetVersions(t *testing.T) {
 								SignatureAlgorithm: "SHA256WITHRSA",
 								CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39.110443Z"),
 								CreatedBy:          "jsmith2",
-								Description:        "Optional description for the certificate",
+								Description:        ptr.To("Optional description for the certificate"),
 							},
 						},
 					},
@@ -2357,7 +2357,7 @@ func TestListCASetVersions(t *testing.T) {
 						Version:           1,
 						CASetName:         "test1",
 						VersionLink:       "/mtls-edge-truststore/v2/ca-sets/1000/versions/1",
-						Description:       "Optional description for this version.",
+						Description:       ptr.To("Optional description for this version."),
 						AllowInsecureSHA1: false,
 						StagingStatus:     "ACTIVE",
 						ProductionStatus:  "ACTIVE",
@@ -2372,7 +2372,7 @@ func TestListCASetVersions(t *testing.T) {
 
 						CASetName:         "test1",
 						VersionLink:       "/mtls-edge-truststore/v2/ca-sets/1000/versions/2",
-						Description:       "", // null in JSON maps to empty string in Go
+						Description:       nil,
 						AllowInsecureSHA1: true,
 						StagingStatus:     "ACTIVE",
 						ProductionStatus:  "ACTIVE",
@@ -2501,7 +2501,7 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 						SerialNumber:       "11612024106234272000",
 						SignatureAlgorithm: "SHA256WITHRSA",
 						CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39.110283Z"),
-						Description:        "Optional description for the certificate",
+						Description:        ptr.To("Optional description for the certificate"),
 						CreatedBy:          "jsmith2",
 					},
 					{
@@ -2514,7 +2514,7 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 						SerialNumber:       "11612024106234272000",
 						SignatureAlgorithm: "SHA256WITHRSA",
 						CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39.110284Z"),
-						Description:        "Optional description for the certificate",
+						Description:        ptr.To("Optional description for the certificate"),
 						CreatedBy:          "jsmith2",
 					},
 				},
@@ -2577,7 +2577,7 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 						SerialNumber:       "11612024106234272000",
 						SignatureAlgorithm: "SHA256WITHRSA",
 						CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39.110283Z"),
-						Description:        "Optional description for the certificate",
+						Description:        ptr.To("Optional description for the certificate"),
 						CreatedBy:          "jsmith2",
 					},
 					{
@@ -2590,7 +2590,7 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 						SerialNumber:       "11612024106234272000",
 						SignatureAlgorithm: "SHA256WITHRSA",
 						CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39.110284Z"),
-						Description:        "Optional description for the certificate",
+						Description:        ptr.To("Optional description for the certificate"),
 						CreatedBy:          "jsmith2",
 					},
 				},
