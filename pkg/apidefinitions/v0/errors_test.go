@@ -2,8 +2,10 @@ package v0
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strings"
 	"testing"
 
@@ -59,6 +61,56 @@ func TestNewError(t *testing.T) {
 				Status: http.StatusInternalServerError,
 			},
 		},
+		"Invalid request, status code 400 with rejectedValue as stringified array": {
+			response: &http.Response{
+				Status:     "Invalid input error",
+				StatusCode: http.StatusBadRequest,
+				Body:       io.NopCloser(bodyFromFile("testdata/400_bad_create_api_request_1.json")),
+				Request:    req,
+			},
+			expected: &Error{
+				Type:     "/api-definitions/error-types/invalid-input-error",
+				Title:    "Invalid input error",
+				Detail:   "The request you submitted is invalid. Modify the request and try again.",
+				Instance: "f1d30806-544e-44db-b152-c95398d2bd43",
+				Status:   http.StatusBadRequest,
+				Errors: []Error{
+					{
+						Type:          "/api-definitions/error-types/endpoint-invalid-host",
+						Title:         "Invalid host",
+						Detail:        "The system couldn't recognize the hostnames: '[dummy-apr-msg.konaqa.com]'. Ensure the hostnames exist in the selected access control group.",
+						Severity:      ptrToString("ERROR"),
+						RejectedValue: strToPtrRejectedVal("[dummy-apr-msg.konaqa.com, dummy-bmp-msg.konaqa.com]"),
+					},
+				},
+				Severity: ptrToString("ERROR"),
+			},
+		},
+		"Invalid request, status code 400 with rejectedValue as plain string": {
+			response: &http.Response{
+				Status:     "Invalid input error",
+				StatusCode: http.StatusBadRequest,
+				Body:       io.NopCloser(bodyFromFile("testdata/400_bad_create_api_request_2.json")),
+				Request:    req,
+			},
+			expected: &Error{
+				Type:     "/api-definitions/error-types/invalid-input-error",
+				Title:    "Invalid input error",
+				Detail:   "The request you submitted is invalid. Modify the request and try again.",
+				Instance: "f1d30806-544e-44db-b152-c95398d2bd43",
+				Status:   http.StatusBadRequest,
+				Errors: []Error{
+					{
+						Type:          "/api-definitions/error-types/endpoint-invalid-host",
+						Title:         "Invalid host",
+						Detail:        "The system couldn't recognize the hostnames: dummy-apr-msg.konaqa.com. Ensure the hostnames exist in the selected access control group.",
+						Severity:      ptrToString("ERROR"),
+						RejectedValue: strToPtrRejectedVal("dummy-apr-msg.konaqa.com"),
+					},
+				},
+				Severity: ptrToString("ERROR"),
+			},
+		},
 	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
@@ -66,4 +118,21 @@ func TestNewError(t *testing.T) {
 			assert.Equal(t, test.expected, res)
 		})
 	}
+}
+
+func bodyFromFile(filePath string) *strings.Reader {
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		panic(fmt.Sprintf("failed to read file: %s", err))
+	}
+	return strings.NewReader(string(content))
+}
+
+func ptrToString(s string) *string {
+	return &s
+}
+
+func strToPtrRejectedVal(s string) *interface{} {
+	var i interface{} = s
+	return &i
 }

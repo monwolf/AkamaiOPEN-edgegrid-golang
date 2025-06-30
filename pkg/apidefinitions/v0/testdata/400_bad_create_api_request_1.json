@@ -1,0 +1,17 @@
+{
+  "type":"/api-definitions/error-types/invalid-input-error",
+  "status":400,
+  "title":"Invalid input error",
+  "instance":"f1d30806-544e-44db-b152-c95398d2bd43",
+  "detail":"The request you submitted is invalid. Modify the request and try again.",
+  "errors":[
+    {
+      "type":"/api-definitions/error-types/endpoint-invalid-host",
+      "title":"Invalid host",
+      "detail":"The system couldn't recognize the hostnames: '[dummy-apr-msg.konaqa.com]'. Ensure the hostnames exist in the selected access control group.",
+      "severity":"ERROR",
+      "rejectedValue":"[dummy-apr-msg.konaqa.com, dummy-bmp-msg.konaqa.com]"
+    }
+  ],
+  "severity":"ERROR"
+}
