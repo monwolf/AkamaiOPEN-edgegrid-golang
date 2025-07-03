@@ -85,7 +85,7 @@ type (
 	// CreateCASetResponse contains response from CreateCASet.
 	CreateCASetResponse CASetResponse
 
-	// Network represents the network type: 'staging' or 'production'.
+	// Network represents the network type when filtering list of ca sets.
 	Network string
 
 	// ListCASetsRequest holds request body for ListCASets.
@@ -95,7 +95,7 @@ type (
 
 		// ActivatedOn is the network type to filter out matching CA sets.
 		// A CA set is included in the response if any version of it is active on that network.
-		// The values that could be provided are `staging`, `production` or `staging,production`.
+		// The values that could be provided are `INACTIVE`, `STAGING`, `PRODUCTION`, `STAGING+PRODUCTION`, `PRODUCTION+STAGING`, `STAGING,PRODUCTION`, `PRODUCTION,STAGING`.
 		// A CA set will not be included if it was created but none of its versions was ever activated.
 		ActivatedOn Network
 	}
@@ -332,14 +332,20 @@ type (
 )
 
 const (
+	// NetworkInactive represents staging network.
+	NetworkInactive Network = "INACTIVE"
 	// NetworkStaging represents staging network.
-	NetworkStaging Network = "staging"
+	NetworkStaging Network = "STAGING"
 	// NetworkProduction represents production network.
-	NetworkProduction Network = "production"
+	NetworkProduction Network = "PRODUCTION"
 	// NetworkStagingAndProduction represents staging and production networks.
-	NetworkStagingAndProduction Network = "staging+production"
+	NetworkStagingAndProduction Network = "STAGING+PRODUCTION"
 	// NetworkProductionAndStaging also represents staging and production networks.
-	NetworkProductionAndStaging Network = "production+staging"
+	NetworkProductionAndStaging Network = "PRODUCTION+STAGING"
+	// NetworkStagingOrProduction represents staging or production networks.
+	NetworkStagingOrProduction Network = "STAGING,PRODUCTION"
+	// NetworkProductionOrStaging also represents staging or production networks.
+	NetworkProductionOrStaging Network = "PRODUCTION,STAGING"
 
 	// CASetNamePattern is the regex pattern for CA set name.
 	CASetNamePattern string = `^[%.a-zA-Z0-9_-]+$`
@@ -416,9 +422,11 @@ func (r DeleteCASetRequest) Validate() error {
 
 // Validate validates ActivationNetwork.
 func (n Network) Validate() validation.InRule {
-	return validation.In(NetworkStaging, NetworkProduction, NetworkStagingAndProduction, NetworkProductionAndStaging).
-		Error(fmt.Sprintf("value '%s' is invalid. Must be one of: '%s', '%s', '%s' or '%s'.",
-			n, NetworkStaging, NetworkProduction, NetworkStagingAndProduction, NetworkProductionAndStaging))
+	return validation.In(NetworkInactive, NetworkStaging, NetworkProduction, NetworkStagingAndProduction, NetworkProductionAndStaging,
+		NetworkStagingOrProduction, NetworkProductionOrStaging).
+		Error(fmt.Sprintf("value '%s' is invalid. Must be one of: '%s', '%s', '%s', '%s', '%s', '%s' or '%s'.",
+			n, NetworkInactive, NetworkStaging, NetworkProduction, NetworkStagingAndProduction, NetworkProductionAndStaging,
+			NetworkStagingOrProduction, NetworkProductionOrStaging))
 }
 
 func validateCASetName() validation.StringRule {
@@ -528,8 +536,6 @@ func (m *mtlstruststore) GetCASet(ctx context.Context, params GetCASetRequest) (
 func (m *mtlstruststore) ListCASets(ctx context.Context, params ListCASetsRequest) (*ListCASetsResponse, error) {
 	logger := m.Log(ctx)
 	logger.Debug("ListCASets")
-
-	params.ActivatedOn = Network(strings.ToLower(string(params.ActivatedOn)))
 
 	if err := params.Validate(); err != nil {
 		return nil, fmt.Errorf("%s: %w: %s", ErrListCASets, ErrStructValidation, err)

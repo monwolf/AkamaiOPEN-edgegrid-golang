@@ -427,9 +427,9 @@ func TestListCASets(t *testing.T) {
 		"200 OK with filtering and empty response": {
 			request: ListCASetsRequest{
 				CASetNamePrefix: "foo",
-				ActivatedOn:     "production",
+				ActivatedOn:     "PRODUCTION",
 			},
-			expectedPath:   "/mtls-edge-truststore/v2/ca-sets?activatedOn=production&caSetNamePrefix=foo",
+			expectedPath:   "/mtls-edge-truststore/v2/ca-sets?activatedOn=PRODUCTION&caSetNamePrefix=foo",
 			responseStatus: http.StatusOK,
 			responseBody: `{
 				"caSets": []
@@ -443,7 +443,7 @@ func TestListCASets(t *testing.T) {
 				CASetNamePrefix: "foo",
 				ActivatedOn:     "PRODUCTION",
 			},
-			expectedPath:   "/mtls-edge-truststore/v2/ca-sets?activatedOn=production&caSetNamePrefix=foo",
+			expectedPath:   "/mtls-edge-truststore/v2/ca-sets?activatedOn=PRODUCTION&caSetNamePrefix=foo",
 			responseStatus: http.StatusOK,
 			responseBody: `{
 				"caSets": []
@@ -456,7 +456,7 @@ func TestListCASets(t *testing.T) {
 			request: ListCASetsRequest{
 				ActivatedOn: "STAGING+PRODUCTION",
 			},
-			expectedPath:   "/mtls-edge-truststore/v2/ca-sets?activatedOn=staging%2Bproduction",
+			expectedPath:   "/mtls-edge-truststore/v2/ca-sets?activatedOn=STAGING%2BPRODUCTION",
 			responseStatus: http.StatusOK,
 			responseBody: `{
 				"caSets": []
@@ -470,7 +470,8 @@ func TestListCASets(t *testing.T) {
 				ActivatedOn: "PROD",
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "list ca sets failed: struct validation: ActivatedOn: value 'prod' is invalid. Must be one of: 'staging', 'production', 'staging+production' or 'production+staging'.", err.Error())
+				assert.Equal(t, "list ca sets failed: struct validation: ActivatedOn: value 'PROD' is invalid. "+
+					"Must be one of: 'INACTIVE', 'STAGING', 'PRODUCTION', 'STAGING+PRODUCTION', 'PRODUCTION+STAGING', 'STAGING,PRODUCTION' or 'PRODUCTION,STAGING'.", err.Error())
 			},
 		},
 		"name prefix too long - validation error": {
