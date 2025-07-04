@@ -20,6 +20,7 @@ type (
 		ContextInfo map[string]any `json:"contextInfo"`
 		Instance    string         `json:"instance"`
 		Errors      []ErrorItem    `json:"errors"`
+		Pointer     string         `json:"pointer"`
 	}
 
 	// ErrorItem contains details about the error.
@@ -27,6 +28,8 @@ type (
 		Detail      string         `json:"detail"`
 		Pointer     string         `json:"pointer"`
 		ContextInfo map[string]any `json:"contextInfo"`
+		Title       string         `json:"title"`
+		Type        string         `json:"type"`
 	}
 )
 

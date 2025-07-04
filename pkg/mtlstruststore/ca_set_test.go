@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -129,6 +130,122 @@ func TestCreateCASet(t *testing.T) {
 					Status:   500,
 				}
 				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+			},
+		},
+		"409 error response - duplicate CA set": {
+			request: CreateCASetRequest{
+				CASetName:   "test",
+				Description: ptr.To("description"),
+			},
+			responseStatus: http.StatusConflict,
+			responseBody: `
+{
+  "contextInfo": {
+    "accountId": "A-CCOUNT",
+    "caSetName": "testCAsetType"
+  },
+  "errors": [
+    {
+      "detail": "CA set with caSetName testCAsetType cannot be created as another CA set with the same name exists in the account with accountId A-CCOUNT.",
+      "pointer": "/caSetName",
+      "title": "CA set with the same name exists in the account.",
+      "type": "/mtls-edge-truststore/error-types/ca-set-name-is-not-unique"
+    }
+  ],
+  "instance": "/mtls-edge-truststore/error-types/ca-set-name-is-not-unique/dadce1c2d3e34567",
+  "status": 409,
+  "title": "CA set with the same name exists in the account.",
+  "type": "/mtls-edge-truststore/error-types/ca-set-name-is-not-unique"
+}`,
+			expectedPath: "/mtls-edge-truststore/v2/ca-sets",
+			withError: func(t *testing.T, err error) {
+				want := &Error{
+					ContextInfo: map[string]interface{}{
+						"accountId": "A-CCOUNT",
+						"caSetName": "testCAsetType",
+					},
+					Errors: []ErrorItem{
+						{
+							Detail:  "CA set with caSetName testCAsetType cannot be created as another CA set with the same name exists in the account with accountId A-CCOUNT.",
+							Pointer: "/caSetName",
+							Title:   "CA set with the same name exists in the account.",
+							Type:    "/mtls-edge-truststore/error-types/ca-set-name-is-not-unique",
+						},
+					},
+					Instance: "/mtls-edge-truststore/error-types/ca-set-name-is-not-unique/dadce1c2d3e34567",
+					Status:   409,
+					Title:    "CA set with the same name exists in the account.",
+					Type:     "/mtls-edge-truststore/error-types/ca-set-name-is-not-unique",
+				}
+				assert.True(t, reflect.DeepEqual(err, want), "want: %s; got: %s", want, err)
+			},
+		},
+		"415 error response - wrong content type header": {
+			request: CreateCASetRequest{
+				CASetName:   "test",
+				Description: ptr.To("description"),
+			},
+			responseStatus: http.StatusUnsupportedMediaType,
+			responseBody: `
+{
+    "contextInfo": {
+        "allowedMediaTypes": [
+            "application/json"
+        ],
+        "unsupportedMediaType": "application/json1"
+    },
+    "detail": "Media type application/json1 is not supported. Supported media type(s) are [application/json].",
+    "instance": "/mtls-edge-truststore/error-types/media-type-not-supported/5de24ab7be0613b4",
+    "status": 415,
+    "title": "Media type not supported.",
+    "type": "/mtls-edge-truststore/error-types/media-type-not-supported"
+}`,
+			expectedPath: "/mtls-edge-truststore/v2/ca-sets",
+			withError: func(t *testing.T, err error) {
+				want := &Error{
+					ContextInfo: map[string]interface{}{
+						"allowedMediaTypes":    []interface{}{"application/json"},
+						"unsupportedMediaType": "application/json1",
+					},
+					Detail:   "Media type application/json1 is not supported. Supported media type(s) are [application/json].",
+					Instance: "/mtls-edge-truststore/error-types/media-type-not-supported/5de24ab7be0613b4",
+					Status:   415,
+					Title:    "Media type not supported.",
+					Type:     "/mtls-edge-truststore/error-types/media-type-not-supported",
+				}
+				assert.True(t, reflect.DeepEqual(err, want), "want: %s; got: %s", want, err)
+			},
+		},
+		"400 error response - wrong content type header": {
+			request: CreateCASetRequest{
+				CASetName:   "test",
+				Description: ptr.To("description"),
+			},
+			responseStatus: http.StatusBadRequest,
+			responseBody: `
+{
+    "contextInfo": {
+        "message": "instance type (integer) does not match any allowed primitive type (allowed: [\"string\"])"
+    },
+    "instance": "/mtls-edge-truststore/error-types/json-schema-validation-error/12345a6c78caa9bb",
+    "pointer": "/caSetName",
+    "status": 400,
+    "title": "Body failed JSON schema validation.",
+    "type": "/mtls-edge-truststore/error-types/json-schema-validation-error"
+}`,
+			expectedPath: "/mtls-edge-truststore/v2/ca-sets",
+			withError: func(t *testing.T, err error) {
+				want := &Error{
+					ContextInfo: map[string]interface{}{
+						"message": "instance type (integer) does not match any allowed primitive type (allowed: [\"string\"])",
+					},
+					Instance: "/mtls-edge-truststore/error-types/json-schema-validation-error/12345a6c78caa9bb",
+					Pointer:  "/caSetName",
+					Status:   400,
+					Title:    "Body failed JSON schema validation.",
+					Type:     "/mtls-edge-truststore/error-types/json-schema-validation-error",
+				}
+				assert.True(t, reflect.DeepEqual(err, want), "want: %s; got: %s", want, err)
 			},
 		},
 	}
@@ -586,6 +703,60 @@ func TestDeleteCASet(t *testing.T) {
 					Detail:   "Error processing request",
 					Instance: "TestInstances",
 					Status:   500,
+				}
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+			},
+		},
+		"409 error response - delete CA set - commercial": {
+			params: DeleteCASetRequest{
+				CASetID: "199",
+			},
+			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/199",
+			responseStatus: http.StatusConflict,
+			responseBody: `
+{
+  "contextInfo" : {
+    "associations" : {
+      "enrollments" : [ {
+        "cn" : "llam-1567710283244-11.ocsp.3p5.cpsreg.com",
+        "enrollmentId" : 10430,
+        "enrollmentLink" : "/cps/v2/enrollments/10430",
+        "productionSlots" : [ ],
+        "stagingSlots" : [ 39352 ]
+      } ]
+    },
+    "caSetId" : "1",
+    "caSetName" : "caSetName-20313bf3"
+  },
+  "detail" : "CA set cannot be deleted as CA set with caSetId 1 links to several Certificate Provisioning System enrollments. You need to unlink the CA set from the enrollments to proceed. See accompanying response data for enrollment details.",
+  "status" : 409,
+  "instance": "/mtls-edge-truststore/error-types/ca-set-bound-to-slot-in-cps/4e0069deb5f40f63",
+  "title" : "CA set is linked to enrollments.",
+  "type" : "/mtls-edge-truststore/error-types/ca-set-bound-to-slot-in-cps"
+}`,
+			withError: func(t *testing.T, err error) {
+				want := &Error{
+					ContextInfo: map[string]interface{}{
+						"associations": map[string]interface{}{
+							"enrollments": []map[string]interface{}{
+								{
+									"cn":              "llam-1567710283244-11.ocsp.3p5.cpsreg.com",
+									"enrollmentId":    10430,
+									"enrollmentLink":  "/cps/v2/enrollments/10430",
+									"productionSlots": []interface{}{},
+									"stagingSlots":    []int{39352},
+								},
+							},
+						},
+						"caSetId":   "1",
+						"caSetName": "caSetName-20313bf3",
+					},
+					Detail:   "CA set cannot be deleted as CA set with caSetId 1 links to several Certificate Provisioning System enrollments. You need to unlink the CA set from the enrollments to proceed. See accompanying response data for enrollment details.",
+					Status:   409,
+					Instance: "/mtls-edge-truststore/error-types/ca-set-bound-to-slot-in-cps/4e0069deb5f40f63",
+					Title:    "CA set is linked to enrollments.",
+					Type:     "/mtls-edge-truststore/error-types/ca-set-bound-to-slot-in-cps",
+					Pointer:  "",
 				}
 				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
 			},
