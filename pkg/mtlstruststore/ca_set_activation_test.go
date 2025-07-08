@@ -825,7 +825,7 @@ func TestListCASetVersionActivations(t *testing.T) {
 					 "activationStatus": "COMPLETE",
 					 "createdDate": "2023-01-11T11:00:00.385674Z",
 					 "createdBy": "someone",
-					"failureReason": null,
+					 "failureReason": null,
 					 "modifiedDate": "2023-01-11T12:00:00.358292Z",
 					 "modifiedBy": "someone"
 				  }

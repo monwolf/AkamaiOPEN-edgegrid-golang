@@ -83,7 +83,7 @@ var (
 	// ErrCertificateValidationFailedForUpdate is returned during Update of the CA set Version if one or more certificates is invalid.
 	ErrCertificateValidationFailedForUpdate = errors.New("one or more certificates is invalid")
 
-	// ErrCertificateLimitReached is returned when the count of certificates submitted in the request body exceeds the limit allowed for the Version.
+	// ErrCertificateLimitReached is returned when the count of certificates submitted in the request body exceeds the limit allowed for the version.
 	ErrCertificateLimitReached = errors.New("submitted certificates exceed the maximum allowed certificates limit")
 
 	// ErrCASetVersionLimitReached is returned when the number of ca set versions has reached the limit.

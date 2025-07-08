@@ -752,7 +752,10 @@ func TestCloneCASetVersion(t *testing.T) {
 						  "createdDate": "2025-04-10T00:00:00.121212Z",
 						  "createdBy": "tester"
 						}
-					  ]
+					  ],
+					  "validation": {
+						"warnings": []
+					  }
 					}`,
 			expectedPath: `/mtls-edge-truststore/v2/ca-sets/123/versions/1/clone`,
 			expectedResponse: &CloneCASetVersionResponse{
@@ -782,6 +785,7 @@ func TestCloneCASetVersion(t *testing.T) {
 						CreatedBy:          "tester",
 					},
 				},
+				Validation: &Validation{Warnings: []Warning{}},
 			},
 		},
 		"201 Successful creation but with expired certificate (warning)": {
@@ -819,8 +823,8 @@ func TestCloneCASetVersion(t *testing.T) {
 						}
 					  ],
 					  "validation": {
-					  "warnings": [
-					    {
+					    "warnings": [
+					      {
 					        "contextInfo": {
 					            "checkDate": "2025-05-14T09:30:52Z",
 					            "description": null,
@@ -831,8 +835,8 @@ func TestCloneCASetVersion(t *testing.T) {
 					        "detail": "The certificate with subject CN=localhost, OU=Unit, O=Organization, L=City, ST=State, C=US and fingerprint abc123 has expired. Expiry date is 2025-04-06T09:35:20Z. The check was performed on 2025-05-14T09:30:52Z.",
 					        "title": "The certificate has expired.",
 					        "type": "/mtls-edge-truststore/v2/error-types/expired-certificate"
-					    }
-					  ]
+					      }
+					    ]
 					  }
 					}`,
 			expectedPath: `/mtls-edge-truststore/v2/ca-sets/123/versions/1/clone`,
@@ -1241,7 +1245,10 @@ func TestUpdateCASetVersion(t *testing.T) {
 						  "createdDate": "2025-04-10T00:00:00.959343Z",
 						  "createdBy": "tester"
 						}
-					  ]
+					  ],
+					  "validation": {
+						"warnings": []
+					  }
 					}`,
 			expectedPath: `/mtls-edge-truststore/v2/ca-sets/123/versions/1`,
 			expectedResponse: &UpdateCASetVersionResponse{
@@ -1271,6 +1278,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 						CreatedBy:          "tester",
 					},
 				},
+				Validation: &Validation{Warnings: []Warning{}},
 			},
 		},
 		"200 Successful update but with duplicated certificates (warning)": {
@@ -2076,9 +2084,8 @@ func TestListCASetVersions(t *testing.T) {
 						},
 					},
 					{
-						CASetID: "1000",
-						Version: 2,
-
+						CASetID:           "1000",
+						Version:           2,
 						CASetName:         "test1",
 						VersionLink:       "/mtls-edge-truststore/v2/ca-sets/1000/versions/2",
 						Description:       nil,
