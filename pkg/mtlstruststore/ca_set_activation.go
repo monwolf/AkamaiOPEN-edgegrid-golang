@@ -79,10 +79,10 @@ type (
 		// VersionLink is the link to the CA set version.
 		VersionLink string `json:"versionLink"`
 
-		// RetryAfter is a time when CA set version activation/deletion status can be checked again.
+		// RetryAfter is a time when CA set version activation/deactivation status can be checked again.
 		// Usually 300 seconds after the activation request is made.
-		// This header value is returned only if the CA set version activation/deletion status is "IN_PROGRESS".
-		RetryAfter *time.Time
+		// This header value is returned only if the CA set version activation/deactivation status is "IN_PROGRESS".
+		RetryAfter time.Time
 
 		// Validation contains validation information for the activation.
 		Validation *Validation `json:"validation"`
@@ -303,7 +303,7 @@ func (m *mtlstruststore) GetCASetVersionActivation(ctx context.Context, params G
 			return nil, fmt.Errorf("%w: failed to parse Retry-After header: %s",
 				ErrGetCASetActivation, err)
 		}
-		result.RetryAfter = &after
+		result.RetryAfter = after
 	}
 
 	return &result, nil

@@ -614,7 +614,7 @@ func TestGetCASetVersionActivation(t *testing.T) {
 				FailureReason:    nil,
 				ModifiedDate:     ptr.To(test.NewTimeFromString(t, "2023-01-10T12:00:00.771298Z")),
 				ModifiedBy:       ptr.To("someone"),
-				RetryAfter:       ptr.To(test.NewTimeFromString(t, "2023-01-10T11:05:00Z")),
+				RetryAfter:       test.NewTimeFromString(t, "2023-01-10T11:05:00Z"),
 			},
 		},
 		"200 OK": {
