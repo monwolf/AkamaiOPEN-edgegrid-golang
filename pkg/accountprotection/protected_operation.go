@@ -13,54 +13,97 @@ import (
 type (
 	// ListProtectedOperationsRequest is used to retrieve list of account protector transactional endpoint for a configuration.
 	ListProtectedOperationsRequest struct {
-		ConfigID         int64
-		Version          int64
+		// ConfigID is the ID of the security configuration.
+		ConfigID int64
+
+		// Version is the version of the security configuration.
+		Version int64
+
+		// SecurityPolicyID is the ID of the security policy
 		SecurityPolicyID string
 	}
 
 	// GetProtectedOperationByIDRequest is used to retrieve the account protector transactional endpoint by operationID.
 	GetProtectedOperationByIDRequest struct {
-		ConfigID         int64
-		Version          int64
+		// ConfigID is the ID of the security configuration.
+		ConfigID int64
+
+		// Version is the version of the security configuration.
+		Version int64
+
+		// SecurityPolicyID is the ID of the security policy
 		SecurityPolicyID string
-		OperationID      string
+
+		// OperationID is the ID of the API operation
+		OperationID string
 	}
 
 	// CreateProtectedOperationsRequest is used to create a list new account protector protected operation for a specific security configuration.
 	CreateProtectedOperationsRequest struct {
-		ConfigID         int64
-		Version          int64
+		// ConfigID is the ID of the security configuration.
+		ConfigID int64
+
+		// Version is the version of the security configuration.
+		Version int64
+
+		// SecurityPolicyID is the ID of the security policy
 		SecurityPolicyID string
-		JsonPayload      json.RawMessage
+
+		// JsonPayload contains the request payload of the protected operations.
+		JsonPayload json.RawMessage
 	}
 
 	// UpdateProtectedOperationRequest is used to update details for a account protector protected operation by operationID.
 	UpdateProtectedOperationRequest struct {
-		ConfigID         int64
-		Version          int64
+		// ConfigID is the ID of the security configuration.
+		ConfigID int64
+
+		// Version is the version of the security configuration.
+		Version int64
+
+		// SecurityPolicyID is the ID of the security policy
 		SecurityPolicyID string
-		OperationID      string
-		JsonPayload      json.RawMessage
+
+		// OperationID is the ID of the API operation
+		OperationID string
+
+		// JsonPayload contains the payload of the protected operation to be updated
+		JsonPayload json.RawMessage
 	}
 
 	// RemoveProtectedOperationRequest is used to remove a specific account protector protected operation by operationID.
 	RemoveProtectedOperationRequest struct {
-		ConfigID         int64
-		Version          int64
+		// ConfigID is the ID of the security configuration.
+		ConfigID int64
+
+		// Version is the version of the security configuration.
+		Version int64
+
+		// SecurityPolicyID is the ID of the security policy
 		SecurityPolicyID string
-		OperationID      string
+
+		// OperationID is the ID of the API operation
+		OperationID string
 	}
 
 	// ListProtectedOperationsResponse is the response for GetTransactionalEndpointListRequest.
 	ListProtectedOperationsResponse struct {
-		Metadata   Metadata                 `json:"metadata"`
+		// Metadata contains the metadata of the response
+		Metadata Metadata `json:"metadata"`
+
+		// Operations contains the list of protected operations
 		Operations []map[string]interface{} `json:"operations"`
 	}
 
 	// Metadata represents the metadata for the response.
 	Metadata struct {
-		ConfigID         int64  `json:"configId"`
-		ConfigVersion    int64  `json:"configVersion"`
+		// ConfigID is the ID of the security configuration.
+		ConfigID int64 `json:"configId"`
+
+		// Version is the version of the security configuration.
+		ConfigVersion int64 `json:"configVersion"`
+
+		// SecurityPolicyID is the ID of the security policy
 		SecurityPolicyID string `json:"securityPolicyId"`
 	}
 )

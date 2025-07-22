@@ -13,14 +13,22 @@ import (
 type (
 	//	GetUserRiskResponseStrategyRequest represents the request to get user risk response strategy.
 	GetUserRiskResponseStrategyRequest struct {
+		// ConfigID is the ID of the security configuration.
 		ConfigID int64
-		Version  int64
+
+		// Version is the version of the security configuration.
+		Version int64
 	}
 
 	//	UpsertUserRiskResponseStrategyRequest represents the request to upsert user risk response strategy.
 	UpsertUserRiskResponseStrategyRequest struct {
-		ConfigID    int64
-		Version     int64
+		// ConfigID is the ID of the security configuration.
+		ConfigID int64
+
+		// Version is the version of the security configuration.
+		Version int64
+
+		// JsonPayload contains the request payload for user risk response strategy
 		JsonPayload json.RawMessage
 	}
 )

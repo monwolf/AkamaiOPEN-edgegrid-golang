@@ -13,21 +13,32 @@ import (
 type (
 	// GetUserAllowListIDRequest represents the request to get user allow list ID.
 	GetUserAllowListIDRequest struct {
+		// ConfigID is the ID of the security configuration.
 		ConfigID int64
-		Version  int64
+
+		// Version is the version of the security configuration.
+		Version int64
 	}
 
 	//	UpsertUserAllowListIDRequest represents the request to upsert user allow list ID.
 	UpsertUserAllowListIDRequest struct {
-		ConfigID    int64
-		Version     int64
+		// ConfigID is the ID of the security configuration.
+		ConfigID int64
+
+		// Version is the version of the security configuration.
+		Version int64
+
+		// JsonPayload contains the request payload for user allow list
 		JsonPayload json.RawMessage
 	}
 
 	// 	DeleteUserAllowListIDRequest represents the request to delete user allow list ID.
 	DeleteUserAllowListIDRequest struct {
+		// ConfigID is the ID of the security configuration.
 		ConfigID int64
-		Version  int64
+
+		// Version is the version of the security configuration.
+		Version int64
 	}
 )
 

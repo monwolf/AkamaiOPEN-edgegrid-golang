@@ -13,17 +13,30 @@ import (
 type (
 	// GetGeneralSettingsRequest represent the request to get account protection general settings.
 	GetGeneralSettingsRequest struct {
-		ConfigID         int64
-		Version          int64
+		// ConfigID is the ID of the security configuration.
+		ConfigID int64
+
+		// Version is the version of the security configuration.
+		Version int64
+
+		// SecurityPolicyID is the ID of the security policy
 		SecurityPolicyID string
 	}
 
 	// UpsertGeneralSettingsRequest represents the request to upsert account protection general settings.
 	UpsertGeneralSettingsRequest struct {
-		ConfigID         int64
-		Version          int64
+
+		// ConfigID is the ID of the security configuration.
+		ConfigID int64
+
+		// Version is the version of the security configuration.
+		Version int64
+
+		// SecurityPolicyID is the ID of the security policy
 		SecurityPolicyID string
-		JsonPayload      json.RawMessage
+
+		// JsonPayload contains the values of the general settings
+		JsonPayload json.RawMessage
 	}
 )
 

@@ -14,11 +14,20 @@ import (
 type (
 	// Error is a accountProtection error interface.
 	Error struct {
-		Type       string  `json:"type"`
-		Title      string  `json:"title"`
-		Detail     string  `json:"detail"`
-		Errors     []Error `json:"errors,omitempty"`
-		StatusCode int     `json:"status,omitempty"`
+		// Type is the error type
+		Type string `json:"type"`
+
+		// Title is the error title
+		Title string `json:"title"`
+
+		// Detail is the error detail
+		Detail string `json:"detail"`
+
+		// Errors contains a list of errors in the response
+		Errors []Error `json:"errors,omitempty"`
+
+		// StatusCode is the HTTP status code of the response
+		StatusCode int `json:"status,omitempty"`
 	}
 )
 
