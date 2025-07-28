@@ -1200,7 +1200,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 				Version: 1,
 				Body: UpdateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Description:       "Test CA Set Version",
+					Description:       ptr.To("Test CA Set Version"),
 					Certificates: []CertificateRequest{
 						{
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
@@ -1287,7 +1287,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 				Version: 1,
 				Body: UpdateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Description:       "Test CA Set Version",
+					Description:       ptr.To("Test CA Set Version"),
 					Certificates: []CertificateRequest{
 						{
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
@@ -1402,7 +1402,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 				Version: 1,
 				Body: UpdateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Description:       "Test CA Set Version is a critical step in validating and ensuring the correct version of the Certificate Authority (CA) configuration is applied. It involves thorough checks, validation steps, and the verification of certificates to confirm functionality and compliance.",
+					Description:       ptr.To("Test CA Set Version is a critical step in validating and ensuring the correct version of the Certificate Authority (CA) configuration is applied. It involves thorough checks, validation steps, and the verification of certificates to confirm functionality and compliance."),
 					Certificates: []CertificateRequest{
 						{
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
@@ -1419,7 +1419,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 				Version: 1,
 				Body: UpdateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Description:       "Missing CASetID",
+					Description:       ptr.To("Missing CASetID"),
 					Certificates: []CertificateRequest{
 						{
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
@@ -1436,7 +1436,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 				CASetID: "1",
 				Body: UpdateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Description:       "Missing CASetID",
+					Description:       ptr.To("Missing CASetID"),
 					Certificates: []CertificateRequest{
 						{
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
@@ -1454,7 +1454,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 				Version: 1,
 				Body: UpdateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Description:       "Missing Version",
+					Description:       ptr.To("Missing Version"),
 				},
 			},
 			withError: func(t *testing.T, err error) {
@@ -1467,7 +1467,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 				Version: 1,
 				Body: UpdateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Description:       "Missing CASetID",
+					Description:       ptr.To("Missing CASetID"),
 					Certificates: []CertificateRequest{
 						{},
 					},
@@ -1483,7 +1483,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 				Version: 1,
 				Body: UpdateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Description:       "Test CA Set Version",
+					Description:       ptr.To("Test CA Set Version"),
 					Certificates: []CertificateRequest{
 						{
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
@@ -1522,7 +1522,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 				Version: 12,
 				Body: UpdateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Description:       "Test CA Set Version",
+					Description:       ptr.To("Test CA Set Version"),
 					Certificates: []CertificateRequest{
 						{
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
@@ -1563,7 +1563,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 				Version: 1,
 				Body: UpdateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Description:       "Test CA Set Version",
+					Description:       ptr.To("Test CA Set Version"),
 					Certificates: []CertificateRequest{
 						{
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
@@ -1607,7 +1607,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 				Version: 1,
 				Body: UpdateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Description:       "Test CA Set Version",
+					Description:       ptr.To("Test CA Set Version"),
 					Certificates: []CertificateRequest{
 						{
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
@@ -1648,7 +1648,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 				Version: 1,
 				Body: UpdateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Description:       "Test CA Set Version",
+					Description:       ptr.To("Test CA Set Version"),
 					Certificates: []CertificateRequest{
 						{
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
@@ -1689,7 +1689,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 				Version: 1,
 				Body: UpdateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Description:       "Test CA Set Version",
+					Description:       ptr.To("Test CA Set Version"),
 					Certificates: []CertificateRequest{
 						{
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
@@ -1730,7 +1730,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 				Version: 1,
 				Body: UpdateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Description:       "Test CA Set Version",
+					Description:       ptr.To("Test CA Set Version"),
 					Certificates: []CertificateRequest{
 						{
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
@@ -1771,7 +1771,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 				Version: 1,
 				Body: UpdateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Description:       "Test CA Set Version",
+					Description:       ptr.To("Test CA Set Version"),
 					Certificates: []CertificateRequest{
 						{
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
@@ -1823,7 +1823,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 				Version: 2,
 				Body: UpdateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Description:       "Test CA Set Version",
+					Description:       ptr.To("Test CA Set Version"),
 					Certificates: []CertificateRequest{
 						{
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
@@ -1866,7 +1866,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 				Version: 1,
 				Body: UpdateCASetVersionRequestBody{
 					AllowInsecureSHA1: false,
-					Description:       "Test CA Set Version",
+					Description:       ptr.To("Test CA Set Version"),
 					Certificates: []CertificateRequest{
 						{
 							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",

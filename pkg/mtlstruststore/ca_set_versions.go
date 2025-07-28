@@ -78,7 +78,7 @@ type (
 	//UpdateCASetVersionRequestBody represent the body of a UpdateCASetVersionRequest.
 	UpdateCASetVersionRequestBody struct {
 		// Description is an optional description for the ca set.
-		Description string `json:"description"`
+		Description *string `json:"description,omitempty"`
 
 		// AllowInsecureSHA1 indicates whether SHA-1 certificates are allowed.
 		AllowInsecureSHA1 bool `json:"allowInsecureSha1"`
