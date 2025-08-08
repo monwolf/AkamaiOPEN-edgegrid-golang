@@ -337,7 +337,7 @@ func TestDeactivateCASetVersion(t *testing.T) {
 				},
 			},
 		},
-		"Error Response - CA Set is associated with a slot in CPS (Commercial)": {
+		"Error Response - CA Set is associated associated with enrollments/hostnames (Commercial)": {
 			request: DeactivateCASetVersionRequest{
 				CASetID: "199",
 				Version: 1,
@@ -348,26 +348,55 @@ func TestDeactivateCASetVersion(t *testing.T) {
 			responseStatus:      http.StatusConflict,
 			responseBody: `
 				{
-					"contextInfo" : {
-						"associations" : {
-							"enrollments" : [ {
-								"cn" : "1234.example.com",
-								"enrollmentId" : 8989,
-								"enrollmentLink" : "/cps/v2/enrollments/8989",
-								"productionSlots" : [ ],
-								"stagingSlots" : [ 3434 ]
-							} ]
-						},
-						"caSetId" : 199,
-						"caSetName" : "foo"
-					},
-					"detail" : "CA set cannot be deactivated as CA set with caSetId 1 links to several Certificate Provisioning System enrollments. You need to unlink the CA set from the enrollments to proceed. See accompanying response data for enrollment details.",
-					"status" : 409,
-					"title" : "CA set is linked to enrollments.",
-					"type" : "/mtls-edge-truststore/error-types/ca-set-bound-to-slot-in-cps"
-				}`,
+    "contextInfo": {
+        "associations": {
+            "enrollments": [
+                {
+                    "cn": "some.domain.com",
+                    "enrollmentId": 12345,
+                    "enrollmentLink": "/cps/v2/enrollments/12345",
+                    "productionSlots": [],
+                    "stagingSlots": [
+                        123466
+                    ]
+                },
+                {
+                    "cn": "some.domain.com",
+                    "enrollmentId": 12345,
+                    "enrollmentLink": "/cps/v2/enrollments/12345",
+                    "productionSlots": [],
+                    "stagingSlots": [
+                        123456
+                    ]
+                }
+            ],
+            "properties": [
+                {
+                    "hostnames": [
+                        {
+                            "hostname": "some.domain.com",
+                            "network": "PRODUCTION"
+                        },
+                        {
+                            "hostname": "some.domain.com",
+                            "network": "STAGING"
+                        }
+                    ],
+                    "propertyId": "1234567"
+                }
+            ]
+        },
+        "caSetId": "132965",
+        "caSetName": "jsmith-mets-tpc-delete-test-3"
+    },
+    "detail": "CA set with caSetId 132965 is linked to several Certificate Provisioning System enrollments and Property Manager hostnames. You need to unlink the CA set from the enrollments and hostnames to proceed. See accompanying data for enrollment and hostname details.",
+    "instance": "/mtls-edge-truststore/error-types/ca-set-in-use-by-both-enrollments-and-hostnames/f2869f68451b8408",
+    "status": 409,
+    "title": "CA set is linked to both enrollments and hostnames.",
+    "type": "/mtls-edge-truststore/error-types/ca-set-in-use-by-both-enrollments-and-hostnames"
+}`,
 			withError: func(t *testing.T, err error) {
-				assert.True(t, errors.Is(err, ErrCASetBoundToSlotInCPS))
+				assert.True(t, errors.Is(err, ErrCASetInUseByBothEnrollmentsAndHostnames))
 			},
 		},
 		"Error Response - CA Set is associated with a hostname in Property Manager (Defense Edge)": {

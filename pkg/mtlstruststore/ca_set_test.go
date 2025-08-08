@@ -707,7 +707,7 @@ func TestDeleteCASet(t *testing.T) {
 				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
 			},
 		},
-		"409 error response - delete CA set - commercial": {
+		"409 error response - delete CA set - Defense Edge": {
 			params: DeleteCASetRequest{
 				CASetID: "199",
 			},
@@ -717,48 +717,196 @@ func TestDeleteCASet(t *testing.T) {
 {
   "contextInfo" : {
     "associations" : {
-      "enrollments" : [ {
-        "cn" : "llam-1567710283244-11.ocsp.3p5.cpsreg.com",
-        "enrollmentId" : 10430,
-        "enrollmentLink" : "/cps/v2/enrollments/10430",
-        "productionSlots" : [ ],
-        "stagingSlots" : [ 39352 ]
+      "properties" : [ {
+        "hostnames" : [ {
+          "hostname" : "example-3.com"
+        } ],
+        "propertyId" : "2"
       } ]
     },
     "caSetId" : "1",
-    "caSetName" : "caSetName-20313bf3"
+    "caSetName" : "caSetName-30bb6f49",
+    "network" : "PRODUCTION"
   },
-  "detail" : "CA set cannot be deleted as CA set with caSetId 1 links to several Certificate Provisioning System enrollments. You need to unlink the CA set from the enrollments to proceed. See accompanying response data for enrollment details.",
+  "detail" : "CA set cannot be deleted as CA set with caSetId 1 links to several Property Manager hostnames. You need to unlink the CA set from the hostnames to proceed. See accompanying response data for hostname details.",
   "status" : 409,
-  "instance": "/mtls-edge-truststore/error-types/ca-set-bound-to-slot-in-cps/4e0069deb5f40f63",
-  "title" : "CA set is linked to enrollments.",
-  "type" : "/mtls-edge-truststore/error-types/ca-set-bound-to-slot-in-cps"
+  "instance": "/mtls-edge-truststore/error-types/ca-set-bound-to-hostname/4e0069deb5f40f63",
+  "title" : "CA set is linked to hostnames.",
+  "type" : "/mtls-edge-truststore/error-types/ca-set-bound-to-hostname"
 }`,
 			withError: func(t *testing.T, err error) {
-				want := &Error{
-					ContextInfo: map[string]interface{}{
-						"associations": map[string]interface{}{
-							"enrollments": []map[string]interface{}{
-								{
-									"cn":              "llam-1567710283244-11.ocsp.3p5.cpsreg.com",
-									"enrollmentId":    10430,
-									"enrollmentLink":  "/cps/v2/enrollments/10430",
-									"productionSlots": []interface{}{},
-									"stagingSlots":    []int{39352},
-								},
-							},
-						},
-						"caSetId":   "1",
-						"caSetName": "caSetName-20313bf3",
-					},
-					Detail:   "CA set cannot be deleted as CA set with caSetId 1 links to several Certificate Provisioning System enrollments. You need to unlink the CA set from the enrollments to proceed. See accompanying response data for enrollment details.",
-					Status:   409,
-					Instance: "/mtls-edge-truststore/error-types/ca-set-bound-to-slot-in-cps/4e0069deb5f40f63",
-					Title:    "CA set is linked to enrollments.",
-					Type:     "/mtls-edge-truststore/error-types/ca-set-bound-to-slot-in-cps",
-					Pointer:  "",
-				}
-				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+				assert.True(t, errors.Is(err, ErrCASetBoundToHostname), "want: %s; got: %s", ErrCASetBoundToHostname, err)
+			},
+		},
+		"404 error response - delete CA set - not found": {
+			params: DeleteCASetRequest{
+				CASetID: "199",
+			},
+			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/199",
+			responseStatus: http.StatusNotFound,
+			responseBody: `
+{
+  "contextInfo": {
+    "caSetId": "199"
+  },
+  "detail": "Cannot get CA set as the CA set with caSetId 199 is not found.",
+  "instance": "/mtls-edge-truststore/error-types/ca-set-not-found/982c5bdc0abffe8d",
+  "status": 404,
+  "title": "CA set is not found.",
+  "type": "/mtls-edge-truststore/error-types/ca-set-not-found"
+}`,
+			withError: func(t *testing.T, err error) {
+				assert.True(t, errors.Is(err, ErrDeleteCASetNotFound), "want: %s; got: %s", ErrGetCASetNotFound, err)
+			},
+		},
+		"409 error response - delete CA set - in progress version activations": {
+			params: DeleteCASetRequest{
+				CASetID: "199",
+			},
+			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/199",
+			responseStatus: http.StatusConflict,
+			responseBody: `
+{
+    "contextInfo": {
+        "caSetId": "199",
+        "caSetName": "v2-api-create-ca-set-2-2",
+        "productionLink": "/mtls-edge-truststore/v2/ca-sets/199/versions/1/activations/12345",
+        "productionStatus": "IN_PROGRESS"
+    },
+    "detail": "CA set with caSetId 199 cannot be deleted as it has activations in progress on one or more networks.",
+    "instance": "/mtls-edge-truststore/error-types/ca-set-cannot-be-deleted-in-progress-version-activations/123dc1d57813ec84",
+    "status": 409,
+    "title": "CA set cannot be deleted due to in progress activations.",
+    "type": "/mtls-edge-truststore/error-types/ca-set-cannot-be-deleted-in-progress-version-activations"
+}`,
+			withError: func(t *testing.T, err error) {
+				assert.True(t, errors.Is(err, ErrDeleteActivationDeactivationInProgress), "want: %s; got: %s", ErrDeleteActivationDeactivationInProgress, err)
+			},
+		},
+		"409 error response - delete CA set - in progress version activations staging": {
+			params: DeleteCASetRequest{
+				CASetID: "199",
+			},
+			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/199",
+			responseStatus: http.StatusConflict,
+			responseBody: `
+{
+    "contextInfo": {
+        "caSetId": "199",
+        "caSetName": "clone-caset-api-test",
+        "stagingLink": "/mtls-edge-truststore/v2/ca-sets/199/versions/4/activations/12345",
+        "stagingStatus": "IN_PROGRESS"
+    },
+    "detail": "CA set with caSetId 199 cannot be deleted as it has activations in progress on one or more networks.",
+    "instance": "/mtls-edge-truststore/error-types/ca-set-cannot-be-deleted-in-progress-version-activations/0b1a57113cf28f42",
+    "status": 409,
+    "title": "CA set cannot be deleted due to in progress activations.",
+    "type": "/mtls-edge-truststore/error-types/ca-set-cannot-be-deleted-in-progress-version-activations"
+}`,
+			withError: func(t *testing.T, err error) {
+				assert.True(t, errors.Is(err, ErrDeleteActivationDeactivationInProgress), "want: %s; got: %s", ErrDeleteActivationDeactivationInProgress, err)
+			},
+		},
+		"409 error response - delete CA set - in progress version activations both networks": {
+			params: DeleteCASetRequest{
+				CASetID: "199",
+			},
+			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/199",
+			responseStatus: http.StatusConflict,
+			responseBody: `
+{
+    "contextInfo": {
+        "caSetId": "199",
+        "caSetName": "sup-m2-bugjam6",
+        "productionLink": "/mtls-edge-truststore/v2/ca-sets/199/versions/2/activations/95458",
+        "productionStatus": "IN_PROGRESS",
+        "stagingLink": "/mtls-edge-truststore/v2/ca-sets/199/versions/2/activations/95458", 
+        "stagingStatus": "IN_PROGRESS"     
+},
+    "detail": "CA set with caSetId 199 cannot be deleted as it has activations in progress on one or more networks.",
+    "instance": "/mtls-edge-truststore/error-types/ca-set-cannot-be-deleted-in-progress-version-activations/3f21d188e84a5566",
+    "status": 409,
+    "title": "CA set cannot be deleted due to in progress activations.",
+    "type": "/mtls-edge-truststore/error-types/ca-set-cannot-be-deleted-in-progress-version-activations"
+}`,
+			withError: func(t *testing.T, err error) {
+				assert.True(t, errors.Is(err, ErrDeleteActivationDeactivationInProgress), "want: %s; got: %s", ErrDeleteActivationDeactivationInProgress, err)
+			},
+		},
+		"409 error response - CA set deletion is in progress": {
+			params: DeleteCASetRequest{
+				CASetID: "199",
+			},
+			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/199",
+			responseStatus: http.StatusConflict,
+			responseBody: `
+{
+    "contextInfo": {
+        "caSetId": "199",
+        "caSetName": "akamai-test",
+        "deletionLink": "/mtls-edge-truststore/v2/ca-sets/199/status/delete",
+        "productionStatus": "IN_PROGRESS",
+        "stagingStatus": "IN_PROGRESS"
+    },
+    "detail": "Cannot delete CA set with caSetId 199 as the CA set is being deleted on one or more networks.",
+    "instance": "/mtls-edge-truststore/error-types/delete-ca-set-request-in-progress/96818406fe73e90f",
+    "status": 409,
+    "title": "DELETE request is in progress for the CA set on the network.",
+    "type": "/mtls-edge-truststore/error-types/delete-ca-set-request-in-progress"
+}`,
+			withError: func(t *testing.T, err error) {
+				assert.True(t, errors.Is(err, ErrCASetDeleteRequestInProgress), "want: %s; got: %s", ErrCASetDeleteRequestInProgress, err)
+			},
+		},
+		"409 error response - CA set deletion in progress on one network and completed on other network": {
+			params: DeleteCASetRequest{
+				CASetID: "199",
+			},
+			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/199",
+			responseStatus: http.StatusConflict,
+			responseBody: `
+{
+    "contextInfo": {
+        "caSetId": "199",
+        "caSetName": "akamai-test",
+        "deletionLink": "/mtls-edge-truststore/v2/ca-sets/199/status/delete",
+        "productionStatus": "IN_PROGRESS",
+        "stagingStatus": "COMPLETE"
+    },
+    "detail": "Cannot delete CA set with caSetId 133254 as the CA set is being deleted on one or more networks.",
+    "instance": "/mtls-edge-truststore/error-types/delete-ca-set-request-in-progress/96818406fe73e90f",
+    "status": 409,
+    "title": "DELETE request is in progress for the CA set on the network.",
+    "type": "/mtls-edge-truststore/error-types/delete-ca-set-request-in-progress"
+}`,
+			withError: func(t *testing.T, err error) {
+				assert.True(t, errors.Is(err, ErrCASetDeleteRequestInProgress), "want: %s; got: %s", ErrCASetDeleteRequestInProgress, err)
+			},
+		},
+		"400 error response - unknown query parameters passed": {
+			params: DeleteCASetRequest{
+				CASetID: "199",
+			},
+			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/199",
+			responseStatus: http.StatusBadRequest,
+			responseBody: `
+{
+    "contextInfo": {
+        "allowedQueryParameters": [
+            "accountSwitchKey"
+        ],
+        "parameters": [
+            "test"
+        ]
+    },
+    "detail": "The query parameter 'test' is not allowed for this endpoint. The following query parameter is allowed: 'accountSwitchKey'.",
+    "instance": "/mtls-edge-truststore/error-types/unknown-query-parameters/63a890d25d672e99",
+    "status": 400,
+    "title": "Unknown query parameters provided.",
+    "type": "/mtls-edge-truststore/error-types/unknown-query-parameters"
+}`,
+			withError: func(t *testing.T, err error) {
+				assert.True(t, errors.Is(err, ErrUnknownQueryParameters), "want: %s; got: %s", ErrUnknownQueryParameters, err)
 			},
 		},
 	}

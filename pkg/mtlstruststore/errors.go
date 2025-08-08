@@ -34,28 +34,54 @@ type (
 )
 
 const (
-	caSetNotFoundType                    = "/mtls-edge-truststore/error-types/ca-set-not-found"
-	caSetActivationNotFoundType          = "/mtls-edge-truststore/error-types/activation-or-deactivation-request-not-found"
-	caSetDeleteRequestInProgress         = "/mtls-edge-truststore/error-types/delete-ca-set-request-in-progress"
-	caSetVersionDuplicate                = "/mtls-edge-truststore/error-types/duplicate-ca-set-version"
-	caSetVersionNotFoundType             = "/mtls-edge-truststore/error-types/ca-set-version-not-found"
-	caSetVersionLimitReached             = "/mtls-edge-truststore/error-types/ca-set-version-limit-reached"
-	caSetVersionIsActive                 = "/mtls-edge-truststore/error-types/ca-set-version-is-active"
-	caSetVersionWasPreviouslyActive      = "/mtls-edge-truststore/error-types/ca-set-version-was-previously-active"
-	certificateValidationFailedForCreate = "/mtls-edge-truststore/error-types/certificate-validation-failure-create"
-	certificateValidationFailedForUpdate = "/mtls-edge-truststore/error-types/certificate-validation-failure-update"
-	certificateLimitReached              = "/mtls-edge-truststore/error-types/certificate-limit-reached"
-	caSetBoundToSlotInCPS                = "/mtls-edge-truststore/error-types/ca-set-bound-to-slot-in-cps"
-	caSetBoundToHostname                 = "/mtls-edge-truststore/error-types/ca-set-bound-to-hostname"
-	anotherActivationInProgress          = "/mtls-edge-truststore/error-types/another-activation-request-in-progress-in-the-ca-set"
-	anotherDeactivationInProgress        = "/mtls-edge-truststore/error-types/another-deactivation-request-in-progress-in-the-ca-set"
-	caSetVersionNotActiveOnNetwork       = "/mtls-edge-truststore/error-types/ca-set-version-not-active-on-network"
-	fetchAssociationsTimeout             = "/mtls-edge-truststore/error-types/cannot-get-ca-set-associations-timeout"
-	missingCaCertVersion                 = "/mtls-edge-truststore/error-types/missing-caset-version"
-	caSetNameNotUnique                   = "/mtls-edge-truststore/error-types/ca-set-name-is-not-unique"
-	caSetLimitReached                    = "/mtls-edge-truststore/error-types/ca-set-limit-reached"
-	noActiveCertDeletions                = "/mtls-edge-truststore/error-types/no-active-cert-deletions"
-	certValidationFailure                = "/mtls-edge-truststore/error-types/certificate-validation-failure"
+	caSetNotFoundType                                       = "/mtls-edge-truststore/error-types/ca-set-not-found"
+	caSetBoundToHostname                                    = "/mtls-edge-truststore/error-types/ca-set-bound-to-hostname"
+	caSetInUseByHostnames                                   = "/mtls-edge-truststore/error-types/ca-set-in-use-by-hostnames"
+	caSetInUseByEnrollments                                 = "/mtls-edge-truststore/error-types/ca-set-in-use-by-enrollments"
+	caSetActivationNotFoundType                             = "/mtls-edge-truststore/error-types/activation-or-deactivation-request-not-found"
+	caSetDeleteRequestInProgress                            = "/mtls-edge-truststore/error-types/delete-ca-set-request-in-progress"
+	caSetInUseByBothEnrollmentsAndHostnames                 = "/mtls-edge-truststore/error-types/ca-set-in-use-by-both-enrollments-and-hostnames"
+	caSetNameNotUnique                                      = "/mtls-edge-truststore/error-types/ca-set-name-is-not-unique"
+	caSetLimitReached                                       = "/mtls-edge-truststore/error-types/ca-set-limit-reached"
+	caSetCannotBeDeletedActiveVersions                      = "/mtls-edge-truststore/error-types/ca-set-cannot-be-deleted-active-versions"
+	caSetVersionDuplicate                                   = "/mtls-edge-truststore/error-types/duplicate-ca-set-version"
+	caSetVersionNotFoundType                                = "/mtls-edge-truststore/error-types/ca-set-version-not-found"
+	caSetVersionLimitReached                                = "/mtls-edge-truststore/error-types/ca-set-version-limit-reached"
+	caSetVersionIsActive                                    = "/mtls-edge-truststore/error-types/ca-set-version-is-active"
+	caSetVersionIsActiveOnNetwork                           = "/mtls-edge-truststore/error-types/ca-set-version-already-active-on-network"
+	caSetVersionWasPreviouslyActive                         = "/mtls-edge-truststore/error-types/ca-set-version-was-previously-active"
+	certificateValidationFailedForCreate                    = "/mtls-edge-truststore/error-types/certificate-validation-failure-create"
+	certificateValidationFailedForUpdate                    = "/mtls-edge-truststore/error-types/certificate-validation-failure-update"
+	certificateValidationFailedForActivation                = "/mtls-edge-truststore/error-types/certificate-validation-failure-activate"
+	certificateLimitReached                                 = "/mtls-edge-truststore/error-types/certificate-limit-reached"
+	anotherActivationInProgress                             = "/mtls-edge-truststore/error-types/another-activation-request-in-progress-in-the-ca-set"
+	anotherDeactivationInProgress                           = "/mtls-edge-truststore/error-types/another-deactivation-request-in-progress-in-the-ca-set"
+	activationDeactivationInProgress                        = "/mtls-edge-truststore/error-types/ca-set-cannot-be-deleted-in-progress-version-activations"
+	caSetVersionNotActiveOnNetwork                          = "/mtls-edge-truststore/error-types/ca-set-version-not-active-on-network"
+	fetchAssociationsTimeout                                = "/mtls-edge-truststore/error-types/cannot-get-ca-set-associations-timeout"
+	missingCaCertVersion                                    = "/mtls-edge-truststore/error-types/missing-caset-version"
+	noActiveCertDeletions                                   = "/mtls-edge-truststore/error-types/no-active-cert-deletions"
+	certValidationFailure                                   = "/mtls-edge-truststore/error-types/certificate-validation-failure"
+	unknownQueryParameters                                  = "/mtls-edge-truststore/error-types/unknown-query-parameters"
+	jsonSchemaValidation                                    = "/mtls-edge-truststore/error-types/json-schema-validation-error"
+	anotherActivationJustCompletedInTheCASet                = "/mtls-edge-truststore/error-types/another-activation-just-completed-in-the-ca-set"
+	pathVariableQueryParamTypeMismatch                      = "/mtls-edge-truststore/error-types/path-variable-query-param-type-mismatch"
+	unauthorized                                            = "/mtls-edge-truststore/error-types/unauthorized"
+	internalError                                           = "/mtls-edge-truststore/error-types/internal-error"
+	forbidden                                               = "/mtls-edge-truststore/error-types/forbidden"
+	findAssociationsFailedForEnrollmentsWithHostnamesLinked = "/mtls-edge-truststore/error-types/find-associations-failed-for-enrollments-with-hostnames-linked"
+	findAssociationsFailed                                  = "/mtls-edge-truststore/error-types/find-associations-failed"
+	findAssociationsFailedForHostnamesWithEnrollmentsLinked = "/mtls-edge-truststore/error-types/find-associations-failed-for-hostnames-with-enrollments-linked"
+	findAssociationsFailedForEnrollmentsWithEmptyHostnames  = "/mtls-edge-truststore/error-types/find-associations-failed-for-enrollments-with-empty-hostnames"
+	fetchAssociationsFailedForHostnames                     = "/mtls-edge-truststore/error-types/fetch-associations-failed-for-hostnames"
+	fetchAssociationsFailedForEnrollments                   = "/mtls-edge-truststore/error-types/fetch-associations-failed-for-enrollments"
+	fetchAssociationsFailed                                 = "/mtls-edge-truststore/error-types/fetch-associations-failed"
+	mediaTypeNotSupported                                   = "/mtls-edge-truststore/error-types/media-type-not-supported"
+	mediaTypeNotAcceptable                                  = "/mtls-edge-truststore/error-types/media-type-not-acceptable"
+	invalidJSON                                             = "/mtls-edge-truststore/error-types/invalid-json"
+	invalidField                                            = "/mtls-edge-truststore/error-types/invalid-field"
+	missingRequiredQueryParameter                           = "/mtls-edge-truststore/error-types/missing-required-query-parameter"
+	caSetNameValidationFailure                              = "/mtls-edge-truststore/error-types/ca-set-name-validation-failure"
 )
 
 var (
@@ -68,11 +94,20 @@ var (
 	// ErrGetCASetActivationNotFound is returned when the CA set activation was not found.
 	ErrGetCASetActivationNotFound = errors.New("ca set activation not found")
 
+	// ErrDeleteCASetNotFound is returned when the CA set was not found.
+	ErrDeleteCASetNotFound = errors.New("ca set not found")
+
+	// ErrDeleteActivationDeactivationInProgress is returned when ca set cannot be deleted due to in progress activations.
+	ErrDeleteActivationDeactivationInProgress = errors.New("ca set cannot be deleted due to in progress activations")
+
 	// ErrCASetDeleteRequestInProgress is returned when the CA set deletion request is in progress.
 	ErrCASetDeleteRequestInProgress = errors.New("delete ca set request in progress")
 
 	// ErrCASetVersionIsActive is returned when the CA set version is active on one or more networks.
 	ErrCASetVersionIsActive = errors.New("ca set version is currently active")
+
+	// ErrCASetVersionIsActiveOnNetwork is returned when the CA set version is active on one or more networks.
+	ErrCASetVersionIsActiveOnNetwork = errors.New("ca set version is currently active on network")
 
 	// ErrCASetVersionWasPreviouslyActive is returned when the CA set version was previously active on one or more networks.
 	ErrCASetVersionWasPreviouslyActive = errors.New("ca set version was previously active")
@@ -83,6 +118,9 @@ var (
 	// ErrCertificateValidationFailedForUpdate is returned during Update of the CA set Version if one or more certificates is invalid.
 	ErrCertificateValidationFailedForUpdate = errors.New("one or more certificates is invalid")
 
+	// ErrCertificateValidationFailedForActivation is returned during Activate CA Set Version if one or more certificates is invalid.
+	ErrCertificateValidationFailedForActivation = errors.New("one or more certificates is invalid")
+
 	// ErrCertificateLimitReached is returned when the count of certificates submitted in the request body exceeds the limit allowed for the version.
 	ErrCertificateLimitReached = errors.New("submitted certificates exceed the maximum allowed certificates limit")
 
@@ -92,11 +130,11 @@ var (
 	// ErrCASetVersionIsDuplicate is returned when a version with same certificates exists in the ca set.
 	ErrCASetVersionIsDuplicate = errors.New("a version with same certificates exists in the ca set")
 
-	// ErrCASetBoundToSlotInCPS is returned when the CA set is bound to a slot in CPS.
-	ErrCASetBoundToSlotInCPS = errors.New("ca set bound to slot in CPS")
-
 	// ErrCASetBoundToHostname is returned when the CA set is bound to a hostname.
 	ErrCASetBoundToHostname = errors.New("ca set bound to hostname")
+
+	// ErrCASetInUseByHostnames is returned when the CA set already in use by hostnames.
+	ErrCASetInUseByHostnames = errors.New("ca set already in use by hostnames")
 
 	// ErrAnotherActivationInProgress is returned when another activation request is in progress for the CA set.
 	ErrAnotherActivationInProgress = errors.New("another activation request in progress in the ca set")
@@ -124,6 +162,75 @@ var (
 
 	// ErrCertValidationFailure is returned when certificates provided in ValidateCertificates are not valid.
 	ErrCertValidationFailure = errors.New("certificates validation failed")
+
+	// ErrUnknownQueryParameters is returned when query parameter is not allowed.
+	ErrUnknownQueryParameters = errors.New("the query parameter is not allowed")
+
+	// ErrJSONSchemaValidation is returned when request body failed JSON schema validation.
+	ErrJSONSchemaValidation = errors.New("JSON schema is not valid")
+
+	// ErrAnotherActivationJustCompletedIinTheCASet is returned when another activation has been completed just now in the CA set.
+	ErrAnotherActivationJustCompletedIinTheCASet = errors.New("another activation request in progress in the ca set")
+
+	// ErrPathVariableQueryParamTypeMismatch is returned when a typecast for any of path variable or query param fails or both fails.
+	ErrPathVariableQueryParamTypeMismatch = errors.New("path variable query parameter type mismatch")
+
+	// ErrUnauthorized is returned when user is not authorized to access this service.
+	ErrUnauthorized = errors.New("unauthorized request")
+
+	// ErrInternalError is returned when unexpected error occurred.
+	ErrInternalError = errors.New("internal error")
+
+	// ErrForbidden is returned when request is forbidden.
+	ErrForbidden = errors.New("forbidden request")
+
+	// ErrCASetInUseByEnrollments is returned when the CA set is bound to a slot in CPS.
+	ErrCASetInUseByEnrollments = errors.New("ca set bound to slot in CPS")
+
+	// ErrCASetInUseByBothEnrollmentsAndHostnames is returned when CA set is linked to both enrollments and hostnames.
+	ErrCASetInUseByBothEnrollmentsAndHostnames = errors.New("ca set is linked to both enrollments and hostnames")
+
+	// ErrFindAssociationsFailedForEnrollmentsWithHostnamesLinked is returned when CA set is linked to hostnames and could be linked to enrollments.
+	ErrFindAssociationsFailedForEnrollmentsWithHostnamesLinked = errors.New("ca set is linked to hostnames and could be linked to enrollments")
+
+	// ErrFindAssociationsFailed is returned when CA set  could be linked to hostnames.
+	ErrFindAssociationsFailed = errors.New("ca set could be linked to hostnames")
+
+	// ErrCASetCannotBeDeletedActiveVersions is returned when CA set cannot be deleted due to active versions
+	ErrCASetCannotBeDeletedActiveVersions = errors.New("ca set cannot be deleted due to active versions")
+
+	// ErrFindAssociationsFailedForHostnamesWithEnrollmentsLinked is returned when CA set is linked to enrollments and could be linked to hostnames
+	ErrFindAssociationsFailedForHostnamesWithEnrollmentsLinked = errors.New("ca set is linked to enrollments and could be linked to hostnames")
+
+	// ErrFetchAssociationsFailedForHostnames is returned when fetch complete association details is not possible
+	ErrFetchAssociationsFailedForHostnames = errors.New("fetch complete association details for hostnames is not possible")
+
+	// ErrFetchAssociationsFailedForEnrollments is returned when fetch complete association details for enrollments is not possible
+	ErrFetchAssociationsFailedForEnrollments = errors.New("fetch complete association details for enrollments is not possible")
+
+	// ErrFetchAssociationsFailed is returned when fetch complete association details is not possible
+	ErrFetchAssociationsFailed = errors.New("fetch complete association details is not possible")
+
+	// ErrFindAssociationsFailedForEnrollmentsWithEmptyHostnames is returned when CA set could be linked to hostnames
+	ErrFindAssociationsFailedForEnrollmentsWithEmptyHostnames = errors.New("ca set could be linked to hostnames")
+
+	// ErrMediaTypeNotSupported is returned when media type not supported.
+	ErrMediaTypeNotSupported = errors.New("media type is not supported")
+
+	// ErrMediaTypeNotAcceptable is returned when could not find acceptable representation for media type.
+	ErrMediaTypeNotAcceptable = errors.New("media type is not acceptable")
+
+	// ErrInvalidJSON is returned when JSON in request body is invalid.
+	ErrInvalidJSON = errors.New("invalid json")
+
+	// ErrInvalidField is returned when field value is invalid.
+	ErrInvalidField = errors.New("invalid field")
+
+	// ErrMissingRequiredQueryParameter is returned when expiryThresholdTimestamp is provided, but certificateStatus query param missing.
+	ErrMissingRequiredQueryParameter = errors.New("missing required query parameter")
+
+	// ErrCASetNameValidationFailure is returned when CA set name failed validation constraints.
+	ErrCASetNameValidationFailure = errors.New("ca set name validation failure")
 )
 
 // Error parses an error from the response.
@@ -163,96 +270,65 @@ func (e *Error) Error() string {
 //
 //nolint:gocyclo
 func (e *Error) Is(target error) bool {
-	if errors.Is(target, ErrGetCASetNotFound) {
-		return e.Status == http.StatusNotFound && e.Type == caSetNotFoundType
+	errorMatchers := []struct {
+		targetErr error
+		status    int64
+		errType   string
+	}{
+		{ErrGetCASetNotFound, http.StatusNotFound, caSetNotFoundType},
+		{ErrGetCASetVersionNotFound, http.StatusNotFound, caSetVersionNotFoundType},
+		{ErrGetCASetActivationNotFound, http.StatusNotFound, caSetActivationNotFoundType},
+		{ErrDeleteCASetNotFound, http.StatusNotFound, caSetNotFoundType},
+		{ErrDeleteActivationDeactivationInProgress, http.StatusConflict, activationDeactivationInProgress},
+		{ErrCASetDeleteRequestInProgress, http.StatusConflict, caSetDeleteRequestInProgress},
+		{ErrCASetVersionIsActive, http.StatusUnprocessableEntity, caSetVersionIsActive},
+		{ErrCASetVersionIsActiveOnNetwork, http.StatusConflict, caSetVersionIsActiveOnNetwork},
+		{ErrCASetVersionWasPreviouslyActive, http.StatusUnprocessableEntity, caSetVersionWasPreviouslyActive},
+		{ErrCertificateValidationFailedForCreate, http.StatusBadRequest, certificateValidationFailedForCreate},
+		{ErrCertificateValidationFailedForUpdate, http.StatusBadRequest, certificateValidationFailedForUpdate},
+		{ErrCertificateValidationFailedForActivation, http.StatusBadRequest, certificateValidationFailedForActivation},
+		{ErrCertificateLimitReached, http.StatusUnprocessableEntity, certificateLimitReached},
+		{ErrCASetVersionLimitReached, http.StatusUnprocessableEntity, caSetVersionLimitReached},
+		{ErrCASetVersionIsDuplicate, http.StatusUnprocessableEntity, caSetVersionDuplicate},
+		{ErrCASetInUseByEnrollments, http.StatusConflict, caSetInUseByEnrollments},
+		{ErrCASetBoundToHostname, http.StatusConflict, caSetBoundToHostname},
+		{ErrCASetInUseByHostnames, http.StatusConflict, caSetInUseByHostnames},
+		{ErrCASetInUseByBothEnrollmentsAndHostnames, http.StatusConflict, caSetInUseByBothEnrollmentsAndHostnames},
+		{ErrAnotherActivationInProgress, http.StatusConflict, anotherActivationInProgress},
+		{ErrAnotherDeactivationInProgress, http.StatusConflict, anotherDeactivationInProgress},
+		{ErrCASetVersionNotActiveOnNetwork, http.StatusConflict, caSetVersionNotActiveOnNetwork},
+		{ErrFetchAssociationsTimeout, http.StatusGatewayTimeout, fetchAssociationsTimeout},
+		{ErrMissingCASetVersion, http.StatusBadRequest, missingCaCertVersion},
+		{ErrCASetNameNotUnique, http.StatusConflict, caSetNameNotUnique},
+		{ErrCASetLimitReached, http.StatusUnprocessableEntity, caSetLimitReached},
+		{ErrNoActiveCertDeletions, http.StatusBadRequest, noActiveCertDeletions},
+		{ErrCertValidationFailure, http.StatusBadRequest, certValidationFailure},
+		{ErrUnknownQueryParameters, http.StatusBadRequest, unknownQueryParameters},
+		{ErrJSONSchemaValidation, http.StatusConflict, jsonSchemaValidation},
+		{ErrAnotherActivationJustCompletedIinTheCASet, http.StatusBadRequest, anotherActivationJustCompletedInTheCASet},
+		{ErrPathVariableQueryParamTypeMismatch, http.StatusBadRequest, pathVariableQueryParamTypeMismatch},
+		{ErrUnauthorized, http.StatusUnauthorized, unauthorized},
+		{ErrInternalError, http.StatusInternalServerError, internalError},
+		{ErrForbidden, http.StatusForbidden, forbidden},
+		{ErrFindAssociationsFailedForEnrollmentsWithHostnamesLinked, http.StatusInternalServerError, findAssociationsFailedForEnrollmentsWithHostnamesLinked},
+		{ErrFindAssociationsFailed, http.StatusInternalServerError, findAssociationsFailed},
+		{ErrCASetCannotBeDeletedActiveVersions, http.StatusBadRequest, caSetCannotBeDeletedActiveVersions},
+		{ErrFindAssociationsFailedForHostnamesWithEnrollmentsLinked, http.StatusInternalServerError, findAssociationsFailedForHostnamesWithEnrollmentsLinked},
+		{ErrFetchAssociationsFailedForHostnames, http.StatusInternalServerError, fetchAssociationsFailedForHostnames},
+		{ErrFetchAssociationsFailedForEnrollments, http.StatusInternalServerError, fetchAssociationsFailedForEnrollments},
+		{ErrFetchAssociationsFailed, http.StatusInternalServerError, fetchAssociationsFailed},
+		{ErrFindAssociationsFailedForEnrollmentsWithEmptyHostnames, http.StatusInternalServerError, findAssociationsFailedForEnrollmentsWithEmptyHostnames},
+		{ErrMediaTypeNotSupported, http.StatusUnsupportedMediaType, mediaTypeNotSupported},
+		{ErrMediaTypeNotAcceptable, http.StatusNotAcceptable, mediaTypeNotAcceptable},
+		{ErrInvalidJSON, http.StatusBadRequest, invalidJSON},
+		{ErrInvalidField, http.StatusBadRequest, invalidField},
+		{ErrMissingRequiredQueryParameter, http.StatusBadRequest, missingRequiredQueryParameter},
+		{ErrCASetNameValidationFailure, http.StatusBadRequest, caSetNameValidationFailure},
 	}
-
-	if errors.Is(target, ErrGetCASetVersionNotFound) {
-		return e.Status == http.StatusNotFound && e.Type == caSetVersionNotFoundType
-	}
-
-	if errors.Is(target, ErrGetCASetActivationNotFound) {
-		return e.Status == http.StatusNotFound && e.Type == caSetActivationNotFoundType
-	}
-
-	if errors.Is(target, ErrGetCASetVersionNotFound) {
-		return e.Status == http.StatusNotFound && e.Type == caSetVersionNotFoundType
-	}
-
-	if errors.Is(target, ErrCASetDeleteRequestInProgress) {
-		return e.Status == http.StatusConflict && e.Type == caSetDeleteRequestInProgress
-	}
-
-	if errors.Is(target, ErrCASetVersionIsActive) {
-		return e.Status == http.StatusUnprocessableEntity && e.Type == caSetVersionIsActive
-	}
-
-	if errors.Is(target, ErrCASetVersionWasPreviouslyActive) {
-		return e.Status == http.StatusUnprocessableEntity && e.Type == caSetVersionWasPreviouslyActive
-	}
-
-	if errors.Is(target, ErrCertificateValidationFailedForCreate) {
-		return e.Status == http.StatusBadRequest && e.Type == certificateValidationFailedForCreate
-	}
-
-	if errors.Is(target, ErrCertificateValidationFailedForUpdate) {
-		return e.Status == http.StatusBadRequest && e.Type == certificateValidationFailedForUpdate
-	}
-
-	if errors.Is(target, ErrCertificateLimitReached) {
-		return e.Status == http.StatusUnprocessableEntity && e.Type == certificateLimitReached
-	}
-
-	if errors.Is(target, ErrCASetVersionLimitReached) {
-		return e.Status == http.StatusUnprocessableEntity && e.Type == caSetVersionLimitReached
-	}
-
-	if errors.Is(target, ErrCASetVersionIsDuplicate) {
-		return e.Status == http.StatusUnprocessableEntity && e.Type == caSetVersionDuplicate
-	}
-
-	if errors.Is(target, ErrCASetBoundToSlotInCPS) {
-		return e.Status == http.StatusConflict && e.Type == caSetBoundToSlotInCPS
-	}
-
-	if errors.Is(target, ErrCASetBoundToHostname) {
-		return e.Status == http.StatusConflict && e.Type == caSetBoundToHostname
-	}
-
-	if errors.Is(target, ErrAnotherActivationInProgress) {
-		return e.Status == http.StatusConflict && e.Type == anotherActivationInProgress
-	}
-
-	if errors.Is(target, ErrAnotherDeactivationInProgress) {
-		return e.Status == http.StatusConflict && e.Type == anotherDeactivationInProgress
-	}
-
-	if errors.Is(target, ErrCASetVersionNotActiveOnNetwork) {
-		return e.Status == http.StatusConflict && e.Type == caSetVersionNotActiveOnNetwork
-	}
-
-	if errors.Is(target, ErrFetchAssociationsTimeout) {
-		return e.Status == http.StatusGatewayTimeout && e.Type == fetchAssociationsTimeout
-	}
-
-	if errors.Is(target, ErrMissingCASetVersion) {
-		return e.Status == http.StatusBadRequest && e.Type == missingCaCertVersion
-	}
-
-	if errors.Is(target, ErrCASetNameNotUnique) {
-		return e.Status == http.StatusConflict && e.Type == caSetNameNotUnique
-	}
-
-	if errors.Is(target, ErrCASetLimitReached) {
-		return e.Status == http.StatusUnprocessableEntity && e.Type == caSetLimitReached
-	}
-
-	if errors.Is(target, ErrNoActiveCertDeletions) {
-		return e.Status == http.StatusBadRequest && e.Type == noActiveCertDeletions
-	}
-
-	if errors.Is(target, ErrCertValidationFailure) {
-		return e.Status == http.StatusBadRequest && e.Type == certValidationFailure
+	for _, matcher := range errorMatchers {
+		if errors.Is(target, matcher.targetErr) {
+			return e.Status == matcher.status && e.Type == matcher.errType
+		}
 	}
 
 	var t *Error
