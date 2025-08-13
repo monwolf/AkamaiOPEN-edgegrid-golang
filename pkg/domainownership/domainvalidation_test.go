@@ -1,4 +1,4 @@
-package domainvalidation
+package domainownership
 
 import (
 	"crypto/tls"
@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func mockAPIClient(t *testing.T, mockServer *httptest.Server) DomainValidation {
+func mockAPIClient(t *testing.T, mockServer *httptest.Server) DomainOwnership {
 	serverURL, err := url.Parse(mockServer.URL)
 	require.NoError(t, err)
 	certPool := x509.NewCertPool()
@@ -36,19 +36,19 @@ func TestClient(t *testing.T) {
 	require.NoError(t, err)
 	tests := map[string]struct {
 		options  []Option
-		expected *domainvalidation
+		expected *domainownership
 	}{
 		"no options provided, return default": {
 			options: nil,
-			expected: &domainvalidation{
+			expected: &domainownership{
 				Session: sess,
 			},
 		},
 		"option provided, overwrite session": {
-			options: []Option{func(c *domainvalidation) {
+			options: []Option{func(c *domainownership) {
 				c.Session = nil
 			}},
-			expected: &domainvalidation{
+			expected: &domainownership{
 				Session: nil,
 			},
 		},

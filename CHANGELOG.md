@@ -25,8 +25,8 @@
   * Added enum value `StatusInactive` for enum `StatusValue` used in activation APIs.
 
 
-* Domain Validation
-  * Added support for Domain Validation logic:
+* Domain Ownership
+  * Added support for Domain Ownership:
     * [ListDomains](https://techdocs.akamai.com/domain-validation/reference/get-domains) - Lists available domains.
     * [GetDomain](https://techdocs.akamai.com/domain-validation/reference/get-domain) - Gets details of a specific domain.
     * [SearchDomains](https://techdocs.akamai.com/domain-validation/reference/post-search-domains) - Returns the status of specified domains.

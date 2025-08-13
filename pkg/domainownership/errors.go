@@ -1,5 +1,5 @@
-// Package domainvalidation provides access to the Domain Validation API.
-package domainvalidation
+// Package domainownership provides access to the Domain Ownership Manager API.
+package domainownership
 
 import (
 	"encoding/json"
@@ -12,7 +12,7 @@ import (
 )
 
 type (
-	// Error is a Domain Validation error interface.
+	// Error is a Domain Ownership error interface.
 	Error struct {
 		Type      string    `json:"type"`
 		Title     string    `json:"title"`
@@ -36,7 +36,7 @@ type (
 )
 
 // Error parses an error from the response.
-func (d *domainvalidation) Error(r *http.Response) error {
+func (d *domainownership) Error(r *http.Response) error {
 	var e Error
 
 	var body []byte
@@ -52,7 +52,7 @@ func (d *domainvalidation) Error(r *http.Response) error {
 
 	if err := json.Unmarshal(body, &e); err != nil {
 		d.Log(r.Request.Context()).Errorf("could not unmarshal API error: %s", err)
-		e.Title = "Failed to unmarshal error body. Domain Validation API failed. Check details for more information."
+		e.Title = "Failed to unmarshal error body. Domain Ownership Manager API failed. Check details for more information."
 		e.Detail = errs.UnescapeContent(string(body))
 	}
 

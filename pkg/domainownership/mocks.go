@@ -1,6 +1,6 @@
 //revive:disable:exported
 
-package domainvalidation
+package domainownership
 
 import (
 	"context"
@@ -12,7 +12,7 @@ type Mock struct {
 	mock.Mock
 }
 
-var _ DomainValidation = &Mock{}
+var _ DomainOwnership = &Mock{}
 
 func (p *Mock) ListDomains(ctx context.Context, params ListDomainsRequest) (*ListDomainsResponse, error) {
 	args := p.Called(ctx, params)

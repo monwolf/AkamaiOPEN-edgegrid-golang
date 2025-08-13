@@ -1,4 +1,4 @@
-package domainvalidation
+package domainownership
 
 import (
 	"context"
@@ -318,7 +318,7 @@ var (
 	ErrSearchDomains = errors.New("search domains")
 )
 
-func (d *domainvalidation) ListDomains(ctx context.Context, params ListDomainsRequest) (*ListDomainsResponse, error) {
+func (d *domainownership) ListDomains(ctx context.Context, params ListDomainsRequest) (*ListDomainsResponse, error) {
 	logger := d.Log(ctx)
 	logger.Debug("ListDomains")
 
@@ -364,7 +364,7 @@ func (d *domainvalidation) ListDomains(ctx context.Context, params ListDomainsRe
 	return &result, nil
 }
 
-func (d *domainvalidation) GetDomain(ctx context.Context, params GetDomainRequest) (*GetDomainResponse, error) {
+func (d *domainownership) GetDomain(ctx context.Context, params GetDomainRequest) (*GetDomainResponse, error) {
 	logger := d.Log(ctx)
 	logger.Debug("GetDomain")
 
@@ -405,7 +405,7 @@ func (d *domainvalidation) GetDomain(ctx context.Context, params GetDomainReques
 	return &result, nil
 }
 
-func (d *domainvalidation) SearchDomains(ctx context.Context, params SearchDomainsRequest) (*SearchDomainsResponse, error) {
+func (d *domainownership) SearchDomains(ctx context.Context, params SearchDomainsRequest) (*SearchDomainsResponse, error) {
 	logger := d.Log(ctx)
 	logger.Debug("SearchDomains")
 

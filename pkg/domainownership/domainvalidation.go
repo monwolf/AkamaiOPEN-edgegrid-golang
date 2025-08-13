@@ -1,4 +1,4 @@
-package domainvalidation
+package domainownership
 
 import (
 	"context"
@@ -13,8 +13,8 @@ var (
 )
 
 type (
-	// DomainValidation is the interface for the Domain Validation API.
-	DomainValidation interface {
+	// DomainOwnership is the interface for the Domain Ownership Manager that is used for Domain Validation.
+	DomainOwnership interface {
 		// ListDomains returns the list of available domains.
 		//
 		// See: https://techdocs.akamai.com/domain-validation/reference/get-domains
@@ -31,17 +31,17 @@ type (
 		SearchDomains(ctx context.Context, params SearchDomainsRequest) (*SearchDomainsResponse, error)
 	}
 
-	domainvalidation struct {
+	domainownership struct {
 		session.Session
 	}
 
-	// Option is a function that configures the Domain Validation.
-	Option func(*domainvalidation)
+	// Option is a function that configures the Domain Ownership.
+	Option func(*domainownership)
 )
 
-// Client creates a new DomainValidation client.
-func Client(sess session.Session, opts ...Option) DomainValidation {
-	c := &domainvalidation{
+// Client creates a new DomainOwnership client.
+func Client(sess session.Session, opts ...Option) DomainOwnership {
+	c := &domainownership{
 		Session: sess,
 	}
 	for _, opt := range opts {

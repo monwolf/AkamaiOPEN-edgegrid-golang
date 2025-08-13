@@ -1,4 +1,4 @@
-package domainvalidation
+package domainownership
 
 import (
 	"io"
@@ -144,7 +144,7 @@ func TestNewError(t *testing.T) {
 				Request: req,
 			},
 			expected: &Error{
-				Title:  "Failed to unmarshal error body. Domain Validation API failed. Check details for more information.",
+				Title:  "Failed to unmarshal error body. Domain Ownership Manager API failed. Check details for more information.",
 				Detail: "test",
 				Status: http.StatusInternalServerError,
 			},
@@ -156,7 +156,7 @@ func TestNewError(t *testing.T) {
 				Request:    req,
 			},
 			expected: &Error{
-				Title:  "Failed to unmarshal error body. Domain Validation API failed. Check details for more information.",
+				Title:  "Failed to unmarshal error body. Domain Ownership Manager API failed. Check details for more information.",
 				Detail: "",
 				Status: http.StatusInternalServerError,
 			},
@@ -164,7 +164,7 @@ func TestNewError(t *testing.T) {
 	}
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			res := Client(sess).(*domainvalidation).Error(tc.response)
+			res := Client(sess).(*domainownership).Error(tc.response)
 			assert.Equal(t, tc.expected, res)
 		})
 	}

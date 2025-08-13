@@ -1,4 +1,4 @@
-package domainvalidation
+package domainownership
 
 import (
 	"context"
