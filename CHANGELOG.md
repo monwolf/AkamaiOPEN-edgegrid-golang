@@ -21,6 +21,10 @@
     * `UpdateNamespaceResponse`
 
 
+* ClientLists
+  * Added support for `USER` type client lists.
+  * Added a new method `TranslateUsernames`.
+  * Added a new method [GetClientListItems](https://techdocs.akamai.com/client-lists/reference/get-items).
 
 
 
