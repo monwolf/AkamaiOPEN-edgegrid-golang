@@ -356,6 +356,13 @@ const (
 	DeletionStatusComplete string = "COMPLETE"
 	// DeletionStatusFailed represents CA set deletion status failed.
 	DeletionStatusFailed string = "FAILED"
+
+	// CASetStatusNotDeleted represents CA set status not deleted.
+	CASetStatusNotDeleted string = "NOT_DELETED"
+	// CASetStatusDeleted represents CA set status deleted.
+	CASetStatusDeleted string = "DELETED"
+	// CASetStatusDeleting represents CA set status deleting.
+	CASetStatusDeleting string = "DELETING"
 )
 
 var (
