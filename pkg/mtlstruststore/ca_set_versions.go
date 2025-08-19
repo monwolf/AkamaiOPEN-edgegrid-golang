@@ -95,11 +95,14 @@ type (
 		// Version is the version number within the CA Set, starting at 1 and incrementing sequentially.
 		Version int64 `json:"version"`
 
-		// CertificateStatus filters by "EXPIRING", "EXPIRED", or both (comma-separated). Required if expiryThresholdInDays is set.
+		// CertificateStatus filters by "EXPIRING", "EXPIRED", "EXPIRING,EXPIRED", "ACTIVE", or "ACTIVE,EXPIRED". Required if ExpiryThresholdInDays or ExpiryThresholdTimestamp are set.
 		CertificateStatus *CertificateStatus
 
-		// ExpiryThresholdInDays filters certificates expiring within or expired in past N days. Defaults to 30 if not set.
+		// ExpiryThresholdInDays filters certificates expiring within or expired in past N days. Defaults to 30 if not set. Cannot be used with ExpiryThresholdTimestamp.
 		ExpiryThresholdInDays *int
+
+		// ExpiryThresholdTimestamp filters certificates expiring before this timestamp. Cannot be used with ExpiryThresholdInDays.
+		ExpiryThresholdTimestamp time.Time
 	}
 
 	// CertificateRequest represents details of a certificate used in a CA Set version creation or update.
@@ -267,6 +270,14 @@ const (
 	ExpiredCert CertificateStatus = "EXPIRED"
 	// ExpiredOrExpiringCert represents a status filter that matches certificates that are either expiring or expired.
 	ExpiredOrExpiringCert CertificateStatus = "EXPIRING,EXPIRED"
+	// ExpiringOrExpiredCert represents a status filter that matches certificates that are either expired or expiring.
+	ExpiringOrExpiredCert CertificateStatus = "EXPIRED,EXPIRING"
+	// ActiveCert represents certificates that are ACTIVE.
+	ActiveCert CertificateStatus = "ACTIVE"
+	// ActiveOrExpiredCert represents certificates that are active or already expired.
+	ActiveOrExpiredCert CertificateStatus = "ACTIVE,EXPIRED"
+	// ExpiredOrActiveCert represents certificates that are already expired or active.
+	ExpiredOrActiveCert CertificateStatus = "EXPIRED,ACTIVE"
 )
 
 // Validate validates a CreateCASetVersionRequest.
@@ -328,15 +339,70 @@ func (v GetCASetVersionCertificatesRequest) Validate() error {
 		"CertificateStatus": validation.Validate(v.CertificateStatus,
 			validation.When(
 				v.CertificateStatus != nil,
-				validation.In(ExpiringCert, ExpiredCert, ExpiredOrExpiringCert).Error(fmt.Sprintf(
-					"value must be one of: '%s', '%s', or '%s'",
+				validation.In(ExpiringCert, ExpiredCert, ExpiredOrExpiringCert, ExpiringOrExpiredCert, ActiveCert, ActiveOrExpiredCert, ExpiredOrActiveCert).Error(fmt.Sprintf(
+					"value must be one of: '%s', '%s', '%s', '%s', '%s', '%s', or '%s'",
 					ExpiringCert,
 					ExpiredCert,
 					ExpiredOrExpiringCert,
+					ExpiringOrExpiredCert,
+					ActiveCert,
+					ActiveOrExpiredCert,
+					ExpiredOrActiveCert,
 				)),
 			),
 		),
+		"ExpiryThresholdInDays": validation.Validate(v.ExpiryThresholdInDays, validation.When(v.ExpiryThresholdInDays != nil,
+			validation.By(validCertificateStatusForExpiryThreshold(v.CertificateStatus, []CertificateStatus{ExpiringCert, ExpiredCert, ExpiredOrExpiringCert})))),
+		"ExpiryThresholdTimestamp": validation.Validate(v.ExpiryThresholdTimestamp, validation.When(!v.ExpiryThresholdTimestamp.IsZero(),
+			validation.By(validCertificateStatusForExpiryThreshold(v.CertificateStatus, []CertificateStatus{ExpiringCert, ExpiredCert})),
+			validation.By(bothExpiryThresholdProvided(v.ExpiryThresholdInDays))),
+			validation.By(validCertificateStatusForDate(v.CertificateStatus, v.ExpiryThresholdTimestamp)),
+		),
 	}.Filter()
+}
+
+func validCertificateStatusForExpiryThreshold(status *CertificateStatus, allowedStatuses []CertificateStatus) validation.RuleFunc {
+	return func(_ interface{}) error {
+		if status == nil {
+			return fmt.Errorf("CertificateStatus must be provided with this field")
+		}
+
+		for _, allowedStatus := range allowedStatuses {
+			if *status == allowedStatus {
+				return nil
+			}
+		}
+		return fmt.Errorf("with this field CertificateStatus must be one of: %v", allowedStatuses)
+	}
+}
+
+func bothExpiryThresholdProvided(expiryThresholdInDays *int) validation.RuleFunc {
+	return func(_ interface{}) error {
+		if expiryThresholdInDays != nil {
+			return fmt.Errorf("ExpiryThresholdInDays cannot be used with ExpiryThresholdTimestamp")
+		}
+		return nil
+	}
+}
+
+func validCertificateStatusForDate(status *CertificateStatus, timestamp time.Time) validation.RuleFunc {
+	return func(_ interface{}) error {
+		if status == nil {
+			// Is already validated by validCertificateStatusForExpiryThreshold
+			return nil
+		}
+		if timestamp.IsZero() {
+			// Init for other validation rules, skip checking
+			return nil
+		}
+		if *status == ExpiredCert && timestamp.After(time.Now()) {
+			return fmt.Errorf("ExpiryThresholdTimestamp cannot be in the future for 'EXPIRED' CertificateStatus")
+		}
+		if *status == ExpiringCert && timestamp.Before(time.Now()) {
+			return fmt.Errorf("ExpiryThresholdTimestamp cannot be in the past for 'EXPIRING' CertificateStatus")
+		}
+		return nil
+	}
 }
 
 func (m *mtlstruststore) CreateCASetVersion(ctx context.Context, params CreateCASetVersionRequest) (*CreateCASetVersionResponse, error) {
@@ -502,10 +568,6 @@ func (m *mtlstruststore) GetCASetVersionCertificates(ctx context.Context, params
 		return nil, fmt.Errorf("%s: %w: %s", ErrGetCASetVersionCertificates, ErrStructValidation, err)
 	}
 
-	if params.ExpiryThresholdInDays != nil && params.CertificateStatus == nil {
-		return nil, fmt.Errorf("certificateStatus must be provided when expiryThresholdInDays is set")
-	}
-
 	uri, err := url.Parse(fmt.Sprintf(
 		"/mtls-edge-truststore/v2/ca-sets/%s/versions/%d/certificates",
 		params.CASetID,
@@ -521,6 +583,10 @@ func (m *mtlstruststore) GetCASetVersionCertificates(ctx context.Context, params
 
 	if params.ExpiryThresholdInDays != nil {
 		query.Set("expiryThresholdInDays", strconv.Itoa(*params.ExpiryThresholdInDays))
+	}
+
+	if !params.ExpiryThresholdTimestamp.IsZero() {
+		query.Set("expiryThresholdTimestamp", params.ExpiryThresholdTimestamp.Format(time.RFC3339Nano))
 	}
 
 	uri.RawQuery = query.Encode()

@@ -2527,12 +2527,87 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 				},
 			},
 		},
+		"200 Successful get certificates of a version with EXPIRING,EXPIRED Certificate Status": {
+			request: GetCASetVersionCertificatesRequest{
+				CASetID:           "123",
+				Version:           1,
+				CertificateStatus: ptr.To(ExpiredOrExpiringCert),
+			},
+			responseStatus: http.StatusOK,
+			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions/1/certificates?certificateStatus=EXPIRING%2CEXPIRED",
+			responseBody: `{
+				  "caSetId" : "123",
+				  "caSetName": "test1",
+				  "version": 1,
+				  "certificates": [
+					{
+					  "subject": "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate.tcm-11-example.com",
+					  "issuer": "C=US,ST=MA,L=Cambridge,O=Akamai,CN=tcm-13-example.com",
+					  "endDate": "2020-04-07T17:33:39Z",
+					  "startDate": "2019-04-08T17:33:39Z",
+					  "fingerprint": "1E:DD:AD:32:C3:54:3F:C3:6F:7F:94:51:8D:5E:F7:ED:7C:DB:5D:A5",
+					  "certificatePem": "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
+					  "serialNumber": "11612024106234272000",
+					  "signatureAlgorithm": "SHA256WITHRSA",
+					  "createdDate": "2020-04-07T17:33:39.110283Z",
+					  "description": "Optional description for the certificate",
+					  "createdBy": "jsmith2"
+					},
+					{
+					  "subject": "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate1.tcm-11-example.com",
+					  "issuer": "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate.tcm-11-example.com",
+					  "endDate": "2020-04-07T17:43:58Z",
+					  "startDate": "2019-04-08T17:43:58Z",
+					  "fingerprint": "1F:DD:AD:32:C3:54:3F:C3:6F:7F:04:51:8D:5E:F7:ED:7C:DB:5D:A5",
+					  "certificatePem": "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
+					  "serialNumber": "11612024106234272000",
+					  "signatureAlgorithm": "SHA256WITHRSA",
+					  "createdDate": "2020-04-07T17:33:39.110284Z",
+					  "description": "Optional description for the certificate",
+					  "createdBy": "jsmith2"
+					}
+				]
+			}`,
+			expectedResponse: &GetCASetVersionCertificatesResponse{
+				CASetID:   "123",
+				Version:   1,
+				CASetName: "test1",
+				Certificates: []CertificateResponse{
+					{
+						Subject:            "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate.tcm-11-example.com",
+						Issuer:             "C=US,ST=MA,L=Cambridge,O=Akamai,CN=tcm-13-example.com",
+						EndDate:            test.NewTimeFromString(t, "2020-04-07T17:33:39Z"),
+						StartDate:          test.NewTimeFromString(t, "2019-04-08T17:33:39Z"),
+						Fingerprint:        "1E:DD:AD:32:C3:54:3F:C3:6F:7F:94:51:8D:5E:F7:ED:7C:DB:5D:A5",
+						CertificatePEM:     "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
+						SerialNumber:       "11612024106234272000",
+						SignatureAlgorithm: "SHA256WITHRSA",
+						CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39.110283Z"),
+						Description:        ptr.To("Optional description for the certificate"),
+						CreatedBy:          "jsmith2",
+					},
+					{
+						Subject:            "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate1.tcm-11-example.com",
+						Issuer:             "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate.tcm-11-example.com",
+						EndDate:            test.NewTimeFromString(t, "2020-04-07T17:43:58Z"),
+						StartDate:          test.NewTimeFromString(t, "2019-04-08T17:43:58Z"),
+						Fingerprint:        "1F:DD:AD:32:C3:54:3F:C3:6F:7F:04:51:8D:5E:F7:ED:7C:DB:5D:A5",
+						CertificatePEM:     "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
+						SerialNumber:       "11612024106234272000",
+						SignatureAlgorithm: "SHA256WITHRSA",
+						CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39.110284Z"),
+						Description:        ptr.To("Optional description for the certificate"),
+						CreatedBy:          "jsmith2",
+					},
+				},
+			},
+		},
 		"200 Successful get certificates of a version with CertificateStatus as EXPIRED and ExpiryThresholdInDays 10": {
 			request: GetCASetVersionCertificatesRequest{
 				CASetID:               "123",
 				Version:               1,
 				ExpiryThresholdInDays: ptr.To(10),
-				CertificateStatus:     ptr.To(CertificateStatus("EXPIRED")),
+				CertificateStatus:     ptr.To(ExpiredCert),
 			},
 			responseStatus: http.StatusOK,
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions/1/certificates?certificateStatus=EXPIRED&expiryThresholdInDays=10",
@@ -2603,6 +2678,56 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 				},
 			},
 		},
+		"200 Successful get certificates of a version with CertificateStatus as EXPIRED and set ExpiryThresholdTimestamp": {
+			request: GetCASetVersionCertificatesRequest{
+				CASetID:                  "123",
+				Version:                  1,
+				ExpiryThresholdTimestamp: test.NewTimeFromString(t, "2020-04-07T17:40:00Z"),
+				CertificateStatus:        ptr.To(ExpiredCert),
+			},
+			responseStatus: http.StatusOK,
+			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/123/versions/1/certificates?certificateStatus=EXPIRED&expiryThresholdTimestamp=2020-04-07T17%3A40%3A00Z",
+			responseBody: `{
+				  "caSetId" : "123",
+				  "caSetName": "test1",
+				  "version": 1,
+				  "certificates": [
+					{
+					  "subject": "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate1.tcm-11-example.com",
+					  "issuer": "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate.tcm-11-example.com",
+					  "endDate": "2020-04-07T17:43:58Z",
+					  "startDate": "2019-04-08T17:43:58Z",
+					  "fingerprint": "1F:DD:AD:32:C3:54:3F:C3:6F:7F:04:51:8D:5E:F7:ED:7C:DB:5D:A5",
+					  "certificatePem": "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
+					  "serialNumber": "11612024106234272000",
+					  "signatureAlgorithm": "SHA256WITHRSA",
+					  "createdDate": "2020-04-07T17:33:39.110284Z",
+					  "description": "Optional description for the certificate",
+					  "createdBy": "jsmith2"
+					}
+				]
+			}`,
+			expectedResponse: &GetCASetVersionCertificatesResponse{
+				CASetID:   "123",
+				Version:   1,
+				CASetName: "test1",
+				Certificates: []CertificateResponse{
+					{
+						Subject:            "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate1.tcm-11-example.com",
+						Issuer:             "C=US,ST=MA,L=Cambridge,O=Akamai,CN=intermediate.tcm-11-example.com",
+						EndDate:            test.NewTimeFromString(t, "2020-04-07T17:43:58Z"),
+						StartDate:          test.NewTimeFromString(t, "2019-04-08T17:43:58Z"),
+						Fingerprint:        "1F:DD:AD:32:C3:54:3F:C3:6F:7F:04:51:8D:5E:F7:ED:7C:DB:5D:A5",
+						CertificatePEM:     "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
+						SerialNumber:       "11612024106234272000",
+						SignatureAlgorithm: "SHA256WITHRSA",
+						CreatedDate:        test.NewTimeFromString(t, "2020-04-07T17:33:39.110284Z"),
+						Description:        ptr.To("Optional description for the certificate"),
+						CreatedBy:          "jsmith2",
+					},
+				},
+			},
+		},
 		"Validation error - missing CASetID and Version": {
 			request: GetCASetVersionCertificatesRequest{},
 			withError: func(t *testing.T, err error) {
@@ -2611,23 +2736,88 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 		},
 		"Validation error - invalid certificateStatus value": {
 			request: GetCASetVersionCertificatesRequest{
+				CASetID:           "123",
+				Version:           1,
+				CertificateStatus: ptr.To(CertificateStatus("EXPIRY")),
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, `fetching certificates for a CA set version: struct validation: CertificateStatus: value must be one of: 'EXPIRING', 'EXPIRED', 'EXPIRING,EXPIRED', 'EXPIRED,EXPIRING', 'ACTIVE', 'ACTIVE,EXPIRED', or 'EXPIRED,ACTIVE'.`, err.Error())
+			},
+		},
+		"Validation error - invalid certificateStatus value for ExpiryThresholdInDays": {
+			request: GetCASetVersionCertificatesRequest{
 				CASetID:               "123",
 				Version:               1,
 				ExpiryThresholdInDays: ptr.To(10),
-				CertificateStatus:     ptr.To(CertificateStatus("EXPIRY")),
+				CertificateStatus:     ptr.To(ActiveCert),
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, `fetching certificates for a CA set version: struct validation: CertificateStatus: value must be one of: 'EXPIRING', 'EXPIRED', or 'EXPIRING,EXPIRED'.`, err.Error())
+				assert.Equal(t, `fetching certificates for a CA set version: struct validation: ExpiryThresholdInDays: with this field CertificateStatus must be one of: [EXPIRING EXPIRED EXPIRING,EXPIRED].`, err.Error())
 			},
 		},
-		"Validation error - missing certificateStatus when expiryThresholdInDays is set": {
+		"Validation error - invalid certificateStatus value for ExpiryThresholdTimestamp": {
+			request: GetCASetVersionCertificatesRequest{
+				CASetID:                  "123",
+				Version:                  1,
+				ExpiryThresholdTimestamp: test.NewTimeFromString(t, "2023-01-01T00:00:00Z"),
+				CertificateStatus:        ptr.To(ActiveCert),
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, `fetching certificates for a CA set version: struct validation: ExpiryThresholdTimestamp: with this field CertificateStatus must be one of: [EXPIRING EXPIRED].`, err.Error())
+			},
+		},
+		"Validation error - missing certificateStatus when ExpiryThresholdInDays is set": {
 			request: GetCASetVersionCertificatesRequest{
 				CASetID:               "123",
 				Version:               1,
 				ExpiryThresholdInDays: ptr.To(10),
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "certificateStatus must be provided when expiryThresholdInDays is set", err.Error())
+				assert.Equal(t, "fetching certificates for a CA set version: struct validation: ExpiryThresholdInDays: CertificateStatus must be provided with this field.", err.Error())
+			},
+		},
+		"Validation error - missing certificateStatus when ExpiryThresholdTimestamp is set": {
+			request: GetCASetVersionCertificatesRequest{
+				CASetID:                  "123",
+				Version:                  1,
+				ExpiryThresholdTimestamp: test.NewTimeFromString(t, "2023-01-01T00:00:00Z"),
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "fetching certificates for a CA set version: struct validation: ExpiryThresholdTimestamp: CertificateStatus must be provided with this field.", err.Error())
+			},
+		},
+		"Validation error - both ExpiryThresholdInDays and ExpiryThresholdTimestamp are set": {
+			request: GetCASetVersionCertificatesRequest{
+				CASetID:                  "123",
+				Version:                  1,
+				CertificateStatus:        ptr.To(ExpiredCert),
+				ExpiryThresholdInDays:    ptr.To(10),
+				ExpiryThresholdTimestamp: test.NewTimeFromString(t, "2023-01-01T00:00:00Z"),
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "fetching certificates for a CA set version: struct validation: ExpiryThresholdTimestamp: ExpiryThresholdInDays cannot be used with ExpiryThresholdTimestamp.", err.Error())
+			},
+		},
+		"Validation error - past ExpiryThresholdTimestamp with EXPIRING": {
+			request: GetCASetVersionCertificatesRequest{
+				CASetID:                  "123",
+				Version:                  1,
+				CertificateStatus:        ptr.To(ExpiringCert),
+				ExpiryThresholdTimestamp: test.NewTimeFromString(t, "2023-01-01T00:00:00Z"),
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "fetching certificates for a CA set version: struct validation: ExpiryThresholdTimestamp: ExpiryThresholdTimestamp cannot be in the past for 'EXPIRING' CertificateStatus.", err.Error())
+			},
+		},
+		"Validation error - future ExpiryThresholdTimestamp with EXPIRED": {
+			request: GetCASetVersionCertificatesRequest{
+				CASetID:                  "123",
+				Version:                  1,
+				CertificateStatus:        ptr.To(ExpiredCert),
+				ExpiryThresholdTimestamp: test.NewTimeFromString(t, "3023-01-01T00:00:00Z"),
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "fetching certificates for a CA set version: struct validation: ExpiryThresholdTimestamp: ExpiryThresholdTimestamp cannot be in the future for 'EXPIRED' CertificateStatus.", err.Error())
 			},
 		},
 		"Error Response - CA set is not found": {
