@@ -298,7 +298,7 @@ func (m *mtlstruststore) GetCASetVersionActivation(ctx context.Context, params G
 	}
 
 	if resp.Header.Get("Retry-After") != "" {
-		after, err := time.Parse(time.RFC3339, resp.Header.Get("Retry-After"))
+		after, err := time.Parse(time.RFC1123, resp.Header.Get("Retry-After"))
 		if err != nil {
 			return nil, fmt.Errorf("%w: failed to parse Retry-After header: %s",
 				ErrGetCASetActivation, err)

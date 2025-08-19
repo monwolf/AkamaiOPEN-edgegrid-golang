@@ -604,7 +604,7 @@ func TestGetCASetVersionActivation(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1000/versions/1/activations/84572",
 			responseStatus: http.StatusAccepted,
 			responseHeaders: map[string]string{
-				"Retry-After": "2023-01-10T11:05:00Z",
+				"Retry-After": "Tue, 10 Jan 2023 11:05:00 GMT",
 			},
 			responseBody: `
 				{
@@ -643,7 +643,7 @@ func TestGetCASetVersionActivation(t *testing.T) {
 				FailureReason:    nil,
 				ModifiedDate:     ptr.To(test.NewTimeFromString(t, "2023-01-10T12:00:00.771298Z")),
 				ModifiedBy:       ptr.To("someone"),
-				RetryAfter:       test.NewTimeFromString(t, "2023-01-10T11:05:00Z"),
+				RetryAfter:       test.NewGMTTimeFromString(t, "Tue, 10 Jan 2023 11:05:00 GMT"),
 			},
 		},
 		"200 OK": {

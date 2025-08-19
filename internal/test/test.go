@@ -23,6 +23,14 @@ func NewTimeFromString(t *testing.T, s string) time.Time {
 	return parsedTime
 }
 
+// NewGMTTimeFromString returns a time value parsed from a string
+// in the RFC1123 format, which is used by the Retry-After header for GMT times.
+func NewGMTTimeFromString(t *testing.T, s string) time.Time {
+	parsedTime, err := time.Parse(time.RFC1123, s)
+	require.NoError(t, err)
+	return parsedTime
+}
+
 // XRateLimitHTTPHandler first returns status 429 with the X-RateLimit-Next header set to
 // time.Now() plus a random value between 1 and 5 milliseconds. It keeps sending 429 until the
 // X-RateLimit-Next point in time. Then it starts to return SuccessCode and SuccessBody

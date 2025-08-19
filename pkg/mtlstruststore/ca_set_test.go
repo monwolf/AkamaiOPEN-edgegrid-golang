@@ -1440,7 +1440,7 @@ func TestGetCASetDeletionStatus(t *testing.T) {
 			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/status/delete",
 			responseStatus: http.StatusAccepted,
 			responseHeaders: map[string]string{
-				"Retry-After": "2025-04-15T12:15:02Z",
+				"Retry-After": "Tue, 15 Apr 2025 12:15:02 GMT",
 			},
 			responseBody: `{
     "caSetId": "1",
@@ -1489,7 +1489,7 @@ func TestGetCASetDeletionStatus(t *testing.T) {
 				StartTime:        test.NewTimeFromString(t, "2025-04-15T12:10:02.039140Z"),
 				Status:           "IN_PROGRESS",
 				StatusLink:       "/mtls-edge-truststore/v2/ca-sets/1/status/delete",
-				RetryAfter:       test.NewTimeFromString(t, "2025-04-15T12:15:02Z"),
+				RetryAfter:       test.NewGMTTimeFromString(t, "Tue, 15 Apr 2025 12:15:02 GMT"),
 			},
 		},
 		"200 - completed": {
