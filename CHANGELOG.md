@@ -83,6 +83,12 @@
 
 ### FEATURES/ENHANCEMENTS:
 
+* Appsec
+  * Added `IncludeExpiryDetails` field to the `GetRapidRulesRequest` struct.
+  * Added `Expired` and `ExpireInDays` fields to the following structures:
+    * `PolicyRapidRule`
+    * `RapidRuleDetails`
+
 * ClientLists
   * Added support for deactivation per network:
     * [CreateDeactivation](https://techdocs.akamai.com/client-lists/reference/post-activate-list-1) - Deactivates a client list on the staging or production network.
