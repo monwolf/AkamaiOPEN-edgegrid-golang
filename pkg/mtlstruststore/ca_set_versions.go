@@ -19,7 +19,9 @@ type (
 	CreateCASetVersionRequest struct {
 		// CASetID is a unique identifier representing the CA set.
 		CASetID string
-		Body    CreateCASetVersionRequestBody
+
+		// Body is the body of the request.
+		Body CreateCASetVersionRequestBody
 	}
 
 	// CreateCASetVersionRequestBody represents the body of a CreateCASetVersionRequest.
@@ -72,6 +74,7 @@ type (
 		// Version is the version number within the CA Set.
 		Version int64
 
+		// Body is the body of the request.
 		Body UpdateCASetVersionRequestBody
 	}
 
@@ -152,16 +155,26 @@ type (
 
 	// Validation represents the validation results for a CA Set version, its certificates or activation.
 	Validation struct {
+		// Warnings is a list of validation warnings.
 		Warnings []Warning `json:"warnings"`
 	}
 
 	// Warning represents a data about single validation warning.
 	Warning struct {
+		// ContextInfo provides additional context about the warning, such as the certificate's serial number or fingerprint.
 		ContextInfo map[string]any `json:"contextInfo"`
-		Type        string         `json:"type"`
-		Title       string         `json:"title"`
-		Detail      string         `json:"detail"`
-		Pointer     string         `json:"pointer"`
+
+		// Type is non-navigable URI to describe the problem type.
+		Type string `json:"type"`
+
+		// Title is a human-readable summary of the problem type.
+		Title string `json:"title"`
+
+		// Detail provides a human-readable description of the warning.
+		Detail string `json:"detail"`
+
+		// Pointer indicates the specific field or element related to the warning.
+		Pointer string `json:"pointer"`
 	}
 
 	// CreateCASetVersionResponse represents the response returned after creating a new CA Set version.
@@ -214,7 +227,7 @@ type (
 		Description *string `json:"description"`
 
 		// AllowInsecureSHA1 indicates whether SHA-1 certificates are allowed.
-		AllowInsecureSHA1 bool `json:"allowInsecureSHA1"`
+		AllowInsecureSHA1 bool `json:"allowInsecureSha1"`
 
 		// StagingStatus is "INACTIVE" initially, changes to "ACTIVE" when active on staging.
 		StagingStatus string `json:"stagingStatus"`
@@ -282,23 +295,28 @@ const (
 
 // Validate validates a CreateCASetVersionRequest.
 func (v CreateCASetVersionRequest) Validate() error {
-	errs := validation.Errors{
+	return edgegriderr.ParseValidationErrors(validation.Errors{
 		"CASetID":      validation.Validate(v.CASetID, validation.Required),
 		"Description":  validation.Validate(v.Body.Description, validation.Length(0, 255)),
 		"Certificates": validation.Validate(v.Body.Certificates, validation.Required, validation.Each(certificateValidationRules())),
-	}
-	return edgegriderr.ParseValidationErrors(errs)
+	})
+}
+
+// Validate validates a ListCASetVersionsRequest.
+func (v ListCASetVersionsRequest) Validate() error {
+	return edgegriderr.ParseValidationErrors(validation.Errors{
+		"CASetID": validation.Validate(v.CASetID, validation.Required),
+	})
 }
 
 // Validate validates a UpdateCASetVersionRequest.
 func (v UpdateCASetVersionRequest) Validate() error {
-	errs := validation.Errors{
+	return edgegriderr.ParseValidationErrors(validation.Errors{
 		"CASetID":      validation.Validate(v.CASetID, validation.Required),
 		"Version":      validation.Validate(v.Version, validation.Required),
 		"Description":  validation.Validate(v.Body.Description, validation.Length(0, 255)),
 		"Certificates": validation.Validate(v.Body.Certificates, validation.Required, validation.Each(certificateValidationRules())),
-	}
-	return edgegriderr.ParseValidationErrors(errs)
+	})
 }
 
 // certificateValidationRules defines validation rules for CA set certificates.
@@ -317,24 +335,24 @@ func certificateValidationRules() validation.Rule {
 
 // Validate validates a CloneCASetVersionRequest.
 func (v CloneCASetVersionRequest) Validate() error {
-	return validation.Errors{
-		"CaSetID": validation.Validate(v.CASetID, validation.Required),
+	return edgegriderr.ParseValidationErrors(validation.Errors{
+		"CASetID": validation.Validate(v.CASetID, validation.Required),
 		"Version": validation.Validate(v.Version, validation.Required),
-	}.Filter()
+	})
 }
 
 // Validate validates a GetCASetVersionRequest.
 func (v GetCASetVersionRequest) Validate() error {
-	return validation.Errors{
-		"CaSetID": validation.Validate(v.CASetID, validation.Required),
+	return edgegriderr.ParseValidationErrors(validation.Errors{
+		"CASetID": validation.Validate(v.CASetID, validation.Required),
 		"Version": validation.Validate(v.Version, validation.Required),
-	}.Filter()
+	})
 }
 
 // Validate validates a GetCASetVersionCertificatesRequest.
 func (v GetCASetVersionCertificatesRequest) Validate() error {
-	return validation.Errors{
-		"CaSetID": validation.Validate(v.CASetID, validation.Required),
+	return edgegriderr.ParseValidationErrors(validation.Errors{
+		"CASetID": validation.Validate(v.CASetID, validation.Required),
 		"Version": validation.Validate(v.Version, validation.Required),
 		"CertificateStatus": validation.Validate(v.CertificateStatus,
 			validation.When(
@@ -358,7 +376,7 @@ func (v GetCASetVersionCertificatesRequest) Validate() error {
 			validation.By(bothExpiryThresholdProvided(v.ExpiryThresholdInDays))),
 			validation.By(validCertificateStatusForDate(v.CertificateStatus, v.ExpiryThresholdTimestamp)),
 		),
-	}.Filter()
+	})
 }
 
 func validCertificateStatusForExpiryThreshold(status *CertificateStatus, allowedStatuses []CertificateStatus) validation.RuleFunc {
@@ -516,10 +534,7 @@ func (m *mtlstruststore) ListCASetVersions(ctx context.Context, params ListCASet
 	logger := m.Log(ctx)
 	logger.Debug("ListCASetVersions")
 
-	err := validation.ValidateStruct(&params,
-		validation.Field(&params.CASetID, validation.Required),
-	)
-	if err != nil {
+	if err := params.Validate(); err != nil {
 		return nil, fmt.Errorf("%s: %w: %s", ErrListCASetVersions, ErrStructValidation, err)
 	}
 

@@ -695,7 +695,7 @@ func TestGetCASetVersionActivation(t *testing.T) {
 		"missing required params - validation error": {
 			params: GetCASetVersionActivationRequest{},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "get ca set activation failed: struct validation: ActivationID: cannot be blank\nCASetID: cannot be blank\nVersion: cannot be blank", err.Error())
+				assert.Equal(t, "get ca set version activation failed: struct validation: ActivationID: cannot be blank\nCASetID: cannot be blank\nVersion: cannot be blank", err.Error())
 			},
 		},
 		"404 ca set not found - custom error check": {

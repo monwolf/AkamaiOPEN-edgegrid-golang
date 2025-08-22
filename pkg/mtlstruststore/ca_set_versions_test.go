@@ -888,7 +888,7 @@ func TestCloneCASetVersion(t *testing.T) {
 		"Validation error - missing CASetID and Version": {
 			request: CloneCASetVersionRequest{},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "cloning a CA set version: struct validation: CaSetID: cannot be blank; Version: cannot be blank.", err.Error())
+				assert.Equal(t, "cloning a CA set version: struct validation: CASetID: cannot be blank\nVersion: cannot be blank", err.Error())
 			},
 		},
 		"Error Response - CA set is not found": {
@@ -1110,7 +1110,7 @@ func TestGetCASetVersion(t *testing.T) {
 		"Validation error - missing CASetID and Version": {
 			request: GetCASetVersionRequest{},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "fetching a CA set version: struct validation: CaSetID: cannot be blank; Version: cannot be blank.", err.Error())
+				assert.Equal(t, "fetching a CA set version: struct validation: CASetID: cannot be blank\nVersion: cannot be blank", err.Error())
 			},
 		},
 		"Error Response - CA set not found": {
@@ -2394,7 +2394,7 @@ func TestListCASetVersions(t *testing.T) {
 		"Validation error - missing CASetID": {
 			request: ListCASetVersionsRequest{},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "fetching CA set versions: struct validation: CASetID: cannot be blank.", err.Error())
+				assert.Equal(t, "fetching CA set versions: struct validation: CASetID: cannot be blank", err.Error())
 			},
 		},
 		"Error Response - CA set is not found": {
@@ -2731,7 +2731,7 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 		"Validation error - missing CASetID and Version": {
 			request: GetCASetVersionCertificatesRequest{},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "fetching certificates for a CA set version: struct validation: CaSetID: cannot be blank; Version: cannot be blank.", err.Error())
+				assert.Equal(t, "fetching certificates for a CA set version: struct validation: CASetID: cannot be blank\nVersion: cannot be blank", err.Error())
 			},
 		},
 		"Validation error - invalid certificateStatus value": {
@@ -2741,7 +2741,7 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 				CertificateStatus: ptr.To(CertificateStatus("EXPIRY")),
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, `fetching certificates for a CA set version: struct validation: CertificateStatus: value must be one of: 'EXPIRING', 'EXPIRED', 'EXPIRING,EXPIRED', 'EXPIRED,EXPIRING', 'ACTIVE', 'ACTIVE,EXPIRED', or 'EXPIRED,ACTIVE'.`, err.Error())
+				assert.Equal(t, `fetching certificates for a CA set version: struct validation: CertificateStatus: value must be one of: 'EXPIRING', 'EXPIRED', 'EXPIRING,EXPIRED', 'EXPIRED,EXPIRING', 'ACTIVE', 'ACTIVE,EXPIRED', or 'EXPIRED,ACTIVE'`, err.Error())
 			},
 		},
 		"Validation error - invalid certificateStatus value for ExpiryThresholdInDays": {
@@ -2752,7 +2752,7 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 				CertificateStatus:     ptr.To(ActiveCert),
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, `fetching certificates for a CA set version: struct validation: ExpiryThresholdInDays: with this field CertificateStatus must be one of: [EXPIRING EXPIRED EXPIRING,EXPIRED].`, err.Error())
+				assert.Equal(t, `fetching certificates for a CA set version: struct validation: ExpiryThresholdInDays: with this field CertificateStatus must be one of: [EXPIRING EXPIRED EXPIRING,EXPIRED]`, err.Error())
 			},
 		},
 		"Validation error - invalid certificateStatus value for ExpiryThresholdTimestamp": {
@@ -2763,7 +2763,7 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 				CertificateStatus:        ptr.To(ActiveCert),
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, `fetching certificates for a CA set version: struct validation: ExpiryThresholdTimestamp: with this field CertificateStatus must be one of: [EXPIRING EXPIRED].`, err.Error())
+				assert.Equal(t, `fetching certificates for a CA set version: struct validation: ExpiryThresholdTimestamp: with this field CertificateStatus must be one of: [EXPIRING EXPIRED]`, err.Error())
 			},
 		},
 		"Validation error - missing certificateStatus when ExpiryThresholdInDays is set": {
@@ -2773,7 +2773,7 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 				ExpiryThresholdInDays: ptr.To(10),
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "fetching certificates for a CA set version: struct validation: ExpiryThresholdInDays: CertificateStatus must be provided with this field.", err.Error())
+				assert.Equal(t, "fetching certificates for a CA set version: struct validation: ExpiryThresholdInDays: CertificateStatus must be provided with this field", err.Error())
 			},
 		},
 		"Validation error - missing certificateStatus when ExpiryThresholdTimestamp is set": {
@@ -2783,7 +2783,7 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 				ExpiryThresholdTimestamp: test.NewTimeFromString(t, "2023-01-01T00:00:00Z"),
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "fetching certificates for a CA set version: struct validation: ExpiryThresholdTimestamp: CertificateStatus must be provided with this field.", err.Error())
+				assert.Equal(t, "fetching certificates for a CA set version: struct validation: ExpiryThresholdTimestamp: CertificateStatus must be provided with this field", err.Error())
 			},
 		},
 		"Validation error - both ExpiryThresholdInDays and ExpiryThresholdTimestamp are set": {
@@ -2795,7 +2795,7 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 				ExpiryThresholdTimestamp: test.NewTimeFromString(t, "2023-01-01T00:00:00Z"),
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "fetching certificates for a CA set version: struct validation: ExpiryThresholdTimestamp: ExpiryThresholdInDays cannot be used with ExpiryThresholdTimestamp.", err.Error())
+				assert.Equal(t, "fetching certificates for a CA set version: struct validation: ExpiryThresholdTimestamp: ExpiryThresholdInDays cannot be used with ExpiryThresholdTimestamp", err.Error())
 			},
 		},
 		"Validation error - past ExpiryThresholdTimestamp with EXPIRING": {
@@ -2806,7 +2806,7 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 				ExpiryThresholdTimestamp: test.NewTimeFromString(t, "2023-01-01T00:00:00Z"),
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "fetching certificates for a CA set version: struct validation: ExpiryThresholdTimestamp: ExpiryThresholdTimestamp cannot be in the past for 'EXPIRING' CertificateStatus.", err.Error())
+				assert.Equal(t, "fetching certificates for a CA set version: struct validation: ExpiryThresholdTimestamp: ExpiryThresholdTimestamp cannot be in the past for 'EXPIRING' CertificateStatus", err.Error())
 			},
 		},
 		"Validation error - future ExpiryThresholdTimestamp with EXPIRED": {
@@ -2817,7 +2817,7 @@ func TestGetCASetVersionCertificates(t *testing.T) {
 				ExpiryThresholdTimestamp: test.NewTimeFromString(t, "3023-01-01T00:00:00Z"),
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "fetching certificates for a CA set version: struct validation: ExpiryThresholdTimestamp: ExpiryThresholdTimestamp cannot be in the future for 'EXPIRED' CertificateStatus.", err.Error())
+				assert.Equal(t, "fetching certificates for a CA set version: struct validation: ExpiryThresholdTimestamp: ExpiryThresholdTimestamp cannot be in the future for 'EXPIRED' CertificateStatus", err.Error())
 			},
 		},
 		"Error Response - CA set is not found": {

@@ -1547,6 +1547,65 @@ func TestGetCASetDeletionStatus(t *testing.T) {
 				StatusLink:     "/mtls-edge-truststore/v2/ca-sets/1/status/delete",
 			},
 		},
+		"207 - partial": {
+			params: GetCASetDeletionStatusRequest{
+				CASetID: "1",
+			},
+			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/status/delete",
+			responseStatus: http.StatusAccepted,
+			responseHeaders: map[string]string{
+				"Retry-After": "Tue, 15 Apr 2025 12:15:02 GMT",
+			},
+			responseBody: `{
+    "caSetId": "1",
+    "caSetLink": "/mtls-edge-truststore/v2/ca-sets/1",
+    "caSetName": "test1",
+    "deletions": [
+        {
+            "failureReason": "Reason for failure",
+            "network": "STAGING",
+            "percentComplete": 100,
+            "status": "FAILED"
+        },
+        {
+            "network": "PRODUCTION",
+            "percentComplete": 100,
+            "status": "COMPLETE"
+        }
+    ],
+    "endTime": "2025-04-15T12:13:30.082193Z",
+	"failureReason": "Indication of which network had a failure in deletion.",
+	"resourceMethod": "delete",
+    "startTime": "2025-04-15T12:10:02.039140Z",
+	"status": "FAILED",
+    "statusLink": "/mtls-edge-truststore/v2/ca-sets/1/status/delete"
+}`,
+			expectedResponse: &GetCASetDeletionStatusResponse{
+				CASetID:   "1",
+				CASetLink: "/mtls-edge-truststore/v2/ca-sets/1",
+				CASetName: "test1",
+				Deletions: []CASetNetworkDeleteStatus{
+					{
+						Network:         "STAGING",
+						PercentComplete: 100,
+						Status:          "FAILED",
+						FailureReason:   ptr.To("Reason for failure"),
+					},
+					{
+						Network:         "PRODUCTION",
+						PercentComplete: 100,
+						Status:          "COMPLETE",
+					},
+				},
+				EndTime:        ptr.To(test.NewTimeFromString(t, "2025-04-15T12:13:30.082193Z")),
+				ResourceMethod: ptr.To("delete"),
+				StartTime:      test.NewTimeFromString(t, "2025-04-15T12:10:02.039140Z"),
+				Status:         "FAILED",
+				StatusLink:     "/mtls-edge-truststore/v2/ca-sets/1/status/delete",
+				FailureReason:  ptr.To("Indication of which network had a failure in deletion."),
+				RetryAfter:     test.NewGMTTimeFromString(t, "Tue, 15 Apr 2025 12:15:02 GMT"),
+			},
+		},
 		"missing required params - validation error": {
 			params: GetCASetDeletionStatusRequest{},
 			withError: func(t *testing.T, err error) {

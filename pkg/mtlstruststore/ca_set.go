@@ -40,7 +40,7 @@ type (
 		// CASetName is the name of the CA set.
 		CASetName string `json:"caSetName"`
 
-		// CASetStatus is the status of the CA set - NOT_DELETED, DELETING, DELETED.
+		// CASetStatus is the status of the CA set - "NOT_DELETED", "DELETING", "DELETED".
 		CASetStatus string `json:"caSetStatus"`
 
 		// Description is a description of the CA set.
@@ -90,7 +90,7 @@ type (
 
 	// ListCASetsRequest holds request body for ListCASets.
 	ListCASetsRequest struct {
-		// CASetNamePrefix is the name prefix to filter out marching CA sets.
+		// CASetNamePrefix is the name prefix to filter out matching CA sets.
 		CASetNamePrefix string
 
 		// ActivatedOn is the network type to filter out matching CA sets.
@@ -196,6 +196,7 @@ type (
 		CloneFromSetID string `json:"-"`
 
 		// CloneFromVersion is an optional version of CA set which should be used to create new CA set from.
+		// If not provided, the latest version of the CA set is used by default.
 		CloneFromVersion int64 `json:"-"`
 
 		// NewCASetName is descriptive name for the set.
@@ -216,7 +217,7 @@ type (
 
 	// GetCASetDeletionStatusResponse holds response for GetCASetDeleteStatus.
 	GetCASetDeletionStatusResponse struct {
-		// Status is current status of CA set deletion.
+		// Status is current status of CA set deletion, either "IN_PROGRESS", "COMPLETE", or "FAILED".
 		Status string `json:"status"`
 
 		// StatusLink is the hypermedia link to the deletion status.
@@ -225,7 +226,7 @@ type (
 		// CASetLink is the hypermedia link to the CA set.
 		CASetLink string `json:"caSetLink"`
 
-		// ResourceMethod is type of method.
+		// ResourceMethod is the REST API method of the actual operation. Always has a value "delete".
 		ResourceMethod *string `json:"resourceMethod"`
 
 		// CASetID is a unique identifier representing the CA set.
@@ -263,7 +264,7 @@ type (
 		// PercentComplete represents progress of CA set deletion of given network.
 		PercentComplete int `json:"percentComplete"`
 
-		// Status represents CA set deletion status on given network.
+		// Status represents CA set deletion status on given network, either "IN_PROGRESS", "COMPLETE", or "FAILED".
 		Status string `json:"status"`
 
 		// FailureReason is a reason why CA set was not deleted on given network.
@@ -317,7 +318,7 @@ type (
 		// Type is activity. Could be one of: "CREATE_CA_SET", "CREATE_CA_SET_VERSION", "ACTIVATE_CA_SET_VERSION", "DEACTIVATE_CA_SET_VERSION", "DELETE_CA_SET".
 		Type string `json:"type"`
 
-		// Network is one amongst, "STAGING" or "PRODUCTION". Note that for "CREATE_CA_SET" this field will be null.
+		// Network is the network for any activation-related activities, either "STAGING" or "PRODUCTION".
 		Network *string `json:"network"`
 
 		// Version on which user acted on.
@@ -459,6 +460,7 @@ func (r CloneCASetRequest) Validate() error {
 			validation.Length(3, 64),
 			validation.Match(caSetNameRegex).Error("allowed characters are alphanumerics (a-z, A-Z, 0-9), underscore (_), hyphen (-), percent (%) and period (.)"),
 			validateCASetName()),
+		"NewDescription": validation.Validate(r.NewDescription, validation.Length(0, 255)),
 	})
 }
 
@@ -695,7 +697,9 @@ func (m *mtlstruststore) GetCASetDeletionStatus(ctx context.Context, params GetC
 	}
 	defer session.CloseResponseBody(resp)
 
-	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusAccepted {
+	if resp.StatusCode != http.StatusOK &&
+		resp.StatusCode != http.StatusAccepted &&
+		resp.StatusCode != http.StatusMultiStatus {
 		return nil, m.Error(resp)
 	}
 
@@ -721,7 +725,7 @@ func (m *mtlstruststore) ListCASetActivities(ctx context.Context, params ListCAS
 
 	uri, err := url.Parse(fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%s/activities", params.CASetID))
 	if err != nil {
-		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrCloneCASet, err)
+		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrListCASetActivities, err)
 	}
 	q := uri.Query()
 	if !params.Start.IsZero() {

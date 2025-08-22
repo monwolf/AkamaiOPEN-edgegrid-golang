@@ -55,19 +55,19 @@ type (
 		// FailureReason is the reason for failure, if any.
 		FailureReason *string `json:"failureReason"`
 
-		// ModifiedBy is the user who modified the CA set last ime.
+		// ModifiedBy is the user who modified the CA set last time.
 		ModifiedBy *string `json:"modifiedBy"`
 
 		// ModifiedDate is the date when the CA set was modified.
 		ModifiedDate *time.Time `json:"modifiedDate"`
 
-		// Network is the network on which the CA set is activated.
+		// Network is the network on which the CA set is activated. It can be one of "STAGING" or "PRODUCTION".
 		Network string `json:"network"`
 
-		// ActivationStatus is the status of the CA set activation.
+		// ActivationStatus is the status of the CA set activation. It can be one of the following: "IN_PROGRESS", "COMPLETE" or "FAILED".
 		ActivationStatus string `json:"activationStatus"`
 
-		// ActivationType is the type of activation.
+		// ActivationType is the type of activation. It can be one of the following: "ACTIVATE" or "DEACTIVATE".
 		ActivationType string `json:"activationType"`
 
 		// PercentComplete is the percentage of completion of the activation.
@@ -120,6 +120,7 @@ type (
 
 	// ListCASetVersionActivationsResponse contains response from ListCASetVersionActivations.
 	ListCASetVersionActivationsResponse struct {
+		// Activations is the list of activations for the CA set version.
 		Activations []ActivateCASetVersionResponse `json:"activations"`
 	}
 
@@ -131,6 +132,7 @@ type (
 
 	// ListCASetActivationsResponse contains response from ListCASetActivations.
 	ListCASetActivationsResponse struct {
+		// Activations is the list of activations for the CA set.
 		Activations []ActivateCASetVersionResponse `json:"activations"`
 	}
 )
@@ -147,8 +149,8 @@ var (
 	ErrActivateCASetVersion = errors.New("activate ca set version failed")
 	// ErrDeactivateCASetVersion is returned when the request to deactivate a CA set version fails.
 	ErrDeactivateCASetVersion = errors.New("deactivate ca set version failed")
-	// ErrGetCASetActivation is returned when the request to get CA set activation fails.
-	ErrGetCASetActivation = errors.New("get ca set activation failed")
+	// ErrGetCASetVersionActivation is returned when the request to get CA set version activation fails.
+	ErrGetCASetVersionActivation = errors.New("get ca set version activation failed")
 	// ErrListCASetVersionActivations is returned when the request to list CA set version activations fails.
 	ErrListCASetVersionActivations = errors.New("list ca set version activations failed")
 	// ErrListCASetActivations is returned when the request to list CA set activations fails.
@@ -273,23 +275,23 @@ func (m *mtlstruststore) GetCASetVersionActivation(ctx context.Context, params G
 	logger.Debug("GetCASetVersionActivation")
 
 	if err := params.Validate(); err != nil {
-		return nil, fmt.Errorf("%s: %w: %s", ErrGetCASetActivation, ErrStructValidation, err)
+		return nil, fmt.Errorf("%s: %w: %s", ErrGetCASetVersionActivation, ErrStructValidation, err)
 	}
 
 	uri, err := url.Parse(fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%s/versions/%d/activations/%d", params.CASetID, params.Version, params.ActivationID))
 	if err != nil {
-		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrGetCASetActivation, err)
+		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrGetCASetVersionActivation, err)
 	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri.String(), nil)
 	if err != nil {
-		return nil, fmt.Errorf("%w: failed to create request: %s", ErrGetCASetActivation, err)
+		return nil, fmt.Errorf("%w: failed to create request: %s", ErrGetCASetVersionActivation, err)
 	}
 
 	var result GetCASetVersionActivationResponse
 	resp, err := m.Exec(req, &result)
 	if err != nil {
-		return nil, fmt.Errorf("%w: request failed: %s", ErrGetCASetActivation, err)
+		return nil, fmt.Errorf("%w: request failed: %s", ErrGetCASetVersionActivation, err)
 	}
 	defer session.CloseResponseBody(resp)
 
@@ -300,8 +302,7 @@ func (m *mtlstruststore) GetCASetVersionActivation(ctx context.Context, params G
 	if resp.Header.Get("Retry-After") != "" {
 		after, err := time.Parse(time.RFC1123, resp.Header.Get("Retry-After"))
 		if err != nil {
-			return nil, fmt.Errorf("%w: failed to parse Retry-After header: %s",
-				ErrGetCASetActivation, err)
+			return nil, fmt.Errorf("%w: failed to parse Retry-After header: %s", ErrGetCASetVersionActivation, err)
 		}
 		result.RetryAfter = after
 	}
