@@ -250,29 +250,29 @@ func TestCreateCASet(t *testing.T) {
 		},
 	}
 
-	for name, test := range tests {
+	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				assert.Equal(t, test.expectedPath, r.URL.String())
+				assert.Equal(t, tc.expectedPath, r.URL.String())
 				assert.Equal(t, http.MethodPost, r.Method)
-				if len(test.responseHeaders) > 0 {
-					for header, value := range test.responseHeaders {
+				if len(tc.responseHeaders) > 0 {
+					for header, value := range tc.responseHeaders {
 						w.Header().Set(header, value)
 					}
 				}
 
-				w.WriteHeader(test.responseStatus)
-				_, err := w.Write([]byte(test.responseBody))
+				w.WriteHeader(tc.responseStatus)
+				_, err := w.Write([]byte(tc.responseBody))
 				assert.NoError(t, err)
 			}))
 			client := mockAPIClient(t, mockServer)
-			result, err := client.CreateCASet(context.Background(), test.request)
-			if test.withError != nil {
-				test.withError(t, err)
+			result, err := client.CreateCASet(context.Background(), tc.request)
+			if tc.withError != nil {
+				tc.withError(t, err)
 				return
 			}
 			require.NoError(t, err)
-			assert.Equal(t, test.expectedResponse, result)
+			assert.Equal(t, tc.expectedResponse, result)
 		})
 	}
 }
@@ -384,23 +384,23 @@ func TestGetCASet(t *testing.T) {
 		},
 	}
 
-	for name, test := range tests {
+	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				assert.Equal(t, test.expectedPath, r.URL.String())
+				assert.Equal(t, tc.expectedPath, r.URL.String())
 				assert.Equal(t, http.MethodGet, r.Method)
-				w.WriteHeader(test.responseStatus)
-				_, err := w.Write([]byte(test.responseBody))
+				w.WriteHeader(tc.responseStatus)
+				_, err := w.Write([]byte(tc.responseBody))
 				assert.NoError(t, err)
 			}))
 			client := mockAPIClient(t, mockServer)
-			result, err := client.GetCASet(context.Background(), test.params)
-			if test.withError != nil {
-				test.withError(t, err)
+			result, err := client.GetCASet(context.Background(), tc.params)
+			if tc.withError != nil {
+				tc.withError(t, err)
 				return
 			}
 			require.NoError(t, err)
-			assert.Equal(t, test.expectedResponse, result)
+			assert.Equal(t, tc.expectedResponse, result)
 		})
 	}
 }
@@ -640,23 +640,23 @@ func TestListCASets(t *testing.T) {
 		},
 	}
 
-	for name, test := range tests {
+	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				assert.Equal(t, test.expectedPath, r.URL.String())
+				assert.Equal(t, tc.expectedPath, r.URL.String())
 				assert.Equal(t, http.MethodGet, r.Method)
-				w.WriteHeader(test.responseStatus)
-				_, err := w.Write([]byte(test.responseBody))
+				w.WriteHeader(tc.responseStatus)
+				_, err := w.Write([]byte(tc.responseBody))
 				assert.NoError(t, err)
 			}))
 			client := mockAPIClient(t, mockServer)
-			result, err := client.ListCASets(context.Background(), test.request)
-			if test.withError != nil {
-				test.withError(t, err)
+			result, err := client.ListCASets(context.Background(), tc.request)
+			if tc.withError != nil {
+				tc.withError(t, err)
 				return
 			}
 			require.NoError(t, err)
-			assert.Equal(t, test.expectedResponse, result)
+			assert.Equal(t, tc.expectedResponse, result)
 		})
 	}
 }
@@ -911,19 +911,19 @@ func TestDeleteCASet(t *testing.T) {
 		},
 	}
 
-	for name, test := range tests {
+	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				assert.Equal(t, test.expectedPath, r.URL.String())
+				assert.Equal(t, tc.expectedPath, r.URL.String())
 				assert.Equal(t, http.MethodDelete, r.Method)
-				w.WriteHeader(test.responseStatus)
-				_, err := w.Write([]byte(test.responseBody))
+				w.WriteHeader(tc.responseStatus)
+				_, err := w.Write([]byte(tc.responseBody))
 				assert.NoError(t, err)
 			}))
 			client := mockAPIClient(t, mockServer)
-			err := client.DeleteCASet(context.Background(), test.params)
-			if test.withError != nil {
-				test.withError(t, err)
+			err := client.DeleteCASet(context.Background(), tc.params)
+			if tc.withError != nil {
+				tc.withError(t, err)
 				return
 			}
 			require.NoError(t, err)
@@ -1133,23 +1133,23 @@ func TestListCASetAssociations(t *testing.T) {
 		},
 	}
 
-	for name, test := range tests {
+	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				assert.Equal(t, test.expectedPath, r.URL.String())
+				assert.Equal(t, tc.expectedPath, r.URL.String())
 				assert.Equal(t, http.MethodGet, r.Method)
-				w.WriteHeader(test.responseStatus)
-				_, err := w.Write([]byte(test.responseBody))
+				w.WriteHeader(tc.responseStatus)
+				_, err := w.Write([]byte(tc.responseBody))
 				assert.NoError(t, err)
 			}))
 			client := mockAPIClient(t, mockServer)
-			result, err := client.ListCASetAssociations(context.Background(), test.params)
-			if test.withError != nil {
-				test.withError(t, err)
+			result, err := client.ListCASetAssociations(context.Background(), tc.params)
+			if tc.withError != nil {
+				tc.withError(t, err)
 				return
 			}
 			require.NoError(t, err)
-			assert.Equal(t, test.expectedResponse, result)
+			assert.Equal(t, tc.expectedResponse, result)
 		})
 	}
 }
@@ -1397,28 +1397,28 @@ func TestCloneCASet(t *testing.T) {
 		},
 	}
 
-	for name, test := range tests {
+	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				assert.Equal(t, test.expectedPath, r.URL.String())
+				assert.Equal(t, tc.expectedPath, r.URL.String())
 				assert.Equal(t, http.MethodPost, r.Method)
-				w.WriteHeader(test.responseStatus)
-				_, err := w.Write([]byte(test.responseBody))
+				w.WriteHeader(tc.responseStatus)
+				_, err := w.Write([]byte(tc.responseBody))
 				assert.NoError(t, err)
-				if test.expectedRequestBody != "" {
+				if tc.expectedRequestBody != "" {
 					body, err := io.ReadAll(r.Body)
 					assert.NoError(t, err)
-					assert.JSONEq(t, test.expectedRequestBody, string(body))
+					assert.JSONEq(t, tc.expectedRequestBody, string(body))
 				}
 			}))
 			client := mockAPIClient(t, mockServer)
-			result, err := client.CloneCASet(context.Background(), test.params)
-			if test.withError != nil {
-				test.withError(t, err)
+			result, err := client.CloneCASet(context.Background(), tc.params)
+			if tc.withError != nil {
+				tc.withError(t, err)
 				return
 			}
 			require.NoError(t, err)
-			assert.Equal(t, test.expectedResponse, result)
+			assert.Equal(t, tc.expectedResponse, result)
 		})
 	}
 }
@@ -1652,28 +1652,28 @@ func TestGetCASetDeletionStatus(t *testing.T) {
 		},
 	}
 
-	for name, test := range tests {
+	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				assert.Equal(t, test.expectedPath, r.URL.String())
+				assert.Equal(t, tc.expectedPath, r.URL.String())
 				assert.Equal(t, http.MethodGet, r.Method)
-				if len(test.responseHeaders) > 0 {
-					for header, value := range test.responseHeaders {
+				if len(tc.responseHeaders) > 0 {
+					for header, value := range tc.responseHeaders {
 						w.Header().Set(header, value)
 					}
 				}
-				w.WriteHeader(test.responseStatus)
-				_, err := w.Write([]byte(test.responseBody))
+				w.WriteHeader(tc.responseStatus)
+				_, err := w.Write([]byte(tc.responseBody))
 				assert.NoError(t, err)
 			}))
 			client := mockAPIClient(t, mockServer)
-			result, err := client.GetCASetDeletionStatus(context.Background(), test.params)
-			if test.withError != nil {
-				test.withError(t, err)
+			result, err := client.GetCASetDeletionStatus(context.Background(), tc.params)
+			if tc.withError != nil {
+				tc.withError(t, err)
 				return
 			}
 			require.NoError(t, err)
-			assert.Equal(t, test.expectedResponse, result)
+			assert.Equal(t, tc.expectedResponse, result)
 		})
 	}
 }
@@ -1855,23 +1855,23 @@ func TestListCASetActivities(t *testing.T) {
 		},
 	}
 
-	for name, test := range tests {
+	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				assert.Equal(t, test.expectedPath, r.URL.String())
+				assert.Equal(t, tc.expectedPath, r.URL.String())
 				assert.Equal(t, http.MethodGet, r.Method)
-				w.WriteHeader(test.responseStatus)
-				_, err := w.Write([]byte(test.responseBody))
+				w.WriteHeader(tc.responseStatus)
+				_, err := w.Write([]byte(tc.responseBody))
 				assert.NoError(t, err)
 			}))
 			client := mockAPIClient(t, mockServer)
-			result, err := client.ListCASetActivities(context.Background(), test.params)
-			if test.withError != nil {
-				test.withError(t, err)
+			result, err := client.ListCASetActivities(context.Background(), tc.params)
+			if tc.withError != nil {
+				tc.withError(t, err)
 				return
 			}
 			require.NoError(t, err)
-			assert.Equal(t, test.expectedResponse, result)
+			assert.Equal(t, tc.expectedResponse, result)
 		})
 	}
 }

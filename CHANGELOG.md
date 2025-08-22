@@ -52,22 +52,26 @@
 
 * mTLS Truststore
   * Added support for the Mutual TLS Edge Truststore V2 API.
-    * [CreateCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-ca-set)
-    * [GetCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set)
-    * [ListCASets](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-sets)
-    * [DeleteCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/delete-ca-set)
-
-
-* mTLS Truststore
-  * Added support for the Mutual TLS Edge Truststore V2 API.
+    * [CreateCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-ca-set) - Creates a new CA set.
+    * [GetCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set) - Fetches details of a CA set.
+    * [ListCASets](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-sets) - Lists all the available CA sets created under the account.
+    * [DeleteCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/delete-ca-set) - Deletes a CA set.
+    * [GetCASetDeletionStatus](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-deletion-request-details) - Retrieves a status of CA Set deletion.
+    * [ListCASetActivities](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-activities) - Lists activities of a CA Set.
+    * [ListCASetAssociations](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-associations) - Lists properties and enrollments associated with a CA set.
     * [CreateCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-ca-set-version) - Creates a new CA set version.
     * [CloneCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-clone-ca-set-version) - Creates a clone of a CA set version.
-    * [ListCASetVersions](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-versions) - Lists all the available CA set versions created under the account.
     * [GetCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-version) - Fetches details of a CA sets version.
+    * [ListCASetVersions](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-versions) - Lists all the available CA set versions created under the account.
     * [UpdateCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/put-ca-set-version) - Updates a CA sets version.
     * [GetCASetVersionCertificates](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-version-certificates) - Lists certificates details of a CA sets version.
-
-
+    * [ActivateCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-activate-ca-set-version) - Activates CA set version.
+    * [DeactivateCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-deactivate-ca-set-version) - Deactivates CA set version.
+    * [GetCASetVersionActivation](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-deployment-request-details) - Fetches CA set version activation.
+    * [ListCASetVersionActivations](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-activations) - Lists activations for CA set version.
+    * [ListCASetActivations](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-deployment-request-for-ca-set) - Lists activations for CA set.
+    * [CloneCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-clone-ca-set) - Clones a CA Set.
+    * [ValidateCertificates](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-validate-certificates) - Validates a list of certificates.
 
 * Added API Definitions API Support
   * Endpoints
@@ -111,22 +115,7 @@
     * Added [AccountProtection] in export configuration
     * Added [UsernameToSiem] field in siem settings
 
-* mTLS Truststore
-  * Added support for the Mutual TLS Edge Truststore V2 API.
-    * [ActivateCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-activate-ca-set-version) - Activates CA set version.
-    * [DeactivateCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-deactivate-ca-set-version) - Deactivates CA set version.
-    * [GetCASetVersionActivation](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-deployment-request-details) - Fetches CA set version activation.
-    * [ListCASetVersionActivations](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-activations) - Lists activations for CA set version.
-    * [ListCASetActivations](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-deployment-request-for-ca-set) - Lists activations for CA set.
 
-
-* mTLS Truststore
-  * Added support for the Mutual TLS Edge Truststore V2 API.
-    * [ListCASetAssociations](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-associations) - Lists properties and enrollments associated with a CA set.
-    * [CloneCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-clone-ca-set) - Clones a CA Set.
-    * [GetCASetDeletionStatus](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-deletion-request-details) - Retrieves a status of CA Set deletion.
-    * [ListCASetActivities](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-activities) - Lists activities of a CA Set.
-    * [ValidateCertificates](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-validate-certificates) - Validates a list of certificates.
 
 
 

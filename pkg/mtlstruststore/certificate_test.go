@@ -291,29 +291,29 @@ func TestValidateCertificates(t *testing.T) {
 		},
 	}
 
-	for name, test := range tests {
+	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				assert.Equal(t, test.expectedPath, r.URL.String())
+				assert.Equal(t, tc.expectedPath, r.URL.String())
 				assert.Equal(t, http.MethodPost, r.Method)
-				if test.expectedRequestBody != "" {
+				if tc.expectedRequestBody != "" {
 					body, err := io.ReadAll(r.Body)
 					assert.NoError(t, err)
-					assert.JSONEq(t, test.expectedRequestBody, string(body))
+					assert.JSONEq(t, tc.expectedRequestBody, string(body))
 				}
 
-				w.WriteHeader(test.responseStatus)
-				_, err := w.Write([]byte(test.responseBody))
+				w.WriteHeader(tc.responseStatus)
+				_, err := w.Write([]byte(tc.responseBody))
 				assert.NoError(t, err)
 			}))
 			client := mockAPIClient(t, mockServer)
-			result, err := client.ValidateCertificates(context.Background(), test.params)
-			if test.withError != nil {
-				test.withError(t, err)
+			result, err := client.ValidateCertificates(context.Background(), tc.params)
+			if tc.withError != nil {
+				tc.withError(t, err)
 				return
 			}
 			require.NoError(t, err)
-			assert.Equal(t, test.expectedResponse, result)
+			assert.Equal(t, tc.expectedResponse, result)
 		})
 	}
 }
