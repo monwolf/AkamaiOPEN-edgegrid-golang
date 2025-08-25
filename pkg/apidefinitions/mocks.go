@@ -132,3 +132,11 @@ func (m *Mock) DeleteEndpointVersion(ctx context.Context, req DeleteEndpointVers
 	args := m.Called(ctx, req)
 	return args.Error(0)
 }
+
+func (m *Mock) SearchResourceOperations(ctx context.Context) (*SearchResourceOperationsResponse, error) {
+	args := m.Called(ctx)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*SearchResourceOperationsResponse), args.Error(1)
+}

@@ -94,6 +94,9 @@ type (
 		//
 		// See: https://techdocs.akamai.com/api-definitions/reference/delete-endpoint-version
 		DeleteEndpointVersion(context.Context, DeleteEndpointVersionRequest) error
+
+		// SearchResourceOperations searches for resources and operations within an API endpoint
+		SearchResourceOperations(ctx context.Context) (*SearchResourceOperationsResponse, error)
 	}
 
 	apidefinitions struct {
