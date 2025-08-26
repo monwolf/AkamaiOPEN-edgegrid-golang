@@ -360,6 +360,14 @@ func (m *Mock) UpdateAdvancedSettingsEvasivePathMatch(ctx context.Context, req U
 	return args.Get(0).(*UpdateAdvancedSettingsEvasivePathMatchResponse), args.Error(1)
 }
 
+func (m *Mock) UpdateAdvancedSettingsJA4Fingerprint(ctx context.Context, req UpdateAdvancedSettingsJA4FingerprintRequest) (*UpdateAdvancedSettingsJA4FingerprintResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*UpdateAdvancedSettingsJA4FingerprintResponse), args.Error(1)
+}
+
 func (m *Mock) UpdateAdvancedSettingsPIILearning(ctx context.Context, req UpdateAdvancedSettingsPIILearningRequest) (*AdvancedSettingsPIILearningResponse, error) {
 	args := m.Called(ctx, req)
 	if args.Get(0) == nil {
@@ -510,6 +518,14 @@ func (m *Mock) RemoveAdvancedSettingsEvasivePathMatch(ctx context.Context, req R
 		return nil, args.Error(1)
 	}
 	return args.Get(0).(*RemoveAdvancedSettingsEvasivePathMatchResponse), args.Error(1)
+}
+
+func (m *Mock) RemoveAdvancedSettingsJA4Fingerprint(ctx context.Context, req RemoveAdvancedSettingsJA4FingerprintRequest) (*RemoveAdvancedSettingsJA4FingerprintResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*RemoveAdvancedSettingsJA4FingerprintResponse), args.Error(1)
 }
 
 func (m *Mock) RemoveAdvancedSettingsRequestBody(ctx context.Context, req RemoveAdvancedSettingsRequestBodyRequest) (*RemoveAdvancedSettingsRequestBodyResponse, error) {
@@ -1167,6 +1183,14 @@ func (m *Mock) GetAdvancedSettingsEvasivePathMatch(ctx context.Context, req GetA
 		return nil, args.Error(1)
 	}
 	return args.Get(0).(*GetAdvancedSettingsEvasivePathMatchResponse), args.Error(1)
+}
+
+func (m *Mock) GetAdvancedSettingsJA4Fingerprint(ctx context.Context, req GetAdvancedSettingsJA4FingerprintRequest) (*GetAdvancedSettingsJA4FingerprintResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*GetAdvancedSettingsJA4FingerprintResponse), args.Error(1)
 }
 
 func (m *Mock) GetAdvancedSettingsPIILearning(ctx context.Context, req GetAdvancedSettingsPIILearningRequest) (*AdvancedSettingsPIILearningResponse, error) {

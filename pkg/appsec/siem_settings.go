@@ -37,12 +37,13 @@ type (
 
 	// GetSiemSettingsResponse is returned from a call to GetSiemSettings.
 	GetSiemSettingsResponse struct {
-		EnableForAllPolicies    bool        `json:"enableForAllPolicies"`
-		EnableSiem              bool        `json:"enableSiem"`
-		EnabledBotmanSiemEvents bool        `json:"enabledBotmanSiemEvents"`
-		SiemDefinitionID        int         `json:"siemDefinitionId"`
-		FirewallPolicyIDs       []string    `json:"firewallPolicyIds"`
-		Exceptions              []Exception `json:"exceptions"`
+		EnableForAllPolicies        bool        `json:"enableForAllPolicies"`
+		EnableSiem                  bool        `json:"enableSiem"`
+		EnabledBotmanSiemEvents     bool        `json:"enabledBotmanSiemEvents"`
+		IncludeJA4FingerprintToSiem *bool       `json:"includeJA4FingerprintToSiem"`
+		SiemDefinitionID            int         `json:"siemDefinitionId"`
+		FirewallPolicyIDs           []string    `json:"firewallPolicyIds"`
+		Exceptions                  []Exception `json:"exceptions"`
 	}
 
 	// GetSiemSettingRequest is used to retrieve the SIEM settings for a configuration.
@@ -59,56 +60,61 @@ type (
 
 	// GetSiemSettingResponse is returned from a call to GetSiemSettings.
 	GetSiemSettingResponse struct {
-		EnableForAllPolicies    bool        `json:"enableForAllPolicies"`
-		EnableSiem              bool        `json:"enableSiem"`
-		EnabledBotmanSiemEvents *bool       `json:"enabledBotmanSiemEvents"`
-		SiemDefinitionID        int         `json:"siemDefinitionId"`
-		FirewallPolicyIDs       []string    `json:"firewallPolicyIds"`
-		Exceptions              []Exception `json:"exceptions"`
+		EnableForAllPolicies        bool        `json:"enableForAllPolicies"`
+		EnableSiem                  bool        `json:"enableSiem"`
+		EnabledBotmanSiemEvents     *bool       `json:"enabledBotmanSiemEvents"`
+		IncludeJA4FingerprintToSiem *bool       `json:"includeJA4FingerprintToSiem"`
+		SiemDefinitionID            int         `json:"siemDefinitionId"`
+		FirewallPolicyIDs           []string    `json:"firewallPolicyIds"`
+		Exceptions                  []Exception `json:"exceptions"`
 	}
 
 	// UpdateSiemSettingsRequest is used to modify the SIEM settings for a configuration.
 	UpdateSiemSettingsRequest struct {
-		ConfigID                int         `json:"-"`
-		Version                 int         `json:"-"`
-		EnableForAllPolicies    bool        `json:"enableForAllPolicies"`
-		EnableSiem              bool        `json:"enableSiem"`
-		EnabledBotmanSiemEvents *bool       `json:"enabledBotmanSiemEvents,omitempty"`
-		SiemDefinitionID        int         `json:"siemDefinitionId"`
-		FirewallPolicyIDs       []string    `json:"firewallPolicyIds"`
-		Exceptions              []Exception `json:"exceptions,omitempty"`
+		ConfigID                    int         `json:"-"`
+		Version                     int         `json:"-"`
+		EnableForAllPolicies        bool        `json:"enableForAllPolicies"`
+		EnableSiem                  bool        `json:"enableSiem"`
+		EnabledBotmanSiemEvents     *bool       `json:"enabledBotmanSiemEvents,omitempty"`
+		IncludeJA4FingerprintToSiem *bool       `json:"includeJA4FingerprintToSiem,omitempty"`
+		SiemDefinitionID            int         `json:"siemDefinitionId"`
+		FirewallPolicyIDs           []string    `json:"firewallPolicyIds"`
+		Exceptions                  []Exception `json:"exceptions,omitempty"`
 	}
 
 	// UpdateSiemSettingsResponse is returned from a call to UpdateSiemSettings.
 	UpdateSiemSettingsResponse struct {
-		EnableForAllPolicies    bool        `json:"enableForAllPolicies"`
-		EnableSiem              bool        `json:"enableSiem"`
-		EnabledBotmanSiemEvents *bool       `json:"enabledBotmanSiemEvents"`
-		SiemDefinitionID        int         `json:"siemDefinitionId"`
-		FirewallPolicyIDs       []string    `json:"firewallPolicyIds"`
-		Exceptions              []Exception `json:"exceptions"`
+		EnableForAllPolicies        bool        `json:"enableForAllPolicies"`
+		EnableSiem                  bool        `json:"enableSiem"`
+		EnabledBotmanSiemEvents     *bool       `json:"enabledBotmanSiemEvents"`
+		IncludeJA4FingerprintToSiem *bool       `json:"includeJA4FingerprintToSiem"`
+		SiemDefinitionID            int         `json:"siemDefinitionId"`
+		FirewallPolicyIDs           []string    `json:"firewallPolicyIds"`
+		Exceptions                  []Exception `json:"exceptions"`
 	}
 
 	// RemoveSiemSettingsRequest is used to remove the SIEM settings for a configuration.
 	// Deprecated: this struct will be removed in a future release.
 	RemoveSiemSettingsRequest struct {
-		ConfigID                int      `json:"-"`
-		Version                 int      `json:"-"`
-		EnableForAllPolicies    bool     `json:"-"`
-		EnableSiem              bool     `json:"enableSiem"`
-		EnabledBotmanSiemEvents *bool    `json:"-"`
-		SiemDefinitionID        int      `json:"-"`
-		FirewallPolicyIDs       []string `json:"-"`
+		ConfigID                    int      `json:"-"`
+		Version                     int      `json:"-"`
+		EnableForAllPolicies        bool     `json:"-"`
+		EnableSiem                  bool     `json:"enableSiem"`
+		EnabledBotmanSiemEvents     *bool    `json:"-"`
+		IncludeJA4FingerprintToSiem *bool    `json:"-"`
+		SiemDefinitionID            int      `json:"-"`
+		FirewallPolicyIDs           []string `json:"-"`
 	}
 
 	// RemoveSiemSettingsResponse is returned from a call to RemoveSiemSettings.
 	// Deprecated: this struct will be removed in a future release.
 	RemoveSiemSettingsResponse struct {
-		EnableForAllPolicies    bool     `json:"enableForAllPolicies"`
-		EnableSiem              bool     `json:"enableSiem"`
-		EnabledBotmanSiemEvents *bool    `json:"enabledBotmanSiemEvents"`
-		SiemDefinitionID        int      `json:"siemDefinitionId"`
-		FirewallPolicyIDs       []string `json:"firewallPolicyIds"`
+		EnableForAllPolicies        bool     `json:"enableForAllPolicies"`
+		EnableSiem                  bool     `json:"enableSiem"`
+		EnabledBotmanSiemEvents     *bool    `json:"enabledBotmanSiemEvents"`
+		IncludeJA4FingerprintToSiem *bool    `json:"includeJA4FingerprintToSiem"`
+		SiemDefinitionID            int      `json:"siemDefinitionId"`
+		FirewallPolicyIDs           []string `json:"firewallPolicyIds"`
 	}
 )
 

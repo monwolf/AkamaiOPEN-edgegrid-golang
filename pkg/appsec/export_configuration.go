@@ -300,6 +300,7 @@ type (
 		Logging              *Loggingexp                        `json:"logging"`
 		AttackPayloadLogging *AttackPayloadLogging              `json:"attackPayloadLogging"`
 		EvasivePathMatch     *EvasivePathMatchexp               `json:"evasivePathMatch,omitempty"`
+		JA4Fingerprint       *JA4Fingerprintexp                 `json:"ja4Fingerprint,omitempty"`
 		Prefetch             *Prefetch                          `json:"prefetch"`
 		PragmaHeader         *GetAdvancedSettingsPragmaResponse `json:"pragmaHeader,omitempty"`
 		RequestBody          *RequestBody                       `json:"requestBody,omitempty"`
@@ -326,11 +327,12 @@ type (
 
 	// Siemexp is returned as part of GetExportConfigurationResponse.
 	Siemexp struct {
-		EnableForAllPolicies    bool     `json:"enableForAllPolicies,omitempty"`
-		EnableSiem              bool     `json:"enableSiem"`
-		EnabledBotmanSiemEvents bool     `json:"enabledBotmanSiemEvents,omitempty"`
-		FirewallPolicyIDs       []string `json:"firewallPolicyIds,omitempty"`
-		SiemDefinitionID        int      `json:"siemDefinitionId,omitempty"`
+		EnableForAllPolicies        bool     `json:"enableForAllPolicies,omitempty"`
+		EnableSiem                  bool     `json:"enableSiem"`
+		EnabledBotmanSiemEvents     bool     `json:"enabledBotmanSiemEvents,omitempty"`
+		IncludeJA4FingerprintToSiem *bool    `json:"includeJA4FingerprintToSiem,omitempty"`
+		FirewallPolicyIDs           []string `json:"firewallPolicyIds,omitempty"`
+		SiemDefinitionID            int      `json:"siemDefinitionId,omitempty"`
 	}
 
 	// PenaltyBoxexp is returned as part of GetExportConfigurationResponse.
@@ -471,6 +473,11 @@ type (
 	// EvasivePathMatchexp contains the EnablePathMatch setting
 	EvasivePathMatchexp struct {
 		EnablePathMatch bool `json:"enabled"`
+	}
+
+	// JA4Fingerprintexp contains the JA4 Client TLS Fingerprint setting
+	JA4Fingerprintexp struct {
+		HeaderNames []string `json:"headerNames,omitempty"`
 	}
 
 	// PIILearningexp contains the PIILearning setting

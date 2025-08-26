@@ -14,6 +14,23 @@
 * Appsec
   * Added an `Action` field to the `IPGeoNetworkLists` struct to block the request from specified IP, GEO, ASN with a `deny` or a `custom_deny` action in blockSpecific Mode.
   * Added a `BlockAllAction` field to the `IPGeoFirewall` and `UpdateIPGeoRequest` structs to block all the request with a `deny` or a `custom_deny` action in IP/GEO except from the allowedLists in blockAll Mode.
+* Appsec
+  * Added JA4 Client TLS Fingerprint methods:
+    * [GetAdvancedSettingsJA4Fingerprint](https://techdocs.akamai.com/application-security/reference/get-ja4-fingerprint-settings)
+    * [UpdateAdvancedSettingsJA4Fingerprint](https://techdocs.akamai.com/application-security/reference/put-ja4-fingerprint-settings)
+    * RemoveAdvancedSettingsJA4Fingerprint(https://techdocs.akamai.com/application-security/reference/put-ja4-fingerprint-settings)
+  * Added `IncludeJA4FingerprintToSiem` field to the following structs:
+    * GetSiemSettingsResponse
+    * GetSiemSettingResponse
+    * UpdateSiemSettingsRequest
+    * UpdateSiemSettingsResponse
+    * RemoveSiemSettingsRequest
+    * RemoveSiemSettingsResponse
+  * Added `JA4Fingerprint` field to the following structs:
+    * AdvancedOptionsexp
+    * Siemexp
+    * JA4Fingerprintexp
+
 
 * EdgeKV
   * Added `ScheduledDeleteTime` and `NamespaceStatus` fields to the following structures:

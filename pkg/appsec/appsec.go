@@ -29,6 +29,7 @@ type (
 		AdvancedSettingsPragma
 		AdvancedSettingsPrefetch
 		AdvancedSettingsRequestBody
+		AdvancedSettingsJA4Fingerprint
 		ApiConstraintsProtection
 		ApiEndpoints
 		ApiHostnameCoverage
