@@ -14,7 +14,14 @@
 * Appsec
   * Added an `Action` field to the `IPGeoNetworkLists` struct to block the request from specified IP, GEO, ASN with a `deny` or a `custom_deny` action in blockSpecific Mode.
   * Added a `BlockAllAction` field to the `IPGeoFirewall` and `UpdateIPGeoRequest` structs to block all the request with a `deny` or a `custom_deny` action in IP/GEO except from the allowedLists in blockAll Mode.
-* Appsec
+  * Added `IncludeExpiryDetails` field to the `GetRapidRulesRequest` struct.
+  * Added `Expired` and `ExpireInDays` fields to the following structures:
+    * `PolicyRapidRule`
+    * `RapidRuleDetails`
+  * Added ASE Penalty Box methods:
+    * GetAdvancedSettingsAsePenaltyBox
+    * UpdateAdvancedSettingsAsePenaltyBox
+    * RemoveAdvancedSettingsAsePenaltyBox
   * Added JA4 Client TLS Fingerprint methods:
     * [GetAdvancedSettingsJA4Fingerprint](https://techdocs.akamai.com/application-security/reference/get-ja4-fingerprint-settings)
     * [UpdateAdvancedSettingsJA4Fingerprint](https://techdocs.akamai.com/application-security/reference/put-ja4-fingerprint-settings)
@@ -99,12 +106,6 @@
 ## 11.1.0 (Aug 4, 2025)
 
 ### FEATURES/ENHANCEMENTS:
-
-* Appsec
-  * Added `IncludeExpiryDetails` field to the `GetRapidRulesRequest` struct.
-  * Added `Expired` and `ExpireInDays` fields to the following structures:
-    * `PolicyRapidRule`
-    * `RapidRuleDetails`
 
 * ClientLists
   * Added support for deactivation per network:

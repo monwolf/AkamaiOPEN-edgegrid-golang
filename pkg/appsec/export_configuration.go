@@ -303,6 +303,7 @@ type (
 		JA4Fingerprint       *JA4Fingerprintexp                 `json:"ja4Fingerprint,omitempty"`
 		Prefetch             *Prefetch                          `json:"prefetch"`
 		PragmaHeader         *GetAdvancedSettingsPragmaResponse `json:"pragmaHeader,omitempty"`
+		AsePenaltyBox        *AsePenaltyBoxexp                  `json:"asePenaltyBox,omitempty"`
 		RequestBody          *RequestBody                       `json:"requestBody,omitempty"`
 		PIILearning          *PIILearningexp                    `json:"piiLearning,omitempty"`
 	}
@@ -478,6 +479,21 @@ type (
 	// JA4Fingerprintexp contains the JA4 Client TLS Fingerprint setting
 	JA4Fingerprintexp struct {
 		HeaderNames []string `json:"headerNames,omitempty"`
+	}
+
+	// AsePenaltyBoxexp contains the ASE Penalty Box setting
+	AsePenaltyBoxexp struct {
+		RequestCount            int      `json:"requestCount"`
+		BlockDuration           int      `json:"blockDuration"`
+		ClientIdentifiers       []string `json:"clientIdentifiers"`
+		AkamaiManagedExclusions struct {
+			Rules       []int  `json:"rules"`
+			LastUpdated string `json:"lastUpdated,omitempty"`
+		} `json:"akamaiManagedExclusions"`
+		QualificationExclusions struct {
+			AttackGroups []string `json:"attackGroups"`
+			Rules        []int    `json:"rules"`
+		} `json:"qualificationExclusions"`
 	}
 
 	// PIILearningexp contains the PIILearning setting

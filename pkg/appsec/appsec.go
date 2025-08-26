@@ -22,6 +22,7 @@ type (
 	// APPSEC is the appsec api interface
 	APPSEC interface {
 		Activations
+		AdvancedSettingsAsePenaltyBox
 		AdvancedSettingsAttackPayloadLogging
 		AdvancedSettingsEvasivePathMatch
 		AdvancedSettingsLogging
