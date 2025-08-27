@@ -9,8 +9,8 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/edgegrid"
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/log"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/edgegrid"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/log"
 )
 
 type (
