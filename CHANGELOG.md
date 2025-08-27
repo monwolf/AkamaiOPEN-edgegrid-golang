@@ -87,26 +87,26 @@
 
 * mTLS Truststore (Beta)
   * Added support for the Mutual TLS Edge Truststore V2 API.
-    * [CreateCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-ca-set) - Creates a new CA set.
-    * [GetCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set) - Fetches details of a CA set.
-    * [ListCASets](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-sets) - Lists all the available CA sets created under the account.
-    * [DeleteCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/delete-ca-set) - Deletes a CA set.
-    * [GetCASetDeletionStatus](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-deletion-request-details) - Retrieves a deletion status of a CA set.
-    * [ListCASetActivities](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-activities) - Lists activities of a CA set.
-    * [ListCASetAssociations](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-associations) - Lists properties and enrollments associated with a CA set.
-    * [CreateCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-ca-set-version) - Creates a new CA set version.
-    * [CloneCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-clone-ca-set-version) - Creates a clone of a CA set version.
-    * [GetCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-version) - Fetches details of a CA sets version.
-    * [ListCASetVersions](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-versions) - Lists all the available CA set versions created under the account.
-    * [UpdateCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/put-ca-set-version) - Updates a CA sets version.
-    * [GetCASetVersionCertificates](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-version-certificates) - Lists certificates for a CA sets version.
-    * [ActivateCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-activate-ca-set-version) - Activates a CA set version.
-    * [DeactivateCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-deactivate-ca-set-version) - Deactivates a CA set version.
-    * [GetCASetVersionActivation](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-deployment-request-details) - Fetches a CA set version's activation.
-    * [ListCASetVersionActivations](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-activations) - Lists activations for a CA set version.
-    * [ListCASetActivations](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-deployment-request-for-ca-set) - Lists activations for a CA set.
-    * [CloneCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-clone-ca-set) - Clones a CA set.
-    * [ValidateCertificates](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-validate-certificates) - Validates a list of certificates.
+    * `CreateCASet` - Creates a new CA set.
+    * `GetCASet` - Fetches details of a CA set.
+    * `ListCASets` - Lists all the available CA sets created under the account.
+    * `DeleteCASet` - Deletes a CA set.
+    * `GetCASetDeletionStatus` - Retrieves a deletion status of a CA set.
+    * `ListCASetActivities` - Lists activities of a CA set.
+    * `ListCASetAssociations` - Lists properties and enrollments associated with a CA set.
+    * `CreateCASetVersion` - Creates a new CA set version.
+    * `CloneCASetVersion` - Creates a clone of a CA set version.
+    * `GetCASetVersion` - Fetches details of a CA sets version.
+    * `ListCASetVersions` - Lists all the available CA set versions created under the account.
+    * `UpdateCASetVersion` - Updates a CA sets version.
+    * `GetCASetVersionCertificates` - Lists certificates for a CA sets version.
+    * `ActivateCASetVersion` - Activates a CA set version.
+    * `DeactivateCASetVersion` - Deactivates a CA set version.
+    * `GetCASetVersionActivation` - Fetches a CA set version's activation.
+    * `ListCASetVersionActivations` - Lists activations for a CA set version.
+    * `ListCASetActivations` - Lists activations for a CA set.
+    * `CloneCASet` - Clones a CA set.
+    * `ValidateCertificates` - Validates a list of certificates.
 
 ## 11.1.0 (Aug 4, 2025)
 
