@@ -760,31 +760,34 @@ To see what methods you can use within a given package, go to the `pkg` director
 - The main `interface` can contain its own methods or other `interfaces` with their own methods.
 - `struct` blocks distributed across the package's files, each containing a list of parameters you can pass in a given method.
 
-| Package                                       | Description                                                                                          |
-|-----------------------------------------------|------------------------------------------------------------------------------------------------------|
-| [Application Security](./pkg/appsec/)         | Manage security configurations, security policies, match targets, rate policies, and firewall rules. |
-| [Bot Manager](./pkg/botman/)                  | Identify, track, and respond to bot activity on your domain or in your app.                          |
-| [Certificate Provisioning System](./pkg/cps/) | Manage the full life cycle of SSL certificates for your ​Akamai​ CDN applications.                   |
-| [Client Lists](./pkg/clientlists/)            | Reduce harmful security attacks by allowing only trusted IP/CIDRs, locations, autonomous system numbers, and TLS fingerprints to access your services and content.|
-| [Cloud Access Manager](./pkg/cloudaccess/)    | Enable cloud origin authentication and securely store and manage your cloud origin credentials as access keys. |
-| [Cloudlets](./pkg/cloudlets/)                 | Solve specific business challenges using value-added apps that complement ​Akamai​'s core solutions. |
-| [Cloud Wrapper](./pkg/cloudwrapper/)          | Provide your customers with a more consistent user experience by adding a custom caching layer that improves the connection between your cloud infrastructure and the Akamai platform.|
-| [DataStream](./pkg/datastream/)               | Monitor activity on the ​Akamai​ platform and send live log data to a destination of your choice.    |
-| [Edge DNS](./pkg/dns/)                        | Replace or augment your DNS infrastructure with a cloud-based authoritative DNS solution.            |
-| [EdgeGrid](./pkg/edgegrid/)                   | Parse the Akamai `.edgerc` configuration and sign HTTP requests.            |
-| [EdgeGrid Errors](./pkg/edgegriderr/)         | Parse validation errors to make them more readable.            |
-| [Edge Hostnames](./pkg/hapi/)                 | Manage how requests for your site, app, or content map to Akamai edge servers.                                 |
-| [EdgeWorkers](./pkg/edgeworkers/)             | Execute JavaScript functions at the edge to optimize site performance and customize web experiences. |
-| [Errors](./pkg/errs/)                         | Use utilities for working with errors during JSON data unmarshalling.            |
-| [Global Traffic Management](./pkg/gtm/)       | Use load balancing to manage website and mobile performance demands.                                 |
-| [Identity and Access Management](./pkg/iam/)  | Create users and groups, and define policies that manage access to your Akamai applications.         |
-| [Image and Video Manager](./pkg/imaging/)     | Automate image and video delivery optimizations for your website visitors.                           |
-| [Log](./pkg/log/)                             | Add the structured logging interface.                           |
-| [mTLS Origin Keystore](./pkg/mtlskeystore/)   | Securely manage client certificates to establish a mutual authentication (mTLS) session between Akamai edge servers and the origin.                           |
-| [Network Lists](./pkg/networklists/)          | Automate the creation, deployment, and management of lists used in ​Akamai​ security products.       |
-| [Pointer Record](./pkg/ptr/)                  | Create pointers to values of any type.  |
-| [Property Manager](./pkg/papi/)               | Define rules and behaviors that govern your website delivery based on match criteria.                |
-| [Session](./pkg/session/)                     | Manage the base secure HTTP client and requests for Akamai APIs.  |
+| Package                                        | Description                                                                                                                                                                            |
+|------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [Account Protector](./pkg/accountprotection)   | Detect and mitigate inauthentic user behavior that can lead to account takeovers and other abuses.                                                                                     |
+| [API Definitions](./pkg/apidefinitions)        | Register and define API endpoint constraints used to when setting protections in other Akamai products and services.                                                                   |
+| [Application Security](./pkg/appsec/)          | Manage security configurations, security policies, match targets, rate policies, and firewall rules.                                                                                   |
+| [Bot Manager](./pkg/botman/)                   | Identify, track, and respond to bot activity on your domain or in your app.                                                                                                            |
+| [Certificate Provisioning System](./pkg/cps/)  | Manage the full life cycle of SSL certificates for your ​Akamai​ CDN applications.                                                                                                     |
+| [Client Lists](./pkg/clientlists/)             | Reduce harmful security attacks by allowing only trusted IP/CIDRs, locations, autonomous system numbers, and TLS fingerprints to access your services and content.                     |
+| [Cloud Access Manager](./pkg/cloudaccess/)     | Enable cloud origin authentication and securely store and manage your cloud origin credentials as access keys.                                                                         |
+| [Cloudlets](./pkg/cloudlets/)                  | Solve specific business challenges using value-added apps that complement ​Akamai​'s core solutions.                                                                                   |
+| [Cloud Wrapper](./pkg/cloudwrapper/)           | Provide your customers with a more consistent user experience by adding a custom caching layer that improves the connection between your cloud infrastructure and the Akamai platform. |
+| [DataStream](./pkg/datastream/)                | Monitor activity on the ​Akamai​ platform and send live log data to a destination of your choice.                                                                                      |
+| [Edge DNS](./pkg/dns/)                         | Replace or augment your DNS infrastructure with a cloud-based authoritative DNS solution.                                                                                              |
+| [EdgeGrid](./pkg/edgegrid/)                    | Parse the Akamai `.edgerc` configuration and sign HTTP requests.                                                                                                                       |
+| [EdgeGrid Errors](./pkg/edgegriderr/)          | Parse validation errors to make them more readable.                                                                                                                                    |
+| [Edge Hostnames](./pkg/hapi/)                  | Manage how requests for your site, app, or content map to Akamai edge servers.                                                                                                         |
+| [EdgeWorkers](./pkg/edgeworkers/)              | Execute JavaScript functions at the edge to optimize site performance and customize web experiences.                                                                                   |
+| [Errors](./pkg/errs/)                          | Use utilities for working with errors during JSON data unmarshalling.                                                                                                                  |
+| [Global Traffic Management](./pkg/gtm/)        | Use load balancing to manage website and mobile performance demands.                                                                                                                   |
+| [Identity and Access Management](./pkg/iam/)   | Create users and groups, and define policies that manage access to your Akamai applications.                                                                                           |
+| [Image and Video Manager](./pkg/imaging/)      | Automate image and video delivery optimizations for your website visitors.                                                                                                             |
+| [Log](./pkg/log/)                              | Add the structured logging interface.                                                                                                                                                  |
+| [mTLS Origin Keystore](./pkg/mtlskeystore/)    | Securely manage client certificates to establish a mutual authentication (mTLS) session between Akamai edge servers and the origin.                                                    |
+| [mTLS Edge Truststore](./pkg/mtlstruststore)   | Manage certificate authority (CA) sets that store trusted CA certificates, enabling secure, mutual authentication (mTLS) between a client and Akamai edge servers.                     |
+| [Network Lists](./pkg/networklists/)           | Automate the creation, deployment, and management of lists used in ​Akamai​ security products.                                                                                         |
+| [Pointer Record](./pkg/ptr/)                   | Create pointers to values of any type.                                                                                                                                                 |
+| [Property Manager](./pkg/papi/)                | Define rules and behaviors that govern your website delivery based on match criteria.                                                                                                  |
+| [Session](./pkg/session/)                      | Manage the base secure HTTP client and requests for Akamai APIs.                                                                                                                       |
 
 ### Example
 

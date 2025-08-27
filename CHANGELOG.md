@@ -1,167 +1,112 @@
 # RELEASE NOTES
 
-## X.X.X (X X, X)
+## 12.0.0 (Sep 1, 2025)
 
 ### BREAKING CHANGES:
 
 * EdgeKV
-  * Replaced response struct in `GetEdgeKVNamespace` as `*GetNamespaceResponse`
-  * Replaced response struct in `UpdateEdgeKVNamespace` as `*UpdateNamespaceResponse`
-  * Replaced `Namespace` field in `CreateEdgeKVNamespaceRequest` with `NamespaceRequest` struct
+  * Replaced the response structure in `GetEdgeKVNamespace` as `*GetNamespaceResponse`.
+  * Replaced the response structure in `UpdateEdgeKVNamespace` as `*UpdateNamespaceResponse`.
+  * Replaced the `Namespace` field with the `NamespaceRequest` structure in `CreateEdgeKVNamespaceRequest`.
 
 ### FEATURES/ENHANCEMENTS:
 
+* Account Protector
+  * Added new methods for the Account Protector API (Beta):
+    * [ListProtectedOperations](https://techdocs.akamai.com/account-protector/reference/get-account-protection-settings)
+    * [UpsertGeneralSettings](https://techdocs.akamai.com/account-protector/reference/put-account-protection-settings)
+    * [ListTransactionalEndpoints](https://techdocs.akamai.com/account-protector/reference/get-account-protection)
+    * [GetProtectedOperationByID](https://techdocs.akamai.com/account-protector/reference/get-account-protection-op)
+    * [CreateProtectedOperations](https://techdocs.akamai.com/account-protector/reference/post-account-protection)
+    * [UpdateProtectedOperation](https://techdocs.akamai.com/account-protector/reference/put-account-protection-op)
+    * [RemoveProtectedOperation](https://techdocs.akamai.com/account-protector/reference/delete-account-protection-op)
+    * [GetUserRiskResponseStrategy](https://techdocs.akamai.com/account-protector/reference/get-user-risk-response-strategy)
+    * [UpsertUserRiskResponseStrategy](https://techdocs.akamai.com/account-protector/reference/put-user-risk-response-strategy)
+    * [GetUserAllowListID](https://techdocs.akamai.com/account-protector/reference/get-user-allow-list)
+    * [UpsertUserAllowListID](https://techdocs.akamai.com/account-protector/reference/put-get-user-allow-list)
+    * [DeleteUserAllowListID](https://techdocs.akamai.com/account-protector/reference/delete-get-user-allow-list)
+
+* API Definitions
+  * Added support for the API Definitions API (Beta):
+    * Endpoints
+      * [RegisterEndpoint](https://techdocs.akamai.com/api-definitions/reference/post-endpoints)
+      * [RegisterEndpointFromFile](https://techdocs.akamai.com/api-definitions/reference/post-endpoints-file)
+      * [ShowEndpoint](https://techdocs.akamai.com/api-definitions/reference/post-endpoint-show)
+      * [HideEndpoint](https://techdocs.akamai.com/api-definitions/reference/post-endpoint-hide)
+      * [DeleteEndpoint](https://techdocs.akamai.com/api-definitions/reference/delete-endpoint)
+      * [ListEndpoints](https://techdocs.akamai.com/api-definitions/reference/get-endpoints)
+    * Endpoint versions
+      * [ListEndpointVersions](https://techdocs.akamai.com/api-definitions/reference/get-endpoint-versions)
+      * [GetEndpointVersion](https://techdocs.akamai.com/api-definitions/reference/get-version-details)
+      * [UpdateEndpointVersion](https://techdocs.akamai.com/api-definitions/reference/put-endpoint-version)
+      * [CloneEndpointVersion](https://techdocs.akamai.com/api-definitions/reference/post-endpoint-version-clone)
+      * [DeleteEndpointVersion](https://techdocs.akamai.com/api-definitions/reference/delete-endpoint-version)
+    * Activations
+      * [ActivateVersion](https://techdocs.akamai.com/api-definitions/reference/post-endpoint-version-activate)
+      * [DeactivateVersion](https://techdocs.akamai.com/api-definitions/reference/post-endpoint-version-deactivate)
+
 * Appsec
-  * Added an `Action` field to the `IPGeoNetworkLists` struct to block the request from specified IP, GEO, ASN with a `deny` or a `custom_deny` action in blockSpecific Mode.
-  * Added a `BlockAllAction` field to the `IPGeoFirewall` and `UpdateIPGeoRequest` structs to block all the request with a `deny` or a `custom_deny` action in IP/GEO except from the allowedLists in blockAll Mode.
-  * Added `IncludeExpiryDetails` field to the `GetRapidRulesRequest` struct.
-  * Added `Expired` and `ExpireInDays` fields to the following structures:
+  * Added the `Action` field to the `IPGeoNetworkLists` structure to block requests from a specified IP, GEO, or ASN with a `deny` or `custom_deny` action in `blockSpecific` mode.
+  * Added the `BlockAllAction` field to the `IPGeoFirewall` and `UpdateIPGeoRequest` structures to block all requests with a `deny` or `custom_deny` action in the IP/GEO except from the `allowedLists` in `blockAll` mode.
+  * Added the `IncludeExpiryDetails` field to the `GetRapidRulesRequest` structure.
+  * Added the `Expired` and `ExpireInDays` fields to the following structures:
     * `PolicyRapidRule`
     * `RapidRuleDetails`
   * Added ASE Penalty Box methods:
-    * GetAdvancedSettingsAsePenaltyBox
-    * UpdateAdvancedSettingsAsePenaltyBox
-    * RemoveAdvancedSettingsAsePenaltyBox
+    * `GetAdvancedSettingsAsePenaltyBox`
+    * `UpdateAdvancedSettingsAsePenaltyBox`
+    * `RemoveAdvancedSettingsAsePenaltyBox`
   * Added JA4 Client TLS Fingerprint methods:
     * [GetAdvancedSettingsJA4Fingerprint](https://techdocs.akamai.com/application-security/reference/get-ja4-fingerprint-settings)
     * [UpdateAdvancedSettingsJA4Fingerprint](https://techdocs.akamai.com/application-security/reference/put-ja4-fingerprint-settings)
-    * RemoveAdvancedSettingsJA4Fingerprint(https://techdocs.akamai.com/application-security/reference/put-ja4-fingerprint-settings)
-  * Added `IncludeJA4FingerprintToSiem` field to the following structs:
-    * GetSiemSettingsResponse
-    * GetSiemSettingResponse
-    * UpdateSiemSettingsRequest
-    * UpdateSiemSettingsResponse
-    * RemoveSiemSettingsRequest
-    * RemoveSiemSettingsResponse
-  * Added `JA4Fingerprint` field to the following structs:
-    * AdvancedOptionsexp
-    * Siemexp
-    * JA4Fingerprintexp
-
-
-* EdgeKV
-  * Added `ScheduledDeleteTime` and `NamespaceStatus` fields to the following structures:
-    * `GetNamespaceResponse`
-    * `UpdateNamespaceResponse`
-
+    * [RemoveAdvancedSettingsJA4Fingerprint](https://techdocs.akamai.com/application-security/reference/put-ja4-fingerprint-settings)
+  * Added the `IncludeJA4FingerprintToSiem` field to the following structures:
+    * `GetSiemSettingsResponse`
+    * `GetSiemSettingResponse`
+    * `UpdateSiemSettingsRequest`
+    * `UpdateSiemSettingsResponse`
+    * `RemoveSiemSettingsRequest`
+    * `RemoveSiemSettingsResponse`
+  * Added the `JA4Fingerprint` field to the following structures:
+    * `AdvancedOptionsexp`
+    * `Siemexp`
+    * `JA4Fingerprintexp`
+  * Added `ApplyAccountProtectionControls` in all security controls.
+  * Added `AccountProtection` in export configuration.
+  * Added the `UsernameToSiem` field in SIEM settings.
 
 * ClientLists
   * Added support for `USER` type client lists.
   * Added a new method `TranslateUsernames`.
   * Added a new method [GetClientListItems](https://techdocs.akamai.com/client-lists/reference/get-items).
 
-* mTLS Truststore
+* EdgeKV
+  * Added `ScheduledDeleteTime` and `NamespaceStatus` fields to the following structures:
+    * `GetNamespaceResponse`
+    * `UpdateNamespaceResponse`
+
+* mTLS Truststore (Beta)
   * Added support for the Mutual TLS Edge Truststore V2 API.
     * [CreateCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-ca-set) - Creates a new CA set.
     * [GetCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set) - Fetches details of a CA set.
     * [ListCASets](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-sets) - Lists all the available CA sets created under the account.
     * [DeleteCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/delete-ca-set) - Deletes a CA set.
-    * [GetCASetDeletionStatus](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-deletion-request-details) - Retrieves a status of CA Set deletion.
-    * [ListCASetActivities](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-activities) - Lists activities of a CA Set.
+    * [GetCASetDeletionStatus](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-deletion-request-details) - Retrieves a deletion status of a CA set.
+    * [ListCASetActivities](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-activities) - Lists activities of a CA set.
     * [ListCASetAssociations](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-associations) - Lists properties and enrollments associated with a CA set.
     * [CreateCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-ca-set-version) - Creates a new CA set version.
     * [CloneCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-clone-ca-set-version) - Creates a clone of a CA set version.
     * [GetCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-version) - Fetches details of a CA sets version.
     * [ListCASetVersions](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-versions) - Lists all the available CA set versions created under the account.
     * [UpdateCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/put-ca-set-version) - Updates a CA sets version.
-    * [GetCASetVersionCertificates](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-version-certificates) - Lists certificates details of a CA sets version.
-    * [ActivateCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-activate-ca-set-version) - Activates CA set version.
-    * [DeactivateCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-deactivate-ca-set-version) - Deactivates CA set version.
-    * [GetCASetVersionActivation](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-deployment-request-details) - Fetches CA set version activation.
-    * [ListCASetVersionActivations](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-activations) - Lists activations for CA set version.
-    * [ListCASetActivations](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-deployment-request-for-ca-set) - Lists activations for CA set.
-    * [CloneCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-clone-ca-set) - Clones a CA Set.
+    * [GetCASetVersionCertificates](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-version-certificates) - Lists certificates for a CA sets version.
+    * [ActivateCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-activate-ca-set-version) - Activates a CA set version.
+    * [DeactivateCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-deactivate-ca-set-version) - Deactivates a CA set version.
+    * [GetCASetVersionActivation](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-deployment-request-details) - Fetches a CA set version's activation.
+    * [ListCASetVersionActivations](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-activations) - Lists activations for a CA set version.
+    * [ListCASetActivations](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-deployment-request-for-ca-set) - Lists activations for a CA set.
+    * [CloneCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-clone-ca-set) - Clones a CA set.
     * [ValidateCertificates](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-validate-certificates) - Validates a list of certificates.
-
-* Added API Definitions API Support
-  * Endpoints
-    * [RegisterEndpoint](https://techdocs.akamai.com/api-definitions/reference/post-endpoints)
-    * [RegisterEndpointFromFile](https://techdocs.akamai.com/api-definitions/reference/post-endpoints-file)
-    * [ShowEndpoint](https://techdocs.akamai.com/api-definitions/reference/post-endpoint-show)
-    * [HideEndpoint](https://techdocs.akamai.com/api-definitions/reference/post-endpoint-hide)
-    * [DeleteEndpoint](https://techdocs.akamai.com/api-definitions/reference/delete-endpoint)
-    * [ListEndpoints](https://techdocs.akamai.com/api-definitions/reference/get-endpoints)
-  * Endpoints Versions
-    * [ListEndpointVersions](https://techdocs.akamai.com/api-definitions/reference/get-endpoint-versions)
-    * [GetEndpointVersion](https://techdocs.akamai.com/api-definitions/reference/get-version-details)
-    * [UpdateEndpointVersion](https://techdocs.akamai.com/api-definitions/reference/put-endpoint-version)
-    * [CloneEndpointVersion](https://techdocs.akamai.com/api-definitions/reference/post-endpoint-version-clone)
-    * [DeleteEndpointVersion](https://techdocs.akamai.com/api-definitions/reference/delete-endpoint-version)
-  * Activations
-    * [ActivateVersion](https://techdocs.akamai.com/api-definitions/reference/post-endpoint-version-activate)
-    * [DeactivateVersion](https://techdocs.akamai.com/api-definitions/reference/post-endpoint-version-deactivate)
-  * Endpoint Resource Operations
-    * GetResourceOperation
-    * UpdateResourceOperation
-    * DeleteResourceOperation
-    
-* Account Protector
-  * Added new methods for account protector
-    * [GetGeneralSettings](https://techdocs.akamai.com/account-protector/reference/get-account-protection-settings)
-    * [UpdateGeneralSettings](https://techdocs.akamai.com/account-protector/reference/put-account-protection-settings)
-    * [ListTransactionalEndpoints](https://techdocs.akamai.com/account-protector/reference/get-account-protection)
-    * [GetTransactionalEndpointByID](https://techdocs.akamai.com/account-protector/reference/get-account-protection-op)
-    * [CreateTransactionalEndpoint](https://techdocs.akamai.com/account-protector/reference/post-account-protection)
-    * [UpdateTransactionalEndpoint](https://techdocs.akamai.com/account-protector/reference/put-account-protection-op)
-    * [RemoveTransactionalEndpoint](https://techdocs.akamai.com/account-protector/reference/delete-account-protection-op)
-    * [GetUserRiskResponseStrategy](https://techdocs.akamai.com/account-protector/reference/get-user-risk-response-strategy)
-    * [UpdateUserRiskResponseStrategy](https://techdocs.akamai.com/account-protector/reference/put-user-risk-response-strategy)
-    * [GetUserAllowListID](https://techdocs.akamai.com/account-protector/reference/get-user-allow-list)
-    * [UpdateUserAllowListID](https://techdocs.akamai.com/account-protector/reference/put-get-user-allow-list)
-    * [DeleteUserAllowListID](https://techdocs.akamai.com/account-protector/reference/delete-get-user-allow-list)
-
-* Appsec 
-    * Added [ApplyAccountProtectionControls] in all security controls
-    * Added [AccountProtection] in export configuration
-    * Added [UsernameToSiem] field in siem settings
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### BUG FIXES:
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ## 11.1.0 (Aug 4, 2025)
 
