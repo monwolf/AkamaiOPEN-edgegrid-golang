@@ -26,7 +26,7 @@ func TestNew(t *testing.T) {
 				signer:    &edgegrid.Config{},
 				log:       log.Default(),
 				trace:     false,
-				userAgent: "Akamai-Open-Edgegrid-golang/11.0.0 golang/" + strings.TrimPrefix(runtime.Version(), "go"),
+				userAgent: "Akamai-Open-Edgegrid-golang/12.0.0 golang/" + strings.TrimPrefix(runtime.Version(), "go"),
 			},
 		},
 		"nil client provided, return error": {
