@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/session"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/session"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
@@ -47,14 +47,15 @@ type (
 
 	// PolicyProtectionsResponse is returned from GetPolicyProtections, UpdatePolicyProtections, and RemovePolicyProtections.
 	PolicyProtectionsResponse struct {
-		ApplyAPIConstraints           bool `json:"applyApiConstraints"`
-		ApplyApplicationLayerControls bool `json:"applyApplicationLayerControls"`
-		ApplyBotmanControls           bool `json:"applyBotmanControls"`
-		ApplyMalwareControls          bool `json:"applyMalwareControls"`
-		ApplyNetworkLayerControls     bool `json:"applyNetworkLayerControls"`
-		ApplyRateControls             bool `json:"applyRateControls"`
-		ApplyReputationControls       bool `json:"applyReputationControls"`
-		ApplySlowPostControls         bool `json:"applySlowPostControls"`
+		ApplyAPIConstraints            bool `json:"applyApiConstraints"`
+		ApplyAccountProtectionControls bool `json:"applyAccountProtectionControls"`
+		ApplyApplicationLayerControls  bool `json:"applyApplicationLayerControls"`
+		ApplyBotmanControls            bool `json:"applyBotmanControls"`
+		ApplyMalwareControls           bool `json:"applyMalwareControls"`
+		ApplyNetworkLayerControls      bool `json:"applyNetworkLayerControls"`
+		ApplyRateControls              bool `json:"applyRateControls"`
+		ApplyReputationControls        bool `json:"applyReputationControls"`
+		ApplySlowPostControls          bool `json:"applySlowPostControls"`
 	}
 )
 

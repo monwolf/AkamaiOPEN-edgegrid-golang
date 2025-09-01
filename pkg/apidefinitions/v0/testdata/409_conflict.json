@@ -1,0 +1,8 @@
+{
+  "type": "/api-definitions/error-types/CONCURRENT-MODIFICATION-ERROR",
+  "status": 409,
+  "title": "Concurrent Modification Error",
+  "instance": "TestInstance123",
+  "detail": "API Endpoint does not allow concurrent modification. Please get the latest API Definition and try again.",
+  "severity": "ERROR"
+}

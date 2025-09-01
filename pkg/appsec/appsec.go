@@ -4,7 +4,7 @@ package appsec
 import (
 	"errors"
 
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/session"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/session"
 )
 
 var (
@@ -22,6 +22,7 @@ type (
 	// APPSEC is the appsec api interface
 	APPSEC interface {
 		Activations
+		AdvancedSettingsAsePenaltyBox
 		AdvancedSettingsAttackPayloadLogging
 		AdvancedSettingsEvasivePathMatch
 		AdvancedSettingsLogging
@@ -29,6 +30,7 @@ type (
 		AdvancedSettingsPragma
 		AdvancedSettingsPrefetch
 		AdvancedSettingsRequestBody
+		AdvancedSettingsJA4Fingerprint
 		ApiConstraintsProtection
 		ApiEndpoints
 		ApiHostnameCoverage

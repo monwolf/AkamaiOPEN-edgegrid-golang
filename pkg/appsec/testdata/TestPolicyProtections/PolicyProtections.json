@@ -2,6 +2,7 @@
     {
         "applyApiConstraints": true,
         "applyApplicationLayerControls": true,
+        "applyAccountProtectionControls": true,
         "applyBotmanControls": true,
         "applyNetworkLayerControls": true,
         "applyRateControls": true,

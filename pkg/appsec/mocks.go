@@ -360,6 +360,14 @@ func (m *Mock) UpdateAdvancedSettingsEvasivePathMatch(ctx context.Context, req U
 	return args.Get(0).(*UpdateAdvancedSettingsEvasivePathMatchResponse), args.Error(1)
 }
 
+func (m *Mock) UpdateAdvancedSettingsJA4Fingerprint(ctx context.Context, req UpdateAdvancedSettingsJA4FingerprintRequest) (*UpdateAdvancedSettingsJA4FingerprintResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*UpdateAdvancedSettingsJA4FingerprintResponse), args.Error(1)
+}
+
 func (m *Mock) UpdateAdvancedSettingsPIILearning(ctx context.Context, req UpdateAdvancedSettingsPIILearningRequest) (*AdvancedSettingsPIILearningResponse, error) {
 	args := m.Called(ctx, req)
 	if args.Get(0) == nil {
@@ -374,6 +382,14 @@ func (m *Mock) UpdateAdvancedSettingsRequestBody(ctx context.Context, req Update
 		return nil, args.Error(1)
 	}
 	return args.Get(0).(*UpdateAdvancedSettingsRequestBodyResponse), args.Error(1)
+}
+
+func (m *Mock) UpdateAdvancedSettingsAsePenaltyBox(ctx context.Context, req UpdateAdvancedSettingsAsePenaltyBoxRequest) (*UpdateAdvancedSettingsAsePenaltyBoxResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*UpdateAdvancedSettingsAsePenaltyBoxResponse), args.Error(1)
 }
 
 func (m *Mock) UpdateAPIConstraintsProtection(ctx context.Context, req UpdateAPIConstraintsProtectionRequest) (*UpdateAPIConstraintsProtectionResponse, error) {
@@ -512,12 +528,28 @@ func (m *Mock) RemoveAdvancedSettingsEvasivePathMatch(ctx context.Context, req R
 	return args.Get(0).(*RemoveAdvancedSettingsEvasivePathMatchResponse), args.Error(1)
 }
 
+func (m *Mock) RemoveAdvancedSettingsJA4Fingerprint(ctx context.Context, req RemoveAdvancedSettingsJA4FingerprintRequest) (*RemoveAdvancedSettingsJA4FingerprintResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*RemoveAdvancedSettingsJA4FingerprintResponse), args.Error(1)
+}
+
 func (m *Mock) RemoveAdvancedSettingsRequestBody(ctx context.Context, req RemoveAdvancedSettingsRequestBodyRequest) (*RemoveAdvancedSettingsRequestBodyResponse, error) {
 	args := m.Called(ctx, req)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
 	return args.Get(0).(*RemoveAdvancedSettingsRequestBodyResponse), args.Error(1)
+}
+
+func (m *Mock) RemoveAdvancedSettingsAsePenaltyBox(ctx context.Context, req RemoveAdvancedSettingsAsePenaltyBoxRequest) (*RemoveAdvancedSettingsAsePenaltyBoxResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*RemoveAdvancedSettingsAsePenaltyBoxResponse), args.Error(1)
 }
 
 func (m *Mock) RemoveActivations(ctx context.Context, req RemoveActivationsRequest) (*RemoveActivationsResponse, error) {
@@ -1169,6 +1201,14 @@ func (m *Mock) GetAdvancedSettingsEvasivePathMatch(ctx context.Context, req GetA
 	return args.Get(0).(*GetAdvancedSettingsEvasivePathMatchResponse), args.Error(1)
 }
 
+func (m *Mock) GetAdvancedSettingsJA4Fingerprint(ctx context.Context, req GetAdvancedSettingsJA4FingerprintRequest) (*GetAdvancedSettingsJA4FingerprintResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*GetAdvancedSettingsJA4FingerprintResponse), args.Error(1)
+}
+
 func (m *Mock) GetAdvancedSettingsPIILearning(ctx context.Context, req GetAdvancedSettingsPIILearningRequest) (*AdvancedSettingsPIILearningResponse, error) {
 	args := m.Called(ctx, req)
 	if args.Get(0) == nil {
@@ -1183,6 +1223,14 @@ func (m *Mock) GetAdvancedSettingsRequestBody(ctx context.Context, req GetAdvanc
 		return nil, args.Error(1)
 	}
 	return args.Get(0).(*GetAdvancedSettingsRequestBodyResponse), args.Error(1)
+}
+
+func (m *Mock) GetAdvancedSettingsAsePenaltyBox(ctx context.Context, req GetAdvancedSettingsAsePenaltyBoxRequest) (*GetAdvancedSettingsAsePenaltyBoxResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*GetAdvancedSettingsAsePenaltyBoxResponse), args.Error(1)
 }
 
 func (m *Mock) GetActivations(ctx context.Context, req GetActivationsRequest) (*GetActivationsResponse, error) {

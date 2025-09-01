@@ -7,7 +7,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/session"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/session"
 )
 
 var (
@@ -71,6 +71,14 @@ type (
 		//
 		// See: https://techdocs.akamai.com/client-lists/reference/delete-list
 		DeleteClientList(ctx context.Context, params DeleteClientListRequest) error
+
+		// TranslateUsernames translates usernames into UUIDs.
+		TranslateUsernames(ctx context.Context, params TranslateUsernamesRequest) (*TranslateUsernamesResponse, error)
+
+		// GetClientListItems retrieves the items of a specific client list.
+		//
+		// See: https://techdocs.akamai.com/client-lists/reference/get-items
+		GetClientListItems(ctx context.Context, params GetClientListItemsRequest) (*GetClientListItemsResponse, error)
 	}
 
 	clientlists struct {

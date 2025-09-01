@@ -9,8 +9,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/ptr"
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/session"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/ptr"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/session"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -1012,6 +1012,301 @@ func TestDeleteClientLists(t *testing.T) {
 				return
 			}
 			require.NoError(t, err)
+		})
+	}
+}
+
+func TestTranslateUsernames(t *testing.T) {
+	uri := "/appsec/v1/search/user/external-uuid"
+	request := TranslateUsernamesRequest{
+		"user1",
+		"user2",
+		"user3",
+	}
+	result := TranslateUsernamesResponse{
+		"user1": "3a453537-faa8-4525-b5db-022447bbbf2a",
+		"user2": "07e29045-7739-4bd9-8cfb-9f118e000337",
+		"user3": "e164394a-5ae1-4208-8487-1ac0f368ecf3",
+	}
+
+	tests := map[string]struct {
+		params              TranslateUsernamesRequest
+		expectedRequestBody string
+		responseStatus      int
+		responseBody        string
+		expectedPath        string
+		expectedResponse    *TranslateUsernamesResponse
+		withError           error
+	}{
+		"200 - translate usernames": {
+			params:              request,
+			expectedRequestBody: `["user1","user2","user3"]`,
+			responseStatus:      http.StatusOK,
+			responseBody: `{
+				"user1": "3a453537-faa8-4525-b5db-022447bbbf2a",
+				"user2": "07e29045-7739-4bd9-8cfb-9f118e000337",
+				"user3": "e164394a-5ae1-4208-8487-1ac0f368ecf3"
+			}`,
+			expectedPath:     uri,
+			expectedResponse: &result,
+		},
+		"500 internal server error": {
+			params:         request,
+			responseStatus: http.StatusInternalServerError,
+			responseBody: `
+				{
+					"type": "internal_error",
+					"title": "Internal Server Error",
+					"detail": "Error fetching client lists",
+					"status": 500
+				}`,
+			expectedPath: uri,
+			withError: &Error{
+				Type:       "internal_error",
+				Title:      "Internal Server Error",
+				Detail:     "Error fetching client lists",
+				StatusCode: http.StatusInternalServerError,
+			},
+		},
+		"validation error": {
+			params:    TranslateUsernamesRequest{},
+			withError: ErrStructValidation,
+		},
+	}
+
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				assert.Equal(t, test.expectedPath, r.URL.String())
+				assert.Equal(t, http.MethodPost, r.Method)
+				w.WriteHeader(test.responseStatus)
+				_, err := w.Write([]byte(test.responseBody))
+				assert.NoError(t, err)
+
+				if len(test.expectedRequestBody) > 0 {
+					body, err := io.ReadAll(r.Body)
+					require.NoError(t, err)
+					assert.Equal(t, test.expectedRequestBody, string(body))
+				}
+			}))
+			client := mockAPIClient(t, mockServer)
+			result, err := client.TranslateUsernames(
+				context.Background(),
+				test.params)
+			if test.withError != nil {
+				assert.True(t, errors.Is(err, test.withError), "want: %s; got: %s", test.withError, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, test.expectedResponse, result)
+		})
+	}
+}
+
+func TestGetClientListItems(t *testing.T) {
+	uri := "/client-list/v1/lists/12_AB/items?showUsernames=true"
+
+	tests := map[string]struct {
+		params           GetClientListItemsRequest
+		responseStatus   int
+		responseBody     string
+		expectedPath     string
+		expectedResponse *GetClientListItemsResponse
+		withError        error
+	}{
+		"200 OK - non user type list": {
+			params: GetClientListItemsRequest{
+				ListID: "12_AB",
+			},
+			responseStatus: http.StatusOK,
+			responseBody: `{
+				"content": [
+					{
+						"createDate": "2022-07-12T20:14:29.189+00:00",
+						"createdBy": "ccare2",
+						"createdVersion": 9,
+						"productionStatus": "INACTIVE",
+						"stagingStatus": "PENDING_ACTIVATION",
+						"tags": [],
+						"type": "IP",
+						"updateDate": "2022-07-12T20:14:29.189+00:00",
+						"updatedBy": "ccare2",
+						"value": "7d0:1:0::0/64"
+					},
+					{
+						"createDate": "2022-07-12T20:14:29.189+00:00",
+						"createdBy": "ccare2",
+						"createdVersion": 9,
+						"description": "Item with description, tags, expiration date",
+						"expirationDate": "2030-12-31T12:40:00.000+00:00",
+						"productionStatus": "INACTIVE",
+						"stagingStatus": "PENDING_ACTIVATION",
+						"tags": [
+							"red",
+							"green",
+							"blue"
+						],
+						"type": "IP",
+						"updateDate": "2022-07-12T20:14:29.189+00:00",
+						"updatedBy": "ccare2",
+						"value": "7d0:1:1::0/64"
+					}
+				]
+			}`,
+			expectedPath: uri,
+			expectedResponse: &GetClientListItemsResponse{
+				Items: []ListItemContent{
+					{
+						CreateDate:       "2022-07-12T20:14:29.189+00:00",
+						CreatedBy:        "ccare2",
+						CreatedVersion:   9,
+						ProductionStatus: "INACTIVE",
+						StagingStatus:    "PENDING_ACTIVATION",
+						Tags:             []string{},
+						Type:             "IP",
+						UpdateDate:       "2022-07-12T20:14:29.189+00:00",
+						UpdatedBy:        "ccare2",
+						Value:            "7d0:1:0::0/64",
+					},
+					{
+						CreateDate:       "2022-07-12T20:14:29.189+00:00",
+						CreatedBy:        "ccare2",
+						CreatedVersion:   9,
+						ProductionStatus: "INACTIVE",
+						StagingStatus:    "PENDING_ACTIVATION",
+						Tags:             []string{"red", "green", "blue"},
+						Description:      "Item with description, tags, expiration date",
+						ExpirationDate:   "2030-12-31T12:40:00.000+00:00",
+						Type:             "IP",
+						UpdateDate:       "2022-07-12T20:14:29.189+00:00",
+						UpdatedBy:        "ccare2",
+						Value:            "7d0:1:1::0/64",
+					},
+				},
+			},
+		},
+		"200 OK - user type list - show username enabled": {
+			params: GetClientListItemsRequest{
+				ListID: "12_AB",
+			},
+			responseStatus: http.StatusOK,
+			responseBody: `{
+				"content": [
+					{
+						"createDate": "2022-07-12T20:14:29.189+00:00",
+						"createdBy": "ccare2",
+						"createdVersion": 9,
+						"productionStatus": "INACTIVE",
+						"stagingStatus": "PENDING_ACTIVATION",
+						"tags": [],
+						"type": "USER_ID",
+						"updateDate": "2022-07-12T20:14:29.189+00:00",
+						"updatedBy": "ccare2",
+						"value": "3a453537-faa8-4525-b5db-022447bbbf2a",
+						"username": "user1"
+					},
+					{
+						"createDate": "2022-07-12T20:14:29.189+00:00",
+						"createdBy": "ccare2",
+						"createdVersion": 9,
+						"description": "Item with description, tags, expiration date",
+						"expirationDate": "2030-12-31T12:40:00.000+00:00",
+						"productionStatus": "INACTIVE",
+						"stagingStatus": "PENDING_ACTIVATION",
+						"tags": [
+							"red",
+							"green",
+							"blue"
+						],
+						"type": "USER_ID",
+						"updateDate": "2022-07-12T20:14:29.189+00:00",
+						"updatedBy": "ccare2",
+						"value": "07e29045-7739-4bd9-8cfb-9f118e000337",
+						"username": "user2"
+					}
+				]
+			}`,
+			expectedPath: uri,
+			expectedResponse: &GetClientListItemsResponse{
+				Items: []ListItemContent{
+					{
+						CreateDate:       "2022-07-12T20:14:29.189+00:00",
+						CreatedBy:        "ccare2",
+						CreatedVersion:   9,
+						ProductionStatus: "INACTIVE",
+						StagingStatus:    "PENDING_ACTIVATION",
+						Tags:             []string{},
+						Type:             "USER_ID",
+						UpdateDate:       "2022-07-12T20:14:29.189+00:00",
+						UpdatedBy:        "ccare2",
+						Value:            "3a453537-faa8-4525-b5db-022447bbbf2a",
+						Username:         "user1",
+					},
+					{
+						CreateDate:       "2022-07-12T20:14:29.189+00:00",
+						CreatedBy:        "ccare2",
+						CreatedVersion:   9,
+						ProductionStatus: "INACTIVE",
+						StagingStatus:    "PENDING_ACTIVATION",
+						Tags:             []string{"red", "green", "blue"},
+						Description:      "Item with description, tags, expiration date",
+						ExpirationDate:   "2030-12-31T12:40:00.000+00:00",
+						Type:             "USER_ID",
+						UpdateDate:       "2022-07-12T20:14:29.189+00:00",
+						UpdatedBy:        "ccare2",
+						Value:            "07e29045-7739-4bd9-8cfb-9f118e000337",
+						Username:         "user2",
+					},
+				},
+			},
+		},
+		"500 internal server error": {
+			params: GetClientListItemsRequest{
+				ListID: "12_AB",
+			},
+			responseStatus: http.StatusInternalServerError,
+			responseBody: `
+				{
+					"type": "internal_error",
+					"title": "Internal Server Error",
+					"detail": "Error fetching client lists",
+					"status": 500
+				}`,
+			expectedPath: uri,
+			withError: &Error{
+				Type:       "internal_error",
+				Title:      "Internal Server Error",
+				Detail:     "Error fetching client lists",
+				StatusCode: http.StatusInternalServerError,
+			},
+		},
+		"validation error": {
+			params:    GetClientListItemsRequest{},
+			withError: ErrStructValidation,
+		},
+	}
+
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				assert.Equal(t, test.expectedPath, r.URL.String())
+				assert.Equal(t, http.MethodGet, r.Method)
+				w.WriteHeader(test.responseStatus)
+				_, err := w.Write([]byte(test.responseBody))
+				assert.NoError(t, err)
+			}))
+			client := mockAPIClient(t, mockServer)
+			result, err := client.GetClientListItems(
+				session.ContextWithOptions(
+					context.Background(),
+				),
+				test.params)
+			if test.withError != nil {
+				assert.True(t, errors.Is(err, test.withError), "want: %s; got: %s", test.withError, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, test.expectedResponse, result)
 		})
 	}
 }

@@ -8,6 +8,11 @@ import (
 	"net/http"
 )
 
+const enrollmentNotFoundTitle = "Not Found"
+
+// ErrEnrollmentNotFound is returned when enrollment was not found
+var ErrEnrollmentNotFound = errors.New("enrollment not found")
+
 type (
 	// Error is a cps error interface
 	Error struct {
@@ -59,6 +64,10 @@ func (e *Error) Error() string {
 
 // Is handles error comparisons
 func (e *Error) Is(target error) bool {
+	if errors.Is(target, ErrEnrollmentNotFound) {
+		return e.StatusCode == http.StatusNotFound && e.Title == enrollmentNotFoundTitle
+	}
+
 	var t *Error
 	if !errors.As(target, &t) {
 		return false

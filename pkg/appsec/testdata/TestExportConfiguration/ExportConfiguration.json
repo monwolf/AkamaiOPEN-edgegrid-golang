@@ -1723,6 +1723,66 @@
 					"rate": 10
 				}
 			},
+			"accountProtection": {
+                "generalSettings": {
+                    "accountProtection": true,
+                    "originSignalHeader": true,
+                    "usernameInRequestHeader": false,
+                    "originUserIdInRequestHeader": false
+                },
+                "transactionalEndpoints": [
+                    {
+                        "operationId": "c2b20de9-bb2e-4da8-ac99-f5b6e9ae4e10",
+                        "apiEndPointId": 650201,
+                        "telemetryTypeStates": {
+                            "standard": {
+                                "enabled": true,
+                                "disabledAction": "monitor",
+                                "ajaxSupportEnabled": false
+                            },
+                            "inline": {
+                                "enabled": false,
+                                "disabledAction": "none",
+                                "ajaxSupportEnabled": false
+                            },
+                            "nativeSdk": {
+                                "enabled": false,
+                                "disabledAction": "none",
+                                "ajaxSupportEnabled": false
+                            }
+                        },
+                        "traffic": {
+                            "standard": {
+                                "overrideThresholds": true,
+                                "cautious": {
+                                "threshold": 22,
+                                "action": "monitor"
+                                },
+                                "strict": {
+                                "threshold": 51,
+                                "action": "deny"
+                                },
+                                "aggressive": {
+                                "threshold": 76,
+                                "action": "monitor"
+                                }
+                            },
+                            "inline": {
+                                "overrideThresholds": false,
+                                "cautious": {
+                                "action": "monitor"
+                                },
+                                "strict": {
+                                "action": "monitor"
+                                },
+                                "aggressive": {
+                                "action": "monitor"
+                                }
+                            }
+                        }
+                    }
+                ]
+            },
 			"botManagement": {
 				"akamaiBotCategoryActions": [
 					{
@@ -1957,7 +2017,58 @@
 			"objectKey": {
 				"innerKey": "innerValueA"
 			}
-		}
+		},
+		"userRiskResponseStrategySettings": {
+            "traffic": {
+                "standard": {
+                    "cautious": {
+                        "threshold": 0
+                    },
+                    "strict": {
+                        "threshold": 51
+                    },
+                    "aggressive": {
+                        "threshold": 76
+                    }
+                },
+                "inline": {
+                    "cautious": {
+                        "threshold": 0
+                    },
+                    "strict": {
+                        "threshold": 51
+                    },
+                    "aggressive": {
+                        "threshold": 76
+                    }
+                },
+                "nativeSdkIos": {
+                    "cautious": {
+                        "threshold": 0
+                    },
+                    "strict": {
+                        "threshold": 51
+                    },
+                    "aggressive": {
+                        "threshold": 76
+                    }
+                },
+                "nativeSdkAndroid": {
+                    "cautious": {
+                        "threshold": 0
+                    },
+                    "strict": {
+                        "threshold": 51
+                    },
+                    "aggressive": {
+                        "threshold": 76
+                    }
+                }
+            }
+        },
+        "userAllowListIdSettings": {
+            "userAllowListId": "82004_APRE2ENLDONOTDELETE"
+        }
 	},
 	"customBotCategories": [
 		{

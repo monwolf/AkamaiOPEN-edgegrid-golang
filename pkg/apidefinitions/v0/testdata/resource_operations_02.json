@@ -1,0 +1,81 @@
+{
+  "operations": {
+    "/index.php*": {
+      "testPurpose": {
+        "method": "POST",
+        "purpose": "login",
+        "parameters": {
+          "us979898ername": {
+            "path": ["username"],
+            "location": "request_body",
+            "usedForLogin": false
+          }
+        },
+        "failureConditions": [
+          {
+            "headerName": "Content-Length",
+            "positiveMatch": true,
+            "suppressFromClientResponse": false,
+            "type": "header_value",
+            "valueCase": false,
+            "valueWildcard": true,
+            "xPath": "",
+            "values": ["28?"]
+          }
+        ],
+        "successConditions": [
+          {
+            "headerName": "Content-Type",
+            "positiveMatch": true,
+            "suppressFromClientResponse": false,
+            "type": "",
+            "valueCase": false,
+            "valueWildcard": true,
+            "xPath": "",
+            "values": []
+          }
+        ],
+        "conditions": [
+          {
+            "path": [
+              "root",
+              "username"
+            ],
+            "location": "request_body",
+            "positiveMatch": true
+          }
+        ]
+      }
+    },
+    "/login": {
+      "test-login": {
+        "method": "POST",
+        "purpose": "login",
+        "multistepGroupName": "msg-group-test",
+        "parameters": {
+          "username": {
+            "referenceParameterLocation": "USER_EMAIL"
+          }
+        },
+        "successConditions": [
+          {
+            "positiveMatch": true,
+            "type": "HTTP_STATUS",
+            "values": [
+              "200"
+            ]
+          }
+        ],
+        "stepSuccessConditions": [
+          {
+            "positiveMatch": true,
+            "type": "HTTP_STATUS",
+            "values": [
+              "200"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

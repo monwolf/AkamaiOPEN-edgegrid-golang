@@ -7,8 +7,8 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/edgegriderr"
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/session"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/edgegriderr"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/session"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
@@ -66,6 +66,7 @@ type (
 	// ListItemContent contains client list item information
 	ListItemContent struct {
 		Value            string         `json:"value"`
+		Username         string         `json:"username,omitempty"`
 		Tags             []string       `json:"tags"`
 		Description      string         `json:"description"`
 		ExpirationDate   string         `json:"expirationDate"`
@@ -160,6 +161,22 @@ type (
 	// DeleteClientListRequest contains request params for DeleteClientList method
 	DeleteClientListRequest struct {
 		ListID string
+	}
+
+	// TranslateUsernamesRequest contains request params for TranslateUsernames method
+	TranslateUsernamesRequest []string
+
+	// TranslateUsernamesResponse contains response from TranslateUsernames method
+	TranslateUsernamesResponse map[string]string
+
+	// GetClientListItemsRequest contains request params for GetClientListItems
+	GetClientListItemsRequest struct {
+		ListID string
+	}
+
+	// GetClientListItemsResponse contains response from GetClientListItems method
+	GetClientListItemsResponse struct {
+		Items []ListItemContent `json:"content"`
 	}
 )
 
@@ -380,6 +397,68 @@ func (p *clientlists) DeleteClientList(ctx context.Context, params DeleteClientL
 	return nil
 }
 
+func (p *clientlists) TranslateUsernames(ctx context.Context, params TranslateUsernamesRequest) (*TranslateUsernamesResponse, error) {
+	logger := p.Log(ctx)
+	logger.Debug("TranslateUsernames")
+
+	if err := params.validate(); err != nil {
+		return nil, fmt.Errorf("%w: %s", ErrStructValidation, err.Error())
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, "/appsec/v1/search/user/external-uuid", nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create translateUsernamesRequest request: %s", err.Error())
+	}
+
+	var rval TranslateUsernamesResponse
+	resp, err := p.Exec(req, &rval, &params)
+	if err != nil {
+		return nil, fmt.Errorf("translateUsernamesRequest request failed: %s", err.Error())
+	}
+	defer session.CloseResponseBody(resp)
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, p.Error(resp)
+	}
+
+	return &rval, nil
+}
+
+func (p *clientlists) GetClientListItems(ctx context.Context, params GetClientListItemsRequest) (*GetClientListItemsResponse, error) {
+	logger := p.Log(ctx)
+	logger.Debug("GetClientListItems")
+
+	if err := params.validate(); err != nil {
+		return nil, fmt.Errorf("%w: %s", ErrStructValidation, err.Error())
+	}
+
+	uri, err := url.Parse(fmt.Sprintf("/client-list/v1/lists/%s/items?showUsernames=true", params.ListID))
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse url: %w", err)
+	}
+
+	q := uri.Query()
+	uri.RawQuery = q.Encode()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri.String(), nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create GetClientListItems request: %s", err.Error())
+	}
+
+	var rval GetClientListItemsResponse
+	resp, err := p.Exec(req, &rval)
+	if err != nil {
+		return nil, fmt.Errorf("getClientListItems request failed: %s", err.Error())
+	}
+	defer session.CloseResponseBody(resp)
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, p.Error(resp)
+	}
+
+	return &rval, nil
+}
+
 func (v GetClientListRequest) validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
 		"ListID": validation.Validate(v.ListID, validation.Required),
@@ -420,6 +499,21 @@ func (v GetClientListsRequest) validate() error {
 	})
 }
 
+func (v TranslateUsernamesRequest) validate() error {
+	return edgegriderr.ParseValidationErrors(validation.Errors{
+		"TranslateUsernamesRequest": validation.Validate(v,
+			validation.Required,
+			validation.Length(1, 0),
+		),
+	})
+}
+
+func (v GetClientListItemsRequest) validate() error {
+	return edgegriderr.ParseValidationErrors(validation.Errors{
+		"ListID": validation.Validate(v.ListID, validation.Required),
+	})
+}
+
 const (
 	// IP for ip type list type
 	IP ClientListType = "IP"
@@ -429,8 +523,10 @@ const (
 	ASN ClientListType = "ASN"
 	// TLSFingerprint for TLS Fingerprint list type
 	TLSFingerprint ClientListType = "TLS_FINGERPRINT"
-	// FileHash for file hash type list
+	// FileHash for file hash list type
 	FileHash ClientListType = "FILE_HASH"
+	// USER for user list type
+	USER ClientListType = "USER_ID"
 )
 
 func getValidListTypesAsInterface() []interface{} {
@@ -440,5 +536,6 @@ func getValidListTypesAsInterface() []interface{} {
 		ASN,
 		TLSFingerprint,
 		FileHash,
+		USER,
 	}
 }

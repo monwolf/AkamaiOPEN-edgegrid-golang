@@ -1,5 +1,113 @@
 # RELEASE NOTES
 
+## 12.0.0 (Sep 1, 2025)
+
+### BREAKING CHANGES:
+
+* EdgeKV
+  * Replaced the response structure in `GetEdgeKVNamespace` as `*GetNamespaceResponse`.
+  * Replaced the response structure in `UpdateEdgeKVNamespace` as `*UpdateNamespaceResponse`.
+  * Replaced the `Namespace` field with the `NamespaceRequest` structure in `CreateEdgeKVNamespaceRequest`.
+
+### FEATURES/ENHANCEMENTS:
+
+* Account Protector
+  * Added new methods for the Account Protector API (Beta):
+    * [ListProtectedOperations](https://techdocs.akamai.com/account-protector/reference/get-account-protection-settings)
+    * [UpsertGeneralSettings](https://techdocs.akamai.com/account-protector/reference/put-account-protection-settings)
+    * [ListTransactionalEndpoints](https://techdocs.akamai.com/account-protector/reference/get-account-protection)
+    * [GetProtectedOperationByID](https://techdocs.akamai.com/account-protector/reference/get-account-protection-op)
+    * [CreateProtectedOperations](https://techdocs.akamai.com/account-protector/reference/post-account-protection)
+    * [UpdateProtectedOperation](https://techdocs.akamai.com/account-protector/reference/put-account-protection-op)
+    * [RemoveProtectedOperation](https://techdocs.akamai.com/account-protector/reference/delete-account-protection-op)
+    * [GetUserRiskResponseStrategy](https://techdocs.akamai.com/account-protector/reference/get-user-risk-response-strategy)
+    * [UpsertUserRiskResponseStrategy](https://techdocs.akamai.com/account-protector/reference/put-user-risk-response-strategy)
+    * [GetUserAllowListID](https://techdocs.akamai.com/account-protector/reference/get-user-allow-list)
+    * [UpsertUserAllowListID](https://techdocs.akamai.com/account-protector/reference/put-get-user-allow-list)
+    * [DeleteUserAllowListID](https://techdocs.akamai.com/account-protector/reference/delete-get-user-allow-list)
+
+* API Definitions
+  * Added support for the API Definitions API (Beta):
+    * Endpoints
+      * [RegisterEndpoint](https://techdocs.akamai.com/api-definitions/reference/post-endpoints)
+      * [RegisterEndpointFromFile](https://techdocs.akamai.com/api-definitions/reference/post-endpoints-file)
+      * [ShowEndpoint](https://techdocs.akamai.com/api-definitions/reference/post-endpoint-show)
+      * [HideEndpoint](https://techdocs.akamai.com/api-definitions/reference/post-endpoint-hide)
+      * [DeleteEndpoint](https://techdocs.akamai.com/api-definitions/reference/delete-endpoint)
+      * [ListEndpoints](https://techdocs.akamai.com/api-definitions/reference/get-endpoints)
+    * Endpoint versions
+      * [ListEndpointVersions](https://techdocs.akamai.com/api-definitions/reference/get-endpoint-versions)
+      * [GetEndpointVersion](https://techdocs.akamai.com/api-definitions/reference/get-version-details)
+      * [UpdateEndpointVersion](https://techdocs.akamai.com/api-definitions/reference/put-endpoint-version)
+      * [CloneEndpointVersion](https://techdocs.akamai.com/api-definitions/reference/post-endpoint-version-clone)
+      * [DeleteEndpointVersion](https://techdocs.akamai.com/api-definitions/reference/delete-endpoint-version)
+    * Activations
+      * [ActivateVersion](https://techdocs.akamai.com/api-definitions/reference/post-endpoint-version-activate)
+      * [DeactivateVersion](https://techdocs.akamai.com/api-definitions/reference/post-endpoint-version-deactivate)
+
+* Appsec
+  * Added the `Action` field to the `IPGeoNetworkLists` structure to block requests from a specified IP, GEO, or ASN with a `deny` or `custom_deny` action in `blockSpecific` mode.
+  * Added the `BlockAllAction` field to the `IPGeoFirewall` and `UpdateIPGeoRequest` structures to block all requests with a `deny` or `custom_deny` action in the IP/GEO except from the `allowedLists` in `blockAll` mode.
+  * Added the `IncludeExpiryDetails` field to the `GetRapidRulesRequest` structure.
+  * Added the `Expired` and `ExpireInDays` fields to the following structures:
+    * `PolicyRapidRule`
+    * `RapidRuleDetails`
+  * Added ASE Penalty Box methods:
+    * `GetAdvancedSettingsAsePenaltyBox`
+    * `UpdateAdvancedSettingsAsePenaltyBox`
+    * `RemoveAdvancedSettingsAsePenaltyBox`
+  * Added JA4 Client TLS Fingerprint methods:
+    * [GetAdvancedSettingsJA4Fingerprint](https://techdocs.akamai.com/application-security/reference/get-ja4-fingerprint-settings)
+    * [UpdateAdvancedSettingsJA4Fingerprint](https://techdocs.akamai.com/application-security/reference/put-ja4-fingerprint-settings)
+    * [RemoveAdvancedSettingsJA4Fingerprint](https://techdocs.akamai.com/application-security/reference/put-ja4-fingerprint-settings)
+  * Added the `IncludeJA4FingerprintToSiem` field to the following structures:
+    * `GetSiemSettingsResponse`
+    * `GetSiemSettingResponse`
+    * `UpdateSiemSettingsRequest`
+    * `UpdateSiemSettingsResponse`
+    * `RemoveSiemSettingsRequest`
+    * `RemoveSiemSettingsResponse`
+  * Added the `JA4Fingerprint` field to the following structures:
+    * `AdvancedOptionsexp`
+    * `Siemexp`
+    * `JA4Fingerprintexp`
+  * Added `ApplyAccountProtectionControls` in all security controls.
+  * Added `AccountProtection` in export configuration.
+  * Added the `UsernameToSiem` field in SIEM settings.
+
+* ClientLists
+  * Added support for `USER` type client lists.
+  * Added a new method `TranslateUsernames`.
+  * Added a new method [GetClientListItems](https://techdocs.akamai.com/client-lists/reference/get-items).
+
+* EdgeKV
+  * Added `ScheduledDeleteTime` and `NamespaceStatus` fields to the following structures:
+    * `GetNamespaceResponse`
+    * `UpdateNamespaceResponse`
+
+* mTLS Truststore (Beta)
+  * Added support for the Mutual TLS Edge Truststore V2 API.
+    * `CreateCASet` - Creates a new CA set.
+    * `GetCASet` - Fetches details of a CA set.
+    * `ListCASets` - Lists all the available CA sets created under the account.
+    * `DeleteCASet` - Deletes a CA set.
+    * `GetCASetDeletionStatus` - Retrieves a deletion status of a CA set.
+    * `ListCASetActivities` - Lists activities of a CA set.
+    * `ListCASetAssociations` - Lists properties and enrollments associated with a CA set.
+    * `CreateCASetVersion` - Creates a new CA set version.
+    * `CloneCASetVersion` - Creates a clone of a CA set version.
+    * `GetCASetVersion` - Fetches details of a CA sets version.
+    * `ListCASetVersions` - Lists all the available CA set versions created under the account.
+    * `UpdateCASetVersion` - Updates a CA sets version.
+    * `GetCASetVersionCertificates` - Lists certificates for a CA sets version.
+    * `ActivateCASetVersion` - Activates a CA set version.
+    * `DeactivateCASetVersion` - Deactivates a CA set version.
+    * `GetCASetVersionActivation` - Fetches a CA set version's activation.
+    * `ListCASetVersionActivations` - Lists activations for a CA set version.
+    * `ListCASetActivations` - Lists activations for a CA set.
+    * `CloneCASet` - Clones a CA set.
+    * `ValidateCertificates` - Validates a list of certificates.
+
 ## 11.1.0 (Aug 4, 2025)
 
 ### FEATURES/ENHANCEMENTS:

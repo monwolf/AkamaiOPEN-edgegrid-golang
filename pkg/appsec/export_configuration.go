@@ -10,8 +10,8 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/edgegriderr"
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/session"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/edgegriderr"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/session"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
@@ -191,14 +191,15 @@ type (
 			Name                    string `json:"name"`
 			HasRatePolicyWithAPIKey bool   `json:"hasRatePolicyWithApiKey"`
 			SecurityControls        struct {
-				ApplyAPIConstraints           bool `json:"applyApiConstraints"`
-				ApplyApplicationLayerControls bool `json:"applyApplicationLayerControls"`
-				ApplyBotmanControls           bool `json:"applyBotmanControls"`
-				ApplyNetworkLayerControls     bool `json:"applyNetworkLayerControls"`
-				ApplyRateControls             bool `json:"applyRateControls"`
-				ApplyReputationControls       bool `json:"applyReputationControls"`
-				ApplySlowPostControls         bool `json:"applySlowPostControls"`
-				ApplyMalwareControls          bool `json:"applyMalwareControls"`
+				ApplyAccountProtectionControls bool `json:"applyAccountProtectionControls"`
+				ApplyAPIConstraints            bool `json:"applyApiConstraints"`
+				ApplyApplicationLayerControls  bool `json:"applyApplicationLayerControls"`
+				ApplyBotmanControls            bool `json:"applyBotmanControls"`
+				ApplyNetworkLayerControls      bool `json:"applyNetworkLayerControls"`
+				ApplyRateControls              bool `json:"applyRateControls"`
+				ApplyReputationControls        bool `json:"applyReputationControls"`
+				ApplySlowPostControls          bool `json:"applySlowPostControls"`
+				ApplyMalwareControls           bool `json:"applyMalwareControls"`
 			} `json:"securityControls"`
 			WebApplicationFirewall struct {
 				RuleActions []struct {
@@ -235,6 +236,7 @@ type (
 			PenaltyBoxConditions           *SecurityPoliciesPenaltyBoxConditions `json:"penaltyBoxConditions,omitempty"`
 			EvaluationPenaltyBoxConditions *SecurityPoliciesPenaltyBoxConditions `json:"evaluationPenaltyBoxConditions,omitempty"`
 			SlowPost                       *SlowPostexp                          `json:"slowPost,omitempty"`
+			AccountProtection              *AccountProtection                    `json:"accountProtection,omitempty"`
 			LoggingOverrides               *LoggingOverridesexp                  `json:"loggingOverrides,omitempty"`
 			AttackPayloadLoggingOverrides  *AttackPayloadLoggingOverrides        `json:"attackPayloadLoggingOverrides,omitempty"`
 			PragmaHeader                   *GetAdvancedSettingsPragmaResponse    `json:"pragmaHeader,omitempty"`
@@ -300,8 +302,10 @@ type (
 		Logging              *Loggingexp                        `json:"logging"`
 		AttackPayloadLogging *AttackPayloadLogging              `json:"attackPayloadLogging"`
 		EvasivePathMatch     *EvasivePathMatchexp               `json:"evasivePathMatch,omitempty"`
+		JA4Fingerprint       *JA4Fingerprintexp                 `json:"ja4Fingerprint,omitempty"`
 		Prefetch             *Prefetch                          `json:"prefetch"`
 		PragmaHeader         *GetAdvancedSettingsPragmaResponse `json:"pragmaHeader,omitempty"`
+		AsePenaltyBox        *AsePenaltyBoxexp                  `json:"asePenaltyBox,omitempty"`
 		RequestBody          *RequestBody                       `json:"requestBody,omitempty"`
 		PIILearning          *PIILearningexp                    `json:"piiLearning,omitempty"`
 	}
@@ -326,11 +330,12 @@ type (
 
 	// Siemexp is returned as part of GetExportConfigurationResponse.
 	Siemexp struct {
-		EnableForAllPolicies    bool     `json:"enableForAllPolicies,omitempty"`
-		EnableSiem              bool     `json:"enableSiem"`
-		EnabledBotmanSiemEvents bool     `json:"enabledBotmanSiemEvents,omitempty"`
-		FirewallPolicyIDs       []string `json:"firewallPolicyIds,omitempty"`
-		SiemDefinitionID        int      `json:"siemDefinitionId,omitempty"`
+		EnableForAllPolicies        bool     `json:"enableForAllPolicies,omitempty"`
+		EnableSiem                  bool     `json:"enableSiem"`
+		EnabledBotmanSiemEvents     bool     `json:"enabledBotmanSiemEvents,omitempty"`
+		IncludeJA4FingerprintToSiem *bool    `json:"includeJA4FingerprintToSiem,omitempty"`
+		FirewallPolicyIDs           []string `json:"firewallPolicyIds,omitempty"`
+		SiemDefinitionID            int      `json:"siemDefinitionId,omitempty"`
 	}
 
 	// PenaltyBoxexp is returned as part of GetExportConfigurationResponse.
@@ -473,6 +478,26 @@ type (
 		EnablePathMatch bool `json:"enabled"`
 	}
 
+	// JA4Fingerprintexp contains the JA4 Client TLS Fingerprint setting
+	JA4Fingerprintexp struct {
+		HeaderNames []string `json:"headerNames,omitempty"`
+	}
+
+	// AsePenaltyBoxexp contains the ASE Penalty Box setting
+	AsePenaltyBoxexp struct {
+		RequestCount            int      `json:"requestCount"`
+		BlockDuration           int      `json:"blockDuration"`
+		ClientIdentifiers       []string `json:"clientIdentifiers"`
+		AkamaiManagedExclusions struct {
+			Rules       []int  `json:"rules"`
+			LastUpdated string `json:"lastUpdated,omitempty"`
+		} `json:"akamaiManagedExclusions"`
+		QualificationExclusions struct {
+			AttackGroups []string `json:"attackGroups"`
+			Rules        []int    `json:"rules"`
+		} `json:"qualificationExclusions"`
+	}
+
 	// PIILearningexp contains the PIILearning setting
 	PIILearningexp struct {
 		EnablePIILearning bool `json:"enabled"`
@@ -581,6 +606,8 @@ type (
 		BotAnalyticsCookieSettings              map[string]interface{} `json:"botAnalyticsCookieSettings,omitempty"`
 		ClientSideSecuritySettings              map[string]interface{} `json:"clientSideSecuritySettings,omitempty"`
 		TransactionalEndpointProtectionSettings map[string]interface{} `json:"transactionalEndpointProtectionSettings,omitempty"`
+		UserRiskResponseStrategySettings        map[string]interface{} `json:"userRiskResponseStrategySettings,omitempty"`
+		UserAllowListIdSettings                 map[string]interface{} `json:"userAllowListIdSettings,omitempty"`
 	}
 
 	// ResponseActions is returned as part of GetExportConfigurationResponse
@@ -604,6 +631,12 @@ type (
 		ContentProtectionRules                    []map[string]interface{} `json:"contentProtectionRules,omitempty"`
 		ContentProtectionRuleSequence             []string                 `json:"contentProtectionRuleSequence,omitempty"`
 		ContentProtectionJavaScriptInjectionRules []map[string]interface{} `json:"contentProtectionJavaScriptInjectionRules,omitempty"`
+	}
+
+	// AccountProtection is returned as part of GetExportConfigurationResponse
+	AccountProtection struct {
+		GeneralSettings        map[string]interface{}   `json:"generalSettings,omitempty"`
+		TransactionalEndpoints []map[string]interface{} `json:"transactionalEndpoints,omitempty"`
 	}
 
 	// TransactionalEndpoints is returned as port of GetExportConfigurationResponse

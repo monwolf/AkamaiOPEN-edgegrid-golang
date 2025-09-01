@@ -110,3 +110,23 @@ func (p *Mock) CreateDeactivation(ctx context.Context, params CreateDeactivation
 
 	return args.Get(0).(*CreateDeactivationResponse), args.Error(1)
 }
+
+func (p *Mock) TranslateUsernames(ctx context.Context, params TranslateUsernamesRequest) (*TranslateUsernamesResponse, error) {
+	args := p.Called(ctx, params)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*TranslateUsernamesResponse), args.Error(1)
+}
+
+func (p *Mock) GetClientListItems(ctx context.Context, params GetClientListItemsRequest) (*GetClientListItemsResponse, error) {
+	args := p.Called(ctx, params)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*GetClientListItemsResponse), args.Error(1)
+}

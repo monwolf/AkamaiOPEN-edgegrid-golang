@@ -5,7 +5,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/session"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/session"
 )
 
 var (
@@ -128,7 +128,7 @@ type (
 		// GetEdgeKVNamespace fetches a namespace by name
 		//
 		// See: https://techdocs.akamai.com/edgekv/reference/get-namespace
-		GetEdgeKVNamespace(context.Context, GetEdgeKVNamespaceRequest) (*Namespace, error)
+		GetEdgeKVNamespace(context.Context, GetEdgeKVNamespaceRequest) (*GetNamespaceResponse, error)
 
 		// CreateEdgeKVNamespace creates a namespace on the given network
 		//
@@ -138,7 +138,7 @@ type (
 		// UpdateEdgeKVNamespace updates a namespace
 		//
 		// See: https://techdocs.akamai.com/edgekv/reference/put-namespace
-		UpdateEdgeKVNamespace(context.Context, UpdateEdgeKVNamespaceRequest) (*Namespace, error)
+		UpdateEdgeKVNamespace(context.Context, UpdateEdgeKVNamespaceRequest) (*UpdateNamespaceResponse, error)
 
 		// DeleteEdgeKVNamespace deletes a namespace and all of its contents.
 		//

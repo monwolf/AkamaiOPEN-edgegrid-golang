@@ -1,0 +1,8 @@
+{
+  "type": "https://problems.luna.akamaiapis.net/api-definitions/error-types/NOT-FOUND",
+  "status": 404,
+  "title": "Not Found",
+  "instance": "22f95e07-00f8-4dfc-a903-ba9b1e2999bf",
+  "detail": "Invalid version provided.",
+  "severity": "ERROR"
+}

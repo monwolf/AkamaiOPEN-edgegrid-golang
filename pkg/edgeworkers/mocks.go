@@ -180,12 +180,12 @@ func (m *Mock) ListEdgeKVNamespaces(ctx context.Context, req ListEdgeKVNamespace
 	return args.Get(0).(*ListEdgeKVNamespacesResponse), args.Error(1)
 }
 
-func (m *Mock) GetEdgeKVNamespace(ctx context.Context, req GetEdgeKVNamespaceRequest) (*Namespace, error) {
+func (m *Mock) GetEdgeKVNamespace(ctx context.Context, req GetEdgeKVNamespaceRequest) (*GetNamespaceResponse, error) {
 	args := m.Called(ctx, req)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(*Namespace), args.Error(1)
+	return args.Get(0).(*GetNamespaceResponse), args.Error(1)
 }
 
 func (m *Mock) CreateEdgeKVNamespace(ctx context.Context, req CreateEdgeKVNamespaceRequest) (*Namespace, error) {
@@ -196,12 +196,12 @@ func (m *Mock) CreateEdgeKVNamespace(ctx context.Context, req CreateEdgeKVNamesp
 	return args.Get(0).(*Namespace), args.Error(1)
 }
 
-func (m *Mock) UpdateEdgeKVNamespace(ctx context.Context, req UpdateEdgeKVNamespaceRequest) (*Namespace, error) {
+func (m *Mock) UpdateEdgeKVNamespace(ctx context.Context, req UpdateEdgeKVNamespaceRequest) (*UpdateNamespaceResponse, error) {
 	args := m.Called(ctx, req)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(*Namespace), args.Error(1)
+	return args.Get(0).(*UpdateNamespaceResponse), args.Error(1)
 }
 
 func (m *Mock) DeleteEdgeKVNamespace(ctx context.Context, req DeleteEdgeKVNamespaceRequest) (*DeleteEdgeKVNamespacesResponse, error) {
