@@ -11,6 +11,19 @@ import (
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/errs"
 )
 
+var (
+	// ErrStructValidation is returned when given struct validation failed.
+	ErrStructValidation = errors.New("struct validation")
+
+	// ErrPatchCertificate represents error when patching certificate fails.
+	ErrPatchCertificate = errors.New("patching certificate")
+)
+
+var (
+	// ErrCertificateNameInUse represents error when the certificate name is already in use.
+	ErrCertificateNameInUse = &Error{Type: "/error-types/certificate-name-already-in-use"}
+)
+
 type (
 	// Error is a CCM error interface.
 	Error struct {
@@ -20,11 +33,55 @@ type (
 		Detail   string `json:"detail"`
 		Instance string `json:"instance"`
 
-		CertificateIdentifier      string `json:"certificateIdentifier,omitempty"`
-		CertificateIdentifierValue string `json:"certificateIdentifierValue,omitempty"`
-		Explanation                string `json:"explanation,omitempty"`
-		InvalidParameterValue      string `json:"invalidParameterValue,omitempty"`
-		ParameterName              string `json:"parameterName,omitempty"`
+		CertificateIdentifier      string          `json:"certificateIdentifier,omitempty"`
+		CertificateIdentifierValue string          `json:"certificateIdentifierValue,omitempty"`
+		Data                       *ValidationData `json:"data,omitempty"`
+		Explanation                string          `json:"explanation,omitempty"`
+		InvalidParameterValue      string          `json:"invalidParameterValue,omitempty"`
+		ParameterName              string          `json:"parameterName,omitempty"`
+	}
+
+	// ValidationData contains details about certificate and trust chain validation.
+	ValidationData struct {
+		SignedCertificatePEM string            `json:"signedCertificatePem,omitempty"`
+		SignedCertificates   []PEMValidation   `json:"signedCertificates,omitempty"`
+		TrustChain           []PEMValidation   `json:"trustChain,omitempty"`
+		TrustChainPEM        *string           `json:"trustChainPem,omitempty"`
+		Validation           *ValidationResult `json:"validation,omitempty"`
+	}
+
+	// PEMValidation represents a PEM certificate with validation details.
+	PEMValidation struct {
+		CertificatePEM     string            `json:"certificatePem"`
+		CreatedBy          *string           `json:"createdBy,omitempty"`
+		CreatedDate        *string           `json:"createdDate,omitempty"`
+		DisplayName        *string           `json:"displayName,omitempty"`
+		EndDate            *string           `json:"endDate,omitempty"`
+		Fingerprint        *string           `json:"fingerprint,omitempty"`
+		Issuer             *string           `json:"issuer,omitempty"`
+		SerialNumber       *string           `json:"serialNumber,omitempty"`
+		SignatureAlgorithm *string           `json:"signatureAlgorithm,omitempty"`
+		StartDate          *string           `json:"startDate,omitempty"`
+		Subject            *Subject          `json:"subject,omitempty"`
+		Validation         *ValidationResult `json:"validation,omitempty"`
+	}
+
+	// ValidationResult contains validation results for certificate operations.
+	ValidationResult struct {
+		Errors   []ValidationDetail `json:"errors,omitempty"`
+		Notices  []ValidationDetail `json:"notices,omitempty"`
+		Warnings []ValidationDetail `json:"warnings,omitempty"`
+	}
+
+	// ValidationDetail provides details about a validation message.
+	ValidationDetail struct {
+		Detail   string `json:"detail,omitempty"`
+		Instance string `json:"instance,omitempty"`
+		Message  string `json:"message,omitempty"`
+		Name     string `json:"name,omitempty"`
+		Status   *int   `json:"status,omitempty"`
+		Title    string `json:"title,omitempty"`
+		Type     string `json:"type,omitempty"`
 	}
 )
 

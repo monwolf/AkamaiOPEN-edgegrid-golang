@@ -2,14 +2,9 @@
 package ccm
 
 import (
-	"errors"
+	"context"
 
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/session"
-)
-
-var (
-	// ErrStructValidation is returned when given struct validation failed.
-	ErrStructValidation = errors.New("struct validation")
 )
 
 // CCM defines the interface for Akamai Cloud Certificate Manager operations.
@@ -21,12 +16,13 @@ type (
 		//// GetCertificate retrieves a certificate by its ID.
 		//GetCertificate(ctx context.Context, params GetCertificateRequest) (*GetCertificateResponse, error)
 		//
-		//// RenameCertificate renames an existing certificate.
-		//RenameCertificate(ctx context.Context, params RenameCertificateRequest) (*RenameCertificateResponse, error)
+
+		// PatchCertificate uploads a signed certificate and optional trust chain or renames an existing certificate.
+		// In order to reset the name to a default value, provide an empty string as CertificateName.
 		//
-		//// UploadSignedCertificate uploads a signed certificate and optional trust chain.
-		//UploadSignedCertificate(ctx context.Context, params UploadSignedCertificateRequest) (*UploadSignedCertificateResponse, error)
-		//
+		// See: TBD
+		PatchCertificate(ctx context.Context, params PatchCertificateRequest) (*PatchCertificateResponse, error)
+
 		//// UpdateCertificate updates an existing certificate with new data.
 		//UpdateCertificate(ctx context.Context, params UpdateCertificateRequest) (*UpdateCertificateResponse, error)
 		//

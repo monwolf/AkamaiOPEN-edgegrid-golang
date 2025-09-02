@@ -12,6 +12,7 @@ import (
 )
 
 func TestNewError(t *testing.T) {
+	t.Parallel()
 	sess, err := session.New()
 	require.NoError(t, err)
 
@@ -115,55 +116,46 @@ func TestNewError(t *testing.T) {
 }
 
 func TestIs(t *testing.T) {
+	t.Parallel()
 	someError := Error{Type: "/some/type", Title: "some error", Status: 404, Detail: "some detail", Instance: "/some/error/instance"}
 
 	tests := map[string]struct {
-		err      Error
 		target   Error
 		expected bool
 	}{
 		"different error status": {
-			err:      someError,
 			target:   Error{Status: 401},
 			expected: false,
 		},
 		"different error title": {
-			err:      someError,
 			target:   Error{Title: "other error"},
 			expected: false,
 		},
 		"same error title": {
-			err:      someError,
 			target:   Error{Title: "some error"},
 			expected: true,
 		},
 		"same error type": {
-			err:      someError,
 			target:   Error{Type: "/some/type"},
 			expected: true,
 		},
 		"same error status": {
-			err:      someError,
 			target:   Error{Status: 404},
 			expected: true,
 		},
 		"same error type, title and status": {
-			err:      someError,
 			target:   Error{Type: "/some/type", Title: "some error", Status: 404},
 			expected: true,
 		},
 		"same error type but different title": {
-			err:      someError,
 			target:   Error{Type: "/some/type", Title: "other error"},
 			expected: false,
 		},
 		"same error status and title but different type": {
-			err:      someError,
 			target:   Error{Type: "/other/type", Title: "some error", Status: 404},
 			expected: false,
 		},
 		"same error status and type but different detail and instance": {
-			err:      someError,
 			target:   Error{Type: "/some/type", Status: 404, Detail: "other detail", Instance: "/other/error/instance"},
 			expected: true,
 		},
@@ -171,7 +163,27 @@ func TestIs(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, test.err.Is(&test.target), test.expected)
+			assert.Equal(t, someError.Is(&test.target), test.expected)
 		})
 	}
+}
+
+func TestError(t *testing.T) {
+	t.Parallel()
+	e := &Error{
+		Type:     "/error-types/test",
+		Title:    "Test Error",
+		Status:   400,
+		Detail:   "This is a test error",
+		Instance: "/error-types/test?traceId=12345",
+	}
+	expected := `API error: 
+{
+	"type": "/error-types/test",
+	"title": "Test Error",
+	"status": 400,
+	"detail": "This is a test error",
+	"instance": "/error-types/test?traceId=12345"
+}`
+	assert.EqualError(t, e, expected)
 }

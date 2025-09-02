@@ -34,24 +34,14 @@ func (m *Mock) GetCertificate(ctx context.Context, req GetCertificateRequest) (*
 	return args.Get(0).(*GetCertificateResponse), args.Error(1)
 }
 
-func (m *Mock) RenameCertificate(ctx context.Context, req RenameCertificateRequest) (*RenameCertificateResponse, error) {
+func (m *Mock) PatchCertificate(ctx context.Context, req PatchCertificateRequest) (*PatchCertificateResponse, error) {
 	args := m.Called(ctx, req)
 
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
 
-	return args.Get(0).(*RenameCertificateResponse), args.Error(1)
-}
-
-func (m *Mock) UploadSignedCertificate(ctx context.Context, req UploadSignedCertificateRequest) (*UploadSignedCertificateResponse, error) {
-	args := m.Called(ctx, req)
-
-	if args.Get(0) == nil {
-		return nil, args.Error(1)
-	}
-
-	return args.Get(0).(*UploadSignedCertificateResponse), args.Error(1)
+	return args.Get(0).(*PatchCertificateResponse), args.Error(1)
 }
 
 func (m *Mock) UpdateCertificate(ctx context.Context, req UpdateCertificateRequest) (*UpdateCertificateResponse, error) {
