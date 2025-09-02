@@ -4,7 +4,7 @@ package ccm
 import (
 	"context"
 
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/session"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/session"
 )
 
 // CCM defines the interface for Akamai Cloud Certificate Manager operations.
