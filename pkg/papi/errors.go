@@ -13,18 +13,20 @@ import (
 type (
 	// Error is a papi error interface
 	Error struct {
-		Type          string          `json:"type"`
-		Title         string          `json:"title,omitempty"`
-		Detail        string          `json:"detail"`
-		Instance      string          `json:"instance,omitempty"`
-		BehaviorName  string          `json:"behaviorName,omitempty"`
-		ErrorLocation string          `json:"errorLocation,omitempty"`
-		StatusCode    int             `json:"statusCode,omitempty"`
-		Errors        json.RawMessage `json:"errors,omitempty"`
-		Warnings      json.RawMessage `json:"warnings,omitempty"`
-		LimitKey      string          `json:"limitKey,omitempty"`
-		Limit         *int            `json:"limit,omitempty"`
-		Remaining     *int            `json:"remaining,omitempty"`
+		Type           string          `json:"type"`
+		Title          string          `json:"title,omitempty"`
+		Detail         string          `json:"detail"`
+		Instance       string          `json:"instance,omitempty"`
+		BehaviorName   string          `json:"behaviorName,omitempty"`
+		ErrorLocation  string          `json:"errorLocation,omitempty"`
+		StatusCode     int             `json:"statusCode,omitempty"`
+		Errors         json.RawMessage `json:"errors,omitempty"`
+		Warnings       json.RawMessage `json:"warnings,omitempty"`
+		LimitKey       string          `json:"limitKey,omitempty"`
+		Limit          *int            `json:"limit,omitempty"`
+		Remaining      *int            `json:"remaining,omitempty"`
+		RedirectLink   *string         `json:"redirectLink,omitempty"`
+		ActivationLink *string         `json:"activationLink,omitempty"`
 	}
 
 	// ActivationError represents errors returned in validation objects in include activation response

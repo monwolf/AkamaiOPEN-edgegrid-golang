@@ -34,10 +34,10 @@ var (
 )
 
 func (p *papi) GetContracts(ctx context.Context) (*GetContractsResponse, error) {
-	var contracts GetContractsResponse
-
 	logger := p.Log(ctx)
 	logger.Debug("GetContracts")
+
+	var contracts GetContractsResponse
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/papi/v1/contracts", nil)
 	if err != nil {

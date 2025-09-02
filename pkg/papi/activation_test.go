@@ -7,8 +7,107 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/ptr"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+)
+
+var (
+	getActivationResponseBody = `
+{
+	"accountId": "act_1-1TJZFB",
+	"contractId": "ctr_1-1TJZFW",
+	"groupId": "grp_15166",
+	"activations": {
+		"items": [
+			{
+				"activationId": "atv_1696985",
+				"propertyName": "example.com",
+				"propertyId": "prp_173136",
+				"propertyVersion": 1,
+				"network": "STAGING",
+				"activationType": "ACTIVATE",
+				"status": "PENDING",
+				"submitDate": "2014-03-02T02:22:12Z",
+				"updateDate": "2014-03-01T21:12:57Z",
+				"note": "Sample activation",
+				"fmaActivationState": "steady",
+				"notifyEmails": [
+					"you@example.com",
+					"them@example.com"
+				],
+				"fallbackInfo": {
+					"fastFallbackAttempted": false,
+					"fallbackVersion": 10,
+					"canFastFallback": true,
+					"steadyStateTime": 1506448172,
+					"fastFallbackExpirationTime": 1506451772,
+					"fastFallbackRecoveryState": null
+				}
+			}
+		]
+	}
+}`
+	getActivationResponse = &GetActivationResponse{
+		GetActivationsResponse: GetActivationsResponse{
+			Response: Response{
+				AccountID:  "act_1-1TJZFB",
+				ContractID: "ctr_1-1TJZFW",
+				GroupID:    "grp_15166",
+			},
+			Activations: ActivationsItems{Items: []*Activation{{
+				ActivationID:       "atv_1696985",
+				PropertyName:       "example.com",
+				PropertyID:         "prp_173136",
+				PropertyVersion:    1,
+				Network:            ActivationNetworkStaging,
+				ActivationType:     ActivationTypeActivate,
+				Status:             ActivationStatusPending,
+				SubmitDate:         "2014-03-02T02:22:12Z",
+				UpdateDate:         "2014-03-01T21:12:57Z",
+				Note:               "Sample activation",
+				FMAActivationState: "steady",
+				NotifyEmails: []string{
+					"you@example.com",
+					"them@example.com",
+				},
+				FallbackInfo: &ActivationFallbackInfo{
+					FastFallbackAttempted:      false,
+					FallbackVersion:            10,
+					CanFastFallback:            true,
+					SteadyStateTime:            1506448172,
+					FastFallbackExpirationTime: 1506451772,
+					FastFallbackRecoveryState:  nil,
+				},
+			}},
+			},
+		},
+		Activation: &Activation{
+			ActivationID:       "atv_1696985",
+			PropertyName:       "example.com",
+			PropertyID:         "prp_173136",
+			PropertyVersion:    1,
+			Network:            ActivationNetworkStaging,
+			ActivationType:     ActivationTypeActivate,
+			Status:             ActivationStatusPending,
+			SubmitDate:         "2014-03-02T02:22:12Z",
+			UpdateDate:         "2014-03-01T21:12:57Z",
+			Note:               "Sample activation",
+			FMAActivationState: "steady",
+			NotifyEmails: []string{
+				"you@example.com",
+				"them@example.com",
+			},
+			FallbackInfo: &ActivationFallbackInfo{
+				FastFallbackAttempted:      false,
+				FallbackVersion:            10,
+				CanFastFallback:            true,
+				SteadyStateTime:            1506448172,
+				FastFallbackExpirationTime: 1506451772,
+				FastFallbackRecoveryState:  nil,
+			},
+		},
+	}
 )
 
 func TestPapiCreateActivation(t *testing.T) {
@@ -431,6 +530,21 @@ func TestPapiGetActivations(t *testing.T) {
 				},
 			},
 		},
+		"302 Moved Temporarily - missed groupID and contractID": {
+			request: GetActivationsRequest{
+				PropertyID: "prp_175780",
+			},
+			responseStatus: http.StatusFound,
+			responseBody: `
+{
+    "activationLink": "/papi/v1/properties/200255035/activations?groupId=12345&contractId=G-12RS3N4"
+}`,
+			expectedPath: "/papi/v1/properties/prp_175780/activations",
+			withError: &Error{
+				StatusCode:     http.StatusFound,
+				ActivationLink: ptr.To("/papi/v1/properties/200255035/activations?groupId=12345&contractId=G-12RS3N4"),
+			},
+		},
 		"500 internal server error": {
 			request: GetActivationsRequest{
 				PropertyID: "prp_175780",
@@ -499,103 +613,20 @@ func TestPapiGetActivation(t *testing.T) {
 				ContractID:   "ctr_1-1TJZFW",
 				GroupID:      "grp_15166",
 			},
-			responseStatus: http.StatusOK,
-			responseBody: `
-{
-	"accountId": "act_1-1TJZFB",
-	"contractId": "ctr_1-1TJZFW",
-	"groupId": "grp_15166",
-	"activations": {
-		"items": [
-			{
-				"activationId": "atv_1696985",
-				"propertyName": "example.com",
-				"propertyId": "prp_173136",
-				"propertyVersion": 1,
-				"network": "STAGING",
-				"activationType": "ACTIVATE",
-				"status": "PENDING",
-				"submitDate": "2014-03-02T02:22:12Z",
-				"updateDate": "2014-03-01T21:12:57Z",
-				"note": "Sample activation",
-				"fmaActivationState": "steady",
-				"notifyEmails": [
-					"you@example.com",
-					"them@example.com"
-				],
-				"fallbackInfo": {
-					"fastFallbackAttempted": false,
-					"fallbackVersion": 10,
-					"canFastFallback": true,
-					"steadyStateTime": 1506448172,
-					"fastFallbackExpirationTime": 1506451772,
-					"fastFallbackRecoveryState": null
-				}
-			}
-		]
-	}
-}`,
-			expectedPath: "/papi/v1/properties/prp_175780/activations/atv_1696855?contractId=ctr_1-1TJZFW&groupId=grp_15166",
-			expectedResponse: &GetActivationResponse{
-				GetActivationsResponse: GetActivationsResponse{
-					Response: Response{
-						AccountID:  "act_1-1TJZFB",
-						ContractID: "ctr_1-1TJZFW",
-						GroupID:    "grp_15166",
-					},
-					Activations: ActivationsItems{Items: []*Activation{{
-						ActivationID:       "atv_1696985",
-						PropertyName:       "example.com",
-						PropertyID:         "prp_173136",
-						PropertyVersion:    1,
-						Network:            ActivationNetworkStaging,
-						ActivationType:     ActivationTypeActivate,
-						Status:             ActivationStatusPending,
-						SubmitDate:         "2014-03-02T02:22:12Z",
-						UpdateDate:         "2014-03-01T21:12:57Z",
-						Note:               "Sample activation",
-						FMAActivationState: "steady",
-						NotifyEmails: []string{
-							"you@example.com",
-							"them@example.com",
-						},
-						FallbackInfo: &ActivationFallbackInfo{
-							FastFallbackAttempted:      false,
-							FallbackVersion:            10,
-							CanFastFallback:            true,
-							SteadyStateTime:            1506448172,
-							FastFallbackExpirationTime: 1506451772,
-							FastFallbackRecoveryState:  nil,
-						},
-					}},
-					},
-				},
-				Activation: &Activation{
-					ActivationID:       "atv_1696985",
-					PropertyName:       "example.com",
-					PropertyID:         "prp_173136",
-					PropertyVersion:    1,
-					Network:            ActivationNetworkStaging,
-					ActivationType:     ActivationTypeActivate,
-					Status:             ActivationStatusPending,
-					SubmitDate:         "2014-03-02T02:22:12Z",
-					UpdateDate:         "2014-03-01T21:12:57Z",
-					Note:               "Sample activation",
-					FMAActivationState: "steady",
-					NotifyEmails: []string{
-						"you@example.com",
-						"them@example.com",
-					},
-					FallbackInfo: &ActivationFallbackInfo{
-						FastFallbackAttempted:      false,
-						FallbackVersion:            10,
-						CanFastFallback:            true,
-						SteadyStateTime:            1506448172,
-						FastFallbackExpirationTime: 1506451772,
-						FastFallbackRecoveryState:  nil,
-					},
-				},
+			responseStatus:   http.StatusOK,
+			responseBody:     getActivationResponseBody,
+			expectedPath:     "/papi/v1/properties/prp_175780/activations/atv_1696855?contractId=ctr_1-1TJZFW&groupId=grp_15166",
+			expectedResponse: getActivationResponse,
+		},
+		"200 OK - missed contractID and groupID": {
+			request: GetActivationRequest{
+				PropertyID:   "prp_175780",
+				ActivationID: "atv_1696855",
 			},
+			responseStatus:   http.StatusOK,
+			responseBody:     getActivationResponseBody,
+			expectedPath:     "/papi/v1/properties/prp_175780/activations/atv_1696855",
+			expectedResponse: getActivationResponse,
 		},
 		"activation not found": {
 			request: GetActivationRequest{

@@ -131,6 +131,26 @@ func TestPapiGetPropertyVersions(t *testing.T) {
 						}}},
 			},
 		},
+		"302 - missed contractId and groupId": {
+			params: GetPropertyVersionsRequest{
+				PropertyID: "propertyID",
+				Limit:      5,
+				Offset:     6,
+			},
+			responseStatus: http.StatusFound,
+			responseBody: `
+{
+    "redirectLink": "/papi/v1/properties/propertyID/versions?groupId=12345&contractId=G-12RS3N4"
+}`,
+			expectedPath: "/papi/v1/properties/propertyID/versions?limit=5&offset=6",
+			withError: func(t *testing.T, err error) {
+				want := &Error{
+					RedirectLink: ptr.To("/papi/v1/properties/propertyID/versions?groupId=12345&contractId=G-12RS3N4"),
+					StatusCode:   http.StatusFound,
+				}
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+			},
+		},
 		"500 Internal Server Error": {
 			params: GetPropertyVersionsRequest{
 				PropertyID: "propertyID",
@@ -356,6 +376,27 @@ func TestPapiGetPropertyVersion(t *testing.T) {
 			expectedPath: "/papi/v1/properties/propertyID/versions/2?contractId=contract&groupId=group",
 			withError: func(t *testing.T, err error) {
 				assert.True(t, errors.Is(err, ErrNotFound), "want: %s; got: %s", ErrNotFound, err)
+			},
+		},
+		"302 Moved Temporarily - empty contractID and groupID": {
+			params: GetPropertyVersionRequest{
+				PropertyID:      "propertyID",
+				PropertyVersion: 2,
+				ContractID:      "",
+				GroupID:         "",
+			},
+			responseStatus: http.StatusFound,
+			responseBody: `
+{
+    "redirectLink": "/papi/v1/properties/200255035/versions/1?groupId=123456&contractId=G-12RS3N4"
+}`,
+			expectedPath: "/papi/v1/properties/propertyID/versions/2",
+			withError: func(t *testing.T, err error) {
+				want := &Error{
+					RedirectLink: ptr.To("/papi/v1/properties/200255035/versions/1?groupId=123456&contractId=G-12RS3N4"),
+					StatusCode:   http.StatusFound,
+				}
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
 			},
 		},
 		"500 Internal Server Error": {

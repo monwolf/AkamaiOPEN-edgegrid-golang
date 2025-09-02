@@ -14,6 +14,183 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+var (
+	rulesUpdate = RulesUpdate{
+		Comments: "version comment",
+		Rules: Rules{
+			Comments: "default comment",
+			Behaviors: []RuleBehavior{
+				{
+					Name: "origin",
+					Options: RuleOptionsMap{
+						"httpPort":           float64(80),
+						"enableTrueClientIp": false,
+						"compress":           true,
+						"cacheKeyHostname":   "ORIGIN_HOSTNAME",
+						"forwardHostHeader":  "REQUEST_HOST_HEADER",
+						"hostname":           "origin.test.com",
+						"originType":         "CUSTOMER",
+					},
+				},
+				{
+					Name: "cpCode",
+					Options: RuleOptionsMap{
+						"value": map[string]interface{}{
+							"id":   float64(12345),
+							"name": "my CP code",
+						},
+					},
+				},
+			},
+			Children: []Rules{
+				{
+					Behaviors: []RuleBehavior{
+						{
+							Name: "gzipResponse",
+							Options: RuleOptionsMap{
+								"behavior": "ALWAYS",
+							},
+						},
+					},
+					Criteria: []RuleBehavior{
+						{
+							Locked: false,
+							Name:   "contentType",
+							Options: RuleOptionsMap{
+								"matchOperator":      "IS_ONE_OF",
+								"matchWildcard":      true,
+								"matchCaseSensitive": false,
+								"values":             []interface{}{"text/html*", "text/css*", "application/x-javascript*"},
+							},
+						},
+					},
+					Name: "Compress Text Content",
+				},
+			},
+			Criteria: []RuleBehavior{},
+			Name:     "default",
+			Options:  RuleOptions{IsSecure: false},
+			CustomOverride: &RuleCustomOverride{
+				OverrideID: "cbo_12345",
+				Name:       "mdc",
+			},
+			Variables: []RuleVariable{
+				{
+					Description: ptr.To("This is a sample Property Manager variable."),
+					Hidden:      false,
+					Name:        "VAR_NAME",
+					Sensitive:   false,
+					Value:       ptr.To("default value"),
+				},
+			},
+		},
+	}
+	rulesUpdateResponse = `
+{
+    "accountId": "accountID",
+    "contractId": "contract",
+    "groupId": "group",
+    "propertyId": "propertyID",
+    "propertyVersion": 2,
+    "etag": "etag",
+    "ruleFormat": "v2020-09-16",
+	"comments": "version comment",
+    "rules": {
+        "name": "default",
+        "comments": "default comment",
+        "criteria": [],
+        "children": [
+            {
+                "name": "Compress Text Content",
+                "criteria": [
+                    {
+                        "name": "contentType",
+                        "options": {
+                            "matchOperator": "IS_ONE_OF",
+                            "matchWildcard": true,
+                            "matchCaseSensitive": false,
+                            "values": [
+                                "text/html*",
+                                "text/css*",
+                                "application/x-javascript*"
+                            ]
+                        }
+                    }
+                ],
+                "behaviors": [
+                    {
+                        "name": "gzipResponse",
+                        "options": { "behavior": "ALWAYS" }
+                    }
+                ]
+            }
+        ],
+        "options": {
+            "is_secure": false
+        },
+        "behaviors": [
+            {
+                "name": "origin",
+                "options": {
+                    "httpPort": 80,
+                    "enableTrueClientIp": false,
+                    "compress": true,
+                    "cacheKeyHostname": "ORIGIN_HOSTNAME",
+                    "forwardHostHeader": "REQUEST_HOST_HEADER",
+                    "hostname": "origin.test.com",
+                    "originType": "CUSTOMER"
+                }
+            },
+            {
+                "name": "cpCode",
+                "options": {
+                    "value": {
+                        "id": 12345,
+                        "name": "my CP code"
+                    }
+                }
+            },
+ 			{
+                "name": "matchAdvanced",
+                "options": {
+                    "value": {
+                        "id": 12345,
+                        "name": "my advanced match"
+                    }
+                },
+				"locked": true,
+				"uuid": "fd6a63bc-120a-4891-a5f2-c479765d5553",
+				"templateUuid": "bedbac99-4ce1-43a3-96cc-b84c8cd30176"
+            }
+        ],
+ 		"customOverride": {
+        	"overrideId": "cbo_12345",
+        	"name": "mdc"
+    	},
+		"templateUuid": "bedbac99-4ce1-43a3-96cc-b84c8cd30176",
+		"templateLink": "/platformtoolkit/service/ruletemplate/30582260/1?accountId=1-1TJZFB&gid=61726&ck=16.3.1.1",
+		"variables": [
+            {
+                "name": "VAR_NAME",
+                "value": "default value",
+                "description": "This is a sample Property Manager variable.",
+                "hidden": false,
+                "sensitive": false
+            }
+        ]
+    },
+	"errors": [
+        {
+            "type": "/papi/v1/errors/validation.required_behavior",
+            "title": "Missing required behavior in default rule",
+            "detail": "In order for this property to work correctly behavior Content Provider Code needs to be present in the default section",
+            "instance": "/papi/v1/properties/prp_173136/versions/3/rules#err_100",
+            "behaviorName": "cpCode"
+        }
+    ]
+}`
+)
+
 func TestPapiGetRuleTree(t *testing.T) {
 	tests := map[string]struct {
 		params           GetRuleTreeRequest
@@ -836,6 +1013,26 @@ func TestPapiGetRuleTree(t *testing.T) {
 				},
 			},
 		},
+		"302 - empty query params": {
+			params: GetRuleTreeRequest{
+				PropertyID:      "prp_175780",
+				PropertyVersion: 2,
+			},
+			responseStatus: http.StatusFound,
+			responseBody: `
+{
+    "redirectLink": "/papi/v1/properties/prp_175780/versions/2/rules?groupId=12345&contractId=G-12RS3N4"
+}
+`,
+			expectedPath: "/papi/v1/properties/prp_175780/versions/2/rules?validateRules=false",
+			withError: func(t *testing.T, err error) {
+				want := &Error{
+					RedirectLink: ptr.To("/papi/v1/properties/prp_175780/versions/2/rules?groupId=12345&contractId=G-12RS3N4"),
+					StatusCode:   http.StatusFound,
+				}
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+			},
+		},
 		"500 Internal Server Error": {
 			params: GetRuleTreeRequest{
 				PropertyID:      "propertyID",
@@ -1000,183 +1197,11 @@ func TestPapiUpdateRuleTree(t *testing.T) {
 				DryRun:          true,
 				ValidateMode:    "fast",
 				ValidateRules:   false,
-				Rules: RulesUpdate{
-					Comments: "version comment",
-					Rules: Rules{
-						Comments: "default comment",
-						Behaviors: []RuleBehavior{
-							{
-								Name: "origin",
-								Options: RuleOptionsMap{
-									"httpPort":           float64(80),
-									"enableTrueClientIp": false,
-									"compress":           true,
-									"cacheKeyHostname":   "ORIGIN_HOSTNAME",
-									"forwardHostHeader":  "REQUEST_HOST_HEADER",
-									"hostname":           "origin.test.com",
-									"originType":         "CUSTOMER",
-								},
-							},
-							{
-								Name: "cpCode",
-								Options: RuleOptionsMap{
-									"value": map[string]interface{}{
-										"id":   float64(12345),
-										"name": "my CP code",
-									},
-								},
-							},
-						},
-						Children: []Rules{
-							{
-								Behaviors: []RuleBehavior{
-									{
-										Name: "gzipResponse",
-										Options: RuleOptionsMap{
-											"behavior": "ALWAYS",
-										},
-									},
-								},
-								Criteria: []RuleBehavior{
-									{
-										Locked: false,
-										Name:   "contentType",
-										Options: RuleOptionsMap{
-											"matchOperator":      "IS_ONE_OF",
-											"matchWildcard":      true,
-											"matchCaseSensitive": false,
-											"values":             []interface{}{"text/html*", "text/css*", "application/x-javascript*"},
-										},
-									},
-								},
-								Name: "Compress Text Content",
-							},
-						},
-						Criteria: []RuleBehavior{},
-						Name:     "default",
-						Options:  RuleOptions{IsSecure: false},
-						CustomOverride: &RuleCustomOverride{
-							OverrideID: "cbo_12345",
-							Name:       "mdc",
-						},
-						Variables: []RuleVariable{
-							{
-								Description: ptr.To("This is a sample Property Manager variable."),
-								Hidden:      false,
-								Name:        "VAR_NAME",
-								Sensitive:   false,
-								Value:       ptr.To("default value"),
-							},
-						},
-					},
-				},
+				Rules:           rulesUpdate,
 			},
 			responseStatus: http.StatusOK,
-			responseBody: `
-{
-    "accountId": "accountID",
-    "contractId": "contract",
-    "groupId": "group",
-    "propertyId": "propertyID",
-    "propertyVersion": 2,
-    "etag": "etag",
-    "ruleFormat": "v2020-09-16",
-	"comments": "version comment",
-    "rules": {
-        "name": "default",
-        "comments": "default comment",
-        "criteria": [],
-        "children": [
-            {
-                "name": "Compress Text Content",
-                "criteria": [
-                    {
-                        "name": "contentType",
-                        "options": {
-                            "matchOperator": "IS_ONE_OF",
-                            "matchWildcard": true,
-                            "matchCaseSensitive": false,
-                            "values": [
-                                "text/html*",
-                                "text/css*",
-                                "application/x-javascript*"
-                            ]
-                        }
-                    }
-                ],
-                "behaviors": [
-                    {
-                        "name": "gzipResponse",
-                        "options": { "behavior": "ALWAYS" }
-                    }
-                ]
-            }
-        ],
-        "options": {
-            "is_secure": false
-        },
-        "behaviors": [
-            {
-                "name": "origin",
-                "options": {
-                    "httpPort": 80,
-                    "enableTrueClientIp": false,
-                    "compress": true,
-                    "cacheKeyHostname": "ORIGIN_HOSTNAME",
-                    "forwardHostHeader": "REQUEST_HOST_HEADER",
-                    "hostname": "origin.test.com",
-                    "originType": "CUSTOMER"
-                }
-            },
-            {
-                "name": "cpCode",
-                "options": {
-                    "value": {
-                        "id": 12345,
-                        "name": "my CP code"
-                    }
-                }
-            },
- 			{
-                "name": "matchAdvanced",
-                "options": {
-                    "value": {
-                        "id": 12345,
-                        "name": "my advanced match"
-                    }
-                },
-				"locked": true,
-				"uuid": "fd6a63bc-120a-4891-a5f2-c479765d5553",
-				"templateUuid": "bedbac99-4ce1-43a3-96cc-b84c8cd30176"
-            }
-        ],
- 		"customOverride": {
-        	"overrideId": "cbo_12345",
-        	"name": "mdc"
-    	},
-		"templateUuid": "bedbac99-4ce1-43a3-96cc-b84c8cd30176",
-		"templateLink": "/platformtoolkit/service/ruletemplate/30582260/1?accountId=1-1TJZFB&gid=61726&ck=16.3.1.1",
-		"variables": [
-            {
-                "name": "VAR_NAME",
-                "value": "default value",
-                "description": "This is a sample Property Manager variable.",
-                "hidden": false,
-                "sensitive": false
-            }
-        ]
-    },
-	"errors": [
-        {
-            "type": "/papi/v1/errors/validation.required_behavior",
-            "title": "Missing required behavior in default rule",
-            "detail": "In order for this property to work correctly behavior Content Provider Code needs to be present in the default section",
-            "instance": "/papi/v1/properties/prp_173136/versions/3/rules#err_100",
-            "behaviorName": "cpCode"
-        }
-    ]
-}`,
-			expectedPath: "/papi/v1/properties/propertyID/versions/2/rules?contractId=contract&dryRun=true&groupId=group&validateMode=fast&validateRules=false",
+			responseBody:   rulesUpdateResponse,
+			expectedPath:   "/papi/v1/properties/propertyID/versions/2/rules?contractId=contract&dryRun=true&groupId=group&validateMode=fast&validateRules=false",
 			expectedResponse: &UpdateRulesResponse{
 				AccountID:       "accountID",
 				ContractID:      "contract",
@@ -1602,6 +1627,116 @@ func TestPapiUpdateRuleTree(t *testing.T) {
 						Type:                "https://problems.luna.akamaiapis.net/papi/v0/unstable_rule_format",
 						CurrentRuleFormat:   "latest",
 						SuggestedRuleFormat: "v2023-01-05",
+					},
+				},
+			},
+		},
+		"200 OK - no query params": {
+			params: UpdateRulesRequest{
+				PropertyID:      "propertyID",
+				PropertyVersion: 2,
+				Rules:           rulesUpdate,
+			},
+			responseStatus: http.StatusOK,
+			responseBody:   rulesUpdateResponse,
+			expectedPath:   "/papi/v1/properties/propertyID/versions/2/rules?validateRules=false",
+			expectedResponse: &UpdateRulesResponse{
+				AccountID:       "accountID",
+				ContractID:      "contract",
+				GroupID:         "group",
+				PropertyID:      "propertyID",
+				PropertyVersion: 2,
+				Etag:            "etag",
+				RuleFormat:      "v2020-09-16",
+				Comments:        "version comment",
+				Rules: Rules{
+					Comments: "default comment",
+					Behaviors: []RuleBehavior{
+						{
+							Name: "origin",
+							Options: RuleOptionsMap{
+								"httpPort":           float64(80),
+								"enableTrueClientIp": false,
+								"compress":           true,
+								"cacheKeyHostname":   "ORIGIN_HOSTNAME",
+								"forwardHostHeader":  "REQUEST_HOST_HEADER",
+								"hostname":           "origin.test.com",
+								"originType":         "CUSTOMER",
+							},
+						},
+						{
+							Name: "cpCode",
+							Options: RuleOptionsMap{
+								"value": map[string]interface{}{
+									"id":   float64(12345),
+									"name": "my CP code",
+								},
+							},
+						},
+						{
+							Name: "matchAdvanced",
+							Options: RuleOptionsMap{
+								"value": map[string]interface{}{
+									"id":   float64(12345),
+									"name": "my advanced match",
+								},
+							},
+							Locked:       true,
+							UUID:         "fd6a63bc-120a-4891-a5f2-c479765d5553",
+							TemplateUuid: "bedbac99-4ce1-43a3-96cc-b84c8cd30176",
+						},
+					},
+					Children: []Rules{
+						{
+							Behaviors: []RuleBehavior{
+								{
+									Name: "gzipResponse",
+									Options: RuleOptionsMap{
+										"behavior": "ALWAYS",
+									},
+								},
+							},
+							Criteria: []RuleBehavior{
+								{
+									Locked: false,
+									Name:   "contentType",
+									Options: RuleOptionsMap{
+										"matchOperator":      "IS_ONE_OF",
+										"matchWildcard":      true,
+										"matchCaseSensitive": false,
+										"values":             []interface{}{"text/html*", "text/css*", "application/x-javascript*"},
+									},
+								},
+							},
+							Name: "Compress Text Content",
+						},
+					},
+					Criteria: []RuleBehavior{},
+					Name:     "default",
+					Options:  RuleOptions{IsSecure: false},
+					CustomOverride: &RuleCustomOverride{
+						OverrideID: "cbo_12345",
+						Name:       "mdc",
+					},
+					TemplateUuid: "bedbac99-4ce1-43a3-96cc-b84c8cd30176",
+					TemplateLink: "/platformtoolkit/service/ruletemplate/30582260/1?accountId=1-1TJZFB&gid=61726&ck=16.3.1.1",
+					Variables: []RuleVariable{
+						{
+							Description: ptr.To("This is a sample Property Manager variable."),
+							Hidden:      false,
+							Name:        "VAR_NAME",
+							Sensitive:   false,
+							Value:       ptr.To("default value"),
+						},
+					},
+				},
+				Errors: []RuleError{
+					{
+						Type:         "/papi/v1/errors/validation.required_behavior",
+						Title:        "Missing required behavior in default rule",
+						Detail:       "In order for this property to work correctly behavior Content Provider Code needs to be present in the default section",
+						Instance:     "/papi/v1/properties/prp_173136/versions/3/rules#err_100",
+						BehaviorName: "cpCode",
 					},
 				},
 			},

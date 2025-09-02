@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
+	"strconv"
 
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/session"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -127,23 +129,29 @@ var (
 )
 
 func (p *papi) GetPropertyVersionHostnames(ctx context.Context, params GetPropertyVersionHostnamesRequest) (*GetPropertyVersionHostnamesResponse, error) {
+	logger := p.Log(ctx)
+	logger.Debug("GetPropertyVersionHostnames")
+
 	if err := params.Validate(); err != nil {
 		return nil, fmt.Errorf("%s: %w: %s", ErrGetPropertyVersionHostnames, ErrStructValidation, err)
 	}
 
-	logger := p.Log(ctx)
-	logger.Debug("GetPropertyVersionHostnames")
+	uri, err := url.Parse(fmt.Sprintf("/papi/v1/properties/%s/versions/%d/hostnames", params.PropertyID, params.PropertyVersion))
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrGetPropertyVersionHostnames, err)
+	}
+	q := url.Values{}
+	if params.GroupID != "" {
+		q.Set("groupId", params.GroupID)
+	}
+	if params.ContractID != "" {
+		q.Set("contractId", params.ContractID)
+	}
+	q.Set("validateHostnames", strconv.FormatBool(params.ValidateHostnames))
+	q.Set("includeCertStatus", strconv.FormatBool(params.IncludeCertStatus))
+	uri.RawQuery = q.Encode()
 
-	getURL := fmt.Sprintf(
-		"/papi/v1/properties/%s/versions/%d/hostnames?contractId=%s&groupId=%s&validateHostnames=%t&includeCertStatus=%t",
-		params.PropertyID,
-		params.PropertyVersion,
-		params.ContractID,
-		params.GroupID,
-		params.ValidateHostnames,
-		params.IncludeCertStatus)
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, getURL, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri.String(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to create request: %s", ErrGetPropertyVersionHostnames, err)
 	}
@@ -163,24 +171,30 @@ func (p *papi) GetPropertyVersionHostnames(ctx context.Context, params GetProper
 }
 
 func (p *papi) UpdatePropertyVersionHostnames(ctx context.Context, params UpdatePropertyVersionHostnamesRequest) (*UpdatePropertyVersionHostnamesResponse, error) {
+	logger := p.Log(ctx)
+	logger.Debug("UpdatePropertyVersionHostnames")
+
 	if err := params.Validate(); err != nil {
 		return nil, fmt.Errorf("%s: %w: %s", ErrUpdatePropertyVersionHostnames, ErrStructValidation, err)
 	}
 
-	logger := p.Log(ctx)
-	logger.Debug("UpdatePropertyVersionHostnames")
+	uri, err := url.Parse(fmt.Sprintf("/papi/v1/properties/%s/versions/%v/hostnames", params.PropertyID, params.PropertyVersion))
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrUpdatePropertyVersionHostnames, err)
+	}
 
-	putURL := fmt.Sprintf(
-		"/papi/v1/properties/%s/versions/%v/hostnames?contractId=%s&groupId=%s&validateHostnames=%t&includeCertStatus=%t",
-		params.PropertyID,
-		params.PropertyVersion,
-		params.ContractID,
-		params.GroupID,
-		params.ValidateHostnames,
-		params.IncludeCertStatus,
-	)
+	q := url.Values{}
+	if params.GroupID != "" {
+		q.Set("groupId", params.GroupID)
+	}
+	if params.ContractID != "" {
+		q.Set("contractId", params.ContractID)
+	}
+	q.Set("validateHostnames", strconv.FormatBool(params.ValidateHostnames))
+	q.Set("includeCertStatus", strconv.FormatBool(params.IncludeCertStatus))
+	uri.RawQuery = q.Encode()
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPut, putURL, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPut, uri.String(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to create request: %s", ErrUpdatePropertyVersionHostnames, err)
 	}

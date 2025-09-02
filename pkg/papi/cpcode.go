@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/session"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -189,19 +190,20 @@ var (
 
 // GetCPCodes is used to list all available CP codes for given group and contract
 func (p *papi) GetCPCodes(ctx context.Context, params GetCPCodesRequest) (*GetCPCodesResponse, error) {
+	logger := p.Log(ctx)
+	logger.Debug("GetCPCodes")
+
 	if err := params.Validate(); err != nil {
 		return nil, fmt.Errorf("%s: %w: %s", ErrGetCPCodes, ErrStructValidation, err)
 	}
 
-	logger := p.Log(ctx)
-	logger.Debug("GetCPCodes")
+	uri := url.URL{Path: "/papi/v1/cpcodes"}
+	q := url.Values{}
+	q.Set("groupId", params.GroupID)
+	q.Set("contractId", params.ContractID)
+	uri.RawQuery = q.Encode()
 
-	getURL := fmt.Sprintf(
-		"/papi/v1/cpcodes?contractId=%s&groupId=%s",
-		params.ContractID,
-		params.GroupID,
-	)
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, getURL, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri.String(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to create request: %s", ErrGetCPCodes, err)
 	}
@@ -222,15 +224,23 @@ func (p *papi) GetCPCodes(ctx context.Context, params GetCPCodesRequest) (*GetCP
 
 // GetCPCode is used to fetch a CP code with provided ID
 func (p *papi) GetCPCode(ctx context.Context, params GetCPCodeRequest) (*GetCPCodesResponse, error) {
+	logger := p.Log(ctx)
+	logger.Debug("GetCPCode")
+
 	if err := params.Validate(); err != nil {
 		return nil, fmt.Errorf("%s: %w: %s", ErrGetCPCode, ErrStructValidation, err)
 	}
 
-	logger := p.Log(ctx)
-	logger.Debug("GetCPCode")
+	uri, err := url.Parse(fmt.Sprintf("/papi/v1/cpcodes/%s", params.CPCodeID))
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrGetCPCode, err)
+	}
+	q := url.Values{}
+	q.Set("groupId", params.GroupID)
+	q.Set("contractId", params.ContractID)
+	uri.RawQuery = q.Encode()
 
-	getURL := fmt.Sprintf("/papi/v1/cpcodes/%s?contractId=%s&groupId=%s", params.CPCodeID, params.ContractID, params.GroupID)
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, getURL, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri.String(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to create request: %s", ErrGetCPCode, err)
 	}
@@ -279,22 +289,27 @@ func (p *papi) GetCPCodeDetail(ctx context.Context, ID int) (*CPCodeDetailRespon
 }
 
 // CreateCPCode creates a new CP code with provided CreateCPCodeRequest data
-func (p *papi) CreateCPCode(ctx context.Context, r CreateCPCodeRequest) (*CreateCPCodeResponse, error) {
-	if err := r.Validate(); err != nil {
-		return nil, fmt.Errorf("%s: %w: %v", ErrCreateCPCode, ErrStructValidation, err)
-	}
-
+func (p *papi) CreateCPCode(ctx context.Context, params CreateCPCodeRequest) (*CreateCPCodeResponse, error) {
 	logger := p.Log(ctx)
 	logger.Debug("CreateCPCode")
 
-	createURL := fmt.Sprintf("/papi/v1/cpcodes?contractId=%s&groupId=%s", r.ContractID, r.GroupID)
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, createURL, nil)
+	if err := params.Validate(); err != nil {
+		return nil, fmt.Errorf("%s: %w: %v", ErrCreateCPCode, ErrStructValidation, err)
+	}
+
+	uri := url.URL{Path: "/papi/v1/cpcodes"}
+	q := url.Values{}
+	q.Set("groupId", params.GroupID)
+	q.Set("contractId", params.ContractID)
+	uri.RawQuery = q.Encode()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, uri.String(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to create request: %s", ErrCreateCPCode, err)
 	}
 
 	var createResponse CreateCPCodeResponse
-	resp, err := p.Exec(req, &createResponse, r.CPCode)
+	resp, err := p.Exec(req, &createResponse, params.CPCode)
 	if err != nil {
 		return nil, fmt.Errorf("%w: request failed: %s", ErrCreateCPCode, err)
 	}
@@ -313,12 +328,12 @@ func (p *papi) CreateCPCode(ctx context.Context, r CreateCPCodeRequest) (*Create
 
 // UpdateCPCode is used to update CP code using CPRG API
 func (p *papi) UpdateCPCode(ctx context.Context, r UpdateCPCodeRequest) (*CPCodeDetailResponse, error) {
+	logger := p.Log(ctx)
+	logger.Debug("UpdateCPCode")
+
 	if err := r.Validate(); err != nil {
 		return nil, fmt.Errorf("%s: %w: %v", ErrUpdateCPCode, ErrStructValidation, err)
 	}
-
-	logger := p.Log(ctx)
-	logger.Debug("UpdateCPCode")
 
 	updateURL := fmt.Sprintf("/cprg/v1/cpcodes/%d", r.ID)
 	req, err := http.NewRequestWithContext(ctx, http.MethodPut, updateURL, nil)

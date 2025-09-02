@@ -199,14 +199,14 @@ var (
 )
 
 func (p *papi) GetProperties(ctx context.Context, params GetPropertiesRequest) (*GetPropertiesResponse, error) {
+	logger := p.Log(ctx)
+	logger.Debug("GetProperties")
+
 	if err := params.Validate(); err != nil {
 		return nil, fmt.Errorf("%s: %w: %s", ErrGetProperties, ErrStructValidation, err)
 	}
 
 	var rval GetPropertiesResponse
-
-	logger := p.Log(ctx)
-	logger.Debug("GetProperties")
 
 	uri := fmt.Sprintf(
 		"/papi/v1/properties?contractId=%s&groupId=%s",
@@ -232,12 +232,12 @@ func (p *papi) GetProperties(ctx context.Context, params GetPropertiesRequest) (
 }
 
 func (p *papi) CreateProperty(ctx context.Context, params CreatePropertyRequest) (*CreatePropertyResponse, error) {
+	logger := p.Log(ctx)
+	logger.Debug("CreateProperty")
+
 	if err := params.Validate(); err != nil {
 		return nil, fmt.Errorf("%s: %w:\n%s", ErrCreateProperty, ErrStructValidation, err)
 	}
-
-	logger := p.Log(ctx)
-	logger.Debug("CreateProperty")
 
 	uri := fmt.Sprintf(
 		"/papi/v1/properties?contractId=%s&groupId=%s",
@@ -276,14 +276,14 @@ func (p *papi) CreateProperty(ctx context.Context, params CreatePropertyRequest)
 }
 
 func (p *papi) GetProperty(ctx context.Context, params GetPropertyRequest) (*GetPropertyResponse, error) {
+	logger := p.Log(ctx)
+	logger.Debug("GetProperty")
+
 	if err := params.Validate(); err != nil {
 		return nil, fmt.Errorf("%s: %w: %s", ErrGetProperty, ErrStructValidation, err)
 	}
 
 	var rval GetPropertyResponse
-
-	logger := p.Log(ctx)
-	logger.Debug("GetProperty")
 
 	uri, err := url.Parse(fmt.Sprintf(
 		"/papi/v1/properties/%s",
@@ -325,14 +325,14 @@ func (p *papi) GetProperty(ctx context.Context, params GetPropertyRequest) (*Get
 }
 
 func (p *papi) RemoveProperty(ctx context.Context, params RemovePropertyRequest) (*RemovePropertyResponse, error) {
+	logger := p.Log(ctx)
+	logger.Debug("RemoveProperty")
+
 	if err := params.Validate(); err != nil {
 		return nil, fmt.Errorf("%s: %w: %s", ErrRemoveProperty, ErrStructValidation, err)
 	}
 
 	var rval RemovePropertyResponse
-
-	logger := p.Log(ctx)
-	logger.Debug("RemoveProperty")
 
 	uri, err := url.Parse(fmt.Sprintf(
 		"/papi/v1/properties/%s",

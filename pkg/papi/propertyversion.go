@@ -258,26 +258,34 @@ var (
 )
 
 func (p *papi) GetPropertyVersions(ctx context.Context, params GetPropertyVersionsRequest) (*GetPropertyVersionsResponse, error) {
+	logger := p.Log(ctx)
+	logger.Debug("GetPropertyVersions")
+
 	if err := params.Validate(); err != nil {
 		return nil, fmt.Errorf("%s: %w: %s", ErrGetPropertyVersions, ErrStructValidation, err)
 	}
 
-	logger := p.Log(ctx)
-	logger.Debug("GetPropertyVersions")
+	uri, err := url.Parse(fmt.Sprintf("/papi/v1/properties/%s/versions", params.PropertyID))
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to create request: %s", ErrGetPropertyVersions, err)
+	}
 
-	getURL := fmt.Sprintf(
-		"/papi/v1/properties/%s/versions?contractId=%s&groupId=%s",
-		params.PropertyID,
-		params.ContractID,
-		params.GroupID,
-	)
+	q := url.Values{}
+	if params.ContractID != "" {
+		q.Set("contractId", params.ContractID)
+	}
+	if params.GroupID != "" {
+		q.Set("groupId", params.GroupID)
+	}
 	if params.Limit != 0 {
-		getURL += fmt.Sprintf("&limit=%d", params.Limit)
+		q.Set("limit", strconv.Itoa(params.Limit))
 	}
 	if params.Offset != 0 {
-		getURL += fmt.Sprintf("&offset=%d", params.Offset)
+		q.Set("offset", strconv.Itoa(params.Offset))
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, getURL, nil)
+	uri.RawQuery = q.Encode()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri.String(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to create request: %s", ErrGetPropertyVersions, err)
 	}
@@ -297,23 +305,32 @@ func (p *papi) GetPropertyVersions(ctx context.Context, params GetPropertyVersio
 }
 
 func (p *papi) GetLatestVersion(ctx context.Context, params GetLatestVersionRequest) (*GetPropertyVersionsResponse, error) {
+	logger := p.Log(ctx)
+	logger.Debug("GetLatestVersion")
+
 	if err := params.Validate(); err != nil {
 		return nil, fmt.Errorf("%s: %w: %s", ErrGetLatestVersion, ErrStructValidation, err)
 	}
 
-	logger := p.Log(ctx)
-	logger.Debug("GetLatestVersion")
-
-	getURL := fmt.Sprintf(
-		"/papi/v1/properties/%s/versions/latest?contractId=%s&groupId=%s",
-		params.PropertyID,
-		params.ContractID,
-		params.GroupID,
-	)
-	if params.ActivatedOn != "" {
-		getURL += fmt.Sprintf("&activatedOn=%s", params.ActivatedOn)
+	uri, err := url.Parse(fmt.Sprintf("/papi/v1/properties/%s/versions/latest", params.PropertyID))
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to create request: %s", ErrGetLatestVersion, err)
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, getURL, nil)
+
+	q := url.Values{}
+	if params.ContractID != "" {
+		q.Set("contractId", params.ContractID)
+	}
+	if params.GroupID != "" {
+		q.Set("groupId", params.GroupID)
+	}
+
+	if params.ActivatedOn != "" {
+		q.Set("activatedOn", params.ActivatedOn)
+	}
+	uri.RawQuery = q.Encode()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri.String(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to create request: %s", ErrGetLatestVersion, err)
 	}
@@ -336,21 +353,28 @@ func (p *papi) GetLatestVersion(ctx context.Context, params GetLatestVersionRequ
 }
 
 func (p *papi) GetPropertyVersion(ctx context.Context, params GetPropertyVersionRequest) (*GetPropertyVersionsResponse, error) {
+	logger := p.Log(ctx)
+	logger.Debug("GetPropertyVersion")
+
 	if err := params.Validate(); err != nil {
 		return nil, fmt.Errorf("%s: %w: %s", ErrGetPropertyVersion, ErrStructValidation, err)
 	}
 
-	logger := p.Log(ctx)
-	logger.Debug("GetPropertyVersion")
+	uri, err := url.Parse(fmt.Sprintf("/papi/v1/properties/%s/versions/%d", params.PropertyID, params.PropertyVersion))
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to create request: %s", ErrGetPropertyVersion, err)
+	}
 
-	getURL := fmt.Sprintf(
-		"/papi/v1/properties/%s/versions/%d?contractId=%s&groupId=%s",
-		params.PropertyID,
-		params.PropertyVersion,
-		params.ContractID,
-		params.GroupID,
-	)
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, getURL, nil)
+	q := url.Values{}
+	if params.ContractID != "" {
+		q.Set("contractId", params.ContractID)
+	}
+	if params.GroupID != "" {
+		q.Set("groupId", params.GroupID)
+	}
+	uri.RawQuery = q.Encode()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri.String(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to create request: %s", ErrGetPropertyVersion, err)
 	}
@@ -372,27 +396,35 @@ func (p *papi) GetPropertyVersion(ctx context.Context, params GetPropertyVersion
 	return &versions, nil
 }
 
-func (p *papi) CreatePropertyVersion(ctx context.Context, request CreatePropertyVersionRequest) (*CreatePropertyVersionResponse, error) {
-	if err := request.Validate(); err != nil {
-		return nil, fmt.Errorf("%s: %w:\n%s", ErrCreatePropertyVersion, ErrStructValidation, err)
-	}
-
+func (p *papi) CreatePropertyVersion(ctx context.Context, params CreatePropertyVersionRequest) (*CreatePropertyVersionResponse, error) {
 	logger := p.Log(ctx)
 	logger.Debug("CreatePropertyVersion")
 
-	getURL := fmt.Sprintf(
-		"/papi/v1/properties/%s/versions?contractId=%s&groupId=%s",
-		request.PropertyID,
-		request.ContractID,
-		request.GroupID,
-	)
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, getURL, nil)
+	if err := params.Validate(); err != nil {
+		return nil, fmt.Errorf("%s: %w:\n%s", ErrCreatePropertyVersion, ErrStructValidation, err)
+	}
+
+	uri, err := url.Parse(fmt.Sprintf("/papi/v1/properties/%s/versions", params.PropertyID))
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to create request: %s", ErrCreatePropertyVersion, err)
+	}
+
+	q := url.Values{}
+	if params.ContractID != "" {
+		q.Set("contractId", params.ContractID)
+	}
+	if params.GroupID != "" {
+		q.Set("groupId", params.GroupID)
+	}
+	uri.RawQuery = q.Encode()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, uri.String(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to create request: %s", ErrCreatePropertyVersion, err)
 	}
 
 	var version CreatePropertyVersionResponse
-	resp, err := p.Exec(req, &version, request.Version)
+	resp, err := p.Exec(req, &version, params.Version)
 	if err != nil {
 		return nil, fmt.Errorf("%w: request failed: %s", ErrCreatePropertyVersion, err)
 	}
@@ -414,12 +446,12 @@ func (p *papi) CreatePropertyVersion(ctx context.Context, request CreateProperty
 }
 
 func (p *papi) GetAvailableBehaviors(ctx context.Context, params GetAvailableBehaviorsRequest) (*GetBehaviorsResponse, error) {
+	logger := p.Log(ctx)
+	logger.Debug("GetAvailableBehaviors")
+
 	if err := params.Validate(); err != nil {
 		return nil, fmt.Errorf("%s: %w: %s", ErrGetAvailableBehaviors, ErrStructValidation, err)
 	}
-
-	logger := p.Log(ctx)
-	logger.Debug("GetAvailableBehaviors")
 
 	uri, err := url.Parse(fmt.Sprintf("/papi/v1/properties/%s/versions/%d/available-behaviors", params.PropertyID, params.PropertyVersion))
 	if err != nil {
@@ -455,12 +487,12 @@ func (p *papi) GetAvailableBehaviors(ctx context.Context, params GetAvailableBeh
 }
 
 func (p *papi) GetAvailableCriteria(ctx context.Context, params GetAvailableCriteriaRequest) (*GetCriteriaResponse, error) {
+	logger := p.Log(ctx)
+	logger.Debug("GetAvailableCriteria")
+
 	if err := params.Validate(); err != nil {
 		return nil, fmt.Errorf("%s: %w: %s", ErrGetAvailableCriteria, ErrStructValidation, err)
 	}
-
-	logger := p.Log(ctx)
-	logger.Debug("GetAvailableCriteria")
 
 	uri, err := url.Parse(fmt.Sprintf("/papi/v1/properties/%s/versions/%d/available-criteria", params.PropertyID, params.PropertyVersion))
 	if err != nil {

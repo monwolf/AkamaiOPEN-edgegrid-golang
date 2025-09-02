@@ -71,12 +71,12 @@ var (
 )
 
 func (p *papi) SearchProperties(ctx context.Context, request SearchRequest) (*SearchResponse, error) {
+	logger := p.Log(ctx)
+	logger.Debug("SearchProperties")
+
 	if err := request.Validate(); err != nil {
 		return nil, fmt.Errorf("%s: %w: %s", ErrSearchProperties, ErrStructValidation, err)
 	}
-
-	logger := p.Log(ctx)
-	logger.Debug("SearchProperties")
 
 	searchURL := "/papi/v1/search/find-by-value"
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, searchURL, nil)

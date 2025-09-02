@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/ptr"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -82,6 +83,26 @@ func TestPapiGetPropertyVersionHostnames(t *testing.T) {
 				},
 			},
 		},
+		"302 - missed contractId and groupId": {
+			params: GetPropertyVersionHostnamesRequest{
+				PropertyID:        "prp_175780",
+				PropertyVersion:   3,
+				IncludeCertStatus: false,
+			},
+			responseStatus: http.StatusFound,
+			responseBody: `
+{
+    "redirectLink": "/papi/v1/properties/prp_175780/versions/1/hostnames?groupId=12345&contractId=G-12RS3N4"
+}`,
+			expectedPath: "/papi/v1/properties/prp_175780/versions/3/hostnames?includeCertStatus=false&validateHostnames=false",
+			withError: func(t *testing.T, err error) {
+				want := &Error{
+					RedirectLink: ptr.To("/papi/v1/properties/prp_175780/versions/1/hostnames?groupId=12345&contractId=G-12RS3N4"),
+					StatusCode:   http.StatusFound,
+				}
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+			},
+		},
 		"validation error PropertyID missing": {
 			params: GetPropertyVersionHostnamesRequest{
 				PropertyVersion: 3,
@@ -115,7 +136,7 @@ func TestPapiGetPropertyVersionHostnames(t *testing.T) {
     "detail": "Error fetching hostnames",
     "status": 500
 }`,
-			expectedPath: "/papi/v1/properties/prp_175780/versions/3/hostnames?contractId=&groupId=&includeCertStatus=false&validateHostnames=false",
+			expectedPath: "/papi/v1/properties/prp_175780/versions/3/hostnames?includeCertStatus=false&validateHostnames=false",
 			withError: func(t *testing.T, err error) {
 				want := &Error{
 					Type:       "internal_error",
@@ -336,6 +357,40 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 				},
 			},
 		},
+		"302 - missed contractId and groupId": {
+			params: UpdatePropertyVersionHostnamesRequest{
+				PropertyID:        "prp_175780",
+				PropertyVersion:   3,
+				IncludeCertStatus: true,
+				Hostnames: []Hostname{
+					{
+						CnameType:            "EDGE_HOSTNAME",
+						CnameFrom:            "m.example.com",
+						CnameTo:              "example.com.edgekey.net",
+						CertProvisioningType: "DEFAULT",
+					},
+					{
+						CnameType:            "EDGE_HOSTNAME",
+						EdgeHostnameID:       "ehn_895824",
+						CnameFrom:            "example3.com",
+						CertProvisioningType: "CPS_MANAGED",
+					},
+				},
+			},
+			responseStatus: http.StatusFound,
+			responseBody: `
+{
+    "redirectLink": "/papi/v1/properties/prp_175780/versions/3/hostnames?groupId=12345&contractId=G-12RS3N4"
+}`,
+			expectedPath: "/papi/v1/properties/prp_175780/versions/3/hostnames?includeCertStatus=true&validateHostnames=false",
+			withError: func(t *testing.T, err error) {
+				want := &Error{
+					RedirectLink: ptr.To("/papi/v1/properties/prp_175780/versions/3/hostnames?groupId=12345&contractId=G-12RS3N4"),
+					StatusCode:   http.StatusFound,
+				}
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+			},
+		},
 		"validation error PropertyID missing": {
 			params: UpdatePropertyVersionHostnamesRequest{
 				PropertyVersion: 3,
@@ -515,7 +570,7 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
     "detail": "Error updating hostnames",
     "status": 500
 }`,
-			expectedPath: "/papi/v1/properties/prp_175780/versions/3/hostnames?contractId=&groupId=&includeCertStatus=true&validateHostnames=false",
+			expectedPath: "/papi/v1/properties/prp_175780/versions/3/hostnames?includeCertStatus=true&validateHostnames=false",
 			withError: func(t *testing.T, err error) {
 				want := &Error{
 					Type:       "internal_error",
