@@ -332,7 +332,21 @@ func (p *Mock) GetActivePropertyHostnamesDiff(ctx context.Context, r GetActivePr
 func (p *Mock) UpdatePropertyVersionHostnames(ctx context.Context, r UpdatePropertyVersionHostnamesRequest) (*UpdatePropertyVersionHostnamesResponse, error) {
 	args := p.Called(ctx, r)
 
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
 	return args.Get(0).(*UpdatePropertyVersionHostnamesResponse), args.Error(1)
+}
+
+func (p *Mock) PatchPropertyVersionHostnames(ctx context.Context, r PatchPropertyVersionHostnamesRequest) (*PatchPropertyVersionHostnamesResponse, error) {
+	args := p.Called(ctx, r)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*PatchPropertyVersionHostnamesResponse), args.Error(1)
 }
 
 func (p *Mock) GetClientSettings(ctx context.Context) (*ClientSettingsBody, error) {

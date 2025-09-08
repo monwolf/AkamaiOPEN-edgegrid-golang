@@ -18,7 +18,8 @@
 
 
 
-
+* PAPI
+  * Added new [PatchPropertyVersionHostnames](https://techdocs.akamai.com/property-mgr/reference/patch-property-version-hostnames) method.
 
 
 
