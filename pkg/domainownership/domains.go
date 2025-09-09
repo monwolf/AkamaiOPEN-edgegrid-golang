@@ -6,16 +6,87 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"regexp"
+	"strings"
 	"time"
 
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/edgegriderr"
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/session"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/edgegriderr"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/session"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
 type (
+	// AddDomainsRequest represents the request structure for AddDomains.
+	AddDomainsRequest struct {
+		// Domains is the list of domains to add for validation.
+		Domains []Domain `json:"domains"`
+	}
+
+	// AddDomainError represents an error encountered while adding a domain.
+	AddDomainError struct {
+		// Details of an encountered error.
+		Detail string `json:"detail"`
+
+		// DomainName is the name of the domain.
+		DomainName string `json:"domainName"`
+
+		// Title of an encountered error.
+		Title string `json:"title"`
+
+		// Type of encountered error.
+		Type string `json:"type"`
+
+		// ValidationScope of the domain validation, either HOST, WILDCARD, or DOMAIN.
+		ValidationScope ValidationScope `json:"validationScope"`
+	}
+
+	// AddDomainSuccess represents a successful addition of a domain.
+	AddDomainSuccess struct {
+		// AccountID is the ID of an account.
+		AccountID string `json:"accountId"`
+
+		// DomainName is the name of the domain to add.
+		DomainName string `json:"domainName"`
+
+		// DomainStatus is the validation status of the domain. Either REQUEST_ACCEPTED, VALIDATION_IN_PROGRESS or VALIDATED.
+		DomainStatus string `json:"domainStatus"`
+
+		// ValidationScope indicates the scope of the validation, either HOST, DOMAIN, or WILDCARD.
+		ValidationScope string `json:"validationScope"`
+
+		// ValidationMethod is the method of the domain validation, either DNS_CNAME, DNS_TXT, HTTP, SYSTEM, or MANUAL.
+		ValidationMethod *string `json:"validationMethod"`
+
+		// ValidationRequestedBy is the user who requested the validation.
+		ValidationRequestedBy string `json:"validationRequestedBy"`
+
+		// ValidationRequestedDate is the timestamp when the validation was requested.
+		ValidationRequestedDate time.Time `json:"validationRequestedDate"`
+
+		// ValidationCompletedDate is the timestamp when the validation was completed.
+		ValidationCompletedDate *time.Time `json:"validationCompletedDate"`
+
+		// ValidationChallenge contains the validation challenge details for the domain.
+		ValidationChallenge ValidationChallenge `json:"validationChallenge"`
+	}
+
+	// AddDomainsResponse represents the response structure for AddDomains.
+	AddDomainsResponse struct {
+		// Errors represents domains that returned error responses.
+		Errors []AddDomainError `json:"errors"`
+
+		// Successes represents domains added successfully.
+		Successes []AddDomainSuccess `json:"successes"`
+	}
+
+	// DeleteDomainRequest represents the request structure for DeleteDomain.
+	DeleteDomainRequest Domain
+
 	// ValidationScope represents the scope of domain validation.
 	ValidationScope string
+
+	// ValidationMethod represents the method of domain validation.
+	ValidationMethod string
 
 	// ListDomainsRequest represents the request parameters for listing domains.
 	ListDomainsRequest struct {
@@ -79,7 +150,7 @@ type (
 		// ChallengeTokenExpiresDate is an ISO 8601 timestamp indicating when the domain validation token expires.
 		ChallengeTokenExpiresDate time.Time `json:"challengeTokenExpiresDate"`
 
-		// DNSCname is DNS CNAME you need to use for DNS CNAME domain validation.
+		// DNSCname is the DNS CNAME you need to use for DNS CNAME domain validation.
 		DNSCname string `json:"dnsCname"`
 
 		// HTTPRedirectFrom is the HTTP URL for checking the challenge token during HTTP validation.
@@ -148,7 +219,7 @@ type (
 		// ValidationCompletedDate is the timestamp when the validation was completed.
 		ValidationCompletedDate *time.Time `json:"validationCompletedDate"`
 
-		// ValidationMethod is method of the domain validation, either DNS_CNAME, DNS_TXT, HTTP, SYSTEM, or MANUAL.
+		// ValidationMethod is the method of the domain validation, either DNS_CNAME, DNS_TXT, HTTP, SYSTEM, or MANUAL.
 		ValidationMethod *string `json:"validationMethod"`
 
 		// ValidationRequestedBy is the user who requested the validation.
@@ -188,11 +259,11 @@ type (
 	// SearchDomainsBody represents the body of the search domains request.
 	SearchDomainsBody struct {
 		// Domains is a list of domains to search for.
-		Domains []SearchDomain `json:"domains"`
+		Domains []Domain `json:"domains"`
 	}
 
-	// SearchDomain represents a domain to search for in the search domains request.
-	SearchDomain struct {
+	// Domain represents a domain used in add, validate, and search domain requests.
+	Domain struct {
 		// DomainName is the name of the domain to search for.
 		DomainName string `json:"domainName"`
 
@@ -217,7 +288,7 @@ type (
 		// ValidationScope indicates the scope of the validation, either HOST, DOMAIN, or WILDCARD.
 		ValidationScope string `json:"validationScope"`
 
-		// ValidationLevel is level of the domain validation, either FQDN or WILDCARD.
+		// ValidationLevel is the level of the domain validation, either FQDN or WILDCARD.
 		ValidationLevel string `json:"validationLevel"`
 
 		// AccountID is the ID of an account.
@@ -249,7 +320,53 @@ const (
 
 	// ValidationScopeWildcard represents the scope of validation for any hostname within one subdomain level.
 	ValidationScopeWildcard ValidationScope = "WILDCARD"
+
+	// ValidationMethodDNSCNAME represents the DNS CNAME validation method.
+	ValidationMethodDNSCNAME ValidationMethod = "DNS_CNAME"
+
+	// ValidationMethodDNSTXT represents the DNS TXT validation method.
+	ValidationMethodDNSTXT ValidationMethod = "DNS_TXT"
+
+	// ValidationMethodHTTP represents the HTTP validation method.
+	ValidationMethodHTTP ValidationMethod = "HTTP"
 )
+
+// Validate validates the AddDomainsRequest parameters.
+func (r AddDomainsRequest) Validate() error {
+	err := edgegriderr.ParseValidationErrors(validation.Errors{
+		"Domains": validation.Validate(
+			r.Domains,
+			validation.Required,
+			validation.Length(1, 0),
+			validation.Each()),
+	})
+
+	if err == nil {
+		return nil
+	}
+
+	if strings.Contains(err.Error(), "DomainName") {
+		return fmt.Errorf("%v\nHint: %s", err, ErrDomainNameValidationHint)
+	}
+	return err
+}
+
+func domainNameValidation(domainName string) error {
+	domainName = strings.TrimSpace(domainName)
+
+	if err := validation.Validate(domainName, validation.Required); err != nil {
+		return ErrDomainEmpty
+	}
+
+	switch {
+	case len(domainName) > 200:
+		return fmt.Errorf("domain '%s': %w", domainName, ErrDomainTooLong)
+	case !domainRegex.MatchString(domainName):
+		return fmt.Errorf("domain '%s': %w", domainName, ErrDomainInvalidFmt)
+	default:
+		return nil
+	}
+}
 
 // Validate validates the ListDomainsRequest parameters.
 func (r ListDomainsRequest) Validate() error {
@@ -267,6 +384,14 @@ func (r GetDomainRequest) Validate() error {
 	})
 }
 
+// Validate validates the DeleteDomainRequest parameters.
+func (d DeleteDomainRequest) Validate() error {
+	return edgegriderr.ParseValidationErrors(validation.Errors{
+		"DomainName":      domainNameValidation(d.DomainName),
+		"ValidationScope": scopeValidation(d.ValidationScope),
+	})
+}
+
 // Validate validates the SearchDomainsRequest parameters.
 func (r SearchDomainsRequest) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
@@ -281,21 +406,25 @@ func (b SearchDomainsBody) Validate() error {
 	}.Filter()
 }
 
-// Validate validates the SearchDomain parameters.
-func (d SearchDomain) Validate() error {
+// Validate validates the Domain parameters.
+func (d Domain) Validate() error {
 	return validation.Errors{
 		"DomainName":      domainNameValidation(d.DomainName),
 		"ValidationScope": scopeValidation(d.ValidationScope),
 	}.Filter()
 }
 
-func domainNameValidation(domainName string) error {
-	return validation.Validate(domainName, validation.Required)
-}
-
 func scopeValidation(scope ValidationScope) error {
 	return validation.Validate(scope, validation.Required, validation.In(ValidationScopeHost, ValidationScopeDomain, ValidationScopeWildcard).
 		Error(fmt.Sprintf("value '%s' is invalid. Must be one of: '%s', '%s' or '%s'", scope, ValidationScopeHost, ValidationScopeDomain, ValidationScopeWildcard)))
+}
+
+func validateValidationMethod(method *ValidationMethod) error {
+	return validation.Validate(method,
+		validation.When(method != nil,
+			validation.In(ValidationMethodDNSCNAME, ValidationMethodDNSTXT, ValidationMethodHTTP).Error(fmt.Sprintf(
+				"value must be one of: '%s', '%s' or '%s'",
+				ValidationMethodDNSCNAME, ValidationMethodDNSTXT, ValidationMethodHTTP))))
 }
 
 func emptyOrTrue(paginate *bool) validation.RuleFunc {
@@ -308,6 +437,15 @@ func emptyOrTrue(paginate *bool) validation.RuleFunc {
 }
 
 var (
+	// domainRegex is a regular expression to validate domain names.
+	domainRegex = regexp.MustCompile(`^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$`)
+
+	// ErrAddDomains is returned when there is an error adding domains.
+	ErrAddDomains = errors.New("add domains")
+
+	// ErrDeleteDomain is returned when there is an error deleting a domain.
+	ErrDeleteDomain = errors.New("delete domain")
+
 	// ErrListDomains is returned when there is an error listing domains.
 	ErrListDomains = errors.New("list domains")
 
@@ -316,19 +454,99 @@ var (
 
 	// ErrSearchDomains is returned when there is an error searching for domains.
 	ErrSearchDomains = errors.New("search domains")
+
+	// ErrDomainEmpty is returned when the domain name is empty.
+	ErrDomainEmpty = errors.New("cannot be blank")
+
+	// ErrDomainTooLong is returned when the domain name exceeds the maximum length.
+	ErrDomainTooLong = errors.New("cannot exceed 200 characters")
+
+	// ErrDomainInvalidFmt is returned when the domain name format is invalid.
+	ErrDomainInvalidFmt = errors.New("invalid name format")
+
+	// ErrDomainNameValidationHint is returned along with the error in domain name validation.
+	ErrDomainNameValidationHint = "Domain must: not be empty, not begin with '*', use only lowercase letters, digits, and hyphens (not at start or end), include a dot with a valid TLD (min 2 letters), and not exceed 200 characters."
 )
+
+func (d *domainownership) AddDomains(ctx context.Context, params AddDomainsRequest) (*AddDomainsResponse, error) {
+	logger := d.Log(ctx)
+	logger.Debug("AddDomains")
+
+	if err := params.Validate(); err != nil {
+		return nil, fmt.Errorf("%w: %w:\n%w", ErrAddDomains, ErrStructValidation, err)
+	}
+
+	uri, err := url.Parse("/domain-validation/v1/domains")
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to create request: %w", ErrAddDomains, err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, uri.String(), nil)
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to create request: %w", ErrAddDomains, err)
+	}
+
+	var result AddDomainsResponse
+	resp, err := d.Exec(req, &result, params)
+	if err != nil {
+		return nil, fmt.Errorf("%w: request failed: %w", ErrAddDomains, err)
+	}
+	defer session.CloseResponseBody(resp)
+
+	if resp.StatusCode != http.StatusMultiStatus {
+		return nil, fmt.Errorf("%w: %w", ErrAddDomains, d.Error(resp))
+	}
+
+	return &result, nil
+}
+
+func (d *domainownership) DeleteDomain(ctx context.Context, params DeleteDomainRequest) error {
+	logger := d.Log(ctx)
+	logger.Debug("DeleteDomain")
+
+	if err := params.Validate(); err != nil {
+		return fmt.Errorf("%w: %w:\n%w", ErrDeleteDomain, ErrStructValidation, err)
+	}
+
+	uri, err := url.Parse(fmt.Sprintf("/domain-validation/v1/domains/%s", params.DomainName))
+	if err != nil {
+		return fmt.Errorf("%w: failed to create request: %w", ErrDeleteDomain, err)
+	}
+
+	q := uri.Query()
+	q.Add("validationScope", string(params.ValidationScope))
+
+	uri.RawQuery = q.Encode()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, uri.String(), nil)
+	if err != nil {
+		return fmt.Errorf("%w: failed to create request: %w", ErrDeleteDomain, err)
+	}
+
+	resp, err := d.Exec(req, nil)
+	if err != nil {
+		return fmt.Errorf("%w: request failed: %w", ErrDeleteDomain, err)
+	}
+	defer session.CloseResponseBody(resp)
+
+	if resp.StatusCode != http.StatusNoContent {
+		return fmt.Errorf("%w: %w", ErrDeleteDomain, d.Error(resp))
+	}
+
+	return nil
+}
 
 func (d *domainownership) ListDomains(ctx context.Context, params ListDomainsRequest) (*ListDomainsResponse, error) {
 	logger := d.Log(ctx)
 	logger.Debug("ListDomains")
 
 	if err := params.Validate(); err != nil {
-		return nil, fmt.Errorf("%s: %w:\n%s", ErrListDomains, ErrStructValidation, err)
+		return nil, fmt.Errorf("%w: %w:\n%w", ErrListDomains, ErrStructValidation, err)
 	}
 
 	uri, err := url.Parse("/domain-validation/v1/domains")
 	if err != nil {
-		return nil, fmt.Errorf("%w: failed to create request: %s", ErrListDomains, err)
+		return nil, fmt.Errorf("%w: failed to create request: %w", ErrListDomains, err)
 	}
 
 	q := uri.Query()
@@ -347,18 +565,18 @@ func (d *domainownership) ListDomains(ctx context.Context, params ListDomainsReq
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri.String(), nil)
 	if err != nil {
-		return nil, fmt.Errorf("%w: failed to create request: %s", ErrListDomains, err)
+		return nil, fmt.Errorf("%w: failed to create request: %w", ErrListDomains, err)
 	}
 
 	var result ListDomainsResponse
 	resp, err := d.Exec(req, &result)
 	if err != nil {
-		return nil, fmt.Errorf("%w: request failed: %s", ErrListDomains, err)
+		return nil, fmt.Errorf("%w: request failed: %w", ErrListDomains, err)
 	}
 	defer session.CloseResponseBody(resp)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("%s: %w", ErrListDomains, d.Error(resp))
+		return nil, fmt.Errorf("%w: %w", ErrListDomains, d.Error(resp))
 	}
 
 	return &result, nil
@@ -369,12 +587,12 @@ func (d *domainownership) GetDomain(ctx context.Context, params GetDomainRequest
 	logger.Debug("GetDomain")
 
 	if err := params.Validate(); err != nil {
-		return nil, fmt.Errorf("%s: %w:\n%s", ErrGetDomain, ErrStructValidation, err)
+		return nil, fmt.Errorf("%w: %w:\n%w", ErrGetDomain, ErrStructValidation, err)
 	}
 
 	uri, err := url.Parse(fmt.Sprintf("/domain-validation/v1/domains/%s", params.DomainName))
 	if err != nil {
-		return nil, fmt.Errorf("%w: failed to create request: %s", ErrGetDomain, err)
+		return nil, fmt.Errorf("%w: failed to create request: %w", ErrGetDomain, err)
 	}
 
 	q := uri.Query()
@@ -388,18 +606,18 @@ func (d *domainownership) GetDomain(ctx context.Context, params GetDomainRequest
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri.String(), nil)
 	if err != nil {
-		return nil, fmt.Errorf("%w: failed to create request: %s", ErrGetDomain, err)
+		return nil, fmt.Errorf("%w: failed to create request: %w", ErrGetDomain, err)
 	}
 
 	var result GetDomainResponse
 	resp, err := d.Exec(req, &result)
 	if err != nil {
-		return nil, fmt.Errorf("%w: request failed: %s", ErrGetDomain, err)
+		return nil, fmt.Errorf("%w: request failed: %w", ErrGetDomain, err)
 	}
 	defer session.CloseResponseBody(resp)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("%s: %w", ErrGetDomain, d.Error(resp))
+		return nil, fmt.Errorf("%w: %w", ErrGetDomain, d.Error(resp))
 	}
 
 	return &result, nil
@@ -410,12 +628,12 @@ func (d *domainownership) SearchDomains(ctx context.Context, params SearchDomain
 	logger.Debug("SearchDomains")
 
 	if err := params.Validate(); err != nil {
-		return nil, fmt.Errorf("%s: %w:\n%s", ErrSearchDomains, ErrStructValidation, err)
+		return nil, fmt.Errorf("%w: %w:\n%w", ErrSearchDomains, ErrStructValidation, err)
 	}
 
 	uri, err := url.Parse("/domain-validation/v1/domains/search")
 	if err != nil {
-		return nil, fmt.Errorf("%w: failed to create request: %s", ErrSearchDomains, err)
+		return nil, fmt.Errorf("%w: failed to create request: %w", ErrSearchDomains, err)
 	}
 
 	q := uri.Query()
@@ -428,18 +646,18 @@ func (d *domainownership) SearchDomains(ctx context.Context, params SearchDomain
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, uri.String(), nil)
 	if err != nil {
-		return nil, fmt.Errorf("%w: failed to create request: %s", ErrSearchDomains, err)
+		return nil, fmt.Errorf("%w: failed to create request: %w", ErrSearchDomains, err)
 	}
 
 	var result SearchDomainsResponse
 	resp, err := d.Exec(req, &result, params.Body)
 	if err != nil {
-		return nil, fmt.Errorf("%w: request failed: %s", ErrSearchDomains, err)
+		return nil, fmt.Errorf("%w: request failed: %w", ErrSearchDomains, err)
 	}
 	defer session.CloseResponseBody(resp)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("%s: %w", ErrSearchDomains, d.Error(resp))
+		return nil, fmt.Errorf("%w: %w", ErrSearchDomains, d.Error(resp))
 	}
 
 	return &result, nil

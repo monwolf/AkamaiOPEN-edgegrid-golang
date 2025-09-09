@@ -33,6 +33,15 @@
 
 
 
+* Domain Validation
+  * Added support for Domain Validation endpoints:
+    * [AddDomains](https://techdocs.akamai.com/domain-validation/reference/post-domains) - Adds domains to validate.
+    * [DeleteDomain](https://techdocs.akamai.com/domain-validation/reference/delete-domain) - Deletes a domain validation.
+    * [InvalidateDomain](https://techdocs.akamai.com/domain-validation/reference/post-invalidate-domain) - Invalidates the specified domain.
+    * [InvalidateDomains](https://techdocs.akamai.com/domain-validation/reference/post-invalidate-domains) - Invalidates the specified domains.
+    * [ValidateDomains](https://techdocs.akamai.com/domain-validation/reference/post-validate-domains) - Immediately validates the domains using the DNS CNAME, DNS TXT, and HTTP methods.
+    
+
 
 
 

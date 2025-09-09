@@ -2,13 +2,15 @@ package domainownership
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/internal/test"
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v11/pkg/ptr"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/internal/test"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/ptr"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -1044,7 +1046,7 @@ func TestSearchDomains(t *testing.T) {
 	}{
 		"200 OK - several different elements in search without details": {
 			params: SearchDomainsRequest{
-				Body: SearchDomainsBody{Domains: []SearchDomain{
+				Body: SearchDomainsBody{Domains: []Domain{
 					{
 						DomainName:      "dom1.test",
 						ValidationScope: ValidationScopeHost,
@@ -1095,7 +1097,7 @@ func TestSearchDomains(t *testing.T) {
 		"200 OK - several different elements in search with details": {
 			params: SearchDomainsRequest{
 				IncludeAll: true,
-				Body: SearchDomainsBody{Domains: []SearchDomain{
+				Body: SearchDomainsBody{Domains: []Domain{
 					{
 						DomainName:      "dom1.test",
 						ValidationScope: ValidationScopeHost,
@@ -1183,7 +1185,7 @@ func TestSearchDomains(t *testing.T) {
 		},
 		"validation - empty domain": {
 			params: SearchDomainsRequest{
-				Body: SearchDomainsBody{Domains: []SearchDomain{
+				Body: SearchDomainsBody{Domains: []Domain{
 					{},
 				}},
 			},
@@ -1193,7 +1195,7 @@ func TestSearchDomains(t *testing.T) {
 		},
 		"validation - incorrect ValidationScope": {
 			params: SearchDomainsRequest{
-				Body: SearchDomainsBody{Domains: []SearchDomain{
+				Body: SearchDomainsBody{Domains: []Domain{
 					{
 						DomainName:      "dom1.test",
 						ValidationScope: ValidationScope("incorrect"),
@@ -1207,7 +1209,7 @@ func TestSearchDomains(t *testing.T) {
 		"500 internal server error": {
 			params: SearchDomainsRequest{
 				Body: SearchDomainsBody{
-					Domains: []SearchDomain{
+					Domains: []Domain{
 						{
 							DomainName:      "dom1.test",
 							ValidationScope: ValidationScopeDomain,
@@ -1261,6 +1263,527 @@ func TestSearchDomains(t *testing.T) {
 			}
 			require.NoError(t, err)
 			assert.Equal(t, tc.expectedResponse, result)
+		})
+	}
+}
+
+func TestAddDomains(t *testing.T) {
+	tests := map[string]struct {
+		request             AddDomainsRequest
+		responseStatus      int
+		responseBody        string
+		expectedPath        string
+		expectedRequestBody string
+		expectedResponse    *AddDomainsResponse
+		withError           func(*testing.T, error)
+	}{
+		"207 All Success": {
+			request: AddDomainsRequest{
+				Domains: []Domain{
+					{
+						DomainName:      "sample1.com",
+						ValidationScope: ValidationScopeHost,
+					},
+					{
+						DomainName:      "sample2.com",
+						ValidationScope: ValidationScopeHost,
+					},
+				},
+			},
+			responseStatus: http.StatusMultiStatus,
+			responseBody: `{
+    "errors": [],
+    "successes": [
+        {
+            "domainName": "sample1.com",
+            "domainStatus": "REQUEST_ACCEPTED",
+            "accountId": "A-CCT5678",
+            "validationScope": "HOST",
+            "validationMethod": "DNS_TXT",
+            "validationRequestedBy": "someone",
+            "validationRequestedDate": "2024-02-06T06:01:45Z",
+            "validationChallenge": {
+                "dnsCname": "ac.1234.example.com.validate-akdv.net",
+                "challengeToken": "abcdE12345",
+                "challengeTokenExpiresDate": "2024-05-14T05:25:56Z",
+                "httpRedirectFrom": "https://www.testsite.com/.well-known/akamai/akamai-challenge",
+                "httpRedirectTo": "https://validation.akamai.com/.well-known/akamai/akamai-challenge/token1"
+            }
+        },
+        {
+            "domainName": "sample2.com",
+            "domainStatus": "REQUEST_ACCEPTED",
+            "accountId": "A-CCT7890",
+            "validationScope": "HOST",
+            "validationRequestedBy": "someone",
+            "validationRequestedDate": "2024-02-06T06:01:45Z",
+            "validationChallenge": {
+                "dnsCname": "ac.1234.example.com.validate-akdv.net",
+                "challengeToken": "abcdE12345",
+                "challengeTokenExpiresDate": "2024-05-14T05:25:56Z",
+                "httpRedirectFrom": "https://www.testsite.com/.well-known/akamai/akamai-challenge",
+                "httpRedirectTo": "https://validation.akamai.com/.well-known/akamai/akamai-challenge/token2"
+            }
+        }
+    ]
+}`,
+			expectedPath:        "/domain-validation/v1/domains",
+			expectedRequestBody: `{"domains":[{"domainName":"sample1.com","validationScope":"HOST"},{"domainName":"sample2.com","validationScope":"HOST"}]}`,
+			expectedResponse: &AddDomainsResponse{
+				Errors: []AddDomainError{},
+				Successes: []AddDomainSuccess{
+					{
+						DomainName:              "sample1.com",
+						DomainStatus:            "REQUEST_ACCEPTED",
+						AccountID:               "A-CCT5678",
+						ValidationScope:         "HOST",
+						ValidationMethod:        ptr.To("DNS_TXT"),
+						ValidationRequestedBy:   "someone",
+						ValidationRequestedDate: test.NewTimeFromString(t, "2024-02-06T06:01:45Z"),
+						ValidationChallenge: ValidationChallenge{
+							DNSCname:                  "ac.1234.example.com.validate-akdv.net",
+							ChallengeToken:            "abcdE12345",
+							ChallengeTokenExpiresDate: test.NewTimeFromString(t, "2024-05-14T05:25:56Z"),
+							HTTPRedirectFrom:          ptr.To("https://www.testsite.com/.well-known/akamai/akamai-challenge"),
+							HTTPRedirectTo:            ptr.To("https://validation.akamai.com/.well-known/akamai/akamai-challenge/token1"),
+						},
+					},
+					{
+
+						DomainName:              "sample2.com",
+						DomainStatus:            "REQUEST_ACCEPTED",
+						AccountID:               "A-CCT7890",
+						ValidationScope:         "HOST",
+						ValidationRequestedBy:   "someone",
+						ValidationRequestedDate: test.NewTimeFromString(t, "2024-02-06T06:01:45Z"),
+						ValidationChallenge: ValidationChallenge{
+							DNSCname:                  "ac.1234.example.com.validate-akdv.net",
+							ChallengeToken:            "abcdE12345",
+							ChallengeTokenExpiresDate: test.NewTimeFromString(t, "2024-05-14T05:25:56Z"),
+							HTTPRedirectFrom:          ptr.To("https://www.testsite.com/.well-known/akamai/akamai-challenge"),
+							HTTPRedirectTo:            ptr.To("https://validation.akamai.com/.well-known/akamai/akamai-challenge/token2"),
+						},
+					},
+				},
+			},
+		},
+		"207 Partial Success": {
+			request: AddDomainsRequest{
+				Domains: []Domain{
+					{
+						DomainName:      "sample1.com",
+						ValidationScope: ValidationScopeHost,
+					},
+					{
+						DomainName:      "sample2.com",
+						ValidationScope: ValidationScopeHost,
+					},
+					{
+						DomainName:      "sample3.com",
+						ValidationScope: ValidationScopeHost,
+					},
+					{
+						DomainName:      "sample4.com",
+						ValidationScope: ValidationScopeHost,
+					},
+					{
+						DomainName:      "sample5.com",
+						ValidationScope: ValidationScopeHost,
+					},
+				},
+			},
+			responseStatus: http.StatusMultiStatus,
+			responseBody: `{
+    "errors": [
+        {
+            "domainName": "sample3.com",
+            "detail": "Domain already exists.",
+            "title": "Internal Server Error",
+            "type": "internal-server-error",
+            "validationScope": "HOST"
+        },
+        {
+            "domainName": "sample4.com",
+            "detail": "Supernet domain has been validated and is ready for use.",
+            "title": "Internal Server Error",
+            "type": "internal-server-error",
+            "validationScope": "HOST"
+        },
+        {
+            "domainName": "sample5.com",
+            "detail": "Domain is already in use within the system. You cannot use this domain.",
+            "title": "Internal Server Error",
+            "type": "internal-server-error",
+            "validationScope": "HOST"
+        }
+    ],
+    "successes": [
+        {
+            "domainName": "sample1.com",
+            "domainStatus": "REQUEST_ACCEPTED",
+            "accountId": "A-CCT5678",
+            "validationScope": "HOST",
+            "validationMethod": "DNS_TXT",
+            "validationRequestedBy": "someone",
+            "validationRequestedDate": "2024-02-06T06:01:45Z",
+            "validationChallenge": {
+                "dnsCname": "ac.1234.example.com.validate-akdv.net",
+                "challengeToken": "abcdE12345",
+                "challengeTokenExpiresDate": "2024-05-14T05:25:56Z",
+                "httpRedirectFrom": "https://www.testsite.com/.well-known/akamai/akamai-challenge",
+                "httpRedirectTo": "https://validation.akamai.com/.well-known/akamai/akamai-challenge/abcdE12345"
+            }
+        },
+        {
+            "domainName": "sample2.com",
+            "domainStatus": "REQUEST_ACCEPTED",
+            "accountId": "A-CCT7890",
+            "validationScope": "HOST",
+            "validationRequestedBy": "someone",
+            "validationRequestedDate": "2024-02-06T06:01:45Z",
+            "validationChallenge": {
+                "dnsCname": "ac.1234.example.com.validate-akdv.net",
+                "challengeToken": "abcdE12345",
+                "challengeTokenExpiresDate": "2024-05-14T05:25:56Z",
+                "httpRedirectFrom": "https://www.testsite.com/.well-known/akamai/akamai-challenge",
+                "httpRedirectTo": "https://validation.akamai.com/.well-known/akamai/akamai-challenge/abcdE12345"
+            }
+        }
+    ]
+}`,
+			expectedPath:        "/domain-validation/v1/domains",
+			expectedRequestBody: `{"domains":[{"domainName":"sample1.com","validationScope":"HOST"},{"domainName":"sample2.com","validationScope":"HOST"},{"domainName":"sample3.com","validationScope":"HOST"},{"domainName":"sample4.com","validationScope":"HOST"},{"domainName":"sample5.com","validationScope":"HOST"}]}`,
+			expectedResponse: &AddDomainsResponse{
+				Errors: []AddDomainError{
+					{
+						DomainName:      "sample3.com",
+						Detail:          "Domain already exists.",
+						Title:           "Internal Server Error",
+						Type:            "internal-server-error",
+						ValidationScope: ValidationScopeHost,
+					},
+					{
+						DomainName:      "sample4.com",
+						Detail:          "Supernet domain has been validated and is ready for use.",
+						Title:           "Internal Server Error",
+						Type:            "internal-server-error",
+						ValidationScope: ValidationScopeHost,
+					},
+					{
+						DomainName:      "sample5.com",
+						Detail:          "Domain is already in use within the system. You cannot use this domain.",
+						Title:           "Internal Server Error",
+						Type:            "internal-server-error",
+						ValidationScope: ValidationScopeHost,
+					},
+				},
+				Successes: []AddDomainSuccess{
+					{
+						DomainName:              "sample1.com",
+						DomainStatus:            "REQUEST_ACCEPTED",
+						AccountID:               "A-CCT5678",
+						ValidationScope:         "HOST",
+						ValidationMethod:        ptr.To("DNS_TXT"),
+						ValidationRequestedBy:   "someone",
+						ValidationRequestedDate: test.NewTimeFromString(t, "2024-02-06T06:01:45Z"),
+						ValidationChallenge: ValidationChallenge{
+							DNSCname:                  "ac.1234.example.com.validate-akdv.net",
+							ChallengeToken:            "abcdE12345",
+							ChallengeTokenExpiresDate: test.NewTimeFromString(t, "2024-05-14T05:25:56Z"),
+							HTTPRedirectFrom:          ptr.To("https://www.testsite.com/.well-known/akamai/akamai-challenge"),
+							HTTPRedirectTo:            ptr.To("https://validation.akamai.com/.well-known/akamai/akamai-challenge/abcdE12345"),
+						},
+					},
+					{
+
+						DomainName:              "sample2.com",
+						DomainStatus:            "REQUEST_ACCEPTED",
+						AccountID:               "A-CCT7890",
+						ValidationScope:         "HOST",
+						ValidationRequestedBy:   "someone",
+						ValidationRequestedDate: test.NewTimeFromString(t, "2024-02-06T06:01:45Z"),
+						ValidationChallenge: ValidationChallenge{
+							DNSCname:                  "ac.1234.example.com.validate-akdv.net",
+							ChallengeToken:            "abcdE12345",
+							ChallengeTokenExpiresDate: test.NewTimeFromString(t, "2024-05-14T05:25:56Z"),
+							HTTPRedirectFrom:          ptr.To("https://www.testsite.com/.well-known/akamai/akamai-challenge"),
+							HTTPRedirectTo:            ptr.To("https://validation.akamai.com/.well-known/akamai/akamai-challenge/abcdE12345"),
+						},
+					},
+				},
+			},
+		},
+		"validation - empty domain": {
+			request: AddDomainsRequest{
+				Domains: []Domain{},
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "add domains: struct validation:\nDomains: cannot be blank", err.Error())
+			},
+		},
+		"validation - domain Name not supplied": {
+			request: AddDomainsRequest{
+				Domains: []Domain{
+					{
+						DomainName:      "sample1.com",
+						ValidationScope: ValidationScopeHost,
+					},
+					{
+						ValidationScope: ValidationScopeHost,
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "add domains: struct validation:\nDomains[1]: {\n\tDomainName: cannot be blank\n}\nHint: Domain must: not be empty, not begin with '*', use only lowercase letters, digits, and hyphens (not at start or end), include a dot with a valid TLD (min 2 letters), and not exceed 200 characters.", err.Error())
+			},
+		},
+		"validation - validation scope not supplied": {
+			request: AddDomainsRequest{
+				Domains: []Domain{
+					{
+						DomainName: "sample1.com",
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "add domains: struct validation:\nDomains[0]: {\n\tValidationScope: cannot be blank\n}", err.Error())
+			},
+		},
+		"validation - domain Name cannot start with `*`": {
+			request: AddDomainsRequest{
+				Domains: []Domain{
+					{
+						DomainName:      "*sample1.com",
+						ValidationScope: ValidationScopeHost,
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "add domains: struct validation:\nDomains[0]: {\n\tDomainName: domain '*sample1.com': invalid name format\n}\nHint: Domain must: not be empty, not begin with '*', use only lowercase letters, digits, and hyphens (not at start or end), include a dot with a valid TLD (min 2 letters), and not exceed 200 characters.", err.Error())
+			},
+		},
+		"validation - domain Name does not match the allowed format": {
+			request: AddDomainsRequest{
+				Domains: []Domain{
+					{
+						DomainName:      "ExAmple.com",
+						ValidationScope: ValidationScopeHost,
+					},
+					{
+						DomainName:      "-example.com",
+						ValidationScope: ValidationScopeHost,
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "add domains: struct validation:\nDomains[0]: {\n\tDomainName: domain 'ExAmple.com': invalid name format\n}\nDomains[1]: {\n\tDomainName: domain '-example.com': invalid name format\n}\nHint: Domain must: not be empty, not begin with '*', use only lowercase letters, digits, and hyphens (not at start or end), include a dot with a valid TLD (min 2 letters), and not exceed 200 characters.", err.Error())
+			},
+		},
+		"validation - domain Name greater than 200 characters": {
+			request: AddDomainsRequest{
+				Domains: []Domain{
+					{
+						DomainName:      "sample1.com" + strings.Repeat("a", 190),
+						ValidationScope: ValidationScopeHost,
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "add domains: struct validation:\nDomains[0]: {\n\tDomainName: domain 'sample1.comaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa': cannot exceed 200 characters\n}\nHint: Domain must: not be empty, not begin with '*', use only lowercase letters, digits, and hyphens (not at start or end), include a dot with a valid TLD (min 2 letters), and not exceed 200 characters.", err.Error())
+			},
+		},
+		"validation - incorrect ValidationScope": {
+			request: AddDomainsRequest{
+				Domains: []Domain{
+					{
+						DomainName:      "sample1.com",
+						ValidationScope: ValidationScope("incorrect"),
+					},
+					{
+						DomainName:      "sample2.com",
+						ValidationScope: ValidationScopeHost,
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "add domains: struct validation:\nDomains[0]: {\n\tValidationScope: value 'incorrect' is invalid. Must be one of: 'HOST', 'DOMAIN' or 'WILDCARD'\n}", err.Error())
+			},
+		},
+		"500 internal server error": {
+			request: AddDomainsRequest{
+				Domains: []Domain{
+					{
+						DomainName:      "sample1.com",
+						ValidationScope: ValidationScopeDomain,
+					},
+				},
+			},
+			responseStatus: http.StatusInternalServerError,
+			responseBody: `
+		{
+		   "type": "internal_error",
+		   "title": "Internal Server Error",
+		   "detail": "Error making request",
+		   "status": 500
+		}
+		`,
+			expectedPath: "/domain-validation/v1/domains",
+			withError: func(t *testing.T, e error) {
+				err := Error{
+					Type:   "internal_error",
+					Title:  "Internal Server Error",
+					Detail: "Error making request",
+					Status: http.StatusInternalServerError,
+				}
+				assert.Equal(t, true, err.Is(e))
+			},
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				assert.Equal(t, tc.expectedPath, r.URL.String())
+				assert.Equal(t, http.MethodPost, r.Method)
+				if len(tc.expectedRequestBody) > 0 {
+					body, err := io.ReadAll(r.Body)
+					require.NoError(t, err)
+					assert.Equal(t, tc.expectedRequestBody, string(body))
+				}
+
+				w.WriteHeader(tc.responseStatus)
+				_, err := w.Write([]byte(tc.responseBody))
+				assert.NoError(t, err)
+
+			}))
+			client := mockAPIClient(t, mockServer)
+			result, err := client.AddDomains(context.Background(), tc.request)
+			if tc.withError != nil {
+				tc.withError(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tc.expectedResponse, result)
+		})
+	}
+}
+
+func TestDeleteDomains(t *testing.T) {
+	tests := map[string]struct {
+		params              DeleteDomainRequest
+		responseStatus      int
+		responseBody        string
+		expectedPath        string
+		expectedRequestBody string
+		withError           func(*testing.T, error)
+	}{
+		"200 OK": {
+			params: DeleteDomainRequest{
+				DomainName:      "sample1.com",
+				ValidationScope: ValidationScopeHost,
+			},
+			responseStatus: http.StatusNoContent,
+			expectedPath:   "/domain-validation/v1/domains/sample1.com?validationScope=HOST",
+		},
+		"validation errors": {
+			params: DeleteDomainRequest{},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "delete domain: struct validation:\nDomainName: cannot be blank\nValidationScope: cannot be blank", err.Error())
+			},
+		},
+		"validation errors - DomainName missing ": {
+			params: DeleteDomainRequest{
+				ValidationScope: ValidationScopeHost,
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "delete domain: struct validation:\nDomainName: cannot be blank", err.Error())
+			},
+		},
+		"validation errors - ValidationScope missing ": {
+			params: DeleteDomainRequest{
+				DomainName: "sample1.com",
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "delete domain: struct validation:\nValidationScope: cannot be blank", err.Error())
+			},
+		},
+		"404 Not Found": {
+			params: DeleteDomainRequest{
+				DomainName:      "sample1.com",
+				ValidationScope: ValidationScopeHost,
+			},
+			expectedPath:   "/domain-validation/v1/domains/sample1.com?validationScope=HOST",
+			responseStatus: http.StatusNotFound,
+			responseBody: `
+						{
+						    "detail": "Domain is not found.",
+							"instance": "55f55b02-bfac-4654-91f6-f72626839bb3",
+				  			"status": 404,
+				  			"title": "Not Found",
+				  			"type": "not-found"
+						}
+						`,
+			withError: func(t *testing.T, err error) {
+				want := &Error{
+					Title:    "Not Found",
+					Type:     "not-found",
+					Status:   http.StatusNotFound,
+					Instance: "55f55b02-bfac-4654-91f6-f72626839bb3",
+					Detail:   "Domain is not found.",
+				}
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+			},
+		},
+		"500 internal server error": {
+			params: DeleteDomainRequest{
+				DomainName:      "sample1.com",
+				ValidationScope: ValidationScopeHost,
+			},
+			responseStatus: http.StatusInternalServerError,
+			responseBody: `
+						{
+						   "type": "internal_error",
+						   "title": "Internal Server Error",
+						   "detail": "Error making request",
+						   "status": 500
+						}
+						`,
+			expectedPath: "/domain-validation/v1/domains/sample1.com?validationScope=HOST",
+			withError: func(t *testing.T, e error) {
+				err := Error{
+					Type:   "internal_error",
+					Title:  "Internal Server Error",
+					Detail: "Error making request",
+					Status: http.StatusInternalServerError,
+				}
+				assert.Equal(t, true, err.Is(e))
+			},
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				assert.Equal(t, tc.expectedPath, r.URL.String())
+				assert.Equal(t, http.MethodDelete, r.Method)
+				if len(tc.expectedRequestBody) > 0 {
+					body, err := io.ReadAll(r.Body)
+					require.NoError(t, err)
+					assert.Equal(t, tc.expectedRequestBody, string(body))
+				}
+
+				w.WriteHeader(tc.responseStatus)
+				_, err := w.Write([]byte(tc.responseBody))
+				assert.NoError(t, err)
+
+			}))
+			client := mockAPIClient(t, mockServer)
+			err := client.DeleteDomain(context.Background(), tc.params)
+			if tc.withError != nil {
+				tc.withError(t, err)
+				return
+			}
+			require.NoError(t, err)
 		})
 	}
 }
