@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/internal/texts"
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/edgegriderr"
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/session"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -159,11 +159,8 @@ func (m *mtlskeystore) ListAccountCACertificates(ctx context.Context, params Lis
 }
 
 func statusesToQueryString(statuses []CertificateStatus) string {
-	chunks := make([]string, 0, len(statuses))
-	for _, s := range statuses {
-		chunks = append(chunks, string(s))
-	}
+	status := texts.JoinStringBased(statuses, ",")
 	q := url.Values{}
-	q.Set("status", strings.Join(chunks, ","))
+	q.Set("status", status)
 	return q.Encode()
 }

@@ -32,9 +32,12 @@ type (
 		//// GetCertificateBindings retrieves bindings for a specific certificate.
 		//GetCertificateBindings(ctx context.Context, params GetCertificateBindingsRequest) (*GetCertificateBindingsResponse, error)
 		//
-		//// ListCertificates lists certificates matching the given parameters.
-		//ListCertificates(ctx context.Context, params ListCertificatesRequest) (*ListCertificatesResponse, error)
+
+		// ListCertificates lists all certificates that are accessible for the requesting end user.
 		//
+		// See: TBD
+		ListCertificates(ctx context.Context, params ListCertificatesRequest) (*ListCertificatesResponse, error)
+
 		//// ListBindings lists certificate bindings matching the given parameters.
 		//ListBindings(ctx context.Context, params ListBindingsRequest) (*ListBindingsResponse, error)
 	}
