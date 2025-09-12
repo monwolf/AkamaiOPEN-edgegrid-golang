@@ -593,7 +593,7 @@ func TestListCASets(t *testing.T) {
 		},
 		"name prefix too long - validation error": {
 			request: ListCASetsRequest{
-				CASetNamePrefix: strings.Repeat("PrefixTooLong", 5),
+				CASetNamePrefix: strings.Repeat("A", 65),
 			},
 			withError: func(t *testing.T, err error) {
 				assert.Equal(t, "list ca sets failed: struct validation: CASetNamePrefix: the length must be no more than 64", err.Error())
@@ -1168,7 +1168,7 @@ func TestCloneCASet(t *testing.T) {
 			params: CloneCASetRequest{
 				CloneFromSetID: "1",
 				NewCASetName:   "new-set",
-				NewDescription: "New CA Set",
+				NewDescription: ptr.To("New CA Set"),
 			},
 			expectedPath: "/mtls-edge-truststore/v2/ca-sets/1/clone",
 			expectedRequestBody: `{
@@ -1209,17 +1209,17 @@ func TestCloneCASet(t *testing.T) {
 				VersionsLink:      "/mtls-edge-truststore/v2/ca-sets/2/versions/",
 			},
 		},
-		"200 - Version provided": {
+		"200 - Version provided, no description": {
 			params: CloneCASetRequest{
 				CloneFromSetID:   "1",
 				CloneFromVersion: 2,
 				NewCASetName:     "new-set",
-				NewDescription:   "New CA Set",
+				NewDescription:   nil,
 			},
 			expectedPath: "/mtls-edge-truststore/v2/ca-sets/1/clone?cloneFromVersion=2",
 			expectedRequestBody: `{
   "caSetName":"new-set",
-  "description":"New CA Set"
+  "description":null
 }`,
 			responseStatus: http.StatusCreated,
 			responseBody: `{
@@ -1232,7 +1232,7 @@ func TestCloneCASet(t *testing.T) {
     "createdDate": "2025-04-10T07:03:32.987904Z",
     "deletedBy": null,
     "deletedDate": null,
-    "description": "New CA Set",
+    "description": null,
     "latestVersion": 1,
     "latestVersionLink": "/mtls-edge-truststore/v2/ca-sets/2/versions/1",
     "productionVersion": null,
@@ -1249,7 +1249,7 @@ func TestCloneCASet(t *testing.T) {
 				CASetStatus:       "NOT_DELETED",
 				CreatedBy:         "user1",
 				CreatedDate:       test.NewTimeFromString(t, "2025-04-10T07:03:32.987904Z"),
-				Description:       ptr.To("New CA Set"),
+				Description:       nil,
 				LatestVersion:     ptr.To(int64(1)),
 				LatestVersionLink: ptr.To("/mtls-edge-truststore/v2/ca-sets/2/versions/1"),
 				VersionsLink:      "/mtls-edge-truststore/v2/ca-sets/2/versions/",
@@ -1274,9 +1274,20 @@ func TestCloneCASet(t *testing.T) {
 			params: CloneCASetRequest{
 				CloneFromSetID: "1",
 				NewCASetName:   "#edgegrid",
+				NewDescription: ptr.To("New CA Set"),
 			},
 			withError: func(t *testing.T, err error) {
 				assert.Equal(t, "clone ca set failed: struct validation: NewCASetName: allowed characters are alphanumerics (a-z, A-Z, 0-9), underscore (_), hyphen (-), percent (%) and period (.)", err.Error())
+			},
+		},
+		"empty description - validation error": {
+			params: CloneCASetRequest{
+				CloneFromSetID: "1",
+				NewCASetName:   "edgegrid",
+				NewDescription: ptr.To(""),
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "clone ca set failed: struct validation: NewDescription: cannot be blank", err.Error())
 			},
 		},
 		"special case in required parameters - validation error": {

@@ -203,7 +203,7 @@ type (
 		NewCASetName string `json:"caSetName"`
 
 		// NewDescription is optional description for the set.
-		NewDescription string `json:"description"`
+		NewDescription *string `json:"description"`
 	}
 
 	// CloneCASetResponse holds response body for CloneCASet.
@@ -351,6 +351,9 @@ const (
 	// CASetNamePattern is the regex pattern for CA set name.
 	CASetNamePattern string = `^[%.a-zA-Z0-9_-]+$`
 
+	// CASetNameDescription describes allowed characters for CA set name.
+	CASetNameDescription = "allowed characters are alphanumerics (a-z, A-Z, 0-9), underscore (_), hyphen (-), percent (%) and period (.)"
+
 	// DeletionStatusInProgress represents CA set deletion status in progress.
 	DeletionStatusInProgress string = "IN_PROGRESS"
 	// DeletionStatusComplete represents CA set deletion status complete.
@@ -367,7 +370,8 @@ const (
 )
 
 var (
-	caSetNameRegex = regexp.MustCompile(CASetNamePattern)
+	// CASetNameRegex is compiled regex for CA set name.
+	CASetNameRegex = regexp.MustCompile(CASetNamePattern)
 
 	// ErrCreateCASet is returned when the request to create a CA set fails.
 	ErrCreateCASet = errors.New("create ca set failed")
@@ -397,9 +401,9 @@ func (r CreateCASetRequest) Validate() error {
 		"CASetName": validation.Validate(r.CASetName,
 			validation.Required,
 			validation.Length(3, 64),
-			validation.Match(caSetNameRegex).Error("allowed characters are alphanumerics (a-z, A-Z, 0-9), underscore (_), hyphen (-), percent (%) and period (.)"),
+			validation.Match(CASetNameRegex).Error(CASetNameDescription),
 			validateCASetName()),
-		"Description": validation.Validate(r.Description, validation.Length(0, 255)),
+		"Description": validation.Validate(r.Description, validation.NilOrNotEmpty, validation.Length(1, 255)),
 	})
 }
 
@@ -415,7 +419,7 @@ func (r ListCASetsRequest) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
 		"CASetNamePrefix": validation.Validate(r.CASetNamePrefix,
 			validation.Length(0, 64),
-			validation.Match(caSetNameRegex).Error("allowed characters are alphanumerics (a-z, A-Z, 0-9), underscore (_), hyphen (-), percent (%) and period (.)"),
+			validation.Match(CASetNameRegex).Error(CASetNameDescription),
 			validateCASetName()),
 		"ActivatedOn": validation.Validate(r.ActivatedOn, r.ActivatedOn.Validate()),
 	})
@@ -458,9 +462,9 @@ func (r CloneCASetRequest) Validate() error {
 		"NewCASetName": validation.Validate(r.NewCASetName,
 			validation.Required,
 			validation.Length(3, 64),
-			validation.Match(caSetNameRegex).Error("allowed characters are alphanumerics (a-z, A-Z, 0-9), underscore (_), hyphen (-), percent (%) and period (.)"),
+			validation.Match(CASetNameRegex).Error(CASetNameDescription),
 			validateCASetName()),
-		"NewDescription": validation.Validate(r.NewDescription, validation.Length(0, 255)),
+		"NewDescription": validation.Validate(r.NewDescription, validation.NilOrNotEmpty, validation.Length(3, 255)),
 	})
 }
 
