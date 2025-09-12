@@ -1081,6 +1081,14 @@ func (m *Mock) GetConfigurationVersions(ctx context.Context, req GetConfiguratio
 	return args.Get(0).(*GetConfigurationVersionsResponse), args.Error(1)
 }
 
+func (m *Mock) GetConfigurationVersion(ctx context.Context, req GetConfigurationVersionRequest) (*GetConfigurationVersionResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*GetConfigurationVersionResponse), args.Error(1)
+}
+
 func (m *Mock) GetConfigurationVersionClone(ctx context.Context, req GetConfigurationVersionCloneRequest) (*GetConfigurationVersionCloneResponse, error) {
 	args := m.Called(ctx, req)
 	if args.Get(0) == nil {
