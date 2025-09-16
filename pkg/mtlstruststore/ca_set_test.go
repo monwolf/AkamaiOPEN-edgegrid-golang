@@ -954,11 +954,12 @@ func TestListCASetAssociations(t *testing.T) {
 }`,
 			expectedResponse: &ListCASetAssociationsResponse{Associations: Associations{Properties: make([]AssociationProperty, 0)}},
 		},
-		"200 - Navigable property": {
+		"200 - Navigable property with association type value set to properties": {
 			params: ListCASetAssociationsRequest{
-				CASetID: "1",
+				CASetID:         "1",
+				AssociationType: AssociationTypeProperties,
 			},
-			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/associations",
+			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/associations?associationType=properties",
 			responseStatus: http.StatusOK,
 			responseBody: `{
   "associations": {
@@ -966,6 +967,7 @@ func TestListCASetAssociations(t *testing.T) {
       {
         "propertyId": "123",
         "propertyName": "test-prp-name",
+		"propertyLink": "/papi/v1/properties/123",
         "assetId": 123456,
         "groupId": 345,
         "hostnames": [
@@ -984,6 +986,7 @@ func TestListCASetAssociations(t *testing.T) {
 				{
 					PropertyID:   "123",
 					PropertyName: ptr.To("test-prp-name"),
+					PropertyLink: "/papi/v1/properties/123",
 					AssetID:      ptr.To(int64(123456)),
 					GroupID:      ptr.To(int64(345)),
 					Hostnames: []AssociationHostname{
@@ -1007,6 +1010,7 @@ func TestListCASetAssociations(t *testing.T) {
     "properties": [
       {
         "propertyId": "123",
+		"propertyLink": "/papi/v1/properties/123",
         "hostnames": [
           {
             "hostName": "example.com",
@@ -1021,7 +1025,8 @@ func TestListCASetAssociations(t *testing.T) {
 }`,
 			expectedResponse: &ListCASetAssociationsResponse{Associations: Associations{Properties: []AssociationProperty{
 				{
-					PropertyID: "123",
+					PropertyID:   "123",
+					PropertyLink: "/papi/v1/properties/123",
 					Hostnames: []AssociationHostname{
 						{
 							Hostname: "example.com",
@@ -1032,11 +1037,12 @@ func TestListCASetAssociations(t *testing.T) {
 				},
 			}}},
 		},
-		"200 - Enrollment": {
+		"200 - association type with value set to enrollment": {
 			params: ListCASetAssociationsRequest{
-				CASetID: "1",
+				CASetID:         "1",
+				AssociationType: AssociationTypeEnrollments,
 			},
-			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/associations",
+			expectedPath:   "/mtls-edge-truststore/v2/ca-sets/1/associations?associationType=enrollments",
 			responseStatus: http.StatusOK,
 			responseBody: `{
   "associations": {
@@ -1090,6 +1096,16 @@ func TestListCASetAssociations(t *testing.T) {
 			params: ListCASetAssociationsRequest{},
 			withError: func(t *testing.T, err error) {
 				assert.Equal(t, "list ca sets associations failed: struct validation: CASetID: cannot be blank", err.Error())
+			},
+		},
+		"validation error - invalid association type": {
+			params: ListCASetAssociationsRequest{
+				CASetID:         "1",
+				AssociationType: "invalid",
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "list ca sets associations failed: struct validation: AssociationType: value 'invalid' is invalid. "+
+					"Must be one of: 'enrollments' or 'properties'.", err.Error())
 			},
 		},
 		"404 ca set not found": {

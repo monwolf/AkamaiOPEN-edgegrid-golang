@@ -121,10 +121,17 @@ type (
 		CASetID string `json:"caSetId"`
 	}
 
+	// AssociationType is type of associations to be returned.
+	AssociationType string
+
 	// ListCASetAssociationsRequest holds request for ListCASetAssociations.
 	ListCASetAssociationsRequest struct {
 		// CASetID is a unique identifier representing the CA set.
 		CASetID string
+
+		// AssociationType is optional type of associations to be returned. The values that could be provided are `enrollments` or `properties`.
+		// If not provided, both types of associations are returned.
+		AssociationType AssociationType `json:"associationType,omitempty"`
 	}
 
 	// ListCASetAssociationsResponse holds response for ListCASetAssociations.
@@ -149,6 +156,9 @@ type (
 
 		// PropertyName is a unique, descriptive name for the property.
 		PropertyName *string `json:"propertyName"`
+
+		// PropertyLink is link to the property.
+		PropertyLink string `json:"propertyLink"`
 
 		// AssetID is an alternative identifier for the property.
 		AssetID *int64 `json:"assetId"`
@@ -367,6 +377,11 @@ const (
 	CASetStatusDeleted string = "DELETED"
 	// CASetStatusDeleting represents CA set status deleting.
 	CASetStatusDeleting string = "DELETING"
+
+	// AssociationTypeEnrollments represents enrollments associations type.
+	AssociationTypeEnrollments AssociationType = "enrollments"
+	// AssociationTypeProperties represents properties associations type.
+	AssociationTypeProperties AssociationType = "properties"
 )
 
 var (
@@ -450,8 +465,16 @@ func validateCASetName() validation.StringRule {
 // Validate validates ListCASetAssociationsRequest.
 func (r ListCASetAssociationsRequest) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
-		"CASetID": validation.Validate(r.CASetID, validation.Required, validation.Length(1, 0)),
+		"CASetID":         validation.Validate(r.CASetID, validation.Required, validation.Length(1, 0)),
+		"AssociationType": validation.Validate(r.AssociationType, r.AssociationType.Validate()),
 	})
+}
+
+// Validate validates AssociationType.
+func (t AssociationType) Validate() validation.InRule {
+	return validation.In(AssociationTypeEnrollments, AssociationTypeProperties).
+		Error(fmt.Sprintf("value '%s' is invalid. Must be one of: '%s' or '%s'.",
+			t, AssociationTypeEnrollments, AssociationTypeProperties))
 }
 
 // Validate validates CloneCASetRequest.
@@ -625,7 +648,17 @@ func (m *mtlstruststore) ListCASetAssociations(ctx context.Context, params ListC
 		return nil, fmt.Errorf("%s: %w: %s", ErrListCASetAssociations, ErrStructValidation, err)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%s/associations", params.CASetID), nil)
+	uri, err := url.Parse(fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%s/associations", params.CASetID))
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrListCASets, err)
+	}
+	q := uri.Query()
+	if params.AssociationType != "" {
+		q.Add("associationType", string(params.AssociationType))
+	}
+	uri.RawQuery = q.Encode()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri.String(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to create request: %s", ErrListCASetAssociations, err)
 	}

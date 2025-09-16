@@ -46,6 +46,16 @@
 
 
 
+* mTLS Truststore (Beta)
+  * Added support for optional `AssociationType` field in the `ListCASetAssociations` method to filter results based on the association type.
+    Possible values are `properties` or `enrollemnts`. If not specified, all associations are returned.
+  * Added the `PropertyLink` field to the `AssociationProperty` structure.
+
+
+
+
+
+
 
 
 
