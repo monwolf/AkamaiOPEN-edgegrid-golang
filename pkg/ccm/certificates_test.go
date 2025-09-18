@@ -15,6 +15,947 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestCreateCertificate(t *testing.T) {
+	t.Parallel()
+	tests := map[string]struct {
+		params              CreateCertificateRequest
+		responseStatus      int
+		responseBody        string
+		expectedRequestBody string
+		expectedResponse    *CreateCertificateResponse
+		expectedPath        string
+		returnedHeaders     map[string]string
+		withError           func(*testing.T, error)
+	}{
+		"201 Created - create certificate with all possible fields": {
+			params: CreateCertificateRequest{
+				ContractID: "111",
+				GroupID:    "222",
+				Body: CreateCertificateRequestBody{
+					CertificateName: "test-cert",
+					SANs:            []string{"example.com", "www.example.com"},
+					SecureNetwork:   "ENHANCED_TLS",
+					KeyType:         "RSA",
+					KeySize:         "2048",
+					Subject: &Subject{
+						CommonName:   "example.com",
+						Country:      "US",
+						State:        "Massachusetts",
+						Locality:     "Cambridge",
+						Organization: "ExampleOrg",
+					},
+				},
+			},
+			expectedPath:        "/ccm/v1/certificates?contractId=111&groupId=222",
+			expectedRequestBody: `{"certificateName":"test-cert","keyType":"RSA","keySize":"2048","secureNetwork":"ENHANCED_TLS","sans":["example.com","www.example.com"],"subject":{"commonName":"example.com","organization":"ExampleOrg","country":"US","state":"Massachusetts","locality":"Cambridge"}}`,
+			returnedHeaders: map[string]string{
+				"Akamai-Limit-Certificates":           "50",
+				"Akamai-Limit-Certificates-Remaining": "27",
+			},
+			expectedResponse: &CreateCertificateResponse{
+				Certificate: Certificate{
+					AccountID:         "A-CCT7890",
+					CertificateID:     "123",
+					CertificateName:   "test-cert",
+					CertificateStatus: "CSR_READY",
+					CertificateType:   "THIRD_PARTY",
+					ContractID:        "C-0N7RAC7",
+					CreatedBy:         "jsmith",
+					CreatedDate:       test.NewTimeFromString(t, "2025-09-01T06:16:05.952613Z"),
+					CSRExpirationDate: test.NewTimeFromString(t, "2026-11-03T06:16:07Z"),
+					CSRPEM:            ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
+					KeySize:           "2048",
+					KeyType:           "RSA",
+					ModifiedBy:        "jsmith",
+					ModifiedDate:      test.NewTimeFromString(t, "2025-09-02T06:16:05.952613Z"),
+					SANs:              []string{"example.com", "www.example.com"},
+					SecureNetwork:     "ENHANCED_TLS",
+					Subject: &Subject{
+						Country:      "US",
+						Organization: "ExampleOrg",
+						State:        "Massachusetts",
+						Locality:     "Cambridge",
+						CommonName:   "example.com",
+					},
+				},
+				ResourceLimits: ResourceLimitsMetadata{
+					CertificateLimitTotal:     50,
+					CertificateLimitRemaining: 27,
+				},
+			},
+			responseStatus: 201,
+			responseBody: `{
+				"accountId": "A-CCT7890",
+				"certificateId": "123",
+				"certificateName": "test-cert",
+				"certificateStatus": "CSR_READY",
+				"certificateType": "THIRD_PARTY",
+				"contractId": "C-0N7RAC7",
+				"createdBy": "jsmith",
+				"createdDate": "2025-09-01T06:16:05.952613Z",
+				"csrExpirationDate": "2026-11-03T06:16:07Z",
+				"csrPem": "-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n",
+				"keySize": "2048",
+				"keyType": "RSA",
+				"modifiedBy": "jsmith",
+				"modifiedDate": "2025-09-02T06:16:05.952613Z",
+				"sans": [
+					"example.com",
+					"www.example.com"
+				],
+				"secureNetwork": "ENHANCED_TLS",
+				"signedCertificateIssuer": null,
+				"signedCertificateNotValidAfterDate": null,
+				"signedCertificateNotValidBeforeDate": null,
+				"signedCertificatePem": null,
+				"signedCertificateSHA256Fingerprint": null,
+				"signedCertificateSerialNumber": null,
+				"subject": {
+					"commonName": "example.com",
+					"country": "US",
+					"locality": "Cambridge",
+					"organization": "ExampleOrg",
+					"state": "Massachusetts"
+				},
+				"trustChainPem": null
+			}`,
+		},
+		"201 Created - create certificate without name": {
+			params: CreateCertificateRequest{
+				ContractID: "111",
+				GroupID:    "222",
+				Body: CreateCertificateRequestBody{
+					SANs:          []string{"example.com", "www.example.com"},
+					SecureNetwork: "ENHANCED_TLS",
+					KeyType:       "RSA",
+					KeySize:       "2048",
+					Subject: &Subject{
+						CommonName:   "example.com",
+						Country:      "US",
+						State:        "Massachusetts",
+						Locality:     "Cambridge",
+						Organization: "ExampleOrg",
+					},
+				},
+			},
+			expectedPath:        "/ccm/v1/certificates?contractId=111&groupId=222",
+			expectedRequestBody: `{"keyType":"RSA","keySize":"2048","secureNetwork":"ENHANCED_TLS","sans":["example.com","www.example.com"],"subject":{"commonName":"example.com","organization":"ExampleOrg","country":"US","state":"Massachusetts","locality":"Cambridge"}}`,
+			returnedHeaders: map[string]string{
+				"Akamai-Limit-Certificates":           "50",
+				"Akamai-Limit-Certificates-Remaining": "27",
+			},
+			expectedResponse: &CreateCertificateResponse{
+				Certificate: Certificate{
+					AccountID:         "A-CCT7890",
+					CertificateID:     "123",
+					CertificateName:   "example.com20250111105236090681",
+					CertificateStatus: "CSR_READY",
+					CertificateType:   "THIRD_PARTY",
+					ContractID:        "C-0N7RAC7",
+					CreatedBy:         "jsmith",
+					CreatedDate:       test.NewTimeFromString(t, "2025-09-01T06:16:05.952613Z"),
+					CSRExpirationDate: test.NewTimeFromString(t, "2026-11-03T06:16:07Z"),
+					CSRPEM:            ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
+					KeySize:           "2048",
+					KeyType:           "RSA",
+					ModifiedBy:        "jsmith",
+					ModifiedDate:      test.NewTimeFromString(t, "2025-09-02T06:16:05.952613Z"),
+					SANs:              []string{"example.com", "www.example.com"},
+					SecureNetwork:     "ENHANCED_TLS",
+					Subject: &Subject{
+						Country:      "US",
+						Organization: "ExampleOrg",
+						State:        "Massachusetts",
+						Locality:     "Cambridge",
+						CommonName:   "example.com",
+					},
+				},
+				ResourceLimits: ResourceLimitsMetadata{
+					CertificateLimitTotal:     50,
+					CertificateLimitRemaining: 27,
+				},
+			},
+			responseStatus: 201,
+			responseBody: `{
+				"accountId": "A-CCT7890",
+				"certificateId": "123",
+				"certificateName": "example.com20250111105236090681",
+				"certificateStatus": "CSR_READY",
+				"certificateType": "THIRD_PARTY",
+				"contractId": "C-0N7RAC7",
+				"createdBy": "jsmith",
+				"createdDate": "2025-09-01T06:16:05.952613Z",
+				"csrExpirationDate": "2026-11-03T06:16:07Z",
+				"csrPem": "-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n",
+				"keySize": "2048",
+				"keyType": "RSA",
+				"modifiedBy": "jsmith",
+				"modifiedDate": "2025-09-02T06:16:05.952613Z",
+				"sans": [
+					"example.com",
+					"www.example.com"
+				],
+				"secureNetwork": "ENHANCED_TLS",
+				"signedCertificateIssuer": null,
+				"signedCertificateNotValidAfterDate": null,
+				"signedCertificateNotValidBeforeDate": null,
+				"signedCertificatePem": null,
+				"signedCertificateSHA256Fingerprint": null,
+				"signedCertificateSerialNumber": null,
+				"subject": {
+					"commonName": "example.com",
+					"country": "US",
+					"locality": "Cambridge",
+					"organization": "ExampleOrg",
+					"state": "Massachusetts"
+				},
+				"trustChainPem": null
+			}`,
+		},
+		"201 Created - create certificate with no subject": {
+			params: CreateCertificateRequest{
+				ContractID: "111",
+				GroupID:    "222",
+				Body: CreateCertificateRequestBody{
+					CertificateName: "test-cert",
+					SANs:            []string{"example.com", "www.example.com"},
+					SecureNetwork:   "ENHANCED_TLS",
+					KeyType:         "RSA",
+					KeySize:         "2048",
+				},
+			},
+			expectedPath:        "/ccm/v1/certificates?contractId=111&groupId=222",
+			expectedRequestBody: `{"certificateName":"test-cert","keyType":"RSA","keySize":"2048","secureNetwork":"ENHANCED_TLS","sans":["example.com","www.example.com"]}`,
+			expectedResponse: &CreateCertificateResponse{
+				Certificate: Certificate{
+					AccountID:         "A-CCT7890",
+					CertificateID:     "123",
+					CertificateName:   "test-cert",
+					CertificateStatus: "CSR_READY",
+					CertificateType:   "THIRD_PARTY",
+					ContractID:        "C-0N7RAC7",
+					CreatedBy:         "jsmith",
+					CreatedDate:       test.NewTimeFromString(t, "2025-09-01T06:16:05.952613Z"),
+					CSRExpirationDate: test.NewTimeFromString(t, "2026-11-03T06:16:07Z"),
+					CSRPEM:            ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
+					KeySize:           "2048",
+					KeyType:           "RSA",
+					ModifiedBy:        "jsmith",
+					ModifiedDate:      test.NewTimeFromString(t, "2025-09-02T06:16:05.952613Z"),
+					SANs:              []string{"example.com", "www.example.com"},
+					SecureNetwork:     "ENHANCED_TLS",
+				},
+			},
+			responseStatus: 201,
+			responseBody: `{
+				"accountId": "A-CCT7890",
+				"certificateId": "123",
+				"certificateName": "test-cert",
+				"certificateStatus": "CSR_READY",
+				"certificateType": "THIRD_PARTY",
+				"contractId": "C-0N7RAC7",
+				"createdBy": "jsmith",
+				"createdDate": "2025-09-01T06:16:05.952613Z",
+				"csrExpirationDate": "2026-11-03T06:16:07Z",
+				"csrPem": "-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n",
+				"keySize": "2048",
+				"keyType": "RSA",
+				"modifiedBy": "jsmith",
+				"modifiedDate": "2025-09-02T06:16:05.952613Z",
+				"sans": [
+					"example.com",
+					"www.example.com"
+				],
+				"secureNetwork": "ENHANCED_TLS",
+				"signedCertificateIssuer": null,
+				"signedCertificateNotValidAfterDate": null,
+				"signedCertificateNotValidBeforeDate": null,
+				"signedCertificatePem": null,
+				"signedCertificateSHA256Fingerprint": null,
+				"signedCertificateSerialNumber": null,
+				"trustChainPem": null
+			}`,
+		},
+		"validation error - missing required ContractID": {
+			params: CreateCertificateRequest{
+				GroupID: "123",
+				Body: CreateCertificateRequestBody{
+					CertificateName: "test-cert",
+					SANs:            []string{"example.com", "www.example.com"},
+					SecureNetwork:   "ENHANCED_TLS",
+					KeyType:         "RSA",
+					KeySize:         "2048",
+					Subject: &Subject{
+						CommonName:   "example.com",
+						Country:      "US",
+						State:        "Massachusetts",
+						Locality:     "Cambridge",
+						Organization: "ExampleOrg",
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "creating certificate: struct validation: ContractID: cannot be blank",
+					err.Error())
+				assert.ErrorIs(t, err, ErrCreateCertificate)
+				assert.ErrorIs(t, err, ErrStructValidation)
+			},
+		},
+		"validation error - missing required GroupID": {
+			params: CreateCertificateRequest{
+				ContractID: "111",
+				Body: CreateCertificateRequestBody{
+					CertificateName: "test-cert",
+					SANs:            []string{"example.com", "www.example.com"},
+					SecureNetwork:   "ENHANCED_TLS",
+					KeyType:         "RSA",
+					KeySize:         "2048",
+					Subject: &Subject{
+						CommonName:   "example.com",
+						Country:      "US",
+						State:        "Massachusetts",
+						Locality:     "Cambridge",
+						Organization: "ExampleOrg",
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "creating certificate: struct validation: GroupID: cannot be blank",
+					err.Error())
+				assert.ErrorIs(t, err, ErrCreateCertificate)
+				assert.ErrorIs(t, err, ErrStructValidation)
+			},
+		},
+		"validation error - invalid certificate name": {
+			params: CreateCertificateRequest{
+				ContractID: "111",
+				GroupID:    "222",
+				Body: CreateCertificateRequestBody{
+					CertificateName: "test-cert##",
+					SANs:            []string{"example.com", "www.example.com"},
+					SecureNetwork:   "ENHANCED_TLS",
+					KeyType:         "RSA",
+					KeySize:         "2048",
+					Subject: &Subject{
+						CommonName:   "example.com",
+						Country:      "US",
+						State:        "Massachusetts",
+						Locality:     "Cambridge",
+						Organization: "ExampleOrg",
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "creating certificate: struct validation: CertificateName: the input can only contain digits (1-9), letters (a-z, A-Z), spaces, hyphens, periods, and underscores.",
+					err.Error())
+				assert.ErrorIs(t, err, ErrCreateCertificate)
+				assert.ErrorIs(t, err, ErrStructValidation)
+			},
+		},
+		"validation error - invalid subject country code length": {
+			params: CreateCertificateRequest{
+				ContractID: "111",
+				GroupID:    "222",
+				Body: CreateCertificateRequestBody{
+					CertificateName: "test-cert",
+					SANs:            []string{"example.com", "www.example.com"},
+					SecureNetwork:   "ENHANCED_TLS",
+					KeyType:         "RSA",
+					KeySize:         "2048",
+					Subject: &Subject{
+						CommonName:   "example.com",
+						Country:      "TESTETSTES",
+						State:        "Massachusetts",
+						Locality:     "Cambridge",
+						Organization: "ExampleOrg",
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "creating certificate: struct validation: Subject: Country: the length must be exactly 2",
+					err.Error())
+				assert.ErrorIs(t, err, ErrCreateCertificate)
+				assert.ErrorIs(t, err, ErrStructValidation)
+			},
+		},
+		"validation error - invalid subject country code format": {
+			params: CreateCertificateRequest{
+				ContractID: "111",
+				GroupID:    "222",
+				Body: CreateCertificateRequestBody{
+					CertificateName: "test-cert",
+					SANs:            []string{"example.com", "www.example.com"},
+					SecureNetwork:   "ENHANCED_TLS",
+					KeyType:         "RSA",
+					KeySize:         "2048",
+					Subject: &Subject{
+						CommonName:   "example.com",
+						Country:      "  ",
+						State:        "Massachusetts",
+						Locality:     "Cambridge",
+						Organization: "ExampleOrg",
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "creating certificate: struct validation: Subject: Country: must be in a valid format",
+					err.Error())
+				assert.ErrorIs(t, err, ErrCreateCertificate)
+				assert.ErrorIs(t, err, ErrStructValidation)
+			},
+		},
+		"validation error - invalid subject locality length": {
+			params: CreateCertificateRequest{
+				ContractID: "111",
+				GroupID:    "222",
+				Body: CreateCertificateRequestBody{
+					CertificateName: "test-cert",
+					SANs:            []string{"example.com", "www.example.com"},
+					SecureNetwork:   "ENHANCED_TLS",
+					KeyType:         "RSA",
+					KeySize:         "2048",
+					Subject: &Subject{
+						CommonName:   "example.com",
+						Country:      "US",
+						State:        "Massachusetts",
+						Locality:     strings.Repeat("A", 129),
+						Organization: "ExampleOrg",
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "creating certificate: struct validation: Subject: Locality: the length must be between 1 and 128",
+					err.Error())
+				assert.ErrorIs(t, err, ErrCreateCertificate)
+				assert.ErrorIs(t, err, ErrStructValidation)
+			},
+		},
+		"validation error - invalid subject locality format": {
+			params: CreateCertificateRequest{
+				ContractID: "111",
+				GroupID:    "222",
+				Body: CreateCertificateRequestBody{
+					CertificateName: "test-cert",
+					SANs:            []string{"example.com", "www.example.com"},
+					SecureNetwork:   "ENHANCED_TLS",
+					KeyType:         "RSA",
+					KeySize:         "2048",
+					Subject: &Subject{
+						CommonName:   "example.com",
+						Country:      "US",
+						State:        "Massachusetts",
+						Locality:     "		",
+						Organization: "ExampleOrg",
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "creating certificate: struct validation: Subject: Locality: must be in a valid format",
+					err.Error())
+				assert.ErrorIs(t, err, ErrCreateCertificate)
+				assert.ErrorIs(t, err, ErrStructValidation)
+			},
+		},
+		"validation error - invalid subject state length": {
+			params: CreateCertificateRequest{
+				ContractID: "111",
+				GroupID:    "222",
+				Body: CreateCertificateRequestBody{
+					CertificateName: "test-cert",
+					SANs:            []string{"example.com", "www.example.com"},
+					SecureNetwork:   "ENHANCED_TLS",
+					KeyType:         "RSA",
+					KeySize:         "2048",
+					Subject: &Subject{
+						CommonName:   "example.com",
+						Country:      "US",
+						State:        strings.Repeat("A", 129),
+						Locality:     "Cambridge",
+						Organization: "ExampleOrg",
+					},
+				},
+			},
+			expectedPath: "/ccm/v1/certificates?contractId=111&groupId=222",
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "creating certificate: struct validation: Subject: State: the length must be between 1 and 128",
+					err.Error())
+				assert.ErrorIs(t, err, ErrCreateCertificate)
+				assert.ErrorIs(t, err, ErrStructValidation)
+			}},
+		"validation error - invalid subject state format": {
+			params: CreateCertificateRequest{
+				ContractID: "111",
+				GroupID:    "222",
+				Body: CreateCertificateRequestBody{
+					CertificateName: "test-cert",
+					SANs:            []string{"example.com", "www.example.com"},
+					SecureNetwork:   "ENHANCED_TLS",
+					KeyType:         "RSA",
+					KeySize:         "2048",
+					Subject: &Subject{
+						CommonName:   "example.com",
+						Country:      "US",
+						State:        "		",
+						Locality:     "Cambridge",
+						Organization: "ExampleOrg",
+					},
+				},
+			},
+			expectedPath: "/ccm/v1/certificates?contractId=111&groupId=222",
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "creating certificate: struct validation: Subject: State: must be in a valid format",
+					err.Error())
+				assert.ErrorIs(t, err, ErrCreateCertificate)
+				assert.ErrorIs(t, err, ErrStructValidation)
+			}},
+		"validation error - invalid subject organization length": {
+			params: CreateCertificateRequest{
+				ContractID: "111",
+				GroupID:    "222",
+				Body: CreateCertificateRequestBody{
+					CertificateName: "test-cert",
+					SANs:            []string{"example.com", "www.example.com"},
+					SecureNetwork:   "ENHANCED_TLS",
+					KeyType:         "RSA",
+					KeySize:         "2048",
+					Subject: &Subject{
+						CommonName:   "example.com",
+						Country:      "US",
+						State:        "Massachusetts",
+						Locality:     "Cambridge",
+						Organization: strings.Repeat("A", 65),
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "creating certificate: struct validation: Subject: Organization: the length must be between 1 and 64",
+					err.Error())
+				assert.ErrorIs(t, err, ErrCreateCertificate)
+				assert.ErrorIs(t, err, ErrStructValidation)
+			}},
+		"validation error - invalid subject organization format": {
+			params: CreateCertificateRequest{
+				ContractID: "111",
+				GroupID:    "222",
+				Body: CreateCertificateRequestBody{
+					CertificateName: "test-cert",
+					SANs:            []string{"example.com", "www.example.com"},
+					SecureNetwork:   "ENHANCED_TLS",
+					KeyType:         "RSA",
+					KeySize:         "2048",
+					Subject: &Subject{
+						CommonName:   "example.com",
+						Country:      "US",
+						State:        "Massachusetts",
+						Locality:     "Cambridge",
+						Organization: "		",
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "creating certificate: struct validation: Subject: Organization: must be in a valid format",
+					err.Error())
+				assert.ErrorIs(t, err, ErrCreateCertificate)
+				assert.ErrorIs(t, err, ErrStructValidation)
+			}},
+		"409 - certificate name already in use": {
+			params: CreateCertificateRequest{
+				ContractID: "111",
+				GroupID:    "222",
+				Body: CreateCertificateRequestBody{
+					CertificateName: "test-cert",
+					SANs:            []string{"example.com", "www.example.com"},
+					SecureNetwork:   "ENHANCED_TLS",
+					KeyType:         "RSA",
+					KeySize:         "2048",
+					Subject: &Subject{
+						CommonName:   "example.com",
+						Country:      "US",
+						State:        "Massachusetts",
+						Locality:     "Cambridge",
+						Organization: "ExampleOrg",
+					},
+				},
+			},
+			responseStatus:      409,
+			expectedPath:        "/ccm/v1/certificates?contractId=111&groupId=222",
+			expectedRequestBody: `{"certificateName":"test-cert","keyType":"RSA","keySize":"2048","secureNetwork":"ENHANCED_TLS","sans":["example.com","www.example.com"],"subject":{"commonName":"example.com","organization":"ExampleOrg","country":"US","state":"Massachusetts","locality":"Cambridge"}}`,
+			responseBody: `
+			{
+				"certificateIdentifier": "certificateName",
+				"certificateIdentifierValue": "test-cert",
+				"detail": "Certificate with {certificateName}: {test-cert} already exists with the current account Id!",
+				"instance": "/error-types/certificate-name-already-in-use?traceId=-123",
+				"status": 409,
+				"title": "Certificate name already in use.",
+				"type": "/error-types/certificate-name-already-in-use"
+			}`,
+			withError: func(t *testing.T, err error) {
+				want := fmt.Errorf("%w: %w", ErrCreateCertificate, &Error{
+					Type:                       "/error-types/certificate-name-already-in-use",
+					Title:                      "Certificate name already in use.",
+					Detail:                     "Certificate with {certificateName}: {test-cert} already exists with the current account Id!",
+					Status:                     http.StatusConflict,
+					Instance:                   "/error-types/certificate-name-already-in-use?traceId=-123",
+					CertificateIdentifier:      "certificateName",
+					CertificateIdentifierValue: "test-cert",
+				})
+				assert.EqualError(t, err, want.Error(), "want: %s; got: %s", want, err)
+				assert.ErrorIs(t, err, ErrCertificateNameInUse)
+				assert.ErrorIs(t, err, ErrCreateCertificate)
+			},
+		},
+		"500 internal server error - assert that error is ErrCreateCertificate": {
+			params: CreateCertificateRequest{
+				ContractID: "111",
+				GroupID:    "222",
+				Body: CreateCertificateRequestBody{
+					CertificateName: "test-cert",
+					SANs:            []string{"example.com", "www.example.com"},
+					SecureNetwork:   "ENHANCED_TLS",
+					KeyType:         "RSA",
+					KeySize:         "2048",
+					Subject: &Subject{
+						CommonName:   "example.com",
+						Country:      "US",
+						State:        "Massachusetts",
+						Locality:     "Cambridge",
+						Organization: "ExampleOrg",
+					},
+				},
+			},
+			expectedPath:        "/ccm/v1/certificates?contractId=111&groupId=222",
+			expectedRequestBody: "{\"certificateName\":\"test-cert\",\"keyType\":\"RSA\",\"keySize\":\"2048\",\"secureNetwork\":\"ENHANCED_TLS\",\"sans\":[\"example.com\",\"www.example.com\"],\"subject\":{\"commonName\":\"example.com\",\"organization\":\"ExampleOrg\",\"country\":\"US\",\"state\":\"Massachusetts\",\"locality\":\"Cambridge\"}}",
+			responseStatus:      500,
+			responseBody: `
+			{
+				"type": "internal_error",
+				"title": "Internal Server Error",
+				"detail": "Error removing certificate",
+				"status": 500
+			}`,
+			withError: func(t *testing.T, err error) {
+				want := fmt.Errorf("%w: %w", ErrCreateCertificate, &Error{
+					Type:   "internal_error",
+					Title:  "Internal Server Error",
+					Detail: "Error removing certificate",
+					Status: http.StatusInternalServerError,
+				})
+				assert.EqualError(t, err, want.Error(), "want: %s; got: %s", want, err)
+				assert.ErrorIs(t, err, ErrCreateCertificate)
+			},
+		},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				assert.Equal(t, tc.expectedPath, r.URL.String())
+				assert.Equal(t, http.MethodPost, r.Method)
+				if len(tc.returnedHeaders) > 0 {
+					for header, value := range tc.returnedHeaders {
+						w.Header().Set(header, value)
+					}
+				}
+				requestBody, err := io.ReadAll(r.Body)
+				assert.NoError(t, err)
+				assert.Equal(t, tc.expectedRequestBody, string(requestBody))
+				w.WriteHeader(tc.responseStatus)
+				_, err = w.Write([]byte(tc.responseBody))
+				assert.NoError(t, err)
+			}))
+			client := mockAPIClient(t, mockServer)
+			result, err := client.CreateCertificate(context.Background(), tc.params)
+
+			if tc.withError != nil {
+				tc.withError(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tc.expectedResponse, result)
+		})
+	}
+}
+
+func TestGetCertificate(t *testing.T) {
+	t.Parallel()
+	tests := map[string]struct {
+		params           GetCertificateRequest
+		responseStatus   int
+		responseBody     string
+		expectedResponse *GetCertificateResponse
+		expectedPath     string
+		expectedHeaders  map[string]string
+		withError        func(*testing.T, error)
+	}{
+		"200 -fetch of certificate successful": {
+			params: GetCertificateRequest{
+				CertificateID: "123",
+			},
+			expectedResponse: &GetCertificateResponse{
+				AccountID:                          "A-CCT7890",
+				CertificateID:                      "123",
+				CertificateName:                    "test-cert",
+				CertificateStatus:                  "CSR_READY",
+				CertificateType:                    "THIRD_PARTY",
+				ContractID:                         "C-0N7RAC7",
+				CreatedBy:                          "jsmith",
+				CreatedDate:                        test.NewTimeFromString(t, "2025-09-01T06:16:05.952613Z"),
+				CSRExpirationDate:                  test.NewTimeFromString(t, "2026-11-03T06:16:07Z"),
+				CSRPEM:                             ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
+				KeySize:                            "2048",
+				KeyType:                            "RSA",
+				ModifiedBy:                         "jsmith",
+				ModifiedDate:                       test.NewTimeFromString(t, "2025-09-02T06:16:05.952613Z"),
+				SANs:                               []string{"example.com", "www.example.com"},
+				SecureNetwork:                      "ENHANCED_TLS",
+				SignedCertificateIssuer:            nil,
+				SignedCertificateSerialNumber:      nil,
+				SignedCertificateSHA256Fingerprint: nil,
+				Subject: &Subject{
+					Country:      "US",
+					Organization: "ExampleOrg",
+					State:        "Massachusetts",
+					Locality:     "Cambridge",
+					CommonName:   "example.com",
+				},
+			},
+			responseStatus: 200,
+			expectedPath:   "/ccm/v1/certificates/123",
+			responseBody: `{
+				"accountId": "A-CCT7890",
+				"certificateId": "123",
+				"certificateName": "test-cert",
+				"certificateStatus": "CSR_READY",
+				"certificateType": "THIRD_PARTY",
+				"contractId": "C-0N7RAC7",
+				"createdBy": "jsmith",
+				"createdDate": "2025-09-01T06:16:05.952613Z",
+				"csrExpirationDate": "2026-11-03T06:16:07Z",
+				"csrPem": "-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n",
+				"keySize": "2048",
+				"keyType": "RSA",
+				"modifiedBy": "jsmith",
+				"modifiedDate": "2025-09-02T06:16:05.952613Z",
+				"sans": [
+					"example.com",
+					"www.example.com"
+				],
+				"secureNetwork": "ENHANCED_TLS",
+				"signedCertificateIssuer": null,
+				"signedCertificateNotValidAfterDate": null,
+				"signedCertificateNotValidBeforeDate": null,
+				"signedCertificatePem": null,
+				"signedCertificateSHA256Fingerprint": null,
+				"signedCertificateSerialNumber": null,
+				"subject": {
+					"commonName": "example.com",
+					"country": "US",
+					"locality": "Cambridge",
+					"organization": "ExampleOrg",
+					"state": "Massachusetts"
+				},
+				"trustChainPem": null
+			}`,
+		},
+		"404 resource not found -certificate not found": {
+			params: GetCertificateRequest{
+				CertificateID: "1234",
+			},
+			responseStatus: 404,
+			expectedPath:   "/ccm/v1/certificates/1234",
+			responseBody: `{
+				"certificateIdentifier": "certificateSubscriptionId",
+				"certificateIdentifierValue": "1234",
+				"detail": "Certificate subscription with {certificateSubscriptionId}: {1234} is not found.",
+				"instance": "/error-types/certificate-not-found?traceId=-1234",
+				"status": 404,
+				"title": "Certificate subscription is not found.",
+				"type": "/error-types/certificate-not-found"
+			}`,
+			withError: func(t *testing.T, err error) {
+				want := fmt.Errorf("%w: %w", ErrGetCertificate, &Error{
+					Type:                       "/error-types/certificate-not-found",
+					Title:                      "Certificate subscription is not found.",
+					Detail:                     "Certificate subscription with {certificateSubscriptionId}: {1234} is not found.",
+					Status:                     http.StatusNotFound,
+					Instance:                   "/error-types/certificate-not-found?traceId=-1234",
+					CertificateIdentifier:      "certificateSubscriptionId",
+					CertificateIdentifierValue: "1234",
+				})
+				assert.EqualError(t, err, want.Error(), "want: %s; got: %s", want, err)
+				assert.ErrorIs(t, err, ErrCertificateNotFound)
+				assert.ErrorIs(t, err, ErrGetCertificate)
+			},
+		},
+		"500 internal server error - assert that error is ErrGetCertificate": {
+			params: GetCertificateRequest{
+				CertificateID: "123",
+			},
+			responseStatus: 500,
+			responseBody: `
+			{
+				"type": "internal_error",
+				"title": "Internal Server Error",
+				"detail": "Error removing certificate",
+				"status": 500
+			}`,
+			expectedPath: "/ccm/v1/certificates/123",
+			withError: func(t *testing.T, err error) {
+				want := fmt.Errorf("%w: %w", ErrGetCertificate, &Error{
+					Type:   "internal_error",
+					Title:  "Internal Server Error",
+					Detail: "Error removing certificate",
+					Status: http.StatusInternalServerError,
+				})
+				assert.EqualError(t, err, want.Error(), "want: %s; got: %s", want, err)
+				assert.ErrorIs(t, err, ErrGetCertificate)
+			},
+		},
+		"validation error -missing CertificateID": {
+			params:       GetCertificateRequest{},
+			expectedPath: "/ccm/v1/certificates/123",
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "getting certificate: struct validation: CertificateID: cannot be blank",
+					err.Error())
+				assert.ErrorIs(t, err, ErrGetCertificate)
+				assert.ErrorIs(t, err, ErrStructValidation)
+			},
+		},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				assert.Equal(t, tc.expectedPath, r.URL.String())
+				assert.Equal(t, http.MethodGet, r.Method)
+				for k, v := range tc.expectedHeaders {
+					assert.Equal(t, v, r.Header.Get(k))
+				}
+				w.WriteHeader(tc.responseStatus)
+				_, err := w.Write([]byte(tc.responseBody))
+				assert.NoError(t, err)
+			}))
+			defer mockServer.Close()
+
+			client := mockAPIClient(t, mockServer)
+			result, err := client.GetCertificate(context.Background(), tc.params)
+			if tc.withError != nil {
+				tc.withError(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tc.expectedResponse, result)
+		})
+	}
+}
+
+func TestDeleteCertificate(t *testing.T) {
+	t.Parallel()
+	tests := map[string]struct {
+		params          DeleteCertificateRequest
+		responseStatus  int
+		responseBody    string
+		expectedPath    string
+		expectedHeaders map[string]string
+		withError       func(*testing.T, error)
+	}{
+		"204 certificate deleted successfully": {
+			params: DeleteCertificateRequest{
+				CertificateID: "certificate_123",
+			},
+			responseStatus: 204,
+			expectedPath:   "/ccm/v1/certificates/certificate_123",
+		},
+		"404 resource not found -certificate not found": {
+			params: DeleteCertificateRequest{
+				CertificateID: "1234",
+			},
+			responseStatus: 404,
+			expectedPath:   "/ccm/v1/certificates/1234",
+			responseBody: `{
+				"certificateIdentifier": "certificateSubscriptionId",
+				"certificateIdentifierValue": "1234",
+				"detail": "Certificate subscription with {certificateSubscriptionId}: {1234} is not found.",
+				"instance": "/error-types/certificate-not-found?traceId=-1234",
+				"status": 404,
+				"title": "Certificate subscription is not found.",
+				"type": "/error-types/certificate-not-found"
+			}`,
+			withError: func(t *testing.T, err error) {
+				want := fmt.Errorf("%w: %w", ErrDeleteCertificate, &Error{
+					Type:                       "/error-types/certificate-not-found",
+					Title:                      "Certificate subscription is not found.",
+					Detail:                     "Certificate subscription with {certificateSubscriptionId}: {1234} is not found.",
+					Status:                     http.StatusNotFound,
+					Instance:                   "/error-types/certificate-not-found?traceId=-1234",
+					CertificateIdentifier:      "certificateSubscriptionId",
+					CertificateIdentifierValue: "1234",
+				})
+				assert.EqualError(t, err, want.Error(), "want: %s; got: %s", want, err)
+				assert.ErrorIs(t, err, ErrCertificateNotFound)
+				assert.ErrorIs(t, err, ErrDeleteCertificate)
+			},
+		},
+		"500 internal server error - assert that error is ErrDeleteCertificate": {
+			params: DeleteCertificateRequest{
+				CertificateID: "123",
+			},
+			responseStatus: 500,
+			responseBody: `
+			{
+				"type": "internal_error",
+				"title": "Internal Server Error",
+				"detail": "Error removing certificate",
+				"status": 500
+			}`,
+			expectedPath: "/ccm/v1/certificates/123",
+			withError: func(t *testing.T, err error) {
+				want := fmt.Errorf("%w: %w", ErrDeleteCertificate, &Error{
+					Type:   "internal_error",
+					Title:  "Internal Server Error",
+					Detail: "Error removing certificate",
+					Status: http.StatusInternalServerError,
+				})
+				assert.EqualError(t, err, want.Error(), "want: %s; got: %s", want, err)
+				assert.ErrorIs(t, err, ErrDeleteCertificate)
+			},
+		},
+		"validate - missing CertificateID": {
+			params:       DeleteCertificateRequest{},
+			expectedPath: "/ccm/v1/certificates/certificate_123",
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "deleting certificate: struct validation: CertificateID: cannot be blank",
+					err.Error())
+				assert.ErrorIs(t, err, ErrDeleteCertificate)
+				assert.ErrorIs(t, err, ErrStructValidation)
+			},
+		},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				assert.Equal(t, tc.expectedPath, r.URL.String())
+				assert.Equal(t, http.MethodDelete, r.Method)
+				w.WriteHeader(tc.responseStatus)
+				if tc.responseBody != "" {
+					_, err := w.Write([]byte(tc.responseBody))
+					assert.NoError(t, err)
+				}
+			}))
+			client := mockAPIClient(t, mockServer)
+			err := client.DeleteCertificate(context.Background(), tc.params)
+
+			if tc.withError != nil {
+				tc.withError(t, err)
+				return
+			}
+			require.NoError(t, err)
+		})
+	}
+}
+
 func TestPatchCertificate(t *testing.T) {
 	t.Parallel()
 	tests := map[string]struct {
@@ -51,11 +992,11 @@ func TestPatchCertificate(t *testing.T) {
 				SecureNetwork:           "ENHANCED_TLS",
 				SignedCertificateIssuer: nil,
 				Subject: &Subject{
-					Country:      ptr.To("US"),
-					Organization: ptr.To(""),
-					State:        ptr.To("Massachusetts"),
-					Locality:     ptr.To("Cambridge"),
-					CommonName:   ptr.To("example.com"),
+					Country:      "US",
+					Organization: "ExampleOrg",
+					State:        "Massachusetts",
+					Locality:     "Cambridge",
+					CommonName:   "example.com",
 				},
 			},
 			expectedRequestBody: "[{\"op\":\"replace\",\"path\":\"/certificateName\",\"value\":\"test 0123456789.-_\"}]",
@@ -91,7 +1032,7 @@ func TestPatchCertificate(t *testing.T) {
 					"commonName": "example.com",
 					"country": "US",
 					"locality": "Cambridge",
-					"organization": "",
+					"organization": "ExampleOrg",
 					"state": "Massachusetts"
 				},
 				"trustChainPem": null
@@ -125,11 +1066,11 @@ func TestPatchCertificate(t *testing.T) {
 				SecureNetwork:           "ENHANCED_TLS",
 				SignedCertificateIssuer: nil,
 				Subject: &Subject{
-					Country:      ptr.To("US"),
-					Organization: ptr.To(""),
-					State:        ptr.To("Massachusetts"),
-					Locality:     ptr.To("Cambridge"),
-					CommonName:   ptr.To("example.com"),
+					Country:      "US",
+					Organization: "ExampleOrg",
+					State:        "Massachusetts",
+					Locality:     "Cambridge",
+					CommonName:   "example.com",
 				},
 			},
 			expectedRequestBody: "[{\"op\":\"replace\",\"path\":\"/certificateName\",\"value\":\"\"}]",
@@ -165,7 +1106,7 @@ func TestPatchCertificate(t *testing.T) {
 					"commonName": "example.com",
 					"country": "US",
 					"locality": "Cambridge",
-					"organization": "",
+					"organization": "ExampleOrg",
 					"state": "Massachusetts"
 				},
 				"trustChainPem": null
@@ -204,11 +1145,11 @@ func TestPatchCertificate(t *testing.T) {
 				SignedCertificateSHA256Fingerprint:  ptr.To("4E:69:28:A1:CE:F1:E4:97:CE:39:FE:12:98"),
 				SignedCertificateSerialNumber:       ptr.To("a2:84:7d:dc:97:f1"),
 				Subject: &Subject{
-					CommonName:   ptr.To("example.com"),
-					Country:      ptr.To("US"),
-					Locality:     ptr.To("Cambridge"),
-					Organization: ptr.To(""),
-					State:        ptr.To("Massachusetts"),
+					CommonName:   "example.com",
+					Country:      "US",
+					Locality:     "Cambridge",
+					Organization: "ExampleOrg",
+					State:        "Massachusetts",
 				},
 				TrustChainPEM: nil,
 			},
@@ -245,7 +1186,7 @@ func TestPatchCertificate(t *testing.T) {
 					"commonName": "example.com",
 					"country": "US",
 					"locality": "Cambridge",
-					"organization": "",
+					"organization": "ExampleOrg",
 					"state": "Massachusetts"
 				},
 				"trustChainPem": null
@@ -285,11 +1226,11 @@ func TestPatchCertificate(t *testing.T) {
 				SignedCertificateSHA256Fingerprint:  ptr.To("4E:69:28:A1:CE:F1:E4:97:CE:39:FE:12:98"),
 				SignedCertificateSerialNumber:       ptr.To("a2:84:7d:dc:97:f1"),
 				Subject: &Subject{
-					CommonName:   ptr.To("example.com"),
-					Country:      ptr.To("US"),
-					Locality:     ptr.To("Cambridge"),
-					Organization: ptr.To(""),
-					State:        ptr.To("Massachusetts"),
+					CommonName:   "example.com",
+					Country:      "US",
+					Locality:     "Cambridge",
+					Organization: "ExampleOrg",
+					State:        "Massachusetts",
 				},
 				TrustChainPEM: ptr.To("-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n"),
 			},
@@ -326,7 +1267,7 @@ func TestPatchCertificate(t *testing.T) {
 					"commonName": "example.com",
 					"country": "US",
 					"locality": "Cambridge",
-					"organization": "",
+					"organization": "ExampleOrg",
 					"state": "Massachusetts"
 				},
 				"trustChainPem": "-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n"
@@ -366,11 +1307,11 @@ func TestPatchCertificate(t *testing.T) {
 				SignedCertificateSHA256Fingerprint:  ptr.To("4E:69:28:A1:CE:F1:E4:97:CE:39:FE:12:98"),
 				SignedCertificateSerialNumber:       ptr.To("a2:84:7d:dc:97:f1"),
 				Subject: &Subject{
-					CommonName:   ptr.To("example.com"),
-					Country:      ptr.To("US"),
-					Locality:     ptr.To("Cambridge"),
-					Organization: ptr.To(""),
-					State:        ptr.To("Massachusetts"),
+					CommonName:   "example.com",
+					Country:      "US",
+					Locality:     "Cambridge",
+					Organization: "ExampleOrg",
+					State:        "Massachusetts",
 				},
 				TrustChainPEM: nil,
 			},
@@ -407,7 +1348,7 @@ func TestPatchCertificate(t *testing.T) {
 					"commonName": "example.com",
 					"country": "US",
 					"locality": "Cambridge",
-					"organization": "",
+					"organization": "ExampleOrg",
 					"state": "Massachusetts"
 				},
 				"trustChainPem": null
@@ -449,11 +1390,11 @@ func TestPatchCertificate(t *testing.T) {
 				SignedCertificateSHA256Fingerprint:  ptr.To("4E:69:28:A1:CE:F1:E4:97:CE:39:FE:12:98"),
 				SignedCertificateSerialNumber:       ptr.To("a2:84:7d:dc:97:f1"),
 				Subject: &Subject{
-					CommonName:   ptr.To("example.com"),
-					Country:      ptr.To("US"),
-					Locality:     ptr.To("Cambridge"),
-					Organization: ptr.To(""),
-					State:        ptr.To("Massachusetts"),
+					CommonName:   "example.com",
+					Country:      "US",
+					Locality:     "Cambridge",
+					Organization: "ExampleOrg",
+					State:        "Massachusetts",
 				},
 				TrustChainPEM: ptr.To("-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n"),
 			},
@@ -490,7 +1431,7 @@ func TestPatchCertificate(t *testing.T) {
 					"commonName": "example.com",
 					"country": "US",
 					"locality": "Cambridge",
-					"organization": "",
+					"organization": "ExampleOrg",
 					"state": "Massachusetts"
 				},
 				"trustChainPem": "-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n"
@@ -531,7 +1472,6 @@ func TestPatchCertificate(t *testing.T) {
 								"commonName": "example.com",
 								"country": "US",
 								"locality": "Cambridge",
-								"organization": null,
 								"state": "Massachusetts"
 							},
 							"validation": {
@@ -609,11 +1549,10 @@ func TestPatchCertificate(t *testing.T) {
 								SignatureAlgorithm: ptr.To("SHA256WITHRSA"),
 								StartDate:          ptr.To("2025-08-22T11:45:19Z"),
 								Subject: &Subject{
-									CommonName:   ptr.To("example.com"),
-									Country:      ptr.To("US"),
-									Locality:     ptr.To("Cambridge"),
-									Organization: nil,
-									State:        ptr.To("Massachusetts"),
+									CommonName: "example.com",
+									Country:    "US",
+									Locality:   "Cambridge",
+									State:      "Massachusetts",
 								},
 								Validation: &ValidationResult{
 									Errors:  []ValidationDetail{},
@@ -781,11 +1720,10 @@ func TestPatchCertificate(t *testing.T) {
 								SignatureAlgorithm: ptr.To("SHA256WITHRSA"),
 								StartDate:          ptr.To("2025-08-22T11:45:19Z"),
 								Subject: &Subject{
-									CommonName:   ptr.To("example.com"),
-									Country:      ptr.To("US"),
-									Locality:     ptr.To("Cambridge"),
-									Organization: nil,
-									State:        ptr.To("Massachusetts"),
+									CommonName: "example.com",
+									Country:    "US",
+									Locality:   "Cambridge",
+									State:      "Massachusetts",
 								},
 								Validation: &ValidationResult{
 									Errors:  []ValidationDetail{},
@@ -1013,10 +1951,10 @@ func TestListCertificates(t *testing.T) {
 						SignedCertificateSHA256Fingerprint:  nil,
 						SignedCertificateSerialNumber:       nil,
 						Subject: &Subject{
-							CommonName: ptr.To("test-example.com"),
-							Country:    ptr.To("US"),
-							Locality:   ptr.To("Cambridge"),
-							State:      ptr.To("Massachusetts"),
+							CommonName: "test-example.com",
+							Country:    "US",
+							Locality:   "Cambridge",
+							State:      "Massachusetts",
 						},
 						TrustChainPEM: nil,
 					},
@@ -1041,11 +1979,11 @@ func TestListCertificates(t *testing.T) {
 						SignedCertificateSHA256Fingerprint:  nil,
 						SignedCertificateSerialNumber:       nil,
 						Subject: &Subject{
-							CommonName:   ptr.To("test2-example.com"),
-							Country:      ptr.To("US"),
-							Locality:     ptr.To("New York"),
-							Organization: ptr.To("test organization NY"),
-							State:        ptr.To("New York"),
+							CommonName:   "test2-example.com",
+							Country:      "US",
+							Locality:     "New York",
+							Organization: "test organization NY",
+							State:        "New York",
 						},
 						TrustChainPEM: ptr.To("-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n"),
 					},
@@ -1070,10 +2008,10 @@ func TestListCertificates(t *testing.T) {
 						SignedCertificateSHA256Fingerprint:  nil,
 						SignedCertificateSerialNumber:       nil,
 						Subject: &Subject{
-							CommonName: ptr.To("test3-example.com"),
-							Country:    ptr.To("US"),
-							Locality:   ptr.To("San Francisco"),
-							State:      ptr.To("California"),
+							CommonName: "test3-example.com",
+							Country:    "US",
+							Locality:   "San Francisco",
+							State:      "California",
 						},
 						TrustChainPEM: nil,
 					},
@@ -1098,11 +2036,11 @@ func TestListCertificates(t *testing.T) {
 						SignedCertificateSHA256Fingerprint:  nil,
 						SignedCertificateSerialNumber:       nil,
 						Subject: &Subject{
-							CommonName:   ptr.To("test4-example.com"),
-							Country:      ptr.To("US"),
-							Locality:     ptr.To("Los Angeles"),
-							Organization: ptr.To("test organization LA"),
-							State:        ptr.To("California"),
+							CommonName:   "test4-example.com",
+							Country:      "US",
+							Locality:     "Los Angeles",
+							Organization: "test organization LA",
+							State:        "California",
 						},
 						TrustChainPEM: nil,
 					},
@@ -1288,10 +2226,10 @@ func TestListCertificates(t *testing.T) {
 						SignedCertificateSHA256Fingerprint:  nil,
 						SignedCertificateSerialNumber:       nil,
 						Subject: &Subject{
-							CommonName: ptr.To("test3-example.com"),
-							Country:    ptr.To("US"),
-							Locality:   ptr.To("San Francisco"),
-							State:      ptr.To("California"),
+							CommonName: "test3-example.com",
+							Country:    "US",
+							Locality:   "San Francisco",
+							State:      "California",
 						},
 						TrustChainPEM: nil,
 					},
@@ -1381,10 +2319,10 @@ func TestListCertificates(t *testing.T) {
 						SignedCertificateSHA256Fingerprint:  nil,
 						SignedCertificateSerialNumber:       nil,
 						Subject: &Subject{
-							CommonName: ptr.To("test-example.com"),
-							Country:    ptr.To("US"),
-							Locality:   ptr.To("Cambridge"),
-							State:      ptr.To("Massachusetts"),
+							CommonName: "test-example.com",
+							Country:    "US",
+							Locality:   "Cambridge",
+							State:      "Massachusetts",
 						},
 						TrustChainPEM: nil,
 					},
@@ -1409,10 +2347,10 @@ func TestListCertificates(t *testing.T) {
 						SignedCertificateSHA256Fingerprint:  nil,
 						SignedCertificateSerialNumber:       nil,
 						Subject: &Subject{
-							CommonName: ptr.To("test3-example.com"),
-							Country:    ptr.To("US"),
-							Locality:   ptr.To("San Francisco"),
-							State:      ptr.To("California"),
+							CommonName: "test3-example.com",
+							Country:    "US",
+							Locality:   "San Francisco",
+							State:      "California",
 						},
 						TrustChainPEM: nil,
 					},
@@ -1533,10 +2471,10 @@ func TestListCertificates(t *testing.T) {
 						SignedCertificateSHA256Fingerprint:  nil,
 						SignedCertificateSerialNumber:       nil,
 						Subject: &Subject{
-							CommonName: ptr.To("test-example.com"),
-							Country:    ptr.To("US"),
-							Locality:   ptr.To("Cambridge"),
-							State:      ptr.To("Massachusetts"),
+							CommonName: "test-example.com",
+							Country:    "US",
+							Locality:   "Cambridge",
+							State:      "Massachusetts",
 						},
 						TrustChainPEM: nil,
 					},
@@ -1627,11 +2565,11 @@ func TestListCertificates(t *testing.T) {
 						SignedCertificateSHA256Fingerprint:  nil,
 						SignedCertificateSerialNumber:       nil,
 						Subject: &Subject{
-							CommonName:   ptr.To("test2-example.com"),
-							Country:      ptr.To("US"),
-							Locality:     ptr.To("New York"),
-							Organization: ptr.To("test organization NY"),
-							State:        ptr.To("New York"),
+							CommonName:   "test2-example.com",
+							Country:      "US",
+							Locality:     "New York",
+							Organization: "test organization NY",
+							State:        "New York",
 						},
 						TrustChainPEM: ptr.To("-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n"),
 					},
@@ -1656,11 +2594,11 @@ func TestListCertificates(t *testing.T) {
 						SignedCertificateSHA256Fingerprint:  nil,
 						SignedCertificateSerialNumber:       nil,
 						Subject: &Subject{
-							CommonName:   ptr.To("test4-example.com"),
-							Country:      ptr.To("US"),
-							Locality:     ptr.To("Los Angeles"),
-							Organization: ptr.To("test organization LA"),
-							State:        ptr.To("California"),
+							CommonName:   "test4-example.com",
+							Country:      "US",
+							Locality:     "Los Angeles",
+							Organization: "test organization LA",
+							State:        "California",
 						},
 						TrustChainPEM: nil,
 					},
@@ -1782,11 +2720,11 @@ func TestListCertificates(t *testing.T) {
 						SignedCertificateSHA256Fingerprint:  nil,
 						SignedCertificateSerialNumber:       nil,
 						Subject: &Subject{
-							CommonName:   ptr.To("test4-example.com"),
-							Country:      ptr.To("US"),
-							Locality:     ptr.To("Los Angeles"),
-							Organization: ptr.To("test organization LA"),
-							State:        ptr.To("California"),
+							CommonName:   "test4-example.com",
+							Country:      "US",
+							Locality:     "Los Angeles",
+							Organization: "test organization LA",
+							State:        "California",
 						},
 						TrustChainPEM: nil,
 					},
@@ -1879,11 +2817,11 @@ func TestListCertificates(t *testing.T) {
 						SignedCertificateSHA256Fingerprint:  nil,
 						SignedCertificateSerialNumber:       nil,
 						Subject: &Subject{
-							CommonName:   ptr.To("test2-example.com"),
-							Country:      ptr.To("US"),
-							Locality:     ptr.To("New York"),
-							Organization: ptr.To("test organization"),
-							State:        ptr.To("New York"),
+							CommonName:   "test2-example.com",
+							Country:      "US",
+							Locality:     "New York",
+							Organization: "test organization",
+							State:        "New York",
 						},
 						TrustChainPEM: ptr.To("-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n"),
 					},
@@ -1908,10 +2846,10 @@ func TestListCertificates(t *testing.T) {
 						SignedCertificateSHA256Fingerprint:  nil,
 						SignedCertificateSerialNumber:       nil,
 						Subject: &Subject{
-							CommonName: ptr.To("test-example.com"),
-							Country:    ptr.To("US"),
-							Locality:   ptr.To("Cambridge"),
-							State:      ptr.To("Massachusetts"),
+							CommonName: "test-example.com",
+							Country:    "US",
+							Locality:   "Cambridge",
+							State:      "Massachusetts",
 						},
 						TrustChainPEM: nil,
 					},
@@ -2034,10 +2972,10 @@ func TestListCertificates(t *testing.T) {
 						SignedCertificateSHA256Fingerprint:  nil,
 						SignedCertificateSerialNumber:       nil,
 						Subject: &Subject{
-							CommonName: ptr.To("test-example.com"),
-							Country:    ptr.To("US"),
-							Locality:   ptr.To("Cambridge"),
-							State:      ptr.To("Massachusetts"),
+							CommonName: "test-example.com",
+							Country:    "US",
+							Locality:   "Cambridge",
+							State:      "Massachusetts",
 						},
 						TrustChainPEM: nil,
 					},

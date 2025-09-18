@@ -27,20 +27,34 @@ const (
 
 	// CryptographicAlgorithmECDSA indicates the ECDSA algorithm.
 	CryptographicAlgorithmECDSA CryptographicAlgorithm = "ECDSA"
+
+	// SecureNetworkEnhancedTLS represents the ENHANCED_TLS secure network type.
+	SecureNetworkEnhancedTLS SecureNetwork = "ENHANCED_TLS"
+
+	// KeySize2048 represents a key size of 2048 bits.
+	KeySize2048 KeySize = "2048"
+
+	// KeySizeP256 represents a key size of 256 bits.
+	KeySizeP256 KeySize = "P-256"
 )
 
 type (
 	// CreateCertificateRequest represents the parameters for creating a new certificate.
 	CreateCertificateRequest struct {
+		// Contract Id under which this certificate will be created.
 		ContractID string
-		GroupID    string
-		Body       CertificateRequest
+
+		// Unique identifier for the group. This is a required parameter when creating a new certificate.
+		GroupID string
+
+		// Body of the create certificate request containing certificate details.
+		Body CreateCertificateRequestBody
 	}
 
 	// CreateCertificateResponse contains the response for a certificate creation request.
 	CreateCertificateResponse struct {
-		Certificate
-		Quota
+		Certificate    Certificate
+		ResourceLimits ResourceLimitsMetadata
 	}
 
 	// GetCertificateRequest represents the parameters for retrieving a certificate.
@@ -172,15 +186,25 @@ type (
 		Links    Links                `json:"links"`
 	}
 
-	// CertificateRequest contains the details for requesting a certificate.
-	CertificateRequest struct {
-		CertificateName *string  `json:"certificateName,omitempty"`
-		CertificateType *string  `json:"certificateType,omitempty"`
-		KeyType         string   `json:"keyType"`
-		KeySize         int64    `json:"keySize"`
-		SecureNetwork   string   `json:"secureNetwork"`
-		SANs            []string `json:"sans"`
-		Subject         *Subject `json:"subject,omitempty"`
+	// CreateCertificateRequestBody contains the details for requesting a certificate.
+	CreateCertificateRequestBody struct {
+		// The name of the certificate.
+		CertificateName string `json:"certificateName,omitempty"`
+
+		// The key type for a certificate. Valid values are 'RSA' or 'ECDSA'.
+		KeyType CryptographicAlgorithm `json:"keyType"`
+
+		// The key size for a certificate. Valid values for key type RSA: '2048'. Valid values for key type ECDSA: 'P-256'.
+		KeySize KeySize `json:"keySize"`
+
+		// Secure network type to use for the certificate. The only valid value is 'ENHANCED_TLS'.
+		SecureNetwork SecureNetwork `json:"secureNetwork"`
+
+		// The list of Subject Alternative Names (SANs) for the certificate.
+		SANs []string `json:"sans"`
+
+		// Subject fields as defined in X.509 certificates (RFC 5280).
+		Subject *Subject `json:"subject,omitempty"`
 	}
 
 	// Certificate represents a certificate and its metadata.
@@ -201,10 +225,10 @@ type (
 		CertificateType string `json:"certificateType,omitempty"`
 
 		// Key type to use for CSR. Either RSA or ECDSA.
-		KeyType string `json:"keyType,omitempty"`
+		KeyType CryptographicAlgorithm `json:"keyType,omitempty"`
 
 		// Key size to use for CSR.
-		KeySize string `json:"keySize,omitempty"`
+		KeySize KeySize `json:"keySize,omitempty"`
 
 		// Secure network type to use for the certificate.
 		SecureNetwork string `json:"secureNetwork,omitempty"`
@@ -261,19 +285,19 @@ type (
 	// Subject contains the subject details for a certificate.
 	Subject struct {
 		// Fully qualified domain name (FQDN) or other name associated with the subject.
-		CommonName *string `json:"commonName,omitempty"`
+		CommonName string `json:"commonName,omitempty"`
 
 		// Legal name of the organization.
-		Organization *string `json:"organization,omitempty"`
+		Organization string `json:"organization,omitempty"`
 
 		// Two-letter ISO 3166 country code.
-		Country *string `json:"country,omitempty"`
+		Country string `json:"country,omitempty"`
 
 		// Full name of the state or province.
-		State *string `json:"state,omitempty"`
+		State string `json:"state,omitempty"`
 
 		// City or locality name.
-		Locality *string `json:"locality,omitempty"`
+		Locality string `json:"locality,omitempty"`
 	}
 
 	// CertificateBinding represents a binding between a certificate and a resource.
@@ -303,8 +327,8 @@ type (
 		TotalPages int64 `json:"totalPages"`
 	}
 
-	// Quota contains information about certificate quotas.
-	Quota struct {
+	// ResourceLimitsMetadata contains information about certificate limits.
+	ResourceLimitsMetadata struct {
 		CertificateLimitTotal     int64
 		CertificateLimitRemaining int64
 	}
@@ -314,6 +338,18 @@ type (
 
 	// CryptographicAlgorithm represents the cryptographic algorithm type: `RSA` or `ECDSA`.
 	CryptographicAlgorithm string
+
+	// SecureNetwork represents the type of secure network (e.g. ENHANCED_TLS).
+	SecureNetwork string
+
+	// KeySize represents the size of the key in bits.
+	KeySize string
+)
+
+var (
+	certificateNameLengthRule = validation.Length(0, 270)
+	certificateNameRegexRule  = validation.Match(regexp.MustCompile(`^[a-zA-Z0-9 .\-_]+$`)).
+					Error("the input can only contain digits (1-9), letters (a-z, A-Z), spaces, hyphens, periods, and underscores.")
 )
 
 // Validate validates PatchCertificateRequest.
@@ -321,9 +357,8 @@ func (r PatchCertificateRequest) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
 		"CertificateID": validation.Validate(r.CertificateID, validation.Required),
 		"CertificateName": validation.Validate(r.CertificateName,
-			validation.Length(0, 270),
-			validation.Match(regexp.MustCompile(`^[a-zA-Z0-9 .\-_]+$`)).
-				Error("the input can only contain digits (1-9), letters (a-z, A-Z), spaces, hyphens, periods, and underscores.")),
+			certificateNameLengthRule,
+			certificateNameRegexRule),
 		"required parameters": validation.Validate(nil, validation.By(func(any) error {
 			if r.SignedCertificatePEM == "" && r.CertificateName == nil {
 				return errors.New("at least one of SignedCertificatePEM or CertificateName must be provided")
@@ -390,4 +425,58 @@ func sortValidationRule(value any) error {
 	}
 
 	return nil
+}
+
+// Validate validates CreateCertificateRequest.
+func (r CreateCertificateRequest) Validate() error {
+	return edgegriderr.ParseValidationErrors(validation.Errors{
+		"ContractID":      validation.Validate(r.ContractID, validation.Required),
+		"GroupID":         validation.Validate(r.GroupID, validation.Required),
+		"CertificateName": validation.Validate(r.Body.CertificateName, certificateNameLengthRule, certificateNameRegexRule),
+		"KeyType":         validation.Validate(r.Body.KeyType, validation.Required),
+		"KeySize":         validation.Validate(r.Body.KeySize, validation.Required),
+		"SecureNetwork":   validation.Validate(r.Body.SecureNetwork, validation.Required),
+		"SANs":            validation.Validate(r.Body.SANs, validation.Required),
+		"Subject":         validation.Validate(r.Body.Subject),
+	},
+	)
+}
+
+// Validate validates Subject.
+func (s Subject) Validate() error {
+	return edgegriderr.ParseValidationErrors(validation.Errors{
+		"CommonName":   validation.Validate(s.CommonName, validation.Length(1, 64), validation.Match(regexp.MustCompile(`\S`))),
+		"Organization": validation.Validate(s.Organization, validation.Length(1, 64), validation.Match(regexp.MustCompile(`\S`))),
+		"Country":      validation.Validate(s.Country, validation.Length(2, 2), validation.Match(regexp.MustCompile(`\S`))),
+		"State":        validation.Validate(s.State, validation.Length(1, 128), validation.Match(regexp.MustCompile(`\S`))),
+		"Locality":     validation.Validate(s.Locality, validation.Length(1, 128), validation.Match(regexp.MustCompile(`\S`))),
+	})
+}
+
+// Validate validates KeySize.
+func (k KeySize) Validate() validation.InRule {
+	return validation.In(KeySize2048, KeySizeP256).
+		Error(fmt.Sprintf("value '%s' is invalid. Must be one of: '%s', or '%s'",
+			k, KeySize2048, KeySizeP256))
+}
+
+// Validate validates SecureNetwork.
+func (s SecureNetwork) Validate() validation.InRule {
+	return validation.In(SecureNetworkEnhancedTLS).
+		Error(fmt.Sprintf("value '%s' is invalid. Must be: '%s'",
+			s, SecureNetworkEnhancedTLS))
+}
+
+// Validate validates GetCertificateRequest.
+func (r GetCertificateRequest) Validate() error {
+	return edgegriderr.ParseValidationErrors(validation.Errors{
+		"CertificateID": validation.Validate(r.CertificateID, validation.Required),
+	})
+}
+
+// Validate validates DeleteCertificateRequest.
+func (r DeleteCertificateRequest) Validate() error {
+	return edgegriderr.ParseValidationErrors(validation.Errors{
+		"CertificateID": validation.Validate(r.CertificateID, validation.Required),
+	})
 }

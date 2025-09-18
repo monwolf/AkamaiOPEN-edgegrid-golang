@@ -155,3 +155,121 @@ func buildPatchRequestBody(params PatchCertificateRequest) []patch {
 
 	return reqBody
 }
+
+func (c *ccm) CreateCertificate(ctx context.Context, params CreateCertificateRequest) (*CreateCertificateResponse, error) {
+	logger := c.Log(ctx)
+	logger.Debug("CreateCertificate")
+
+	if err := params.Validate(); err != nil {
+		return nil, fmt.Errorf("%w: %w: %w", ErrCreateCertificate, ErrStructValidation, err)
+	}
+
+	uri, err := url.Parse("/ccm/v1/certificates")
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to parse url: %w", ErrCreateCertificate, err)
+	}
+
+	query := url.Values{}
+
+	query.Set("contractId", params.ContractID)
+	query.Set("groupId", params.GroupID)
+
+	uri.RawQuery = query.Encode()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, uri.String(), nil)
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to create request: %w", ErrCreateCertificate, err)
+	}
+
+	var result CreateCertificateResponse
+	resp, err := c.Exec(req, &result.Certificate, params.Body)
+	if err != nil {
+		return nil, fmt.Errorf("%w: request execution failed: %w", ErrCreateCertificate, err)
+	}
+	defer session.CloseResponseBody(resp)
+
+	if resp.StatusCode != http.StatusCreated {
+		return nil, fmt.Errorf("%w: %w", ErrCreateCertificate, c.Error(resp))
+	}
+	if resp.Header.Get("Akamai-Limit-Certificates") != "" {
+		limitTotal, err := strconv.ParseInt(resp.Header.Get("Akamai-Limit-Certificates"), 10, 64)
+		if err != nil {
+			return nil, fmt.Errorf("%w: failed to parse Akamai-Limit-Certificates header: %w",
+				ErrCreateCertificate, err)
+		}
+		result.ResourceLimits.CertificateLimitTotal = limitTotal
+	}
+	if resp.Header.Get("Akamai-Limit-Certificates-Remaining") != "" {
+		limitRemaining, err := strconv.ParseInt(resp.Header.Get("Akamai-Limit-Certificates-Remaining"), 10, 64)
+		if err != nil {
+			return nil, fmt.Errorf("%w: failed to parse Akamai-Limit-Certificates-Remaining header: %w",
+				ErrCreateCertificate, err)
+		}
+		result.ResourceLimits.CertificateLimitRemaining = limitRemaining
+	}
+
+	return &result, nil
+}
+
+func (c *ccm) GetCertificate(ctx context.Context, params GetCertificateRequest) (*GetCertificateResponse, error) {
+	logger := c.Log(ctx)
+	logger.Debug("GetCertificate")
+
+	if err := params.Validate(); err != nil {
+		return nil, fmt.Errorf("%w: %w: %w", ErrGetCertificate, ErrStructValidation, err)
+	}
+
+	uri, err := url.Parse(fmt.Sprintf("/ccm/v1/certificates/%s", params.CertificateID))
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to parse url: %w", ErrGetCertificate, err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri.String(), nil)
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to create request: %w", ErrGetCertificate, err)
+	}
+
+	var result GetCertificateResponse
+	resp, err := c.Exec(req, &result)
+	if err != nil {
+		return nil, fmt.Errorf("%w: request execution failed: %w", ErrGetCertificate, err)
+	}
+	defer session.CloseResponseBody(resp)
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("%w: %w", ErrGetCertificate, c.Error(resp))
+	}
+
+	return &result, nil
+}
+
+func (c *ccm) DeleteCertificate(ctx context.Context, params DeleteCertificateRequest) error {
+	logger := c.Log(ctx)
+	logger.Debug("DeleteCertificate")
+
+	if err := params.Validate(); err != nil {
+		return fmt.Errorf("%w: %w: %w", ErrDeleteCertificate, ErrStructValidation, err)
+	}
+
+	uri, err := url.Parse(fmt.Sprintf("/ccm/v1/certificates/%s", params.CertificateID))
+	if err != nil {
+		return fmt.Errorf("%w: failed to parse url: %w", ErrDeleteCertificate, err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, uri.String(), nil)
+	if err != nil {
+		return fmt.Errorf("%w: failed to create request: %w", ErrDeleteCertificate, err)
+	}
+
+	resp, err := c.Exec(req, nil)
+	if err != nil {
+		return fmt.Errorf("%w: request execution failed: %w", ErrDeleteCertificate, err)
+	}
+	defer session.CloseResponseBody(resp)
+
+	if resp.StatusCode != http.StatusNoContent {
+		return fmt.Errorf("%w: %w", ErrDeleteCertificate, c.Error(resp))
+	}
+
+	return nil
+}

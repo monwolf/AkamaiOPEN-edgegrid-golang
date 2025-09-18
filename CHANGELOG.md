@@ -56,7 +56,11 @@
     * [PatchCertificate](TBD) - Allows to upload a signed certificate PEM and optionally a trust chain and rename or reset the certificate name. 
 
 
-
+* CCM
+    * Added new methods:
+        * [CreateCertificate](TBD) - Creates a third party certificate.
+        * [GetCertificate](TBD) - Retrieves a single certificate by its certificateId.
+        * [DeleteCertificate](TBD) - Deletes a certificate by its certificateId. Note that only certificates that are not ACTIVE can be deleted.
 
 
 

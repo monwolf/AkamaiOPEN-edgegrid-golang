@@ -20,11 +20,23 @@ var (
 
 	// ErrListCertificates represents error when listing certificates fails.
 	ErrListCertificates = errors.New("listing certificates")
+
+	// ErrCreateCertificate is returned when CreateCertificate fails.
+	ErrCreateCertificate = errors.New("creating certificate")
+
+	// ErrGetCertificate is returned when GetCertificate fails.
+	ErrGetCertificate = errors.New("getting certificate")
+
+	// ErrDeleteCertificate is returned when DeleteCertificate fails.
+	ErrDeleteCertificate = errors.New("deleting certificate")
 )
 
 var (
 	// ErrCertificateNameInUse represents error when the certificate name is already in use.
 	ErrCertificateNameInUse = &Error{Type: "/error-types/certificate-name-already-in-use"}
+
+	// ErrCertificateNotFound represents error when the certificate is not found.
+	ErrCertificateNotFound = &Error{Type: "/error-types/certificate-not-found"}
 )
 
 type (
