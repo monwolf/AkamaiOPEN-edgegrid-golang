@@ -11,10 +11,10 @@
 
 * mTLS Truststore (Beta):
   * Enhanced validation rules for some fields.
-    * `Name` field in `CreateCASetRequest` and `UpdateCASetRequest` structures now requires 3 to 255 characters.
-    * `Name` field in `ListCASetsRequest` structure can be empty or requires 1 to 64 characters.
-    * `Description` field in `CreateCASetRequest`, `UpdateCASetRequest`, `CreateCASetVersionRequest` and `UpdateCASetVersionRequest` structures can be nil or requires 3 to 255 characters.
-    * `NewDescription` field in `CloneCASetRequest` structure can be nil or requires 3 to 255 characters.
+    * `CASetName` field in `CreateCASetRequest` structure now requires 3 to 64 characters.
+    * `CASetNamePrefix` field in `ListCASetsRequest` structure can be empty or requires 1 to 64 characters.
+    * `Description` field in `CreateCASetRequest`, `CreateCASetVersionRequestBody` and `UpdateCASetVersionRequestBody` structures can be nil or requires 1 to 255 characters.
+    * `NewDescription` field in `CloneCASetRequest` structure can be nil or requires 1 to 255 characters.
 
 
 

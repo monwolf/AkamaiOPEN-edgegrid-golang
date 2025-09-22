@@ -487,7 +487,7 @@ func (r CloneCASetRequest) Validate() error {
 			validation.Length(3, 64),
 			validation.Match(CASetNameRegex).Error(CASetNameDescription),
 			validateCASetName()),
-		"NewDescription": validation.Validate(r.NewDescription, validation.NilOrNotEmpty, validation.Length(3, 255)),
+		"NewDescription": validation.Validate(r.NewDescription, validation.NilOrNotEmpty, validation.Length(1, 255)),
 	})
 }
 
