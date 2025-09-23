@@ -52,17 +52,19 @@ func TestNewError(t *testing.T) {
 					`{
     "type": "bad-request",
     "title": "Bad Request",
-    "instance": "bd42f85f-3957-4735-9f34-df450f7dbdbe",
+    "instance": "d87ca377-f864-4054-bfa8-f567c44567c5",
     "status": 400,
     "detail": "Oops, something wasn't right. Please correct the errors.",
-    "problems": [
+    "errors": [
         {
             "type": "error-types/invalid",
             "title": "Invalid Check",
             "detail": "Domain cannot be invalidated for the current state.",
-            "field": "domains[0].domainName"
+            "field": "domains[0].domainName",
+			"problemId": "d87ca377-f864-4054-bfa8-f567c44567c5"
         }
-    ]
+    ],
+	"problemId": "d87ca377-f864-4054-bfa8-f567c44567c5"
 }`),
 				),
 				Request: req,
@@ -70,17 +72,19 @@ func TestNewError(t *testing.T) {
 			expected: &Error{
 				Type:     "bad-request",
 				Title:    "Bad Request",
+				Instance: "d87ca377-f864-4054-bfa8-f567c44567c5",
 				Detail:   "Oops, something wasn't right. Please correct the errors.",
-				Instance: "bd42f85f-3957-4735-9f34-df450f7dbdbe",
 				Status:   http.StatusBadRequest,
-				Problems: []Problem{
+				Errors: []ErrorDetail{
 					{
-						Type:   "error-types/invalid",
-						Title:  "Invalid Check",
-						Detail: "Domain cannot be invalidated for the current state.",
-						Field:  "domains[0].domainName",
+						Type:      "error-types/invalid",
+						Title:     "Invalid Check",
+						Detail:    "Domain cannot be invalidated for the current state.",
+						Field:     "domains[0].domainName",
+						ProblemID: "d87ca377-f864-4054-bfa8-f567c44567c5",
 					},
 				},
+				ProblemID: "d87ca377-f864-4054-bfa8-f567c44567c5",
 			},
 		},
 		"Bad request 400 - invalid value": {
@@ -93,20 +97,36 @@ func TestNewError(t *testing.T) {
     "instance": "f5334872-80ae-437c-89ed-fee729f3a8de",
     "status": 400,
     "detail": "Invalid value 'a' for query parameter validationScope.",
-    "parameter": "validationScope",
-    "value": "a"
+    "errors": [
+        {
+            "type": "error-types/invalid",
+            "title": "Invalid Value",
+            "detail": "Invalid value 'a' for query parameter validationScope.",
+            "field": "validationScope",
+            "problemId": "f5334872-80ae-437c-89ed-fee729f3a8de"
+        }
+    ],
+    "problemId": "f5334872-80ae-437c-89ed-fee729f3a8de"
 }`),
 				),
 				Request: req,
 			},
 			expected: &Error{
-				Type:      "bad-request",
-				Title:     "Bad Request",
-				Detail:    "Invalid value 'a' for query parameter validationScope.",
-				Instance:  "f5334872-80ae-437c-89ed-fee729f3a8de",
-				Status:    http.StatusBadRequest,
-				Parameter: "validationScope",
-				Value:     "a",
+				Type:     "bad-request",
+				Title:    "Bad Request",
+				Instance: "f5334872-80ae-437c-89ed-fee729f3a8de",
+				Detail:   "Invalid value 'a' for query parameter validationScope.",
+				Status:   http.StatusBadRequest,
+				Errors: []ErrorDetail{
+					{
+						Type:      "error-types/invalid",
+						Title:     "Invalid Value",
+						Detail:    "Invalid value 'a' for query parameter validationScope.",
+						Field:     "validationScope",
+						ProblemID: "f5334872-80ae-437c-89ed-fee729f3a8de",
+					},
+				},
+				ProblemID: "f5334872-80ae-437c-89ed-fee729f3a8de",
 			},
 		},
 		"Resource not found 404": {
@@ -120,7 +140,7 @@ func TestNewError(t *testing.T) {
 	"status": 404,
 	"detail": "The requested resource could not be found on the server.",
 	"field": "domainName",
-	"value": "{domain.notFound}"
+	"value": "example.com"
 }`),
 				),
 				Request: req,
@@ -131,8 +151,6 @@ func TestNewError(t *testing.T) {
 				Detail:   "The requested resource could not be found on the server.",
 				Status:   http.StatusNotFound,
 				Instance: "fe111e63-225d-45ea-8e0a-dd182496092d",
-				Field:    "domainName",
-				Value:    "{domain.notFound}",
 			},
 		},
 		"Invalid response body, assign status code": {

@@ -14,24 +14,22 @@ import (
 type (
 	// Error is a Domain Ownership error interface.
 	Error struct {
-		Type      string    `json:"type"`
-		Title     string    `json:"title"`
-		Detail    string    `json:"detail"`
-		Instance  string    `json:"instance,omitempty"`
-		Status    int       `json:"status,omitempty"`
-		Parameter string    `json:"parameter,omitempty"`
-		Value     string    `json:"value,omitempty"`
-		Field     string    `json:"field,omitempty"`
-		Problems  []Problem `json:"problems,omitempty"`
+		Type      string        `json:"type"`
+		Title     string        `json:"title"`
+		Detail    string        `json:"detail"`
+		Instance  string        `json:"instance"`
+		Status    int           `json:"status"`
+		Errors    []ErrorDetail `json:"errors,omitempty"`
+		ProblemID string        `json:"problemId"`
 	}
 
-	// Problem represents a specific problem in the error response.
-	Problem struct {
-		Type   string `json:"type"`
-		Title  string `json:"title"`
-		Detail string `json:"detail"`
-		Value  string `json:"value,omitempty"`
-		Field  string `json:"field,omitempty"`
+	// ErrorDetail represents a list of specific problems in the error response.
+	ErrorDetail struct {
+		Type      string `json:"type"`
+		Title     string `json:"title"`
+		Detail    string `json:"detail"`
+		ProblemID string `json:"problemId"`
+		Field     string `json:"field"`
 	}
 )
 

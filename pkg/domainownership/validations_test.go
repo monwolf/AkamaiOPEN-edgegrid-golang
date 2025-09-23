@@ -357,7 +357,7 @@ func TestInvalidateDomains(t *testing.T) {
 			responseStatus: http.StatusOK,
 			responseBody: `
 {
-  "domains": [
+  "successes": [
     {
       "domainName": "sample1.com",
       "domainStatus": "INVALIDATED",

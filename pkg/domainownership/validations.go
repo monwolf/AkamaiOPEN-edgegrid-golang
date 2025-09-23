@@ -64,7 +64,7 @@ type (
 	// InvalidateDomainsResponse represents the response structure for InvalidateDomains.
 	InvalidateDomainsResponse struct {
 		// Domains contains the list of invalidated domains.
-		Domains []InvalidateDomainResponse `json:"domains"`
+		Domains []InvalidateDomainResponse `json:"successes"`
 	}
 )
 
