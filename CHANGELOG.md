@@ -29,6 +29,8 @@
 
 
 
+* Cloudaccess
+    * Added support for new Akamai Object Storage authentication method (`AOS4_HMAC_SHA256`).
 
 
 

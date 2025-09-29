@@ -113,12 +113,20 @@ func (r GetAccessKeyStatusRequest) Validate() error {
 func (r CreateAccessKeyRequest) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
 		"AccessKeyName":        validation.Validate(r.AccessKeyName, validation.Required),
-		"AuthenticationMethod": validation.Validate(r.AuthenticationMethod, validation.Required),
+		"AuthenticationMethod": validation.Validate(r.AuthenticationMethod, validation.Required, validation.In(string(AuthAWS), string(AuthGOOG), string(AuthAOS))),
 		"ContractID":           validation.Validate(r.ContractID, validation.Required),
 		"CloudAccessKeyID":     validation.Validate(r.Credentials.CloudAccessKeyID, validation.Required),
 		"CloudSecretAccessKey": validation.Validate(r.Credentials.CloudSecretAccessKey, validation.Required),
 		"GroupID":              validation.Validate(r.GroupID, validation.Required),
 		"SecurityNetwork":      validation.Validate(r.NetworkConfiguration.SecurityNetwork, validation.Required),
+	})
+}
+
+// Validate validates SecureNetwork
+func (r SecureNetwork) Validate() error {
+	return edgegriderr.ParseValidationErrors(validation.Errors{
+		"SecurityNetwork": validation.Validate(r.SecurityNetwork, validation.In(NetworkEnhanced, NetworkStandard)),
+		"AdditionalCDN":   validation.Validate(r.AdditionalCDN, validation.When(r.AdditionalCDN != nil, validation.In(ChinaCDN, RussiaCDN))),
 	})
 }
 
