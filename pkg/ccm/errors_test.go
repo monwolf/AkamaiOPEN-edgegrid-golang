@@ -80,6 +80,50 @@ func TestNewError(t *testing.T) {
 				CertificateIdentifierValue: "1234",
 			},
 		},
+		"Validation error 400 - invalid parameter value": {
+			response: &http.Response{
+				StatusCode: http.StatusBadRequest,
+				Body: io.NopCloser(strings.NewReader(`
+					{
+						"type": "/error-types/validation-failure",
+						"title": "Validation failure.",
+						"instance": "/error-types/validation-failure?traceId=12345",
+						"status": 400,
+						"detail": "Validation failed while executing the operation.",
+						"errors": [
+							{
+								"type": "/error-types/invalid-field",
+								"title": "Invalid field value.",
+								"detail": "Invalid value '{[example.com]}' for field '{sans}'. SANs list cannot contain duplicates.",
+								"instance": "/error-types/validation-failure?traceId=12345",
+								"explanation": "SANs list cannot contain duplicates.",
+								"invalidParameterValue": ["example.com"],
+								"parameterName": "sans"
+							}
+						]
+					}`),
+				),
+				Request: req,
+			},
+			expected: &Error{
+				Type:     "/error-types/validation-failure",
+				Title:    "Validation failure.",
+				Instance: "/error-types/validation-failure?traceId=12345",
+				Detail:   "Validation failed while executing the operation.",
+				Status:   http.StatusBadRequest,
+				Errors: []SecondaryError{
+					{
+						Type:                  "/error-types/invalid-field",
+						Title:                 "Invalid field value.",
+						Detail:                "Invalid value '{[example.com]}' for field '{sans}'. SANs list cannot contain duplicates.",
+						Instance:              "/error-types/validation-failure?traceId=12345",
+						Explanation:           "SANs list cannot contain duplicates.",
+						InvalidParameterValue: []string{"example.com"},
+						ParameterName:         "sans",
+					},
+				},
+			},
+		},
 		"Invalid response body, assign status code": {
 			response: &http.Response{
 				StatusCode: http.StatusInternalServerError,

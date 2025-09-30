@@ -48,12 +48,25 @@ type (
 		Detail   string `json:"detail"`
 		Instance string `json:"instance"`
 
-		CertificateIdentifier      string          `json:"certificateIdentifier,omitempty"`
-		CertificateIdentifierValue string          `json:"certificateIdentifierValue,omitempty"`
-		Data                       *ValidationData `json:"data,omitempty"`
-		Explanation                string          `json:"explanation,omitempty"`
-		InvalidParameterValue      string          `json:"invalidParameterValue,omitempty"`
-		ParameterName              string          `json:"parameterName,omitempty"`
+		CertificateIdentifier      string           `json:"certificateIdentifier,omitempty"`
+		CertificateIdentifierValue string           `json:"certificateIdentifierValue,omitempty"`
+		Data                       *ValidationData  `json:"data,omitempty"`
+		Explanation                string           `json:"explanation,omitempty"`
+		Errors                     []SecondaryError `json:"errors,omitempty"`
+		InvalidParameterValue      string           `json:"invalidParameterValue,omitempty"`
+		ParameterName              string           `json:"parameterName,omitempty"`
+	}
+
+	// SecondaryError represents detailed error information for validation failures.
+	SecondaryError struct {
+		Type     string `json:"type,omitempty"`
+		Title    string `json:"title,omitempty"`
+		Detail   string `json:"detail,omitempty"`
+		Instance string `json:"instance,omitempty"`
+
+		Explanation           string   `json:"explanation,omitempty"`
+		InvalidParameterValue []string `json:"invalidParameterValue,omitempty"`
+		ParameterName         string   `json:"parameterName,omitempty"`
 	}
 
 	// ValidationData contains details about certificate and trust chain validation.
