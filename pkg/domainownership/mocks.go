@@ -29,6 +29,11 @@ func (p *Mock) DeleteDomain(ctx context.Context, params DeleteDomainRequest) err
 	return args.Error(0)
 }
 
+func (p *Mock) DeleteDomains(ctx context.Context, params DeleteDomainsRequest) error {
+	args := p.Called(ctx, params)
+	return args.Error(0)
+}
+
 func (p *Mock) ValidateDomains(ctx context.Context, params ValidateDomainsRequest) (*ValidateDomainsResponse, error) {
 	args := p.Called(ctx, params)
 

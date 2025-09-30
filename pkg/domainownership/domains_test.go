@@ -1668,7 +1668,7 @@ func TestAddDomains(t *testing.T) {
 	}
 }
 
-func TestDeleteDomains(t *testing.T) {
+func TestDeleteDomain(t *testing.T) {
 	tests := map[string]struct {
 		params              DeleteDomainRequest
 		responseStatus      int
@@ -1779,6 +1779,197 @@ func TestDeleteDomains(t *testing.T) {
 			}))
 			client := mockAPIClient(t, mockServer)
 			err := client.DeleteDomain(context.Background(), tc.params)
+			if tc.withError != nil {
+				tc.withError(t, err)
+				return
+			}
+			require.NoError(t, err)
+		})
+	}
+}
+
+func TestDeleteDomains(t *testing.T) {
+	tests := map[string]struct {
+		params              DeleteDomainsRequest
+		responseStatus      int
+		responseBody        string
+		expectedPath        string
+		expectedRequestBody string
+		withError           func(*testing.T, error)
+	}{
+		"200 OK": {
+			params: DeleteDomainsRequest{
+				Domains: []Domain{
+					{
+						DomainName:      "sample1.com",
+						ValidationScope: ValidationScopeHost,
+					},
+				},
+			},
+			responseStatus:      http.StatusNoContent,
+			expectedPath:        "/domain-validation/v1/domains",
+			expectedRequestBody: `{"domains":[{"domainName":"sample1.com","validationScope":"HOST"}]}`,
+		},
+		"validation errors - empty params": {
+			params: DeleteDomainsRequest{},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "delete domains: struct validation: Domains: cannot be blank", err.Error())
+			},
+		},
+		"validation errors - empty domains": {
+			params: DeleteDomainsRequest{
+				Domains: []Domain{},
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "delete domains: struct validation: Domains: cannot be blank", err.Error())
+			},
+		},
+		"validation errors - empty domain": {
+			params: DeleteDomainsRequest{
+				Domains: []Domain{
+					{},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "delete domains: struct validation: Domains[0]: {\n\tDomainName: cannot be blank\n\tValidationScope: cannot be blank\n}", err.Error())
+			},
+		},
+		"validation errors - DomainName missing ": {
+			params: DeleteDomainsRequest{
+				Domains: []Domain{
+					{
+						ValidationScope: ValidationScopeHost,
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "delete domains: struct validation: Domains[0]: {\n\tDomainName: cannot be blank\n}", err.Error())
+			},
+		},
+		"validation errors - ValidationScope missing": {
+			params: DeleteDomainsRequest{
+				Domains: []Domain{
+					{
+						DomainName: "sample1.com",
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "delete domains: struct validation: Domains[0]: {\n\tValidationScope: cannot be blank\n}", err.Error())
+			},
+		},
+		"validation errors - invalid ValidationScope": {
+			params: DeleteDomainsRequest{
+				Domains: []Domain{
+					{
+						DomainName:      "sample1.com",
+						ValidationScope: "foo",
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "delete domains: struct validation: Domains[0]: {\n\tValidationScope: value 'foo' is invalid. Must be one of: 'HOST', 'DOMAIN' or 'WILDCARD'\n}", err.Error())
+			},
+		},
+		"400 Domain Not Found": {
+			params: DeleteDomainsRequest{
+				Domains: []Domain{
+					{
+						DomainName:      "sample1.com",
+						ValidationScope: ValidationScopeHost,
+					},
+				},
+			},
+			expectedPath:   "/domain-validation/v1/domains",
+			responseStatus: http.StatusBadRequest,
+			responseBody: `
+				{
+					"type": "bad-request",
+					"title": "Bad Request",
+					"instance": "12345-c988-463e-9382-6c15e80868c0",
+					"status": 400,
+					"detail": "Oops, something wasn't right. Please correct the errors.",
+					"errors": [
+						{
+							"type": "error-types/invalid",
+							"title": "Invalid Check",
+							"detail": "Domain is not found.",
+							"problemId": "0030b473-0bd9-40eb-8afa-d6a08c9be687",
+							"field": "domains[0].domainName"
+						}
+					],
+					"problemId": "85588d59-c988-463e-9382-6c15e80868c0"
+				}`,
+			withError: func(t *testing.T, err error) {
+				want := &Error{
+					Title:     "Bad Request",
+					Type:      "bad-request",
+					Status:    http.StatusBadRequest,
+					Instance:  "12345-c988-463e-9382-6c15e80868c0",
+					Detail:    "Oops, something wasn't right. Please correct the errors.",
+					ProblemID: "85588d59-c988-463e-9382-6c15e80868c0",
+					Errors: []ErrorDetail{
+						{
+							Type:      "error-types/invalid",
+							Title:     "Invalid Check",
+							Detail:    "Domain is not found.",
+							ProblemID: "0030b473-0bd9-40eb-8afa-d6a08c9be687",
+							Field:     "domains[0].domainName",
+						},
+					},
+				}
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+			},
+		},
+		"500 internal server error": {
+			params: DeleteDomainsRequest{
+				Domains: []Domain{
+					{
+						DomainName:      "sample1.com",
+						ValidationScope: ValidationScopeHost,
+					},
+				},
+			},
+			responseStatus: http.StatusInternalServerError,
+			responseBody: `
+						{
+						   "type": "internal_error",
+						   "title": "Internal Server Error",
+						   "detail": "Error making request",
+						   "status": 500
+						}
+						`,
+			expectedPath: "/domain-validation/v1/domains",
+			withError: func(t *testing.T, e error) {
+				err := Error{
+					Type:   "internal_error",
+					Title:  "Internal Server Error",
+					Detail: "Error making request",
+					Status: http.StatusInternalServerError,
+				}
+				assert.Equal(t, true, err.Is(e))
+			},
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				assert.Equal(t, tc.expectedPath, r.URL.String())
+				assert.Equal(t, http.MethodDelete, r.Method)
+				if len(tc.expectedRequestBody) > 0 {
+					body, err := io.ReadAll(r.Body)
+					require.NoError(t, err)
+					assert.Equal(t, tc.expectedRequestBody, string(body))
+				}
+
+				w.WriteHeader(tc.responseStatus)
+				_, err := w.Write([]byte(tc.responseBody))
+				assert.NoError(t, err)
+
+			}))
+			client := mockAPIClient(t, mockServer)
+			err := client.DeleteDomains(context.Background(), tc.params)
 			if tc.withError != nil {
 				tc.withError(t, err)
 				return

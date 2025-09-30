@@ -82,6 +82,11 @@ type (
 	// DeleteDomainRequest represents the request structure for DeleteDomain.
 	DeleteDomainRequest Domain
 
+	// DeleteDomainsRequest represents the request structure for DeleteDomains.
+	DeleteDomainsRequest struct {
+		Domains []Domain `json:"domains"`
+	}
+
 	// ValidationScope represents the scope of domain validation.
 	ValidationScope string
 
@@ -392,6 +397,13 @@ func (d DeleteDomainRequest) Validate() error {
 	})
 }
 
+// Validate validates the DeleteDomainsRequest parameters.
+func (d DeleteDomainsRequest) Validate() error {
+	return edgegriderr.ParseValidationErrors(validation.Errors{
+		"Domains": validation.Validate(d.Domains, validation.Required, validation.Length(1, 0)),
+	})
+}
+
 // Validate validates the SearchDomainsRequest parameters.
 func (r SearchDomainsRequest) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
@@ -445,6 +457,9 @@ var (
 
 	// ErrDeleteDomain is returned when there is an error deleting a domain.
 	ErrDeleteDomain = errors.New("delete domain")
+
+	// ErrDeleteDomains is returned when there is an error deleting domains.
+	ErrDeleteDomains = errors.New("delete domains")
 
 	// ErrListDomains is returned when there is an error listing domains.
 	ErrListDomains = errors.New("list domains")
@@ -531,6 +546,37 @@ func (d *domainownership) DeleteDomain(ctx context.Context, params DeleteDomainR
 
 	if resp.StatusCode != http.StatusNoContent {
 		return fmt.Errorf("%w: %w", ErrDeleteDomain, d.Error(resp))
+	}
+
+	return nil
+}
+
+func (d *domainownership) DeleteDomains(ctx context.Context, params DeleteDomainsRequest) error {
+	logger := d.Log(ctx)
+	logger.Debug("DeleteDomains")
+
+	if err := params.Validate(); err != nil {
+		return fmt.Errorf("%w: %w: %w", ErrDeleteDomains, ErrStructValidation, err)
+	}
+
+	uri, err := url.Parse("/domain-validation/v1/domains")
+	if err != nil {
+		return fmt.Errorf("%w: failed to create request: %w", ErrDeleteDomains, err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, uri.String(), nil)
+	if err != nil {
+		return fmt.Errorf("%w: failed to create request: %w", ErrDeleteDomains, err)
+	}
+
+	resp, err := d.Exec(req, nil, params)
+	if err != nil {
+		return fmt.Errorf("%w: request failed: %w", ErrDeleteDomains, err)
+	}
+	defer session.CloseResponseBody(resp)
+
+	if resp.StatusCode != http.StatusNoContent {
+		return fmt.Errorf("%w: %w", ErrDeleteDomains, d.Error(resp))
 	}
 
 	return nil

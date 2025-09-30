@@ -25,6 +25,11 @@ type (
 		// See: https://techdocs.akamai.com/domain-validation/reference/delete-domain
 		DeleteDomain(ctx context.Context, params DeleteDomainRequest) error
 
+		// DeleteDomains deletes a batch of domains.
+		//
+		// See: https://techdocs.akamai.com/domain-validation/reference/delete-domains
+		DeleteDomains(ctx context.Context, params DeleteDomainsRequest) error
+
 		// InvalidateDomain invalidates a domain.
 		//
 		// See: https://techdocs.akamai.com/domain-validation/reference/post-invalidate-domain
