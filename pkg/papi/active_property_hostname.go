@@ -117,6 +117,8 @@ const (
 	CertTypeCPSManaged CertType = "CPS_MANAGED"
 	// CertTypeDefault indicates that the certificate is a Default Domain Validation (DV) certificate.
 	CertTypeDefault CertType = "DEFAULT"
+	// CertTypeCCM indicates that the certificate is a Cloud Controller Manager (CCM) certificate.
+	CertTypeCCM CertType = "CCM"
 	// maxHostnamesPerPage indicates the maximum possible value for 'limit' parameter for Get and List active property hostnames.
 	maxHostnamesPerPage int = 999
 )
@@ -138,9 +140,9 @@ func (o SortOrder) Validate() validation.InRule {
 
 // Validate validates CertType.
 func (t CertType) Validate() validation.InRule {
-	return validation.In(CertTypeCPSManaged, CertTypeDefault).
-		Error(fmt.Sprintf("value '%s' is invalid. Must be one of: '%s' or '%s'",
-			t, CertTypeCPSManaged, CertTypeDefault))
+	return validation.In(CertTypeCPSManaged, CertTypeDefault, CertTypeCCM).
+		Error(fmt.Sprintf("value '%s' is invalid. Must be one of: '%s', '%s' or '%s'",
+			t, CertTypeCPSManaged, CertTypeDefault, CertTypeCCM))
 }
 
 // Validate validates ListActivePropertyHostnamesRequest.

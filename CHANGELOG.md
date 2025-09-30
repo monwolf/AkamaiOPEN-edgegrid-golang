@@ -93,7 +93,17 @@
 
 
 
-
+* PAPI
+  * Added new fields for `Hostname` structure:
+    * `CCMCertStatus`
+    * `CCMCertificates`
+    * `MTLS`
+    * `TLSConfiguration`
+  * Added new fields for `HostnameAdd` structure:
+    * `MTLS`
+    * `TLSConfiguration`
+    * `CCMCertificates`
+  * Added new certificate type `CertTypeCCM` for Cloud Controller Manager (CCM) certificates.
 
 
 

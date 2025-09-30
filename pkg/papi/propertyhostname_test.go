@@ -1,6 +1,7 @@
 package papi
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"io"
@@ -79,6 +80,122 @@ func TestPapiGetPropertyVersionHostnames(t *testing.T) {
 							EdgeHostnameID: "ehn_895833",
 							CnameFrom:      "m.example.com",
 							CnameTo:        "m.example.com.edgesuite.net",
+						},
+					},
+				},
+			},
+		},
+		"200 OK - support for CCM certs in addition to existing cert types": {
+			params: GetPropertyVersionHostnamesRequest{
+				PropertyID:        "prp_123456",
+				PropertyVersion:   3,
+				GroupID:           "grp_54321",
+				ContractID:        "ctr_C-0N7RAC7",
+				IncludeCertStatus: true,
+			},
+			responseStatus: http.StatusOK,
+			responseBody: `
+{
+  "accountId": "act_A-CCT5678",
+  "contractId": "ctr_C-0N7RAC7",
+  "etag": "6aed418629b4e5c0",
+  "groupId": "grp_54321",
+  "hostnames": {
+    "items": [
+      {
+        "certProvisioningType": "CPS_MANAGED",
+        "cnameFrom": "example.com",
+        "cnameTo": "example.com.edgesuite.net",
+        "cnameType": "EDGE_HOSTNAME",
+        "edgeHostnameId": "ehn_895824"
+      },
+      {
+        "ccmCertStatus": {
+          "ecdsaProductionStatus": "DEPLOYED",
+          "ecdsaStagingStatus": "DEPLOYED",
+          "rsaProductionStatus": "DEPLOYED",
+          "rsaStagingStatus": "DEPLOYED"
+        },
+        "ccmCertificates": {
+          "ecdsaCertId": "98765",
+          "ecdsaCertLink": "/ccm/v1/certificates/98765",
+          "rsaCertId": "12345",
+          "rsaCertLink": "/ccm/v1/certificates/12345"
+        },
+        "certProvisioningType": "CCM",
+        "cnameFrom": "www.example-ccm.com",
+        "cnameTo": "example.com.edgesuite.net",
+        "cnameType": "EDGE_HOSTNAME",
+        "edgeHostnameId": "ehn_7123",
+        "mtls": {
+          "caSetId": "524125",
+          "caSetLink": "/mtls-edge-truststore/v2/ca-sets/524125",
+          "checkClientOcsp": false,
+          "sendCaSetClient": false
+        },
+        "tlsConfiguration": {
+          "cipherProfile": "ak-akamai-2020q1",
+          "disallowedTlsVersions": [
+            "TLSv1_1",
+            "TLSv1"
+          ],
+          "stapleServerOcspResponse": true,
+          "fipsMode": false
+        }
+      }
+    ]
+  },
+  "propertyId": "prp_123456",
+  "propertyName": "mytestproperty.com",
+  "propertyVersion": 1
+}`,
+			expectedPath: "/papi/v1/properties/prp_123456/versions/3/hostnames?contractId=ctr_C-0N7RAC7&groupId=grp_54321&includeCertStatus=true&validateHostnames=false",
+			expectedResponse: &GetPropertyVersionHostnamesResponse{
+				AccountID:       "act_A-CCT5678",
+				ContractID:      "ctr_C-0N7RAC7",
+				GroupID:         "grp_54321",
+				PropertyID:      "prp_123456",
+				PropertyVersion: 1,
+				Etag:            "6aed418629b4e5c0",
+				Hostnames: HostnameResponseItems{
+					Items: []Hostname{
+						{
+							CertProvisioningType: "CPS_MANAGED",
+							CnameFrom:            "example.com",
+							CnameTo:              "example.com.edgesuite.net",
+							CnameType:            "EDGE_HOSTNAME",
+							EdgeHostnameID:       "ehn_895824",
+						},
+						{
+							CertProvisioningType: "CCM",
+							CnameFrom:            "www.example-ccm.com",
+							CnameTo:              "example.com.edgesuite.net",
+							CnameType:            "EDGE_HOSTNAME",
+							EdgeHostnameID:       "ehn_7123",
+							CCMCertStatus: &CCMCertStatus{
+								ECDSAProductionStatus: "DEPLOYED",
+								ECDSAStagingStatus:    "DEPLOYED",
+								RSAProductionStatus:   "DEPLOYED",
+								RSAStagingStatus:      "DEPLOYED",
+							},
+							CCMCertificates: &CCMCertificates{
+								ECDSACertID:   "98765",
+								ECDSACertLink: "/ccm/v1/certificates/98765",
+								RSACertID:     "12345",
+								RSACertLink:   "/ccm/v1/certificates/12345",
+							},
+							MTLS: &MTLS{
+								CASetID:         "524125",
+								CASetLink:       "/mtls-edge-truststore/v2/ca-sets/524125",
+								CheckClientOCSP: false,
+								SendCASetClient: false,
+							},
+							TLSConfiguration: &TLSConfiguration{
+								CipherProfile:            "ak-akamai-2020q1",
+								DisallowedTLSVersions:    []string{"TLSv1_1", "TLSv1"},
+								StapleServerOcspResponse: true,
+								FIPSMode:                 false,
+							},
 						},
 					},
 				},
@@ -174,6 +291,7 @@ func TestPapiGetPropertyVersionHostnames(t *testing.T) {
 func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 	tests := map[string]struct {
 		params           UpdatePropertyVersionHostnamesRequest
+		requestBody      string
 		responseStatus   int
 		responseBody     string
 		expectedPath     string
@@ -283,6 +401,159 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 				},
 			},
 		},
+		"200 OK updating hostnames with CCM certs in addition to existing cert types": {
+			params: UpdatePropertyVersionHostnamesRequest{
+				PropertyID:        "prp_123456",
+				PropertyVersion:   3,
+				GroupID:           "grp_54321",
+				ContractID:        "ctr_1-2ABCD3",
+				IncludeCertStatus: true,
+				Hostnames: []Hostname{
+					{
+						CertProvisioningType: "CPS_MANAGED",
+						CnameFrom:            "example.com",
+						CnameType:            "EDGE_HOSTNAME",
+						EdgeHostnameID:       "ehn_895824",
+					},
+					{
+						CertProvisioningType: "DEFAULT",
+						CnameFrom:            "example-tst.com",
+						CnameTo:              "example-tst.com.edgekey.net",
+						CnameType:            "EDGE_HOSTNAME",
+					},
+					{
+						CertProvisioningType: "CCM",
+						CnameFrom:            "www.example-ccm.com",
+						CnameTo:              "example.com.edgesuite.net",
+						CnameType:            "EDGE_HOSTNAME",
+						CCMCertificates: &CCMCertificates{
+							RSACertID:   "12345",
+							ECDSACertID: "98765",
+						},
+						MTLS: &MTLS{
+							CASetID:         "524125",
+							CheckClientOCSP: false,
+							SendCASetClient: false,
+						},
+						TLSConfiguration: &TLSConfiguration{
+							CipherProfile:            "ak-akamai-2020q1",
+							DisallowedTLSVersions:    []string{"TLSv1_1", "TLSv1"},
+							StapleServerOcspResponse: true,
+							FIPSMode:                 false,
+						},
+					},
+				},
+			},
+			responseStatus: http.StatusOK,
+			requestBody:    `[{"cnameType":"EDGE_HOSTNAME","edgeHostnameId":"ehn_895824","cnameFrom":"example.com","certProvisioningType":"CPS_MANAGED","certStatus":{"validationCname":{}}},{"cnameType":"EDGE_HOSTNAME","cnameFrom":"example-tst.com","cnameTo":"example-tst.com.edgekey.net","certProvisioningType":"DEFAULT","certStatus":{"validationCname":{}}},{"cnameType":"EDGE_HOSTNAME","cnameFrom":"www.example-ccm.com","cnameTo":"example.com.edgesuite.net","certProvisioningType":"CCM","certStatus":{"validationCname":{}},"ccmCertificates":{"ecdsaCertId":"98765","rsaCertId":"12345"},"mtls":{"caSetId":"524125"},"tlsConfiguration":{"cipherProfile":"ak-akamai-2020q1","disallowedTlsVersions":["TLSv1_1","TLSv1"],"stapleServerOcspResponse":true}}]`,
+			responseBody: `
+{
+  "accountId": "act_B-G-12RS3M4",
+  "contractId": "ctr_1-2ABCD3",
+  "etag": "6aed418629b4e5c0",
+  "groupId": "grp_54321",
+  "hostnames": {
+    "items": [
+      {
+        "certProvisioningType": "CPS_MANAGED",
+        "cnameFrom": "example.com",
+        "cnameTo": "example.com.edgesuite.net",
+        "cnameType": "EDGE_HOSTNAME",
+        "edgeHostnameId": "ehn_895824"
+      },
+      {
+        "ccmCertStatus": {
+          "ecdsaProductionStatus": "PENDING",
+          "ecdsaStagingStatus": "PENDING",
+          "rsaProductionStatus": "PENDING",
+          "rsaStagingStatus": "PENDING"
+        },
+        "ccmCertificates": {
+          "ecdsaCertId": "98765",
+          "ecdsaCertLink": "/ccm/v1/certificates/98765",
+          "rsaCertId": "12345",
+          "rsaCertLink": "/ccm/v1/certificates/12345"
+        },
+        "certProvisioningType": "CCM",
+        "cnameFrom": "www.example-ccm.com",
+        "cnameTo": "example.com.edgesuite.net",
+        "cnameType": "EDGE_HOSTNAME",
+        "edgeHostnameId": "ehn_7123",
+        "mtls": {
+          "caSetId": "524125",
+          "caSetLink": "/mtls-edge-truststore/v2/ca-sets/524125",
+          "checkClientOcsp": false,
+          "sendCaSetClient": false
+        },
+        "tlsConfiguration": {
+          "cipherProfile": "ak-akamai-2020q1",
+          "disallowedTlsVersions": [
+            "TLSv1_1",
+            "TLSv1"
+          ],
+          "stapleServerOcspResponse": true,
+          "fipsMode": false
+        }
+      }
+    ]
+  },
+  "propertyId": "prp_123456",
+  "propertyName": "mytestproperty.com",
+  "propertyVersion": 1
+}
+`,
+			expectedPath: "/papi/v1/properties/prp_123456/versions/3/hostnames?contractId=ctr_1-2ABCD3&groupId=grp_54321&includeCertStatus=true&validateHostnames=false",
+			expectedResponse: &UpdatePropertyVersionHostnamesResponse{
+				AccountID:       "act_B-G-12RS3M4",
+				ContractID:      "ctr_1-2ABCD3",
+				GroupID:         "grp_54321",
+				PropertyID:      "prp_123456",
+				PropertyVersion: 1,
+				Etag:            "6aed418629b4e5c0",
+				Hostnames: HostnameResponseItems{
+					Items: []Hostname{
+						{
+							CertProvisioningType: "CPS_MANAGED",
+							CnameFrom:            "example.com",
+							CnameTo:              "example.com.edgesuite.net",
+							CnameType:            "EDGE_HOSTNAME",
+							EdgeHostnameID:       "ehn_895824",
+						},
+						{
+							CertProvisioningType: "CCM",
+							CnameFrom:            "www.example-ccm.com",
+							CnameTo:              "example.com.edgesuite.net",
+							CnameType:            "EDGE_HOSTNAME",
+							EdgeHostnameID:       "ehn_7123",
+							CCMCertStatus: &CCMCertStatus{
+								ECDSAProductionStatus: "PENDING",
+								ECDSAStagingStatus:    "PENDING",
+								RSAProductionStatus:   "PENDING",
+								RSAStagingStatus:      "PENDING",
+							},
+							CCMCertificates: &CCMCertificates{
+								ECDSACertID:   "98765",
+								ECDSACertLink: "/ccm/v1/certificates/98765",
+								RSACertID:     "12345",
+								RSACertLink:   "/ccm/v1/certificates/12345",
+							},
+							MTLS: &MTLS{
+								CASetID:         "524125",
+								CASetLink:       "/mtls-edge-truststore/v2/ca-sets/524125",
+								CheckClientOCSP: false,
+								SendCASetClient: false,
+							},
+							TLSConfiguration: &TLSConfiguration{
+								CipherProfile:            "ak-akamai-2020q1",
+								DisallowedTLSVersions:    []string{"TLSv1_1", "TLSv1"},
+								StapleServerOcspResponse: true,
+								FIPSMode:                 false,
+							},
+						},
+					},
+				},
+			},
+		},
 		"200 empty hostnames": {
 			params: UpdatePropertyVersionHostnamesRequest{
 				PropertyID:        "prp_175780",
@@ -305,7 +576,6 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
         "items": []
     }
 }
-
 `,
 			expectedPath: "/papi/v1/properties/prp_175780/versions/3/hostnames?contractId=ctr_1-1TJZH5&groupId=grp_15225&includeCertStatus=true&validateHostnames=false",
 			expectedResponse: &UpdatePropertyVersionHostnamesResponse{
@@ -412,6 +682,245 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 				want := ErrStructValidation
 				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
 				assert.Contains(t, err.Error(), "PropertyVersion")
+			},
+		},
+		"validation error - CCMCertificates RSACertID, ECDSACertID and MTLS CASetID are not a digit": {
+			params: UpdatePropertyVersionHostnamesRequest{
+				PropertyID:        "prp_123456",
+				PropertyVersion:   3,
+				GroupID:           "grp_54321",
+				ContractID:        "ctr_1-2ABCD3",
+				IncludeCertStatus: true,
+				Hostnames: []Hostname{
+					{
+						CertProvisioningType: "CCM",
+						CnameFrom:            "www.example-ccm.com",
+						CnameTo:              "example.com.edgesuite.net",
+						CnameType:            "EDGE_HOSTNAME",
+						CCMCertificates: &CCMCertificates{
+							RSACertID:   "12345a",
+							ECDSACertID: "98765a",
+						},
+						MTLS: &MTLS{
+							CASetID:         "524125a",
+							CheckClientOCSP: false,
+							SendCASetClient: false,
+						},
+						TLSConfiguration: &TLSConfiguration{
+							CipherProfile:            "ak-akamai-2020q1",
+							DisallowedTLSVersions:    []string{"TLSv1_1", "TLSv1"},
+							StapleServerOcspResponse: true,
+							FIPSMode:                 false,
+						},
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				want := ErrStructValidation
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+				assert.Contains(t, err.Error(), "{\n\tCCMCertificates: {\n\t\tECDSACertID: must contain digits only\n\t\tRSACertID: must contain digits only\n\t}\n\tMTLS: {\n\t\tCASetID: must contain digits only\n\t}\n}")
+			},
+		},
+		"validation error - one of RSACertID and ECDSACertID must be provided for CCM": {
+			params: UpdatePropertyVersionHostnamesRequest{
+				PropertyID:        "prp_123456",
+				PropertyVersion:   3,
+				GroupID:           "grp_54321",
+				ContractID:        "ctr_1-2ABCD3",
+				IncludeCertStatus: true,
+				Hostnames: []Hostname{
+					{
+						CertProvisioningType: "CCM",
+						CnameFrom:            "www.example-ccm.com",
+						CnameTo:              "example.com.edgesuite.net",
+						CnameType:            "EDGE_HOSTNAME",
+						CCMCertificates:      &CCMCertificates{},
+						MTLS: &MTLS{
+							CASetID:         "524125",
+							CheckClientOCSP: false,
+							SendCASetClient: false,
+						},
+						TLSConfiguration: &TLSConfiguration{
+							CipherProfile:            "ak-akamai-2020q1",
+							DisallowedTLSVersions:    []string{"TLSv1_1", "TLSv1"},
+							StapleServerOcspResponse: true,
+							FIPSMode:                 false,
+						},
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				want := ErrStructValidation
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+				assert.Contains(t, err.Error(), "either RSACertID or ECDSACertID must be provided")
+			},
+		},
+		"validation error - CCMCertificates is required for CCM": {
+			params: UpdatePropertyVersionHostnamesRequest{
+				PropertyID:        "prp_123456",
+				PropertyVersion:   3,
+				GroupID:           "grp_54321",
+				ContractID:        "ctr_1-2ABCD3",
+				IncludeCertStatus: true,
+				Hostnames: []Hostname{
+					{
+						CertProvisioningType: "CCM",
+						CnameFrom:            "www.example-ccm.com",
+						CnameTo:              "example.com.edgesuite.net",
+						CnameType:            "EDGE_HOSTNAME",
+						MTLS: &MTLS{
+							CASetID:         "524125",
+							CheckClientOCSP: false,
+							SendCASetClient: false,
+						},
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				want := ErrStructValidation
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+				assert.Contains(t, err.Error(), "struct validation: Hostnames[0]: {\n\tValidateCCMHostname: when using `certProvisioningType` set to `CCM`, the request body must contain `ccmCertificates` with at least `rsaCertId` or `ecdsaCertId`")
+			},
+		},
+		"validation error - MTLS is only valid for CCM": {
+			params: UpdatePropertyVersionHostnamesRequest{
+				PropertyID:        "prp_123456",
+				PropertyVersion:   3,
+				GroupID:           "grp_54321",
+				ContractID:        "ctr_1-2ABCD3",
+				IncludeCertStatus: true,
+				Hostnames: []Hostname{
+					{
+						CertProvisioningType: "CPS_MANAGED",
+						CnameFrom:            "www.example-ccm.com",
+						CnameTo:              "example.com.edgesuite.net",
+						CnameType:            "EDGE_HOSTNAME",
+						MTLS: &MTLS{
+							CASetID:         "524125",
+							CheckClientOCSP: false,
+							SendCASetClient: false,
+						},
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				want := ErrStructValidation
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+				assert.Contains(t, err.Error(), "the CCM cert details, or the mTLS configuration, or the TLS configuration is provided without `certProvisioningType` set to `CCM`")
+			},
+		},
+		"validation error - TLSConfiguration is only valid for CCM": {
+			params: UpdatePropertyVersionHostnamesRequest{
+				PropertyID:        "prp_123456",
+				PropertyVersion:   3,
+				GroupID:           "grp_54321",
+				ContractID:        "ctr_1-2ABCD3",
+				IncludeCertStatus: true,
+				Hostnames: []Hostname{
+					{
+						CertProvisioningType: "CPS_MANAGED",
+						CnameFrom:            "www.example-ccm.com",
+						CnameTo:              "example.com.edgesuite.net",
+						CnameType:            "EDGE_HOSTNAME",
+						TLSConfiguration: &TLSConfiguration{
+							CipherProfile:            "ak-akamai-2020q1",
+							DisallowedTLSVersions:    []string{"TLSv1_1", "TLSv1"},
+							StapleServerOcspResponse: true,
+							FIPSMode:                 false,
+						},
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				want := ErrStructValidation
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+				assert.Contains(t, err.Error(), "the CCM cert details, or the mTLS configuration, or the TLS configuration is provided without `certProvisioningType` set to `CCM`")
+			},
+		},
+		"validation error - CCMCertificates is only valid for CCM": {
+			params: UpdatePropertyVersionHostnamesRequest{
+				PropertyID:        "prp_123456",
+				PropertyVersion:   3,
+				GroupID:           "grp_54321",
+				ContractID:        "ctr_1-2ABCD3",
+				IncludeCertStatus: true,
+				Hostnames: []Hostname{
+					{
+						CertProvisioningType: "CPS_MANAGED",
+						CnameFrom:            "www.example-ccm.com",
+						CnameTo:              "example.com.edgesuite.net",
+						CnameType:            "EDGE_HOSTNAME",
+						CCMCertificates: &CCMCertificates{
+							RSACertID:   "12345",
+							ECDSACertID: "98765",
+						},
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				want := ErrStructValidation
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+				assert.Contains(t, err.Error(), "the CCM cert details, or the mTLS configuration, or the TLS configuration is provided without `certProvisioningType` set to `CCM`")
+			},
+		},
+		"validation error - missed CASetID when MTLS provided": {
+			params: UpdatePropertyVersionHostnamesRequest{
+				PropertyID:      "prp_123456",
+				PropertyVersion: 3,
+				Hostnames: []Hostname{
+					{
+						CertProvisioningType: "CCM",
+						CnameFrom:            "www.example-ccm.com",
+						CnameTo:              "example.com.edgesuite.net",
+						CnameType:            "EDGE_HOSTNAME",
+						CCMCertificates: &CCMCertificates{
+							RSACertID: "12345",
+						},
+						MTLS: &MTLS{},
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				want := ErrStructValidation
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+				assert.Contains(t, err.Error(), "CASetID: cannot be blank")
+			},
+		},
+		"validation error - empty cipher profile": {
+			params: UpdatePropertyVersionHostnamesRequest{
+				PropertyID:        "prp_123456",
+				PropertyVersion:   3,
+				GroupID:           "grp_54321",
+				ContractID:        "ctr_1-2ABCD3",
+				IncludeCertStatus: true,
+				Hostnames: []Hostname{
+					{
+						CertProvisioningType: "CCM",
+						CnameFrom:            "www.example-ccm.com",
+						CnameTo:              "example.com.edgesuite.net",
+						CnameType:            "EDGE_HOSTNAME",
+						CCMCertificates: &CCMCertificates{
+							RSACertID:   "12345",
+							ECDSACertID: "98765",
+						},
+						MTLS: &MTLS{
+							CASetID:         "524125",
+							CheckClientOCSP: false,
+							SendCASetClient: false,
+						},
+						TLSConfiguration: &TLSConfiguration{
+							CipherProfile:            "",
+							DisallowedTLSVersions:    []string{"TLSv1_1", "TLSv1"},
+							StapleServerOcspResponse: true,
+							FIPSMode:                 false,
+						},
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				want := ErrStructValidation
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+				assert.Contains(t, err.Error(), "{\n\tValidateCCMHostname: the cipher profile is empty in the TLS configuration\n}")
 			},
 		},
 		"200 Hostnames missing": {
@@ -589,6 +1098,13 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				assert.Equal(t, test.expectedPath, r.URL.String())
 				assert.Equal(t, http.MethodPut, r.Method)
+				if test.requestBody != "" {
+					buf := new(bytes.Buffer)
+					_, err := buf.ReadFrom(r.Body)
+					assert.NoError(t, err)
+					req := buf.String()
+					assert.Equal(t, test.requestBody, req)
+				}
 				w.WriteHeader(test.responseStatus)
 				_, err := w.Write([]byte(test.responseBody))
 				assert.NoError(t, err)
@@ -689,6 +1205,164 @@ func TestPapiPatchPropertyVersionHostnames(t *testing.T) {
 							CnameFrom:            "example3.com",
 							CertProvisioningType: "DEFAULT",
 							CnameTo:              "m.example.com.edgesuite.net",
+						},
+					},
+				},
+			},
+		},
+		"200 OK - support for adding hostnames with CCM certs in addition to the existing cert types": {
+			params: PatchPropertyVersionHostnamesRequest{
+				PropertyID:      "prp_12345",
+				PropertyVersion: 1,
+				Body: PatchPropertyVersionHostnamesRequestBody{
+					Add: []HostnameAdd{
+						{
+							CertProvisioningType: CertTypeCPSManaged,
+							CnameFrom:            "example.com",
+							CnameType:            HostnameCnameTypeEdgeHostname,
+							EdgeHostnameID:       "ehn_895824",
+						},
+						{
+							CertProvisioningType: CertTypeDefault,
+							CnameFrom:            "example-tst.com",
+							CnameTo:              "example-tst.com.edgekey.net",
+							CnameType:            HostnameCnameTypeEdgeHostname,
+						},
+						{
+							CertProvisioningType: CertTypeCCM,
+							CnameFrom:            "www.example-ccm.com",
+							CnameTo:              "example.com.edgesuite.net",
+							CnameType:            HostnameCnameTypeEdgeHostname,
+							CCMCertificates: &CCMCertificates{
+								RSACertID:   "12345",
+								ECDSACertID: "98765",
+							},
+							MTLS: &MTLS{
+								CASetID:         "524125",
+								CheckClientOCSP: false,
+								SendCASetClient: false,
+							},
+							TLSConfiguration: &TLSConfiguration{
+								CipherProfile:            "ak-akamai-2020q1",
+								DisallowedTLSVersions:    []string{"TLSv1_1", "TLSv1"},
+								StapleServerOcspResponse: true,
+								FIPSMode:                 false,
+							},
+						},
+					},
+				},
+			},
+			responseStatus: http.StatusOK,
+			responseBody: `
+{
+  "accountId": "act_A-CCT5678",
+  "contractId": "ctr_K-0N1RAK23",
+  "etag": "6aed418629b4e5c0",
+  "groupId": "grp_12345",
+  "hostnames": {
+    "items": [
+      {
+        "certProvisioningType": "CPS_MANAGED",
+        "cnameFrom": "example.com",
+        "cnameTo": "example.com.edgesuite.net",
+        "cnameType": "EDGE_HOSTNAME",
+        "edgeHostnameId": "ehn_895824"
+      },
+      {
+        "ccmCertStatus": {
+          "ecdsaProductionStatus": "PENDING",
+          "ecdsaStagingStatus": "PENDING",
+          "rsaProductionStatus": "PENDING",
+          "rsaStagingStatus": "PENDING"
+        },
+        "ccmCertificates": {
+          "ecdsaCertId": "98765",
+          "ecdsaCertLink": "/ccm/v1/certificates/98765",
+          "rsaCertId": "12345",
+          "rsaCertLink": "/ccm/v1/certificates/12345"
+        },
+        "certProvisioningType": "CCM",
+        "cnameFrom": "www.example-ccm.com",
+        "cnameTo": "example.com.edgesuite.net",
+        "cnameType": "EDGE_HOSTNAME",
+        "edgeHostnameId": "ehn_7123",
+        "mtls": {
+          "caSetId": "524125",
+          "caSetLink": "/mtls-edge-truststore/v2/ca-sets/524125",
+          "checkClientOcsp": false,
+          "sendCaSetClient": false
+        },
+        "tlsConfiguration": {
+          "cipherProfile": "ak-akamai-2020q1",
+          "disallowedTlsVersions": [
+            "TLSv1_1",
+            "TLSv1"
+          ],
+          "stapleServerOcspResponse": true,
+          "fipsMode": false
+        }
+      }
+    ]
+  },
+  "propertyId": "prp_12345",
+  "propertyName": "mytestproperty.com",
+  "propertyVersion": 1
+}`,
+			expectedPath:        "/papi/v1/properties/prp_12345/versions/1/hostnames",
+			expectedRequestBody: `{"add":[{"cnameFrom":"example.com","cnameType":"EDGE_HOSTNAME","certProvisioningType":"CPS_MANAGED","edgeHostnameId":"ehn_895824"},{"cnameFrom":"example-tst.com","cnameType":"EDGE_HOSTNAME","cnameTo":"example-tst.com.edgekey.net","certProvisioningType":"DEFAULT"},{"cnameFrom":"www.example-ccm.com","cnameType":"EDGE_HOSTNAME","cnameTo":"example.com.edgesuite.net","certProvisioningType":"CCM","mtls":{"caSetId":"524125"},"tlsConfiguration":{"cipherProfile":"ak-akamai-2020q1","disallowedTlsVersions":["TLSv1_1","TLSv1"],"stapleServerOcspResponse":true},"ccmCertificates":{"ecdsaCertId":"98765","rsaCertId":"12345"}}]}`,
+			expectedResponse: &PatchPropertyVersionHostnamesResponse{
+				AccountID:       "act_A-CCT5678",
+				ContractID:      "ctr_K-0N1RAK23",
+				GroupID:         "grp_12345",
+				Etag:            "6aed418629b4e5c0",
+				PropertyID:      "prp_12345",
+				PropertyName:    "mytestproperty.com",
+				PropertyVersion: 1,
+				Hostnames: HostnameResponseItems{
+					Items: []Hostname{
+						{
+							CnameType:            "EDGE_HOSTNAME",
+							EdgeHostnameID:       "ehn_895824",
+							CnameFrom:            "example.com",
+							CnameTo:              "example.com.edgesuite.net",
+							CertProvisioningType: "CPS_MANAGED",
+							CertStatus: CertStatusItem{
+								ValidationCname: ValidationCname{},
+							},
+						},
+						{
+							CnameType:            "EDGE_HOSTNAME",
+							EdgeHostnameID:       "ehn_7123",
+							CnameFrom:            "www.example-ccm.com",
+							CnameTo:              "example.com.edgesuite.net",
+							CertProvisioningType: "CCM",
+							CertStatus: CertStatusItem{
+								ValidationCname: ValidationCname{},
+							},
+							CCMCertStatus: &CCMCertStatus{
+								ECDSAProductionStatus: "PENDING",
+								ECDSAStagingStatus:    "PENDING",
+								RSAProductionStatus:   "PENDING",
+								RSAStagingStatus:      "PENDING",
+							},
+							CCMCertificates: &CCMCertificates{
+								ECDSACertID:   "98765",
+								ECDSACertLink: "/ccm/v1/certificates/98765",
+								RSACertID:     "12345",
+								RSACertLink:   "/ccm/v1/certificates/12345",
+							},
+							MTLS: &MTLS{
+								CASetID:         "524125",
+								CASetLink:       "/mtls-edge-truststore/v2/ca-sets/524125",
+								CheckClientOCSP: false,
+								SendCASetClient: false,
+							},
+							TLSConfiguration: &TLSConfiguration{
+								CipherProfile:            "ak-akamai-2020q1",
+								DisallowedTLSVersions:    []string{"TLSv1_1", "TLSv1"},
+								StapleServerOcspResponse: true,
+								FIPSMode:                 false,
+							},
 						},
 					},
 				},
@@ -970,10 +1644,253 @@ func TestPapiPatchPropertyVersionHostnames(t *testing.T) {
 				},
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "patching hostnames: struct validation: Body: {\n\tAdd[0]: {\n\t\tCertProvisioningType: value 'WRONG' is invalid. Must be one of: 'CPS_MANAGED' or 'DEFAULT'\n\t\tCnameType: value 'WRONG' is invalid. There is only one supported value of: EDGE_HOSTNAME\n\t}\n}",
+				assert.Equal(t, "patching hostnames: struct validation: Body: {\n\tAdd[0]: {\n\t\tCertProvisioningType: value 'WRONG' is invalid. Must be one of: 'CPS_MANAGED', 'DEFAULT' or 'CCM'\n\t\tCnameType: value 'WRONG' is invalid. There is only one supported value of: EDGE_HOSTNAME\n\t}\n}",
 					err.Error())
 				assert.ErrorIs(t, err, ErrStructValidation)
 				assert.ErrorIs(t, err, ErrPatchPropertyVersionHostnames)
+			},
+		},
+		"validation error - CCMCertificates RSACertID, ECDSACertID and MTLS CASetID are not a digit": {
+			params: PatchPropertyVersionHostnamesRequest{
+				PropertyID:      "prp_123456",
+				PropertyVersion: 3,
+				Body: PatchPropertyVersionHostnamesRequestBody{
+					Add: []HostnameAdd{
+						{
+							CertProvisioningType: "CCM",
+							CnameFrom:            "www.example-ccm.com",
+							CnameTo:              "example.com.edgesuite.net",
+							CnameType:            "EDGE_HOSTNAME",
+							CCMCertificates: &CCMCertificates{
+								RSACertID:   "12345a",
+								ECDSACertID: "98765a",
+							},
+							MTLS: &MTLS{
+								CASetID:         "524125a",
+								CheckClientOCSP: false,
+								SendCASetClient: false,
+							},
+							TLSConfiguration: &TLSConfiguration{
+								CipherProfile:            "ak-akamai-2020q1",
+								DisallowedTLSVersions:    []string{"TLSv1_1", "TLSv1"},
+								StapleServerOcspResponse: true,
+								FIPSMode:                 false,
+							},
+						},
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				want := ErrStructValidation
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+				assert.Contains(t, err.Error(), "{\n\t\tCCMCertificates: {\n\t\t\tECDSACertID: must contain digits only\n\t\t\tRSACertID: must contain digits only\n\t\t}\n\t\tMTLS: {\n\t\t\tCASetID: must contain digits only")
+			},
+		},
+		"validation error - one of RSACertID and ECDSACertID must be provided for CCM": {
+			params: PatchPropertyVersionHostnamesRequest{
+				PropertyID:      "prp_123456",
+				PropertyVersion: 3,
+				Body: PatchPropertyVersionHostnamesRequestBody{
+					Add: []HostnameAdd{
+						{
+							CertProvisioningType: "CCM",
+							CnameFrom:            "www.example-ccm.com",
+							CnameTo:              "example.com.edgesuite.net",
+							CnameType:            "EDGE_HOSTNAME",
+							CCMCertificates:      &CCMCertificates{},
+							MTLS: &MTLS{
+								CASetID:         "524125",
+								CheckClientOCSP: false,
+								SendCASetClient: false,
+							},
+							TLSConfiguration: &TLSConfiguration{
+								CipherProfile:            "ak-akamai-2020q1",
+								DisallowedTLSVersions:    []string{"TLSv1_1", "TLSv1"},
+								StapleServerOcspResponse: true,
+								FIPSMode:                 false,
+							},
+						},
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				want := ErrStructValidation
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+				assert.Contains(t, err.Error(), "either RSACertID or ECDSACertID must be provided")
+			},
+		},
+		"validation error - CCMCertificates is required for CCM": {
+			params: PatchPropertyVersionHostnamesRequest{
+				PropertyID:      "prp_123456",
+				PropertyVersion: 3,
+				Body: PatchPropertyVersionHostnamesRequestBody{
+					Add: []HostnameAdd{
+						{
+							CertProvisioningType: "CCM",
+							CnameFrom:            "www.example-ccm.com",
+							CnameTo:              "example.com.edgesuite.net",
+							CnameType:            "EDGE_HOSTNAME",
+							MTLS: &MTLS{
+								CASetID:         "524125",
+								CheckClientOCSP: false,
+								SendCASetClient: false,
+							},
+						},
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				want := ErrStructValidation
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+				assert.Contains(t, err.Error(), "struct validation: Body: {\n\tAdd[0]: {\n\t\tValidateCCMHostname: when using `certProvisioningType` set to `CCM`, the request body must contain `ccmCertificates` with at least `rsaCertId` or `ecdsaCertId`\n\t}\n}")
+			},
+		},
+		"validation error - MTLS is only valid for CCM": {
+			params: PatchPropertyVersionHostnamesRequest{
+				PropertyID:      "prp_123456",
+				PropertyVersion: 3,
+				Body: PatchPropertyVersionHostnamesRequestBody{
+					Add: []HostnameAdd{
+						{
+							CertProvisioningType: "CPS_MANAGED",
+							CnameFrom:            "www.example-ccm.com",
+							CnameTo:              "example.com.edgesuite.net",
+							CnameType:            "EDGE_HOSTNAME",
+							MTLS: &MTLS{
+								CASetID:         "524125",
+								CheckClientOCSP: false,
+								SendCASetClient: false,
+							},
+						},
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				want := ErrStructValidation
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+				assert.Contains(t, err.Error(), "the CCM cert details, or the mTLS configuration, or the TLS configuration is provided without `certProvisioningType` set to `CCM`")
+			},
+		},
+		"validation error - TLSConfiguration is only valid for CCM": {
+			params: PatchPropertyVersionHostnamesRequest{
+				PropertyID:        "prp_123456",
+				PropertyVersion:   3,
+				GroupID:           "grp_54321",
+				ContractID:        "ctr_1-2ABCD3",
+				IncludeCertStatus: true,
+				Body: PatchPropertyVersionHostnamesRequestBody{
+					Add: []HostnameAdd{
+						{
+							CertProvisioningType: "CPS_MANAGED",
+							CnameFrom:            "www.example-ccm.com",
+							CnameTo:              "example.com.edgesuite.net",
+							CnameType:            "EDGE_HOSTNAME",
+							TLSConfiguration: &TLSConfiguration{
+								CipherProfile:            "ak-akamai-2020q1",
+								DisallowedTLSVersions:    []string{"TLSv1_1", "TLSv1"},
+								StapleServerOcspResponse: true,
+								FIPSMode:                 false,
+							},
+						},
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				want := ErrStructValidation
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+				assert.Contains(t, err.Error(), "the CCM cert details, or the mTLS configuration, or the TLS configuration is provided without `certProvisioningType` set to `CCM`")
+			},
+		},
+		"validation error - CCMCertificates is only valid for CCM": {
+			params: PatchPropertyVersionHostnamesRequest{
+				PropertyID:        "prp_123456",
+				PropertyVersion:   3,
+				GroupID:           "grp_54321",
+				ContractID:        "ctr_1-2ABCD3",
+				IncludeCertStatus: true,
+				Body: PatchPropertyVersionHostnamesRequestBody{
+					Add: []HostnameAdd{
+						{
+							CertProvisioningType: "CPS_MANAGED",
+							CnameFrom:            "www.example-ccm.com",
+							CnameTo:              "example.com.edgesuite.net",
+							CnameType:            "EDGE_HOSTNAME",
+							CCMCertificates: &CCMCertificates{
+								RSACertID:   "12345",
+								ECDSACertID: "98765",
+							},
+						},
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				want := ErrStructValidation
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+				assert.Contains(t, err.Error(), "the CCM cert details, or the mTLS configuration, or the TLS configuration is provided without `certProvisioningType` set to `CCM`")
+			},
+		},
+		"validation error - missed CASetID when MTLS provided": {
+			params: PatchPropertyVersionHostnamesRequest{
+				PropertyID:      "prp_123456",
+				PropertyVersion: 3,
+				Body: PatchPropertyVersionHostnamesRequestBody{
+					Add: []HostnameAdd{
+						{
+							CertProvisioningType: "CCM",
+							CnameFrom:            "www.example-ccm.com",
+							CnameTo:              "example.com.edgesuite.net",
+							CnameType:            "EDGE_HOSTNAME",
+							CCMCertificates: &CCMCertificates{
+								RSACertID: "12345",
+							},
+							MTLS: &MTLS{},
+						},
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				want := ErrStructValidation
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+				assert.Contains(t, err.Error(), "CASetID: cannot be blank")
+			},
+		},
+		"validation error - empty cipher profile": {
+			params: PatchPropertyVersionHostnamesRequest{
+				PropertyID:        "prp_123456",
+				PropertyVersion:   3,
+				GroupID:           "grp_54321",
+				ContractID:        "ctr_1-2ABCD3",
+				IncludeCertStatus: true,
+				Body: PatchPropertyVersionHostnamesRequestBody{
+					Add: []HostnameAdd{
+						{
+							CertProvisioningType: "CCM",
+							CnameFrom:            "www.example-ccm.com",
+							CnameTo:              "example.com.edgesuite.net",
+							CnameType:            "EDGE_HOSTNAME",
+							CCMCertificates: &CCMCertificates{
+								RSACertID:   "12345",
+								ECDSACertID: "98765",
+							},
+							MTLS: &MTLS{
+								CASetID:         "524125",
+								CheckClientOCSP: false,
+								SendCASetClient: false,
+							},
+							TLSConfiguration: &TLSConfiguration{
+								CipherProfile:            "",
+								DisallowedTLSVersions:    []string{"TLSv1_1", "TLSv1"},
+								StapleServerOcspResponse: true,
+								FIPSMode:                 false,
+							},
+						},
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				want := ErrStructValidation
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+				assert.Contains(t, err.Error(), "{\n\t\tValidateCCMHostname: the cipher profile is empty in the TLS configuration\n\t}")
 			},
 		},
 		"500 internal server status error": {
@@ -1023,15 +1940,16 @@ func TestPapiPatchPropertyVersionHostnames(t *testing.T) {
 			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				assert.Equal(t, test.expectedPath, r.URL.String())
 				assert.Equal(t, http.MethodPatch, r.Method)
-				w.WriteHeader(test.responseStatus)
-				_, err := w.Write([]byte(test.responseBody))
-				assert.NoError(t, err)
 
 				if len(test.expectedRequestBody) > 0 {
 					body, err := io.ReadAll(r.Body)
 					require.NoError(t, err)
 					assert.Equal(t, test.expectedRequestBody, string(body))
 				}
+
+				w.WriteHeader(test.responseStatus)
+				_, err := w.Write([]byte(test.responseBody))
+				assert.NoError(t, err)
 			}))
 			client := mockAPIClient(t, mockServer)
 			result, err := client.PatchPropertyVersionHostnames(context.Background(), test.params)
