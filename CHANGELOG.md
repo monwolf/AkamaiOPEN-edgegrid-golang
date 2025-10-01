@@ -66,6 +66,10 @@
 
 
 
+* CCM
+    * Added new methods:
+        * [ListCertificateBindings](TBD) - Provides hostname bindings for the given certificate.
+        * [ListBindings](TBD) - Provides hostname bindings for user accessible certificates, optionally filtered by contract, group, domain, certificate type, and expiration days.
 
 
 * Appsec

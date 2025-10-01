@@ -29,6 +29,12 @@ var (
 
 	// ErrDeleteCertificate is returned when DeleteCertificate fails.
 	ErrDeleteCertificate = errors.New("deleting certificate")
+
+	// ErrListCertificateBindings is returned when ListCertificateBindings fails.
+	ErrListCertificateBindings = errors.New("listing certificate bindings")
+
+	// ErrListBindings is returned when ListBindings fails.
+	ErrListBindings = errors.New("listing bindings")
 )
 
 var (
@@ -37,6 +43,10 @@ var (
 
 	// ErrCertificateNotFound represents error when the certificate is not found.
 	ErrCertificateNotFound = &Error{Type: "/error-types/certificate-not-found"}
+
+	// ErrCertificateResourceNotFound represents error when the certificate is not found.
+	// TODO Waiting for the response if should be removed in favour of ErrCertificateNotFound
+	ErrCertificateResourceNotFound = &Error{Type: "/error-types/certificate-resource-not-found"}
 )
 
 type (
@@ -114,12 +124,12 @@ type (
 )
 
 // Error parses an error from the CCM API response.
-func (m *ccm) Error(r *http.Response) error {
+func (c *ccm) Error(r *http.Response) error {
 	var e Error
 	var body []byte
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		m.Log(r.Request.Context()).Errorf("reading error response body: %s", err)
+		c.Log(r.Request.Context()).Errorf("reading error response body: %s", err)
 		e.Status = r.StatusCode
 		e.Title = "Failed to read error body"
 		e.Detail = err.Error()
@@ -127,7 +137,7 @@ func (m *ccm) Error(r *http.Response) error {
 	}
 
 	if err := json.Unmarshal(body, &e); err != nil {
-		m.Log(r.Request.Context()).Errorf("could not unmarshal API error: %s", err)
+		c.Log(r.Request.Context()).Errorf("could not unmarshal API error: %s", err)
 		e.Title = "Failed to unmarshal error body. CCM API failed. Check details for more information."
 		e.Detail = errs.UnescapeContent(string(body))
 	}

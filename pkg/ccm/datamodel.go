@@ -36,15 +36,21 @@ const (
 
 	// KeySizeP256 represents a key size of 256 bits.
 	KeySizeP256 KeySize = "P-256"
+
+	// NetworkStaging represents staging network.
+	NetworkStaging Network = "STAGING"
+
+	// NetworkProduction represents production network.
+	NetworkProduction Network = "PRODUCTION"
 )
 
 type (
 	// CreateCertificateRequest represents the parameters for creating a new certificate.
 	CreateCertificateRequest struct {
-		// Contract Id under which this certificate will be created.
+		// ContractID under which this certificate will be created.
 		ContractID string
 
-		// Unique identifier for the group. This is a required parameter when creating a new certificate.
+		// GroupID is a unique identifier for the group. This is a required parameter when creating a new certificate.
 		GroupID string
 
 		// Body of the create certificate request containing certificate details.
@@ -98,15 +104,25 @@ type (
 		CertificateID string
 	}
 
-	// GetCertificateBindingsRequest represents the parameters for retrieving certificate bindings.
-	GetCertificateBindingsRequest struct {
+	// ListCertificateBindingsRequest represents the parameters for retrieving certificate bindings.
+	ListCertificateBindingsRequest struct {
+		// CertificateID is an identifier on which to perform the desired operation.
 		CertificateID string
+
+		// PageSize is the number of items to return in the response. The default is `10`, and the maximum is `100`.
+		PageSize int64
+
+		// Page is the specific page from the resultset. `1` by default.
+		Page int64
 	}
 
-	// GetCertificateBindingsResponse contains the bindings for a certificate.
-	GetCertificateBindingsResponse struct {
+	// ListCertificateBindingsResponse contains the bindings for a certificate.
+	ListCertificateBindingsResponse struct {
+		// Bindings is a list of bindings filtered or paginated per request.
 		Bindings []CertificateBinding `json:"bindings"`
-		Links    Links                `json:"links"`
+
+		// Links contains pagination and navigation links.
+		Links Links `json:"links"`
 	}
 
 	// ListCertificatesRequest represents the parameters for listing certificates.
@@ -168,22 +184,37 @@ type (
 
 	// ListBindingsRequest represents the parameters for listing certificate bindings.
 	ListBindingsRequest struct {
-		CertificateType string
-		ContractID      string
-		Domain          string
-		ExpiringInDays  *int64
-		GroupID         string
-		Network         string
+		// ContractID filters results to certificates created under the specified contract.
+		ContractID string
 
+		// GroupID filters results to certificates under the group specified by this unique id. This is an optional parameter when listing certificate bindings.
+		GroupID string
+
+		// Domain filters results to certificates that include the specified domain as a SAN or subject CN.
+		// Matches are case-insensitive, and support wildcards.
+		Domain string
+
+		// Network filters results to bindings on the specified network. Valid values are `STAGING` and `PRODUCTION`.
+		Network Network
+
+		// ExpiringInDays, if provided, filters results to certificates where the expiration date is within the provided number of days from the date of request.
+		// A value of 0 or less constitutes request to find and return expired certificates.
+		ExpiringInDays *int64
+
+		// PageSize is the number of items to return in the response. The default is `10`, and the maximum is `100`.
 		PageSize int64
-		Page     int64
-		Sort     string
+
+		// Page is the specific page from the resultset. `1` by default.
+		Page int64
 	}
 
 	// ListBindingsResponse contains a list of certificate bindings.
 	ListBindingsResponse struct {
+		// Bindings is a list of bindings filtered or paginated per request.
 		Bindings []CertificateBinding `json:"bindings"`
-		Links    Links                `json:"links"`
+
+		// Links contains pagination and navigation links.
+		Links Links `json:"links"`
 	}
 
 	// CreateCertificateRequestBody contains the details for requesting a certificate.
@@ -302,11 +333,17 @@ type (
 
 	// CertificateBinding represents a binding between a certificate and a resource.
 	CertificateBinding struct {
-		ResourceType  string `json:"resourceType"`
+		// CertificateID is the unique identifier of the certificate.
 		CertificateID string `json:"certificateId"`
-		Hostname      string `json:"hostname"`
-		Network       string `json:"network"`
-		Active        bool   `json:"active"`
+
+		// Hostname on the Akamai CDN the certificate applies to.
+		Hostname string `json:"hostname"`
+
+		// Network is the network the certificate is bound to. Valid values are `STAGING` and `PRODUCTION`.
+		Network string `json:"network"`
+
+		// ResourceType is the type of the certificate is bound to. Currently, only CDN_HOSTNAME is available.
+		ResourceType string `json:"resourceType"`
 	}
 
 	// Links contains pagination and navigation links.
@@ -344,12 +381,14 @@ type (
 
 	// KeySize represents the size of the key in bits.
 	KeySize string
+
+	// Network represents the network type, `STAGING` or `PRODUCTION`.
+	Network string
 )
 
 var (
 	certificateNameLengthRule = validation.Length(0, 270)
-	certificateNameRegexRule  = validation.Match(regexp.MustCompile(`^[a-zA-Z0-9 .\-_]+$`)).
-					Error("the input can only contain digits (1-9), letters (a-z, A-Z), spaces, hyphens, periods, and underscores.")
+	certificateNameRegexRule  = validation.Match(regexp.MustCompile(`^[a-zA-Z0-9 .\-_]+$`)).Error("the input can only contain digits (1-9), letters (a-z, A-Z), spaces, hyphens, periods, and underscores.")
 )
 
 // Validate validates PatchCertificateRequest.
@@ -388,6 +427,35 @@ func (r ListCertificatesRequest) Validate() error {
 func (c CryptographicAlgorithm) Validate() validation.InRule {
 	return validation.In(CryptographicAlgorithmRSA, CryptographicAlgorithmECDSA).
 		Error(fmt.Sprintf("value '%s' is invalid. Must be either '%s' or '%s'", c, CryptographicAlgorithmRSA, CryptographicAlgorithmECDSA))
+}
+
+// Validate validates ListCertificateBindingsRequest.
+func (r ListCertificateBindingsRequest) Validate() error {
+	return edgegriderr.ParseValidationErrors(validation.Errors{
+		"CertificateID": validation.Validate(r.CertificateID, validation.Required),
+		"PageSize": validation.Validate(r.PageSize,
+			validation.Min(int64(1)).Error("must be 1 or greater"),
+			validation.Max(int64(100)).Error("cannot be greater than 100"),
+		),
+		"Page": validation.Validate(r.Page,
+			validation.Min(int64(1)).Error("must be 1 or greater"),
+		),
+	})
+}
+
+// Validate validates ListBindingsRequest.
+func (r ListBindingsRequest) Validate() error {
+	return edgegriderr.ParseValidationErrors(validation.Errors{
+		"Network": validation.Validate(r.Network, validation.When(r.Network != "", validation.In(NetworkStaging, NetworkProduction).
+			Error(fmt.Sprintf("must be either '%s' or '%s'", NetworkStaging, NetworkProduction)))),
+		"PageSize": validation.Validate(r.PageSize,
+			validation.Min(int64(1)).Error("must be 1 or greater"),
+			validation.Max(int64(100)).Error("cannot be greater than 100"),
+		),
+		"Page": validation.Validate(r.Page,
+			validation.Min(int64(1)).Error("must be 1 or greater"),
+		),
+	})
 }
 
 func certificateStatusRule(value any) error {

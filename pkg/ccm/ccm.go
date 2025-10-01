@@ -22,7 +22,7 @@ type (
 		GetCertificate(ctx context.Context, params GetCertificateRequest) (*GetCertificateResponse, error)
 
 		// PatchCertificate update the certificate.
-		// It allows rename or reset the name of certificate or upload of signed certificate and optional trust chain or both in one request.
+		// It allows to rename or reset the name of certificate or upload of signed certificate and optional trust chain or both in one request.
 		//
 		// See: TBD
 		PatchCertificate(ctx context.Context, params PatchCertificateRequest) (*PatchCertificateResponse, error)
@@ -37,17 +37,20 @@ type (
 		// See: TBD
 		DeleteCertificate(ctx context.Context, params DeleteCertificateRequest) error
 
-		//// GetCertificateBindings provides hostname bindings for the given certificate.
-		//GetCertificateBindings(ctx context.Context, params GetCertificateBindingsRequest) (*GetCertificateBindingsResponse, error)
+		// ListCertificateBindings provides hostname bindings for the given certificate.
 		//
+		// See: TBD
+		ListCertificateBindings(ctx context.Context, params ListCertificateBindingsRequest) (*ListCertificateBindingsResponse, error)
 
 		// ListCertificates lists all certificates that are accessible for the requesting end user.
 		//
 		// See: TBD
 		ListCertificates(ctx context.Context, params ListCertificatesRequest) (*ListCertificatesResponse, error)
 
-		//// ListBindings provides hostname bindings for user accessible certificates, optionally filtered by contract, group, domain, certificate type, and expiration days.
-		//ListBindings(ctx context.Context, params ListBindingsRequest) (*ListBindingsResponse, error)
+		// ListBindings provides hostname bindings for user accessible certificates, optionally filtered by contract, group, domain, certificate type, and expiration days.
+		//
+		// See: TBD
+		ListBindings(ctx context.Context, params ListBindingsRequest) (*ListBindingsResponse, error)
 	}
 
 	ccm struct {
