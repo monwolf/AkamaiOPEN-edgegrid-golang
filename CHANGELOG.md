@@ -8,6 +8,9 @@
 
 
 
+* Appsec
+    * Added Custom Rules method:
+        * [GetCustomRuleUsage](https://techdocs.akamai.com/application-security/reference/post-config-custom-rules-usage)
 
 * mTLS Truststore (Beta)
   * Enhanced validation rules for some fields.

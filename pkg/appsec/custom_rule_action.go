@@ -110,8 +110,8 @@ func (v UpdateCustomRuleActionRequest) Validate() error {
 	}.Filter()
 }
 
-func (p *appsec) GetCustomRuleAction(ctx context.Context, params GetCustomRuleActionRequest) (*GetCustomRuleActionResponse, error) {
-	logger := p.Log(ctx)
+func (a *appsec) GetCustomRuleAction(ctx context.Context, params GetCustomRuleActionRequest) (*GetCustomRuleActionResponse, error) {
+	logger := a.Log(ctx)
 	logger.Debug("GetCustomRuleAction")
 
 	if err := params.Validate(); err != nil {
@@ -133,14 +133,14 @@ func (p *appsec) GetCustomRuleAction(ctx context.Context, params GetCustomRuleAc
 
 	var results GetCustomRuleActionsResponse
 
-	resp, err := p.Exec(req, &results)
+	resp, err := a.Exec(req, &results)
 	if err != nil {
 		return nil, fmt.Errorf("get custom rule action request failed: %w", err)
 	}
 	defer session.CloseResponseBody(resp)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, p.Error(resp)
+		return nil, a.Error(resp)
 	}
 
 	for _, val := range results {
@@ -153,8 +153,8 @@ func (p *appsec) GetCustomRuleAction(ctx context.Context, params GetCustomRuleAc
 	return &result, nil
 }
 
-func (p *appsec) GetCustomRuleActions(ctx context.Context, params GetCustomRuleActionsRequest) (*GetCustomRuleActionsResponse, error) {
-	logger := p.Log(ctx)
+func (a *appsec) GetCustomRuleActions(ctx context.Context, params GetCustomRuleActionsRequest) (*GetCustomRuleActionsResponse, error) {
+	logger := a.Log(ctx)
 	logger.Debug("GetCustomRuleActions")
 
 	if err := params.Validate(); err != nil {
@@ -173,14 +173,14 @@ func (p *appsec) GetCustomRuleActions(ctx context.Context, params GetCustomRuleA
 	}
 
 	var result GetCustomRuleActionsResponse
-	resp, err := p.Exec(req, &result)
+	resp, err := a.Exec(req, &result)
 	if err != nil {
 		return nil, fmt.Errorf("get custom rule actions request failed: %w", err)
 	}
 	defer session.CloseResponseBody(resp)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, p.Error(resp)
+		return nil, a.Error(resp)
 	}
 
 	if params.RuleID != 0 {
@@ -196,8 +196,8 @@ func (p *appsec) GetCustomRuleActions(ctx context.Context, params GetCustomRuleA
 	return &result, nil
 }
 
-func (p *appsec) UpdateCustomRuleAction(ctx context.Context, params UpdateCustomRuleActionRequest) (*UpdateCustomRuleActionResponse, error) {
-	logger := p.Log(ctx)
+func (a *appsec) UpdateCustomRuleAction(ctx context.Context, params UpdateCustomRuleActionRequest) (*UpdateCustomRuleActionResponse, error) {
+	logger := a.Log(ctx)
 	logger.Debug("UpdateCustomRuleAction")
 
 	if err := params.Validate(); err != nil {
@@ -218,14 +218,14 @@ func (p *appsec) UpdateCustomRuleAction(ctx context.Context, params UpdateCustom
 	}
 
 	var result UpdateCustomRuleActionResponse
-	resp, err := p.Exec(req, &result, params)
+	resp, err := a.Exec(req, &result, params)
 	if err != nil {
 		return nil, fmt.Errorf("update custom rule action request failed: %w", err)
 	}
 	defer session.CloseResponseBody(resp)
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated && resp.StatusCode != http.StatusNoContent {
-		return nil, p.Error(resp)
+		return nil, a.Error(resp)
 	}
 
 	return &result, nil
