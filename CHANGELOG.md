@@ -67,6 +67,34 @@
 
 
 
+* mTLS Truststore (Beta):
+  * Added documentation links for these methods.
+    * [CreateCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-ca-set)
+    * [CreateCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-ca-set-version)
+    * [CloneCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-clone-ca-set)
+    * [CloneCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-clone-ca-set-version)
+    * [ActivateCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-activate-ca-set-version)
+    * [DeactivateCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-deactivate-ca-set-version)
+    * [ValidateCertificates](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-validate-certificates)
+    * [GetCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set)
+    * [ListCASets](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-sets)
+    * [GetCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-version)
+    * [ListCASetVersions](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-versions)
+    * [GetCASetVersionCertificates](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-version-certificates)
+    * [GetCASetVersionActivation](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-deployment-request-details)
+    * [ListCASetVersionActivations](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-version-deployment-request-details)
+    * [ListCASetActivations](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-deployment-request-for-ca-set)
+    * [GetCASetDeletionStatus](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-deletion-request-for-ca-set)
+    * [ListCASetActivities](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-activities)
+    * [ListCASetAssociations](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-associations)
+    * [UpdateCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/put-ca-set-version)
+    * [DeleteCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/delete-ca-set)
+
+
+
+
+
+
 
 
 
