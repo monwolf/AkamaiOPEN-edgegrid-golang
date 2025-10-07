@@ -39,11 +39,17 @@ type (
 		PageSize           int    `json:"pageSize,omitempty"`
 		TotalSize          int    `json:"totalSize,omitempty"`
 		VersionList        []struct {
-			ConfigID   int               `json:"configId,omitempty"`
-			Production EnvironmentStatus `json:"production,omitempty"`
-			Staging    EnvironmentStatus `json:"staging,omitempty"`
-			Version    int               `json:"version,omitempty"`
-			BasedOn    int               `json:"basedOn,omitempty"`
+			ConfigID   int `json:"configId,omitempty"`
+			Production struct {
+				Status string    `json:"status,omitempty"`
+				Time   time.Time `json:"time,omitempty"`
+			} `json:"production,omitempty"`
+			Staging struct {
+				Status string    `json:"status,omitempty"`
+				Time   time.Time `json:"time,omitempty"`
+			} `json:"staging,omitempty"`
+			Version int `json:"version,omitempty"`
+			BasedOn int `json:"basedOn,omitempty"`
 		} `json:"versionList,omitempty"`
 	}
 
