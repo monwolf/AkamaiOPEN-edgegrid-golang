@@ -1,77 +1,29 @@
 # RELEASE NOTES
 
-## X.X.X (X X, X)
+## 12.1.0 (Oct 13, 2025)
 
 ### FEATURES/ENHANCEMENTS:
 
-
-
-
-
 * Appsec
-    * Added Custom Rules method:
-        * [GetCustomRuleUsage](https://techdocs.akamai.com/application-security/reference/post-config-custom-rules-usage)
+    * Added the [GetCustomRuleUsage](https://techdocs.akamai.com/application-security/reference/post-config-custom-rules-usage) method.
+    * Added the `GetConfigurationVersion` method to get a specific config version and fixed a bug where the Terraform provider doesn't create a new config version but tries to update it ([I#653](https://github.com/akamai/terraform-provider-akamai/issues/653)).
+
+* Cloud Access
+    * Added support for the new authentication method, Akamai Object Storage (`AOS4_HMAC_SHA256`).
 
 * mTLS Truststore (Beta)
-  * Enhanced validation rules for some fields.
-    * `CASetName` field in `CreateCASetRequest` structure now requires 3 to 64 characters.
-    * `CASetNamePrefix` field in `ListCASetsRequest` structure can be empty or requires 1 to 64 characters.
-    * `Description` field in `CreateCASetRequest`, `CreateCASetVersionRequestBody` and `UpdateCASetVersionRequestBody` structures can be nil or requires 1 to 255 characters.
-    * `NewDescription` field in `CloneCASetRequest` structure can be nil or requires 1 to 255 characters.
-  * Added the following custom errors
+  * Enhanced validation rules for these fields:
+    * The `CASetName` field in the `CreateCASetRequest` structure now requires 3 to 64 characters.
+    * The `CASetNamePrefix` field in the `ListCASetsRequest` structure can be empty or requires 1 to 64 characters.
+    * The `Description` field in the `CreateCASetRequest`, `CreateCASetVersionRequestBody`, and `UpdateCASetVersionRequestBody` structures can be null, or it requires 1 to 255 characters.
+    * The `NewDescription` field in the `CloneCASetRequest` structure can be null or requires 1 to 255 characters.
+  * Added these custom errors:
     * `ErrCASetVersionNotActiveOnNetworkCannotBeDeactivated`
     * `ErrCASetVersionIstActiveOnNetworkCannotBeActivated`
-
-
-
-
-
-
-
-
-* PAPI
-  * Added new [PatchPropertyVersionHostnames](https://techdocs.akamai.com/property-mgr/reference/patch-property-version-hostnames) method.
-
-
-
-
-* Cloudaccess
-    * Added support for new Akamai Object Storage authentication method (`AOS4_HMAC_SHA256`).
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-* mTLS Truststore (Beta)
-  * Added support for optional `AssociationType` field in the `ListCASetAssociations` method to filter results based on the association type.
-    Possible values are `properties` or `enrollemnts`. If not specified, all associations are returned.
+  * Added support for the optional `AssociationType` field in the `ListCASetAssociations` method to filter results based on the association type.
+    Possible values are `properties` or `enrollments`. If not specified, all associations are returned.
   * Added the `PropertyLink` field to the `AssociationProperty` structure.
-
-
-
-
-
-
-
-
-
-
-
-
-* mTLS Truststore (Beta):
-  * Added documentation links for these methods.
+  * Added documentation links for these methods:
     * [CreateCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-ca-set)
     * [CreateCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-ca-set-version)
     * [CloneCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-clone-ca-set)
@@ -93,75 +45,8 @@
     * [UpdateCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/put-ca-set-version)
     * [DeleteCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/delete-ca-set)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### BUG FIXES:
-
-
-
-
-
-
-
-
-
-
- * Appsec
-  * Added method `GetConfigurationVersion` to get specific config version, to fix a bug where TF provider doesn't create new config version but tries to update in place.([I#653](https://github.com/akamai/terraform-provider-akamai/issues/653)).
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+* PAPI
+  * Added the new [PatchPropertyVersionHostnames](https://techdocs.akamai.com/property-mgr/reference/patch-property-version-hostnames) method.
 
 ## 12.0.0 (Sep 1, 2025)
 
