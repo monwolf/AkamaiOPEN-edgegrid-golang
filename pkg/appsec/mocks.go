@@ -288,6 +288,14 @@ func (m *Mock) UpdateCustomRule(ctx context.Context, req UpdateCustomRuleRequest
 	return args.Get(0).(*UpdateCustomRuleResponse), args.Error(1)
 }
 
+func (m *Mock) GetCustomRulesUsage(ctx context.Context, req GetCustomRulesUsageRequest) (*GetCustomRulesUsageResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*GetCustomRulesUsageResponse), args.Error(1)
+}
+
 func (m *Mock) UpdateCustomDeny(ctx context.Context, req UpdateCustomDenyRequest) (*UpdateCustomDenyResponse, error) {
 	args := m.Called(ctx, req)
 	if args.Get(0) == nil {
@@ -1079,6 +1087,14 @@ func (m *Mock) GetConfigurationVersions(ctx context.Context, req GetConfiguratio
 		return nil, args.Error(1)
 	}
 	return args.Get(0).(*GetConfigurationVersionsResponse), args.Error(1)
+}
+
+func (m *Mock) GetConfigurationVersion(ctx context.Context, req GetConfigurationVersionRequest) (*GetConfigurationVersionResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*GetConfigurationVersionResponse), args.Error(1)
 }
 
 func (m *Mock) GetConfigurationVersionClone(ctx context.Context, req GetConfigurationVersionCloneRequest) (*GetConfigurationVersionCloneResponse, error) {

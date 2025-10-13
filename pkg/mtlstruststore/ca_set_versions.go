@@ -297,7 +297,7 @@ const (
 func (v CreateCASetVersionRequest) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
 		"CASetID":      validation.Validate(v.CASetID, validation.Required),
-		"Description":  validation.Validate(v.Body.Description, validation.Length(0, 255)),
+		"Description":  validation.Validate(v.Body.Description, validation.NilOrNotEmpty, validation.Length(1, 255)),
 		"Certificates": validation.Validate(v.Body.Certificates, validation.Required, validation.Each(certificateValidationRules())),
 	})
 }
@@ -314,7 +314,7 @@ func (v UpdateCASetVersionRequest) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
 		"CASetID":      validation.Validate(v.CASetID, validation.Required),
 		"Version":      validation.Validate(v.Version, validation.Required),
-		"Description":  validation.Validate(v.Body.Description, validation.Length(0, 255)),
+		"Description":  validation.Validate(v.Body.Description, validation.NilOrNotEmpty, validation.Length(1, 255)),
 		"Certificates": validation.Validate(v.Body.Certificates, validation.Required, validation.Each(certificateValidationRules())),
 	})
 }
@@ -328,7 +328,7 @@ func certificateValidationRules() validation.Rule {
 		}
 		return validation.Errors{
 			"CertificatePEM": validation.Validate(cert.CertificatePEM, validation.Required),
-			"Description":    validation.Validate(cert.Description, validation.Length(0, 255)),
+			"Description":    validation.Validate(cert.Description, validation.NilOrNotEmpty, validation.Length(1, 255)),
 		}.Filter()
 	})
 }

@@ -1,5 +1,53 @@
 # RELEASE NOTES
 
+## 12.1.0 (Oct 13, 2025)
+
+### FEATURES/ENHANCEMENTS:
+
+* Appsec
+    * Added the [GetCustomRuleUsage](https://techdocs.akamai.com/application-security/reference/post-config-custom-rules-usage) method.
+    * Added the `GetConfigurationVersion` method to get a specific config version and fixed a bug where the Terraform provider doesn't create a new config version but tries to update it ([I#653](https://github.com/akamai/terraform-provider-akamai/issues/653)).
+
+* Cloud Access
+    * Added support for the new authentication method, Akamai Object Storage (`AOS4_HMAC_SHA256`).
+
+* mTLS Truststore (Beta)
+  * Enhanced validation rules for these fields:
+    * The `CASetName` field in the `CreateCASetRequest` structure now requires 3 to 64 characters.
+    * The `CASetNamePrefix` field in the `ListCASetsRequest` structure can be empty or requires 1 to 64 characters.
+    * The `Description` field in the `CreateCASetRequest`, `CreateCASetVersionRequestBody`, and `UpdateCASetVersionRequestBody` structures can be null, or it requires 1 to 255 characters.
+    * The `NewDescription` field in the `CloneCASetRequest` structure can be null or requires 1 to 255 characters.
+  * Added these custom errors:
+    * `ErrCASetVersionNotActiveOnNetworkCannotBeDeactivated`
+    * `ErrCASetVersionIstActiveOnNetworkCannotBeActivated`
+  * Added support for the optional `AssociationType` field in the `ListCASetAssociations` method to filter results based on the association type.
+    Possible values are `properties` or `enrollments`. If not specified, all associations are returned.
+  * Added the `PropertyLink` field to the `AssociationProperty` structure.
+  * Added documentation links for these methods:
+    * [CreateCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-ca-set)
+    * [CreateCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-ca-set-version)
+    * [CloneCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-clone-ca-set)
+    * [CloneCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-clone-ca-set-version)
+    * [ActivateCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-activate-ca-set-version)
+    * [DeactivateCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-deactivate-ca-set-version)
+    * [ValidateCertificates](https://techdocs.akamai.com/mtls-edge-truststore/reference/post-validate-certificates)
+    * [GetCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set)
+    * [ListCASets](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-sets)
+    * [GetCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-version)
+    * [ListCASetVersions](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-versions)
+    * [GetCASetVersionCertificates](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-version-certificates)
+    * [GetCASetVersionActivation](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-deployment-request-details)
+    * [ListCASetVersionActivations](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-version-deployment-request-details)
+    * [ListCASetActivations](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-deployment-request-for-ca-set)
+    * [GetCASetDeletionStatus](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-deletion-request-for-ca-set)
+    * [ListCASetActivities](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-activities)
+    * [ListCASetAssociations](https://techdocs.akamai.com/mtls-edge-truststore/reference/get-ca-set-associations)
+    * [UpdateCASetVersion](https://techdocs.akamai.com/mtls-edge-truststore/reference/put-ca-set-version)
+    * [DeleteCASet](https://techdocs.akamai.com/mtls-edge-truststore/reference/delete-ca-set)
+
+* PAPI
+  * Added the new [PatchPropertyVersionHostnames](https://techdocs.akamai.com/property-mgr/reference/patch-property-version-hostnames) method.
+
 ## 12.0.0 (Sep 1, 2025)
 
 ### BREAKING CHANGES:

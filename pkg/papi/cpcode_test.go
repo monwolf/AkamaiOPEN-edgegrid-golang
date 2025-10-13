@@ -106,6 +106,14 @@ func TestPapiGetCPCodes(t *testing.T) {
 				assert.Contains(t, err.Error(), "ContractID")
 			},
 		},
+		"empty query params": {
+			params: GetCPCodesRequest{},
+			withError: func(t *testing.T, err error) {
+				want := ErrStructValidation
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+				assert.Contains(t, err.Error(), "ContractID: cannot be blank; GroupID: cannot be blank.")
+			},
+		},
 	}
 
 	for name, test := range tests {
@@ -265,6 +273,14 @@ func TestPapiGetCPCode(t *testing.T) {
 				want := ErrStructValidation
 				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
 				assert.Contains(t, err.Error(), "ContractID")
+			},
+		},
+		"empty query params": {
+			params: GetCPCodeRequest{},
+			withError: func(t *testing.T, err error) {
+				want := ErrStructValidation
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+				assert.Contains(t, err.Error(), "struct validation: CPCodeID: cannot be blank; ContractID: cannot be blank; GroupID: cannot be blank.")
 			},
 		},
 	}
@@ -516,6 +532,14 @@ func TestPapiCreateCPCode(t *testing.T) {
 				want := ErrStructValidation
 				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
 				assert.Contains(t, err.Error(), "CPCodeName")
+			},
+		},
+		"empty query params": {
+			params: CreateCPCodeRequest{},
+			withError: func(t *testing.T, err error) {
+				want := ErrStructValidation
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+				assert.Contains(t, err.Error(), "struct validation: CPCode: (CPCodeName: cannot be blank; ProductID: cannot be blank.")
 			},
 		},
 		"invalid response location": {

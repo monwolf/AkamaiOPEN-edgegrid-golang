@@ -27,10 +27,10 @@ var (
 )
 
 func (p *papi) GetRuleFormats(ctx context.Context) (*GetRuleFormatsResponse, error) {
-	var ruleFormats GetRuleFormatsResponse
-
 	logger := p.Log(ctx)
 	logger.Debug("GetRuleFormats")
+
+	var ruleFormats GetRuleFormatsResponse
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/papi/v1/rule-formats", nil)
 	if err != nil {

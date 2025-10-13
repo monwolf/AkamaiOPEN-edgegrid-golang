@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strings"
 
@@ -185,22 +186,22 @@ var (
 
 // GetEdgeHostnames id used to list edge hostnames for provided group and contract IDs
 func (p *papi) GetEdgeHostnames(ctx context.Context, params GetEdgeHostnamesRequest) (*GetEdgeHostnamesResponse, error) {
-	if err := params.Validate(); err != nil {
-		return nil, fmt.Errorf("%s: %w: %s", ErrGetEdgeHostnames, ErrStructValidation, err)
-	}
-
 	logger := p.Log(ctx)
 	logger.Debug("GetEdgeHostnames")
 
-	getURL := fmt.Sprintf(
-		"/papi/v1/edgehostnames?contractId=%s&groupId=%s",
-		params.ContractID,
-		params.GroupID,
-	)
-	if len(params.Options) > 0 {
-		getURL = fmt.Sprintf("%s&options=%s", getURL, strings.Join(params.Options, ","))
+	if err := params.Validate(); err != nil {
+		return nil, fmt.Errorf("%s: %w: %s", ErrGetEdgeHostnames, ErrStructValidation, err)
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, getURL, nil)
+	uri := url.URL{Path: "/papi/v1/edgehostnames"}
+	q := url.Values{}
+	q.Set("groupId", params.GroupID)
+	q.Set("contractId", params.ContractID)
+	if len(params.Options) > 0 {
+		q.Set("options", strings.Join(params.Options, ","))
+	}
+	uri.RawQuery = q.Encode()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri.String(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to create request: %s", ErrGetEdgeHostnames, err)
 	}
@@ -221,23 +222,26 @@ func (p *papi) GetEdgeHostnames(ctx context.Context, params GetEdgeHostnamesRequ
 
 // GetEdgeHostname id used to fetch edge hostname with given ID for provided group and contract IDs
 func (p *papi) GetEdgeHostname(ctx context.Context, params GetEdgeHostnameRequest) (*GetEdgeHostnamesResponse, error) {
+	logger := p.Log(ctx)
+	logger.Debug("GetEdgeHostname")
+
 	if err := params.Validate(); err != nil {
 		return nil, fmt.Errorf("%s: %w: %s", ErrGetEdgeHostname, ErrStructValidation, err)
 	}
 
-	logger := p.Log(ctx)
-	logger.Debug("GetEdgeHostname")
-
-	getURL := fmt.Sprintf(
-		"/papi/v1/edgehostnames/%s?contractId=%s&groupId=%s",
-		params.EdgeHostnameID,
-		params.ContractID,
-		params.GroupID,
-	)
-	if len(params.Options) > 0 {
-		getURL = fmt.Sprintf("%s&options=%s", getURL, strings.Join(params.Options, ","))
+	uri, err := url.Parse(fmt.Sprintf("/papi/v1/edgehostnames/%s", params.EdgeHostnameID))
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrGetEdgeHostname, err)
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, getURL, nil)
+	q := url.Values{}
+	q.Set("groupId", params.GroupID)
+	q.Set("contractId", params.ContractID)
+	if len(params.Options) > 0 {
+		q.Set("options", strings.Join(params.Options, ","))
+	}
+	uri.RawQuery = q.Encode()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri.String(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to create request: %s", ErrGetEdgeHostname, err)
 	}
@@ -261,33 +265,34 @@ func (p *papi) GetEdgeHostname(ctx context.Context, params GetEdgeHostnameReques
 }
 
 // CreateEdgeHostname id used to create new edge hostname for provided group and contract IDs
-func (p *papi) CreateEdgeHostname(ctx context.Context, r CreateEdgeHostnameRequest) (*CreateEdgeHostnameResponse, error) {
-	if err := r.Validate(); err != nil {
-		return nil, fmt.Errorf("%s: %w:\n%s", ErrCreateEdgeHostname, ErrStructValidation, err)
-	}
-
-	if err := validateDomainPrefix(r.EdgeHostname.DomainPrefix, r.EdgeHostname.DomainSuffix); err != nil {
-		return nil, err
-	}
-
+func (p *papi) CreateEdgeHostname(ctx context.Context, params CreateEdgeHostnameRequest) (*CreateEdgeHostnameResponse, error) {
 	logger := p.Log(ctx)
 	logger.Debug("CreateEdgeHostname")
 
-	createURL := fmt.Sprintf(
-		"/papi/v1/edgehostnames?contractId=%s&groupId=%s",
-		r.ContractID,
-		r.GroupID,
-	)
-	if len(r.Options) > 0 {
-		createURL = fmt.Sprintf("%s&options=%s", createURL, strings.Join(r.Options, ","))
+	if err := params.Validate(); err != nil {
+		return nil, fmt.Errorf("%s: %w:\n%s", ErrCreateEdgeHostname, ErrStructValidation, err)
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, createURL, nil)
+
+	if err := validateDomainPrefix(params.EdgeHostname.DomainPrefix, params.EdgeHostname.DomainSuffix); err != nil {
+		return nil, err
+	}
+
+	uri := url.URL{Path: "/papi/v1/edgehostnames"}
+	q := url.Values{}
+	q.Set("groupId", params.GroupID)
+	q.Set("contractId", params.ContractID)
+	if len(params.Options) > 0 {
+		q.Set("options", strings.Join(params.Options, ","))
+	}
+	uri.RawQuery = q.Encode()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, uri.String(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to create request: %s", ErrCreateEdgeHostname, err)
 	}
 
 	var createResponse CreateEdgeHostnameResponse
-	resp, err := p.Exec(req, &createResponse, r.EdgeHostname)
+	resp, err := p.Exec(req, &createResponse, params.EdgeHostname)
 	if err != nil {
 		return nil, fmt.Errorf("%w: request failed: %s", ErrCreateEdgeHostname, err)
 	}

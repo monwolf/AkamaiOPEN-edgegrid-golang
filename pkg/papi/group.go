@@ -38,10 +38,10 @@ var (
 )
 
 func (p *papi) GetGroups(ctx context.Context) (*GetGroupsResponse, error) {
-	var groups GetGroupsResponse
-
 	logger := p.Log(ctx)
 	logger.Debug("GetGroups")
+
+	var groups GetGroupsResponse
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/papi/v1/groups", nil)
 	if err != nil {

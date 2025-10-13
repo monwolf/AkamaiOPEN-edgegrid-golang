@@ -121,10 +121,17 @@ type (
 		CASetID string `json:"caSetId"`
 	}
 
+	// AssociationType is type of associations to be returned.
+	AssociationType string
+
 	// ListCASetAssociationsRequest holds request for ListCASetAssociations.
 	ListCASetAssociationsRequest struct {
 		// CASetID is a unique identifier representing the CA set.
 		CASetID string
+
+		// AssociationType is optional type of associations to be returned. The values that could be provided are `enrollments` or `properties`.
+		// If not provided, both types of associations are returned.
+		AssociationType AssociationType `json:"associationType,omitempty"`
 	}
 
 	// ListCASetAssociationsResponse holds response for ListCASetAssociations.
@@ -149,6 +156,9 @@ type (
 
 		// PropertyName is a unique, descriptive name for the property.
 		PropertyName *string `json:"propertyName"`
+
+		// PropertyLink is link to the property.
+		PropertyLink string `json:"propertyLink"`
 
 		// AssetID is an alternative identifier for the property.
 		AssetID *int64 `json:"assetId"`
@@ -203,7 +213,7 @@ type (
 		NewCASetName string `json:"caSetName"`
 
 		// NewDescription is optional description for the set.
-		NewDescription string `json:"description"`
+		NewDescription *string `json:"description"`
 	}
 
 	// CloneCASetResponse holds response body for CloneCASet.
@@ -351,6 +361,9 @@ const (
 	// CASetNamePattern is the regex pattern for CA set name.
 	CASetNamePattern string = `^[%.a-zA-Z0-9_-]+$`
 
+	// CASetNameDescription describes allowed characters for CA set name.
+	CASetNameDescription = "allowed characters are alphanumerics (a-z, A-Z, 0-9), underscore (_), hyphen (-), percent (%) and period (.)"
+
 	// DeletionStatusInProgress represents CA set deletion status in progress.
 	DeletionStatusInProgress string = "IN_PROGRESS"
 	// DeletionStatusComplete represents CA set deletion status complete.
@@ -364,10 +377,16 @@ const (
 	CASetStatusDeleted string = "DELETED"
 	// CASetStatusDeleting represents CA set status deleting.
 	CASetStatusDeleting string = "DELETING"
+
+	// AssociationTypeEnrollments represents enrollments associations type.
+	AssociationTypeEnrollments AssociationType = "enrollments"
+	// AssociationTypeProperties represents properties associations type.
+	AssociationTypeProperties AssociationType = "properties"
 )
 
 var (
-	caSetNameRegex = regexp.MustCompile(CASetNamePattern)
+	// CASetNameRegex is compiled regex for CA set name.
+	CASetNameRegex = regexp.MustCompile(CASetNamePattern)
 
 	// ErrCreateCASet is returned when the request to create a CA set fails.
 	ErrCreateCASet = errors.New("create ca set failed")
@@ -397,9 +416,9 @@ func (r CreateCASetRequest) Validate() error {
 		"CASetName": validation.Validate(r.CASetName,
 			validation.Required,
 			validation.Length(3, 64),
-			validation.Match(caSetNameRegex).Error("allowed characters are alphanumerics (a-z, A-Z, 0-9), underscore (_), hyphen (-), percent (%) and period (.)"),
+			validation.Match(CASetNameRegex).Error(CASetNameDescription),
 			validateCASetName()),
-		"Description": validation.Validate(r.Description, validation.Length(0, 255)),
+		"Description": validation.Validate(r.Description, validation.NilOrNotEmpty, validation.Length(1, 255)),
 	})
 }
 
@@ -415,7 +434,7 @@ func (r ListCASetsRequest) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
 		"CASetNamePrefix": validation.Validate(r.CASetNamePrefix,
 			validation.Length(0, 64),
-			validation.Match(caSetNameRegex).Error("allowed characters are alphanumerics (a-z, A-Z, 0-9), underscore (_), hyphen (-), percent (%) and period (.)"),
+			validation.Match(CASetNameRegex).Error(CASetNameDescription),
 			validateCASetName()),
 		"ActivatedOn": validation.Validate(r.ActivatedOn, r.ActivatedOn.Validate()),
 	})
@@ -446,8 +465,16 @@ func validateCASetName() validation.StringRule {
 // Validate validates ListCASetAssociationsRequest.
 func (r ListCASetAssociationsRequest) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
-		"CASetID": validation.Validate(r.CASetID, validation.Required, validation.Length(1, 0)),
+		"CASetID":         validation.Validate(r.CASetID, validation.Required, validation.Length(1, 0)),
+		"AssociationType": validation.Validate(r.AssociationType, r.AssociationType.Validate()),
 	})
+}
+
+// Validate validates AssociationType.
+func (t AssociationType) Validate() validation.InRule {
+	return validation.In(AssociationTypeEnrollments, AssociationTypeProperties).
+		Error(fmt.Sprintf("value '%s' is invalid. Must be one of: '%s' or '%s'.",
+			t, AssociationTypeEnrollments, AssociationTypeProperties))
 }
 
 // Validate validates CloneCASetRequest.
@@ -458,9 +485,9 @@ func (r CloneCASetRequest) Validate() error {
 		"NewCASetName": validation.Validate(r.NewCASetName,
 			validation.Required,
 			validation.Length(3, 64),
-			validation.Match(caSetNameRegex).Error("allowed characters are alphanumerics (a-z, A-Z, 0-9), underscore (_), hyphen (-), percent (%) and period (.)"),
+			validation.Match(CASetNameRegex).Error(CASetNameDescription),
 			validateCASetName()),
-		"NewDescription": validation.Validate(r.NewDescription, validation.Length(0, 255)),
+		"NewDescription": validation.Validate(r.NewDescription, validation.NilOrNotEmpty, validation.Length(1, 255)),
 	})
 }
 
@@ -621,7 +648,17 @@ func (m *mtlstruststore) ListCASetAssociations(ctx context.Context, params ListC
 		return nil, fmt.Errorf("%s: %w: %s", ErrListCASetAssociations, ErrStructValidation, err)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%s/associations", params.CASetID), nil)
+	uri, err := url.Parse(fmt.Sprintf("/mtls-edge-truststore/v2/ca-sets/%s/associations", params.CASetID))
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrListCASets, err)
+	}
+	q := uri.Query()
+	if params.AssociationType != "" {
+		q.Add("associationType", string(params.AssociationType))
+	}
+	uri.RawQuery = q.Encode()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri.String(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to create request: %s", ErrListCASetAssociations, err)
 	}

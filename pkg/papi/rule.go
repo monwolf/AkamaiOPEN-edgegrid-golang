@@ -5,7 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"regexp"
+	"strconv"
 
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/edgegriderr"
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/session"
@@ -231,30 +233,37 @@ var (
 )
 
 func (p *papi) GetRuleTree(ctx context.Context, params GetRuleTreeRequest) (*GetRuleTreeResponse, error) {
+	logger := p.Log(ctx)
+	logger.Debug("GetRuleTree")
+
 	if err := params.Validate(); err != nil {
 		return nil, fmt.Errorf("%s: %w: %s", ErrGetRuleTree, ErrStructValidation, err)
 	}
 
-	logger := p.Log(ctx)
-	logger.Debug("GetRuleTree")
+	uri, err := url.Parse(fmt.Sprintf("/papi/v1/properties/%s/versions/%d/rules", params.PropertyID, params.PropertyVersion))
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to create request: %s", ErrGetRuleTree, err)
+	}
 
-	getURL := fmt.Sprintf(
-		"/papi/v1/properties/%s/versions/%d/rules?contractId=%s&groupId=%s",
-		params.PropertyID,
-		params.PropertyVersion,
-		params.ContractID,
-		params.GroupID,
-	)
+	q := url.Values{}
+	if params.ContractID != "" {
+		q.Set("contractId", params.ContractID)
+	}
+	if params.GroupID != "" {
+		q.Set("groupId", params.GroupID)
+	}
 	if params.ValidateMode != "" {
-		getURL += fmt.Sprintf("&validateMode=%s", params.ValidateMode)
+		q.Set("validateMode", params.ValidateMode)
 	}
 	if !params.ValidateRules {
-		getURL += fmt.Sprintf("&validateRules=%t", params.ValidateRules)
+		q.Set("validateRules", strconv.FormatBool(params.ValidateRules))
 	}
 	if params.OriginalInput != nil && !*params.OriginalInput {
-		getURL += "&originalInput=false"
+		q.Set("originalInput", strconv.FormatBool(false))
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, getURL, nil)
+	uri.RawQuery = q.Encode()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri.String(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to create request: %s", ErrGetRuleTree, err)
 	}
@@ -278,30 +287,36 @@ func (p *papi) GetRuleTree(ctx context.Context, params GetRuleTreeRequest) (*Get
 }
 
 func (p *papi) UpdateRuleTree(ctx context.Context, request UpdateRulesRequest) (*UpdateRulesResponse, error) {
+	logger := p.Log(ctx)
+	logger.Debug("UpdateRuleTree")
+
 	if err := request.Validate(); err != nil {
 		return nil, fmt.Errorf("%s: %w:\n%s", ErrUpdateRuleTree, ErrStructValidation, err)
 	}
 
-	logger := p.Log(ctx)
-	logger.Debug("UpdateRuleTree")
-
-	putURL := fmt.Sprintf(
-		"/papi/v1/properties/%s/versions/%d/rules?contractId=%s&groupId=%s",
-		request.PropertyID,
-		request.PropertyVersion,
-		request.ContractID,
-		request.GroupID,
-	)
+	uri, err := url.Parse(fmt.Sprintf("/papi/v1/properties/%s/versions/%d/rules", request.PropertyID, request.PropertyVersion))
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrUpdateRuleTree, err)
+	}
+	q := url.Values{}
+	if request.GroupID != "" {
+		q.Set("groupId", request.GroupID)
+	}
+	if request.ContractID != "" {
+		q.Set("contractId", request.ContractID)
+	}
 	if request.ValidateMode != "" {
-		putURL += fmt.Sprintf("&validateMode=%s", request.ValidateMode)
+		q.Set("validateMode", request.ValidateMode)
 	}
 	if !request.ValidateRules {
-		putURL += fmt.Sprintf("&validateRules=%t", request.ValidateRules)
+		q.Set("validateRules", strconv.FormatBool(request.ValidateRules))
 	}
 	if request.DryRun {
-		putURL += fmt.Sprintf("&dryRun=%t", request.DryRun)
+		q.Set("dryRun", strconv.FormatBool(request.DryRun))
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodPut, putURL, nil)
+	uri.RawQuery = q.Encode()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPut, uri.String(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to create request: %s", ErrUpdateRuleTree, err)
 	}

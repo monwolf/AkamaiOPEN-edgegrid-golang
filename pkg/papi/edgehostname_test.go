@@ -114,6 +114,14 @@ func TestPapiGetEdgeHostnames(t *testing.T) {
 				assert.Contains(t, err.Error(), "ContractID")
 			},
 		},
+		"empty query params": {
+			params: GetEdgeHostnamesRequest{},
+			withError: func(t *testing.T, err error) {
+				want := ErrStructValidation
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+				assert.Contains(t, err.Error(), "struct validation: ContractID: cannot be blank; GroupID: cannot be blank.")
+			},
+		},
 	}
 
 	for name, test := range tests {
@@ -287,6 +295,16 @@ func TestPapiGetEdgeHostname(t *testing.T) {
 				want := ErrStructValidation
 				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
 				assert.Contains(t, err.Error(), "EdgeHostnameID")
+			},
+		},
+		"empty query parameters": {
+			params: GetEdgeHostnameRequest{
+				EdgeHostnameID: "ehID",
+			},
+			withError: func(t *testing.T, err error) {
+				want := ErrStructValidation
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+				assert.Contains(t, err.Error(), "struct validation: ContractID: cannot be blank; GroupID: cannot be blank.")
 			},
 		},
 	}
@@ -498,6 +516,23 @@ func TestPapiCreateEdgeHostname(t *testing.T) {
 				want := ErrStructValidation
 				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
 				assert.Contains(t, err.Error(), "ContractID")
+			},
+		},
+		"empty query params": {
+			params: CreateEdgeHostnameRequest{
+				EdgeHostname: EdgeHostnameCreate{
+					ProductID:         "product",
+					DomainPrefix:      "example.com",
+					DomainSuffix:      "edgekey.net",
+					Secure:            true,
+					IPVersionBehavior: "IPV4",
+					UseCases:          nil,
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				want := ErrStructValidation
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+				assert.Contains(t, err.Error(), "struct validation:\nContractID: cannot be blank\nGroupID: cannot be blank")
 			},
 		},
 		"empty domain prefix": {

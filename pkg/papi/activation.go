@@ -238,12 +238,12 @@ var (
 )
 
 func (p *papi) CreateActivation(ctx context.Context, params CreateActivationRequest) (*CreateActivationResponse, error) {
+	logger := p.Log(ctx)
+	logger.Debug("CreateActivation")
+
 	if err := params.Validate(); err != nil {
 		return nil, fmt.Errorf("%s: %w: %s", ErrCreateActivation, ErrStructValidation, err)
 	}
-
-	logger := p.Log(ctx)
-	logger.Debug("CreateActivation")
 
 	// explicitly set the activation type
 	if params.Activation.ActivationType == "" {
@@ -293,12 +293,12 @@ func (p *papi) CreateActivation(ctx context.Context, params CreateActivationRequ
 }
 
 func (p *papi) GetActivations(ctx context.Context, params GetActivationsRequest) (*GetActivationsResponse, error) {
+	logger := p.Log(ctx)
+	logger.Debug("GetActivations")
+
 	if err := params.Validate(); err != nil {
 		return nil, fmt.Errorf("%s: %w: %s", ErrGetActivations, ErrStructValidation, err)
 	}
-
-	logger := p.Log(ctx)
-	logger.Debug("GetActivations")
 
 	uri, err := url.Parse(fmt.Sprintf(
 		"/papi/v1/properties/%s/activations",
@@ -307,12 +307,12 @@ func (p *papi) GetActivations(ctx context.Context, params GetActivationsRequest)
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrGetActivations, err)
 	}
-	q := uri.Query()
+	q := url.Values{}
 	if params.GroupID != "" {
-		q.Add("groupId", params.GroupID)
+		q.Set("groupId", params.GroupID)
 	}
 	if params.ContractID != "" {
-		q.Add("contractId", params.ContractID)
+		q.Set("contractId", params.ContractID)
 	}
 	uri.RawQuery = q.Encode()
 
@@ -337,21 +337,27 @@ func (p *papi) GetActivations(ctx context.Context, params GetActivationsRequest)
 }
 
 func (p *papi) GetActivation(ctx context.Context, params GetActivationRequest) (*GetActivationResponse, error) {
+	logger := p.Log(ctx)
+	logger.Debug("GetActivation")
+
 	if err := params.Validate(); err != nil {
 		return nil, fmt.Errorf("%s: %w: %s", ErrGetActivation, ErrStructValidation, err)
 	}
 
-	logger := p.Log(ctx)
-	logger.Debug("GetActivation")
+	uri, err := url.Parse(fmt.Sprintf("/papi/v1/properties/%s/activations/%s", params.PropertyID, params.ActivationID))
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to create request: %s", ErrGetActivation, err)
+	}
+	q := url.Values{}
+	if params.ContractID != "" {
+		q.Set("contractId", params.ContractID)
+	}
+	if params.GroupID != "" {
+		q.Set("groupId", params.GroupID)
+	}
+	uri.RawQuery = q.Encode()
 
-	uri := fmt.Sprintf(
-		"/papi/v1/properties/%s/activations/%s?contractId=%s&groupId=%s",
-		params.PropertyID,
-		params.ActivationID,
-		params.ContractID,
-		params.GroupID)
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri.String(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to create request: %s", ErrGetActivation, err)
 	}
@@ -382,21 +388,28 @@ func (p *papi) GetActivation(ctx context.Context, params GetActivationRequest) (
 }
 
 func (p *papi) CancelActivation(ctx context.Context, params CancelActivationRequest) (*CancelActivationResponse, error) {
+	logger := p.Log(ctx)
+	logger.Debug("CancelActivation")
+
 	if err := params.Validate(); err != nil {
 		return nil, fmt.Errorf("%s: %w: %s", ErrCancelActivation, ErrStructValidation, err)
 	}
 
-	logger := p.Log(ctx)
-	logger.Debug("CancelActivation")
+	uri, err := url.Parse(fmt.Sprintf("/papi/v1/properties/%s/activations/%s", params.PropertyID, params.ActivationID))
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to create request: %s", ErrCancelActivation, err)
+	}
 
-	uri := fmt.Sprintf(
-		"/papi/v1/properties/%s/activations/%s?contractId=%s&groupId=%s",
-		params.PropertyID,
-		params.ActivationID,
-		params.ContractID,
-		params.GroupID)
+	q := url.Values{}
+	if params.ContractID != "" {
+		q.Set("contractId", params.ContractID)
+	}
+	if params.GroupID != "" {
+		q.Set("groupId", params.GroupID)
+	}
+	uri.RawQuery = q.Encode()
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, uri, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, uri.String(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to create request: %s", ErrCancelActivation, err)
 	}

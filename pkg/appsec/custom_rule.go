@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"reflect"
 
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/edgegriderr"
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/session"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
@@ -39,6 +40,40 @@ type (
 		//
 		// See: https://techdocs.akamai.com/application-security/reference/delete-config-custom-rule
 		RemoveCustomRule(ctx context.Context, params RemoveCustomRuleRequest) (*RemoveCustomRuleResponse, error)
+
+		// GetCustomRulesUsage returns the custom rule usages for config version.
+		//
+		// See: https://techdocs.akamai.com/application-security/reference/post-config-custom-rules-usage
+		GetCustomRulesUsage(ctx context.Context, params GetCustomRulesUsageRequest) (*GetCustomRulesUsageResponse, error)
+	}
+
+	// GetCustomRulesUsageRequest is used to return the custom rule usages for config version.
+	GetCustomRulesUsageRequest struct {
+		ConfigID    int64
+		Version     int
+		RequestBody RuleIDs
+	}
+
+	// RuleIDs contains the body of get custom rule usage request.
+	RuleIDs struct {
+		IDs []int64 `json:"ruleIds"`
+	}
+
+	// GetCustomRulesUsageResponse is returned from a call to GetCustomRulesUsage.
+	GetCustomRulesUsageResponse struct {
+		Rules []CustomRuleUsage `json:"rules"`
+	}
+
+	// CustomRuleUsage contains rule ID and list of policies where this rule is used.
+	CustomRuleUsage struct {
+		Policies []Policy `json:"policies"`
+		RuleID   int64    `json:"ruleId"`
+	}
+
+	// Policy contains policy ID and name.
+	Policy struct {
+		PolicyID   string `json:"policyId"`
+		PolicyName string `json:"policyName"`
 	}
 
 	// CustomRuleConditionsValue is a slice of strings used to indicate condition values in custom rule conditions.
@@ -267,8 +302,24 @@ func (v RemoveCustomRuleRequest) Validate() error {
 	}.Filter()
 }
 
-func (p *appsec) GetCustomRule(ctx context.Context, params GetCustomRuleRequest) (*GetCustomRuleResponse, error) {
-	logger := p.Log(ctx)
+// Validate validates a GetCustomRulesUsageRequest.
+func (r GetCustomRulesUsageRequest) Validate() error {
+	return edgegriderr.ParseValidationErrors(validation.Errors{
+		"ConfigID": validation.Validate(r.ConfigID, validation.Required),
+		"Version":  validation.Validate(r.Version, validation.Required),
+		"RuleIDs":  validation.Validate(r.RequestBody, validation.Required),
+	})
+}
+
+// Validate validates a RuleIDs.
+func (r RuleIDs) Validate() error {
+	return validation.Errors{
+		"IDs": validation.Validate(r.IDs, validation.Required, validation.Length(1, 0)),
+	}.Filter()
+}
+
+func (a *appsec) GetCustomRule(ctx context.Context, params GetCustomRuleRequest) (*GetCustomRuleResponse, error) {
+	logger := a.Log(ctx)
 	logger.Debug("GetCustomRule")
 
 	if err := params.Validate(); err != nil {
@@ -286,21 +337,21 @@ func (p *appsec) GetCustomRule(ctx context.Context, params GetCustomRuleRequest)
 	}
 
 	var result GetCustomRuleResponse
-	resp, err := p.Exec(req, &result)
+	resp, err := a.Exec(req, &result)
 	if err != nil {
 		return nil, fmt.Errorf("get custom rule request failed: %w", err)
 	}
 	defer session.CloseResponseBody(resp)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, p.Error(resp)
+		return nil, a.Error(resp)
 	}
 
 	return &result, nil
 }
 
-func (p *appsec) GetCustomRules(ctx context.Context, params GetCustomRulesRequest) (*GetCustomRulesResponse, error) {
-	logger := p.Log(ctx)
+func (a *appsec) GetCustomRules(ctx context.Context, params GetCustomRulesRequest) (*GetCustomRulesResponse, error) {
+	logger := a.Log(ctx)
 	logger.Debug("GetCustomRules")
 
 	if err := params.Validate(); err != nil {
@@ -318,14 +369,14 @@ func (p *appsec) GetCustomRules(ctx context.Context, params GetCustomRulesReques
 	}
 
 	var result GetCustomRulesResponse
-	resp, err := p.Exec(req, &result)
+	resp, err := a.Exec(req, &result)
 	if err != nil {
 		return nil, fmt.Errorf("get custom rules request failed: %w", err)
 	}
 	defer session.CloseResponseBody(resp)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, p.Error(resp)
+		return nil, a.Error(resp)
 	}
 
 	if params.ID != 0 {
@@ -341,8 +392,8 @@ func (p *appsec) GetCustomRules(ctx context.Context, params GetCustomRulesReques
 	return &result, nil
 }
 
-func (p *appsec) UpdateCustomRule(ctx context.Context, params UpdateCustomRuleRequest) (*UpdateCustomRuleResponse, error) {
-	logger := p.Log(ctx)
+func (a *appsec) UpdateCustomRule(ctx context.Context, params UpdateCustomRuleRequest) (*UpdateCustomRuleResponse, error) {
+	logger := a.Log(ctx)
 	logger.Debug("UpdateCustomRule")
 
 	if err := params.Validate(); err != nil {
@@ -362,21 +413,21 @@ func (p *appsec) UpdateCustomRule(ctx context.Context, params UpdateCustomRuleRe
 
 	var result UpdateCustomRuleResponse
 	req.Header.Set("Content-Type", "application/json")
-	resp, err := p.Exec(req, &result, params.JsonPayloadRaw)
+	resp, err := a.Exec(req, &result, params.JsonPayloadRaw)
 	if err != nil {
 		return nil, fmt.Errorf("update custom rule request failed: %w", err)
 	}
 	defer session.CloseResponseBody(resp)
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
-		return nil, p.Error(resp)
+		return nil, a.Error(resp)
 	}
 
 	return &result, nil
 }
 
-func (p *appsec) CreateCustomRule(ctx context.Context, params CreateCustomRuleRequest) (*CreateCustomRuleResponse, error) {
-	logger := p.Log(ctx)
+func (a *appsec) CreateCustomRule(ctx context.Context, params CreateCustomRuleRequest) (*CreateCustomRuleResponse, error) {
+	logger := a.Log(ctx)
 	logger.Debug("CreateCustomRule")
 
 	if err := params.Validate(); err != nil {
@@ -395,21 +446,21 @@ func (p *appsec) CreateCustomRule(ctx context.Context, params CreateCustomRuleRe
 
 	var result CreateCustomRuleResponse
 	req.Header.Set("Content-Type", "application/json")
-	resp, err := p.Exec(req, &result, params.JsonPayloadRaw)
+	resp, err := a.Exec(req, &result, params.JsonPayloadRaw)
 	if err != nil {
 		return nil, fmt.Errorf("create custom rule request failed: %w", err)
 	}
 	defer session.CloseResponseBody(resp)
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
-		return nil, p.Error(resp)
+		return nil, a.Error(resp)
 	}
 
 	return &result, nil
 }
 
-func (p *appsec) RemoveCustomRule(ctx context.Context, params RemoveCustomRuleRequest) (*RemoveCustomRuleResponse, error) {
-	logger := p.Log(ctx)
+func (a *appsec) RemoveCustomRule(ctx context.Context, params RemoveCustomRuleRequest) (*RemoveCustomRuleResponse, error) {
+	logger := a.Log(ctx)
 	logger.Debug("RemoveCustomRule")
 
 	if err := params.Validate(); err != nil {
@@ -423,14 +474,48 @@ func (p *appsec) RemoveCustomRule(ctx context.Context, params RemoveCustomRuleRe
 		return nil, fmt.Errorf("failed to create RemoveCustomRule request: %w", err)
 	}
 
-	resp, err := p.Exec(req, nil)
+	resp, err := a.Exec(req, nil)
 	if err != nil {
 		return nil, fmt.Errorf("remove custom rule request failed: %w", err)
 	}
 	defer session.CloseResponseBody(resp)
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
-		return nil, p.Error(resp)
+		return nil, a.Error(resp)
+	}
+
+	return &result, nil
+}
+
+func (a *appsec) GetCustomRulesUsage(ctx context.Context, params GetCustomRulesUsageRequest) (*GetCustomRulesUsageResponse, error) {
+	logger := a.Log(ctx)
+	logger.Debug("GetCustomRulesUsage")
+
+	if err := params.Validate(); err != nil {
+		return nil, fmt.Errorf("%w: %s", ErrStructValidation, err.Error())
+	}
+
+	uri := fmt.Sprintf(
+		"/appsec/v1/configs/%d/versions/%d/custom-rules/usage",
+		params.ConfigID,
+		params.Version,
+	)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, uri, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create GetCustomRulesUsageRequest request: %w", err)
+	}
+
+	var result GetCustomRulesUsageResponse
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := a.Exec(req, &result, params.RequestBody)
+	if err != nil {
+		return nil, fmt.Errorf("get custom rule usage request failed: %w", err)
+	}
+	defer session.CloseResponseBody(resp)
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, a.Error(resp)
 	}
 
 	return &result, nil

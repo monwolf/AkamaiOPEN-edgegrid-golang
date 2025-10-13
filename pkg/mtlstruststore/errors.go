@@ -169,6 +169,12 @@ var (
 	// ErrCASetVersionNotActiveOnNetwork is returned when the CA set version is not active on the network.
 	ErrCASetVersionNotActiveOnNetwork = errors.New("ca set version not active on network")
 
+	// ErrCASetVersionNotActiveOnNetworkCannotBeDeactivated is returned when the CA set version cannot be deactivated as it is not active on the network.
+	ErrCASetVersionNotActiveOnNetworkCannotBeDeactivated = errors.New("ca set version cannot be deactivated as it is not active on the network")
+
+	// ErrCASetVersionIsActiveOnNetworkCannotBeActivated is returned when the CA set version cannot be activated as it active on the network.
+	ErrCASetVersionIsActiveOnNetworkCannotBeActivated = errors.New("ca set version cannot be activated as it is already active on the network")
+
 	// ErrFetchAssociationsTimeout is returned when ListCASetAssociations fails on timeout.
 	ErrFetchAssociationsTimeout = errors.New("fetching associations for ca set got timed out")
 
@@ -307,6 +313,7 @@ func (e *Error) Is(target error) bool {
 		{ErrCASetDeleteRequestInProgress, http.StatusConflict, caSetDeleteRequestInProgress},
 		{ErrCASetVersionIsActive, http.StatusUnprocessableEntity, caSetVersionIsActive},
 		{ErrCASetVersionIsActiveOnNetwork, http.StatusConflict, caSetVersionIsActiveOnNetwork},
+		{ErrCASetVersionIsActiveOnNetworkCannotBeActivated, http.StatusConflict, caSetVersionIsActiveOnNetwork},
 		{ErrCASetVersionWasPreviouslyActive, http.StatusUnprocessableEntity, caSetVersionWasPreviouslyActive},
 		{ErrCertificateValidationFailedForCreate, http.StatusBadRequest, certificateValidationFailedForCreate},
 		{ErrCertificateValidationFailedForUpdate, http.StatusBadRequest, certificateValidationFailedForUpdate},
@@ -321,6 +328,7 @@ func (e *Error) Is(target error) bool {
 		{ErrAnotherActivationInProgress, http.StatusConflict, anotherActivationInProgress},
 		{ErrAnotherDeactivationInProgress, http.StatusConflict, anotherDeactivationInProgress},
 		{ErrCASetVersionNotActiveOnNetwork, http.StatusConflict, caSetVersionNotActiveOnNetwork},
+		{ErrCASetVersionNotActiveOnNetworkCannotBeDeactivated, http.StatusConflict, caSetVersionNotActiveOnNetwork},
 		{ErrFetchAssociationsTimeout, http.StatusGatewayTimeout, fetchAssociationsTimeout},
 		{ErrMissingCASetVersion, http.StatusBadRequest, missingCaCertVersion},
 		{ErrCASetNameNotUnique, http.StatusConflict, caSetNameNotUnique},

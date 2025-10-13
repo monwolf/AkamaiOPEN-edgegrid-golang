@@ -49,12 +49,12 @@ var (
 
 // GetProducts is used to list all products for a given contract
 func (p *papi) GetProducts(ctx context.Context, params GetProductsRequest) (*GetProductsResponse, error) {
+	logger := p.Log(ctx)
+	logger.Debug("GetProducts")
+
 	if err := params.Validate(); err != nil {
 		return nil, fmt.Errorf("%s: %w: %s", ErrGetProducts, ErrStructValidation, err)
 	}
-
-	logger := p.Log(ctx)
-	logger.Debug("GetProducts")
 
 	getURL := fmt.Sprintf("/papi/v1/products?contractId=%s", params.ContractID)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, getURL, nil)

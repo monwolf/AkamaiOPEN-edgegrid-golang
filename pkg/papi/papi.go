@@ -286,10 +286,16 @@ type (
 		// See: https://techdocs.akamai.com/property-mgr/reference/get-property-version-hostnames
 		GetPropertyVersionHostnames(context.Context, GetPropertyVersionHostnamesRequest) (*GetPropertyVersionHostnamesResponse, error)
 
-		// UpdatePropertyVersionHostnames modifies the set of hostnames for a property version
+		// UpdatePropertyVersionHostnames modifies the entire set of hostnames for a property version.
+		//
+		// See: https://techdocs.akamai.com/property-mgr/reference/put-property-version-hostnames
+		UpdatePropertyVersionHostnames(context.Context, UpdatePropertyVersionHostnamesRequest) (*UpdatePropertyVersionHostnamesResponse, error)
+
+		// PatchPropertyVersionHostnames modifies the set of hostnames for a property version
+		// by adding or removing specific hostnames.
 		//
 		// See: https://techdocs.akamai.com/property-mgr/reference/patch-property-version-hostnames
-		UpdatePropertyVersionHostnames(context.Context, UpdatePropertyVersionHostnamesRequest) (*UpdatePropertyVersionHostnamesResponse, error)
+		PatchPropertyVersionHostnames(context.Context, PatchPropertyVersionHostnamesRequest) (*PatchPropertyVersionHostnamesResponse, error)
 
 		// PropertyVersions
 

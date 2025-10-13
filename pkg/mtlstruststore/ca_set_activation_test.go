@@ -156,6 +156,33 @@ func TestActivateCASetVersion(t *testing.T) {
 				assert.Equal(t, "activate ca set version failed: struct validation: Network: value 'foo' is invalid. Must be one of: 'STAGING' or 'PRODUCTION'", err.Error())
 			},
 		},
+		"409 cannot be activated": {
+			request: ActivateCASetVersionRequest{
+				CASetID: "199",
+				Version: 1,
+				Network: ActivationNetworkStaging,
+			},
+			expectedRequestBody: `{"network":"STAGING"}`,
+			expectedPath:        "/mtls-edge-truststore/v2/ca-sets/199/versions/1/activate",
+			responseStatus:      http.StatusConflict,
+			responseBody: `
+				{
+    "contextInfo": {
+        "caSetId": "199",
+        "caSetName": "DXE-5498",
+        "network": "STAGING",
+        "version": 1
+    },
+    "detail": "CA set version with version 1 cannot be activated as it is already active on the STAGING network.",
+    "instance": "/mtls-edge-truststore/error-types/ca-set-version-already-active-on-network/1916882c5af2b20b",
+    "status": 409,
+    "title": "CA set version cannot be activated as it is already active on the network.",
+    "type": "/mtls-edge-truststore/error-types/ca-set-version-already-active-on-network"
+}`,
+			withError: func(t *testing.T, err error) {
+				assert.True(t, errors.Is(err, ErrCASetVersionIsActiveOnNetworkCannotBeActivated))
+			},
+		},
 		"500 internal server error": {
 			request: ActivateCASetVersionRequest{
 				CASetID: "199",
@@ -512,6 +539,33 @@ func TestDeactivateCASetVersion(t *testing.T) {
 				}`,
 			withError: func(t *testing.T, err error) {
 				assert.True(t, errors.Is(err, ErrCASetVersionNotActiveOnNetwork))
+			},
+		},
+		"409 cannot be deactivated": {
+			request: DeactivateCASetVersionRequest{
+				CASetID: "199",
+				Version: 1,
+				Network: ActivationNetworkStaging,
+			},
+			expectedRequestBody: `{"network":"STAGING"}`,
+			expectedPath:        "/mtls-edge-truststore/v2/ca-sets/199/versions/1/deactivate",
+			responseStatus:      http.StatusConflict,
+			responseBody: `
+				{
+    "contextInfo": {
+        "caSetId": "199",
+        "caSetName": "DXE-5498",
+        "network": "STAGING",
+        "version": 1
+    },
+    "detail": "CA set version with version 1 cannot be deactivated as it is not active on the STAGING network.",
+    "instance": "/mtls-edge-truststore/error-types/ca-set-version-not-active-on-network/0d0a2fb6c1c58594",
+    "status": 409,
+    "title": "CA set version cannot be deactivated as it is not active on the network.",
+    "type": "/mtls-edge-truststore/error-types/ca-set-version-not-active-on-network"
+}`,
+			withError: func(t *testing.T, err error) {
+				assert.True(t, errors.Is(err, ErrCASetVersionNotActiveOnNetworkCannotBeDeactivated))
 			},
 		},
 		"missing required request param - validation error": {

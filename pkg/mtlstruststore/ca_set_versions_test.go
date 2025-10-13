@@ -108,6 +108,89 @@ func TestCreateCASetVersion(t *testing.T) {
 				Validation: &Validation{Warnings: []Warning{}},
 			},
 		},
+		"201 Successful creation without description": {
+			request: CreateCASetVersionRequest{
+				CASetID: "123",
+				Body: CreateCASetVersionRequestBody{
+					AllowInsecureSHA1: false,
+					Description:       nil,
+					Certificates: []CertificateRequest{
+						{
+							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+						},
+					},
+				},
+			},
+			expectedRequestBody: `{
+				  "allowInsecureSha1": false,
+				  "certificates": [
+					{
+					  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
+					}
+				  ]}`,
+			responseStatus: http.StatusCreated,
+			responseBody: `{
+				  "caSetId": "123",
+				  "version": 1,
+				  "caSetName": "Test CA Set",
+				  "versionLink": "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
+				  "description": null,
+				  "allowInsecureSha1": false,
+				  "stagingStatus": "PENDING",
+				  "productionStatus": "PENDING",
+				  "createdDate": "2025-04-10T00:00:00.739971Z",
+				  "createdBy": "tester",
+				  "modifiedDate": "2025-04-10T00:00:00.347834Z",
+				  "modifiedBy": "tester",
+				  "certificates": [
+					{
+					  "subject": "Test Subject",
+					  "issuer": "Test Issuer",
+					  "endDate": "2025-12-31T00:00:00Z",
+					  "startDate": "2025-01-01T00:00:00Z",
+					  "fingerprint": "abc123",
+					  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+					  "serialNumber": "123456789",
+					  "signatureAlgorithm": "SHA256WithRSA",
+					  "createdDate": "2025-04-10T00:00:00.489392Z",
+					  "createdBy": "tester"
+					}
+				  ],
+				  "validation": {
+					"warnings": []
+				  }
+				}`,
+			expectedPath: `/mtls-edge-truststore/v2/ca-sets/123/versions`,
+			expectedResponse: &CreateCASetVersionResponse{
+				CASetID:           "123",
+				Version:           1,
+				CASetName:         "Test CA Set",
+				VersionLink:       "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
+				Description:       nil,
+				AllowInsecureSHA1: false,
+				StagingStatus:     "PENDING",
+				ProductionStatus:  "PENDING",
+				CreatedDate:       test.NewTimeFromString(t, "2025-04-10T00:00:00.739971Z"),
+				CreatedBy:         "tester",
+				ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2025-04-10T00:00:00.347834Z")),
+				ModifiedBy:        ptr.To("tester"),
+				Certificates: []CertificateResponse{
+					{
+						Subject:            "Test Subject",
+						Issuer:             "Test Issuer",
+						StartDate:          test.NewTimeFromString(t, "2025-01-01T00:00:00Z"),
+						EndDate:            test.NewTimeFromString(t, "2025-12-31T00:00:00Z"),
+						Fingerprint:        "abc123",
+						CertificatePEM:     "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+						SerialNumber:       "123456789",
+						SignatureAlgorithm: "SHA256WithRSA",
+						CreatedDate:        test.NewTimeFromString(t, "2025-04-10T00:00:00.489392Z"),
+						CreatedBy:          "tester",
+					},
+				},
+				Validation: &Validation{Warnings: []Warning{}},
+			},
+		},
 		"201 Successful creation without version description": {
 			request: CreateCASetVersionRequest{
 				CASetID: "123",
@@ -315,7 +398,7 @@ func TestCreateCASetVersion(t *testing.T) {
 				},
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "creating a CA set version: struct validation: Description: the length must be no more than 255", err.Error())
+				assert.Equal(t, "creating a CA set version: struct validation: Description: the length must be between 1 and 255", err.Error())
 			},
 		},
 		"Validation error - missing CASetID": {
@@ -375,7 +458,7 @@ func TestCreateCASetVersion(t *testing.T) {
 				},
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "creating a CA set version: struct validation: Certificates[0]: {\n\tDescription: the length must be no more than 255\n}", err.Error())
+				assert.Equal(t, "creating a CA set version: struct validation: Certificates[0]: {\n\tDescription: the length must be between 1 and 255\n}", err.Error())
 			},
 		},
 		"Error Response - CA set is not found": {
@@ -1281,6 +1364,89 @@ func TestUpdateCASetVersion(t *testing.T) {
 				Validation: &Validation{Warnings: []Warning{}},
 			},
 		},
+		"200 Successful update with missing description": {
+			request: UpdateCASetVersionRequest{
+				CASetID: "123",
+				Version: 1,
+				Body: UpdateCASetVersionRequestBody{
+					AllowInsecureSHA1: false,
+					Certificates: []CertificateRequest{
+						{
+							CertificatePEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+						},
+					},
+				},
+			},
+			expectedRequestBody: `{
+					  "allowInsecureSha1": false,
+					  "certificates": [
+						{
+						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
+						}
+					  ]
+					}`,
+			responseStatus: http.StatusOK,
+			responseBody: `
+					{
+					  "caSetId": "123",
+					  "version": 1,
+					  "caSetName": "Test CA Set",
+					  "versionLink": "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
+					  "allowInsecureSha1": false,
+					  "stagingStatus": "PENDING",
+					  "productionStatus": "PENDING",
+					  "createdDate": "2025-04-10T00:00:00.986647Z",
+					  "createdBy": "tester",
+					  "modifiedDate": "2025-04-10T00:00:00.029349Z",
+					  "modifiedBy": "tester",
+					  "certificates": [
+						{
+						  "subject": "Test Subject",
+						  "issuer": "Test Issuer",
+						  "endDate": "2025-12-31T00:00:00Z",
+						  "startDate": "2025-01-01T00:00:00Z",
+						  "fingerprint": "abc123",
+						  "certificatePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+						  "serialNumber": "123456789",
+						  "signatureAlgorithm": "SHA256WithRSA",
+						  "createdDate": "2025-04-10T00:00:00.959343Z",
+						  "createdBy": "tester"
+						}
+					  ],
+					  "validation": {
+						"warnings": []
+					  }
+					}`,
+			expectedPath: `/mtls-edge-truststore/v2/ca-sets/123/versions/1`,
+			expectedResponse: &UpdateCASetVersionResponse{
+				CASetID:           "123",
+				Version:           1,
+				CASetName:         "Test CA Set",
+				VersionLink:       "/mtls-edge-truststore/v2/ca-sets/123/versions/1",
+				AllowInsecureSHA1: false,
+				StagingStatus:     "PENDING",
+				ProductionStatus:  "PENDING",
+				CreatedDate:       test.NewTimeFromString(t, "2025-04-10T00:00:00.986647Z"),
+				CreatedBy:         "tester",
+				ModifiedDate:      ptr.To(test.NewTimeFromString(t, "2025-04-10T00:00:00.029349Z")),
+				ModifiedBy:        ptr.To("tester"),
+				Certificates: []CertificateResponse{
+					{
+						Subject:            "Test Subject",
+						Issuer:             "Test Issuer",
+						StartDate:          test.NewTimeFromString(t, "2025-01-01T00:00:00Z"),
+						EndDate:            test.NewTimeFromString(t, "2025-12-31T00:00:00Z"),
+						Fingerprint:        "abc123",
+						CertificatePEM:     "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+						SerialNumber:       "123456789",
+						SignatureAlgorithm: "SHA256WithRSA",
+						CreatedDate:        test.NewTimeFromString(t, "2025-04-10T00:00:00.959343Z"),
+						CreatedBy:          "tester",
+					},
+				},
+				Validation: &Validation{Warnings: []Warning{}},
+			},
+		},
 		"200 Successful update but with duplicated certificates (warning)": {
 			request: UpdateCASetVersionRequest{
 				CASetID: "123",
@@ -1411,7 +1577,7 @@ func TestUpdateCASetVersion(t *testing.T) {
 				},
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "updating a CA set version: struct validation: Description: the length must be no more than 255", err.Error())
+				assert.Equal(t, "updating a CA set version: struct validation: Description: the length must be between 1 and 255", err.Error())
 			},
 		},
 		"Validation error - missing CASetID": {
