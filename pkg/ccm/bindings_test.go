@@ -60,7 +60,7 @@ func TestListCertificateBindings(t *testing.T) {
 {
   "bindings": [
     {
-      "certificateId": "123456",
+      "certificateId": 123456,
       "hostname": "www.example.com",
       "network": "PRODUCTION",
       "resourceType": "CDN_HOSTNAME"
@@ -294,7 +294,7 @@ func TestListBindings(t *testing.T) {
 				{
 				  "bindings": [
 					{
-					  "certificateId": "123456",
+					  "certificateId": 123456,
 					  "hostname": "www.example.com",
 					  "network": "PRODUCTION",
 					  "resourceType": "CDN_HOSTNAME"

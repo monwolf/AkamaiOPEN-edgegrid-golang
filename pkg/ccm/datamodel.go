@@ -1,6 +1,7 @@
 package ccm
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"regexp"
@@ -334,7 +335,7 @@ type (
 	// CertificateBinding represents a binding between a certificate and a resource.
 	CertificateBinding struct {
 		// CertificateID is the unique identifier of the certificate.
-		CertificateID string `json:"certificateId"`
+		CertificateID json.Number `json:"certificateId"`
 
 		// Hostname on the Akamai CDN the certificate applies to.
 		Hostname string `json:"hostname"`
