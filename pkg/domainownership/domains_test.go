@@ -45,11 +45,24 @@ func TestListDomains(t *testing.T) {
             "validationRequestedBy": "someuser",
             "validationRequestedDate": "2025-08-04T13:27:19Z",
             "validationChallenge": {
-                "dnsCname": "ac.abababababababababababababababab.dom1.test.validate-akdv.net",
-                "challengeToken": "t0ken1",
-                "challengeTokenExpiresDate": "2025-08-05T13:27:19Z",
-                "httpRedirectFrom": "https://dom1.test/.well-known/akamai/akamai-challenge/r4dirFrom1",
-                "httpRedirectTo": "https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken1"
+                "cnameRecord": {
+                    "name": "cname-name-1",
+                    "target": "cname-target-1"
+                },
+                "txtRecord": {
+                    "name": "txt-name-1",
+                    "value": "txt-value-1"
+                },
+                "httpFile": {
+                    "path": "http-file-path-1",
+                    "content": "http-file-content-1",
+                    "contentType": "text/plain"
+                },
+                "httpRedirect": {
+                    "from": "http-redirect-from-1",
+                    "to": "http-redirect-to-1"
+                },
+                "expirationDate": "2025-08-05T13:27:19Z"
             }
         },
         {
@@ -58,13 +71,17 @@ func TestListDomains(t *testing.T) {
             "validationScope": "HOST",
             "domainStatus": "REQUEST_ACCEPTED",
             "validationRequestedBy": "someuser",
-            "validationRequestedDate": "2025-08-04T13:26:58Z",
+            "validationRequestedDate": "2025-08-04T13:26:58Z", 
             "validationChallenge": {
-                "dnsCname": "ac.cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd.dom2.test.validate-akdv.net",
-                "challengeToken": "t0ken2",
-                "challengeTokenExpiresDate": "2025-08-05T13:26:58Z",
-                "httpRedirectFrom": "https://dom2.test/.well-known/akamai/akamai-challenge/r4dirFrom2",
-                "httpRedirectTo": "https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken2"
+                "cnameRecord": {
+                    "name": "cname-name-2",
+                    "target": "cname-target-2"
+                },
+                "txtRecord": {
+                    "name": "txt-name-2",
+                    "value": "txt-value-2"
+                },
+                "expirationDate": "2025-08-05T13:27:19Z"
             }
         },
         {
@@ -75,11 +92,24 @@ func TestListDomains(t *testing.T) {
             "validationRequestedBy": "someuser",
             "validationRequestedDate": "2025-08-04T13:26:50Z",
             "validationChallenge": {
-                "dnsCname": "ac.abababababababababababababababab.dom3.test.validate-akdv.net",
-                "challengeToken": "t0ken3",
-                "challengeTokenExpiresDate": "2025-08-05T13:26:50Z",
-                "httpRedirectFrom": "https://dom3.test/.well-known/akamai/akamai-challenge/r4dirFrom3",
-                "httpRedirectTo": "https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken3"
+                "cnameRecord": {
+                    "name": "cname-name-3",
+                    "target": "cname-target-3"
+                },
+                "txtRecord": {
+                    "name": "txt-name-3",
+                    "value": "txt-value-3"
+                },
+                "httpFile": {
+                    "path": "http-file-path-3",
+                    "content": "http-file-content-3",
+                    "contentType": "text/plain"
+                },
+                "httpRedirect": {
+                    "from": "http-redirect-from-3",
+                    "to": "http-redirect-to-3"
+                },
+                "expirationDate": "2025-08-05T13:27:19Z"
             }
         },
         {
@@ -88,13 +118,26 @@ func TestListDomains(t *testing.T) {
             "validationScope": "HOST",
             "domainStatus": "REQUEST_ACCEPTED",
             "validationRequestedBy": "someuser",
-            "validationRequestedDate": "2025-08-04T13:26:50Z",
+            "validationRequestedDate": "2025-08-04T13:26:50Z", 
             "validationChallenge": {
-                "dnsCname": "ac.cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd.dom4.test.validate-akdv.net",
-                "challengeToken": "t0ken4",
-                "challengeTokenExpiresDate": "2025-08-05T13:26:50Z",
-                "httpRedirectFrom": "https://dom4.test/.well-known/akamai/akamai-challenge/r4dirFrom4",
-                "httpRedirectTo": "https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken4"
+                "cnameRecord": {
+                    "name": "cname-name-4",
+                    "target": "cname-target-4"
+                },
+                "txtRecord": {
+                    "name": "txt-name-4",
+                    "value": "txt-value-4"
+                },
+                "httpFile": {
+                    "path": "http-file-path-4",
+                    "content": "http-file-content-4",
+                    "contentType": "text/plain"
+                },
+                "httpRedirect": {
+                    "from": "http-redirect-from-4",
+                    "to": "http-redirect-to-4"
+                },
+                "expirationDate": "2025-08-05T13:27:19Z"
             }
         },
         {
@@ -105,11 +148,24 @@ func TestListDomains(t *testing.T) {
             "validationRequestedBy": "someuser",
             "validationRequestedDate": "2025-08-04T13:26:50Z",
             "validationChallenge": {
-                "dnsCname": "ac.abababababababababababababababab.dom5.test.validate-akdv.net",
-                "challengeToken": "t0ken5",
-                "challengeTokenExpiresDate": "2025-08-05T13:26:50Z",
-                "httpRedirectFrom": "https://dom5.test/.well-known/akamai/akamai-challenge/r4dirFrom5",
-                "httpRedirectTo": "https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken5"
+                "cnameRecord": {
+                    "name": "cname-name-5",
+                    "target": "cname-target-5"
+                },
+                "txtRecord": {
+                    "name": "txt-name-5",
+                    "value": "txt-value-5"
+                },
+                "httpFile": {
+                    "path": "http-file-path-5",
+                    "content": "http-file-content-5",
+                    "contentType": "text/plain"
+                },
+                "httpRedirect": {
+                    "from": "http-redirect-from-5",
+                    "to": "http-redirect-to-5"
+                },
+                "expirationDate": "2025-08-05T13:27:19Z"
             }
         },
         {
@@ -120,9 +176,24 @@ func TestListDomains(t *testing.T) {
             "validationRequestedBy": "someuser",
             "validationRequestedDate": "2025-08-04T13:26:50Z",
             "validationChallenge": {
-                "dnsCname": "ac.cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd.dom6.test.validate-akdv.net",
-                "challengeToken": "t0ken6",
-                "challengeTokenExpiresDate": "2025-08-05T13:26:50Z"
+                "cnameRecord": {
+                    "name": "cname-name-6",
+                    "target": "cname-target-6"
+                },
+                "txtRecord": {
+                    "name": "txt-name-6",
+                    "value": "txt-value-6"
+                },
+                "httpFile": {
+                    "path": "http-file-path-6",
+                    "content": "http-file-content-6",
+                    "contentType": "text/plain"
+                },
+                "httpRedirect": {
+                    "from": "http-redirect-from-6",
+                    "to": "http-redirect-to-6"
+                },
+                "expirationDate": "2025-08-05T13:27:19Z"
             }
         },
         {
@@ -133,9 +204,24 @@ func TestListDomains(t *testing.T) {
             "validationRequestedBy": "someuser",
             "validationRequestedDate": "2025-08-04T13:26:50Z",
             "validationChallenge": {
-                "dnsCname": "ac.abababababababababababababababab.dom7.test.validate-akdv.net",
-                "challengeToken": "t0ken7",
-                "challengeTokenExpiresDate": "2025-08-05T13:26:50Z"
+                "cnameRecord": {
+                    "name": "cname-name-7",
+                    "target": "cname-target-7"
+                },
+                "txtRecord": {
+                    "name": "txt-name-7",
+                    "value": "txt-value-7"
+                },
+                "httpFile": {
+                    "path": "http-file-path-7",
+                    "content": "http-file-content-7",
+                    "contentType": "text/plain"
+                },
+                "httpRedirect": {
+                    "from": "http-redirect-from-7",
+                    "to": "http-redirect-to-7"
+                },
+                "expirationDate": "2025-08-05T13:27:19Z"
             }
         },
         {
@@ -146,11 +232,24 @@ func TestListDomains(t *testing.T) {
             "validationRequestedBy": "someuser",
             "validationRequestedDate": "2025-08-04T13:26:29Z",
             "validationChallenge": {
-                "dnsCname": "ac.cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd.dom8.test.validate-akdv.net",
-                "challengeToken": "t0ken8",
-                "challengeTokenExpiresDate": "2025-08-05T13:26:29Z",
-                "httpRedirectFrom": "https://dom8.test/.well-known/akamai/akamai-challenge/r4dirFrom8",
-                "httpRedirectTo": "https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken8"
+                "cnameRecord": {
+                    "name": "cname-name-8",
+                    "target": "cname-target-8"
+                },
+                "txtRecord": {
+                    "name": "txt-name-8",
+                    "value": "txt-value-8"
+                },
+                "httpFile": {
+                    "path": "http-file-path-8",
+                    "content": "http-file-content-8",
+                    "contentType": "text/plain"
+                },
+                "httpRedirect": {
+                    "from": "http-redirect-from-8",
+                    "to": "http-redirect-to-8"
+                },
+                "expirationDate": "2025-08-05T13:27:19Z"
             }
         },
         {
@@ -161,11 +260,24 @@ func TestListDomains(t *testing.T) {
             "validationRequestedBy": "someuser",
             "validationRequestedDate": "2025-08-04T13:26:29Z",
             "validationChallenge": {
-                "dnsCname": "ac.abababababababababababababababab.dom9.test.validate-akdv.net",
-                "challengeToken": "t0ken9",
-                "challengeTokenExpiresDate": "2025-08-05T13:26:29Z",
-                "httpRedirectFrom": "https://dom9.test/.well-known/akamai/akamai-challenge/r4dirFrom9",
-                "httpRedirectTo": "https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken9"
+                "cnameRecord": {
+                    "name": "cname-name-9",
+                    "target": "cname-target-9"
+                },
+                "txtRecord": {
+                    "name": "txt-name-9",
+                    "value": "txt-value-9"
+                },
+                "httpFile": {
+                    "path": "http-file-path-9",
+                    "content": "http-file-content-9",
+                    "contentType": "text/plain"
+                },
+                "httpRedirect": {
+                    "from": "http-redirect-from-9",
+                    "to": "http-redirect-to-9"
+                },
+                "expirationDate": "2025-08-05T13:27:19Z"
             }
         },
         {
@@ -175,10 +287,25 @@ func TestListDomains(t *testing.T) {
             "domainStatus": "REQUEST_ACCEPTED",
             "validationRequestedBy": "someuser",
             "validationRequestedDate": "2025-08-04T13:26:29Z",
-            "validationChallenge": {
-                "dnsCname": "ac.cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd.dom10.test.validate-akdv.net",
-                "challengeToken": "t0ken10",
-                "challengeTokenExpiresDate": "2025-08-05T13:26:29Z"
+           "validationChallenge": {
+                "cnameRecord": {
+                    "name": "cname-name-10",
+                    "target": "cname-target-10"
+                },
+                "txtRecord": {
+                    "name": "txt-name-10",
+                    "value": "txt-value-10"
+                },
+                "httpFile": {
+                    "path": "http-file-path-10",
+                    "content": "http-file-content-10",
+                    "contentType": "text/plain"
+                },
+                "httpRedirect": {
+                    "from": "http-redirect-from-10",
+                    "to": "http-redirect-to-10"
+                },
+                "expirationDate": "2025-08-05T13:27:19Z"
             }
         }
     ],
@@ -211,11 +338,24 @@ func TestListDomains(t *testing.T) {
 						ValidationRequestedBy:   "someuser",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:27:19Z"),
 						ValidationChallenge: &ValidationChallenge{
-							DNSCname:                  "ac.abababababababababababababababab.dom1.test.validate-akdv.net",
-							ChallengeToken:            "t0ken1",
-							ChallengeTokenExpiresDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
-							HTTPRedirectFrom:          ptr.To("https://dom1.test/.well-known/akamai/akamai-challenge/r4dirFrom1"),
-							HTTPRedirectTo:            ptr.To("https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken1"),
+							CNAMERecord: CNAMERecord{
+								Name:   "cname-name-1",
+								Target: "cname-target-1",
+							},
+							TXTRecord: TXTRecord{
+								Name:  "txt-name-1",
+								Value: "txt-value-1",
+							},
+							HTTPFile: &HTTPFile{
+								Path:        "http-file-path-1",
+								Content:     "http-file-content-1",
+								ContentType: "text/plain",
+							},
+							HTTPRedirect: &HTTPRedirect{
+								From: "http-redirect-from-1",
+								To:   "http-redirect-to-1",
+							},
+							ExpirationDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
 						},
 					},
 					{
@@ -226,11 +366,15 @@ func TestListDomains(t *testing.T) {
 						ValidationRequestedBy:   "someuser",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:26:58Z"),
 						ValidationChallenge: &ValidationChallenge{
-							DNSCname:                  "ac.cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd.dom2.test.validate-akdv.net",
-							ChallengeToken:            "t0ken2",
-							ChallengeTokenExpiresDate: test.NewTimeFromString(t, "2025-08-05T13:26:58Z"),
-							HTTPRedirectFrom:          ptr.To("https://dom2.test/.well-known/akamai/akamai-challenge/r4dirFrom2"),
-							HTTPRedirectTo:            ptr.To("https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken2"),
+							CNAMERecord: CNAMERecord{
+								Name:   "cname-name-2",
+								Target: "cname-target-2",
+							},
+							TXTRecord: TXTRecord{
+								Name:  "txt-name-2",
+								Value: "txt-value-2",
+							},
+							ExpirationDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
 						},
 					},
 					{
@@ -241,11 +385,24 @@ func TestListDomains(t *testing.T) {
 						ValidationRequestedBy:   "someuser",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:26:50Z"),
 						ValidationChallenge: &ValidationChallenge{
-							DNSCname:                  "ac.abababababababababababababababab.dom3.test.validate-akdv.net",
-							ChallengeToken:            "t0ken3",
-							ChallengeTokenExpiresDate: test.NewTimeFromString(t, "2025-08-05T13:26:50Z"),
-							HTTPRedirectFrom:          ptr.To("https://dom3.test/.well-known/akamai/akamai-challenge/r4dirFrom3"),
-							HTTPRedirectTo:            ptr.To("https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken3"),
+							CNAMERecord: CNAMERecord{
+								Name:   "cname-name-3",
+								Target: "cname-target-3",
+							},
+							TXTRecord: TXTRecord{
+								Name:  "txt-name-3",
+								Value: "txt-value-3",
+							},
+							HTTPFile: &HTTPFile{
+								Path:        "http-file-path-3",
+								Content:     "http-file-content-3",
+								ContentType: "text/plain",
+							},
+							HTTPRedirect: &HTTPRedirect{
+								From: "http-redirect-from-3",
+								To:   "http-redirect-to-3",
+							},
+							ExpirationDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
 						},
 					},
 					{
@@ -256,11 +413,24 @@ func TestListDomains(t *testing.T) {
 						ValidationRequestedBy:   "someuser",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:26:50Z"),
 						ValidationChallenge: &ValidationChallenge{
-							DNSCname:                  "ac.cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd.dom4.test.validate-akdv.net",
-							ChallengeToken:            "t0ken4",
-							ChallengeTokenExpiresDate: test.NewTimeFromString(t, "2025-08-05T13:26:50Z"),
-							HTTPRedirectFrom:          ptr.To("https://dom4.test/.well-known/akamai/akamai-challenge/r4dirFrom4"),
-							HTTPRedirectTo:            ptr.To("https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken4"),
+							CNAMERecord: CNAMERecord{
+								Name:   "cname-name-4",
+								Target: "cname-target-4",
+							},
+							TXTRecord: TXTRecord{
+								Name:  "txt-name-4",
+								Value: "txt-value-4",
+							},
+							HTTPFile: &HTTPFile{
+								Path:        "http-file-path-4",
+								Content:     "http-file-content-4",
+								ContentType: "text/plain",
+							},
+							HTTPRedirect: &HTTPRedirect{
+								From: "http-redirect-from-4",
+								To:   "http-redirect-to-4",
+							},
+							ExpirationDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
 						},
 					},
 					{
@@ -271,11 +441,24 @@ func TestListDomains(t *testing.T) {
 						ValidationRequestedBy:   "someuser",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:26:50Z"),
 						ValidationChallenge: &ValidationChallenge{
-							DNSCname:                  "ac.abababababababababababababababab.dom5.test.validate-akdv.net",
-							ChallengeToken:            "t0ken5",
-							ChallengeTokenExpiresDate: test.NewTimeFromString(t, "2025-08-05T13:26:50Z"),
-							HTTPRedirectFrom:          ptr.To("https://dom5.test/.well-known/akamai/akamai-challenge/r4dirFrom5"),
-							HTTPRedirectTo:            ptr.To("https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken5"),
+							CNAMERecord: CNAMERecord{
+								Name:   "cname-name-5",
+								Target: "cname-target-5",
+							},
+							TXTRecord: TXTRecord{
+								Name:  "txt-name-5",
+								Value: "txt-value-5",
+							},
+							HTTPFile: &HTTPFile{
+								Path:        "http-file-path-5",
+								Content:     "http-file-content-5",
+								ContentType: "text/plain",
+							},
+							HTTPRedirect: &HTTPRedirect{
+								From: "http-redirect-from-5",
+								To:   "http-redirect-to-5",
+							},
+							ExpirationDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
 						},
 					},
 					{
@@ -286,9 +469,24 @@ func TestListDomains(t *testing.T) {
 						ValidationRequestedBy:   "someuser",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:26:50Z"),
 						ValidationChallenge: &ValidationChallenge{
-							DNSCname:                  "ac.cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd.dom6.test.validate-akdv.net",
-							ChallengeToken:            "t0ken6",
-							ChallengeTokenExpiresDate: test.NewTimeFromString(t, "2025-08-05T13:26:50Z"),
+							CNAMERecord: CNAMERecord{
+								Name:   "cname-name-6",
+								Target: "cname-target-6",
+							},
+							TXTRecord: TXTRecord{
+								Name:  "txt-name-6",
+								Value: "txt-value-6",
+							},
+							HTTPFile: &HTTPFile{
+								Path:        "http-file-path-6",
+								Content:     "http-file-content-6",
+								ContentType: "text/plain",
+							},
+							HTTPRedirect: &HTTPRedirect{
+								From: "http-redirect-from-6",
+								To:   "http-redirect-to-6",
+							},
+							ExpirationDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
 						},
 					},
 					{
@@ -299,9 +497,24 @@ func TestListDomains(t *testing.T) {
 						ValidationRequestedBy:   "someuser",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:26:50Z"),
 						ValidationChallenge: &ValidationChallenge{
-							DNSCname:                  "ac.abababababababababababababababab.dom7.test.validate-akdv.net",
-							ChallengeToken:            "t0ken7",
-							ChallengeTokenExpiresDate: test.NewTimeFromString(t, "2025-08-05T13:26:50Z"),
+							CNAMERecord: CNAMERecord{
+								Name:   "cname-name-7",
+								Target: "cname-target-7",
+							},
+							TXTRecord: TXTRecord{
+								Name:  "txt-name-7",
+								Value: "txt-value-7",
+							},
+							HTTPFile: &HTTPFile{
+								Path:        "http-file-path-7",
+								Content:     "http-file-content-7",
+								ContentType: "text/plain",
+							},
+							HTTPRedirect: &HTTPRedirect{
+								From: "http-redirect-from-7",
+								To:   "http-redirect-to-7",
+							},
+							ExpirationDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
 						},
 					},
 					{
@@ -312,11 +525,24 @@ func TestListDomains(t *testing.T) {
 						ValidationRequestedBy:   "someuser",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:26:29Z"),
 						ValidationChallenge: &ValidationChallenge{
-							DNSCname:                  "ac.cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd.dom8.test.validate-akdv.net",
-							ChallengeToken:            "t0ken8",
-							ChallengeTokenExpiresDate: test.NewTimeFromString(t, "2025-08-05T13:26:29Z"),
-							HTTPRedirectFrom:          ptr.To("https://dom8.test/.well-known/akamai/akamai-challenge/r4dirFrom8"),
-							HTTPRedirectTo:            ptr.To("https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken8"),
+							CNAMERecord: CNAMERecord{
+								Name:   "cname-name-8",
+								Target: "cname-target-8",
+							},
+							TXTRecord: TXTRecord{
+								Name:  "txt-name-8",
+								Value: "txt-value-8",
+							},
+							HTTPFile: &HTTPFile{
+								Path:        "http-file-path-8",
+								Content:     "http-file-content-8",
+								ContentType: "text/plain",
+							},
+							HTTPRedirect: &HTTPRedirect{
+								From: "http-redirect-from-8",
+								To:   "http-redirect-to-8",
+							},
+							ExpirationDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
 						},
 					},
 					{
@@ -327,11 +553,24 @@ func TestListDomains(t *testing.T) {
 						ValidationRequestedBy:   "someuser",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:26:29Z"),
 						ValidationChallenge: &ValidationChallenge{
-							DNSCname:                  "ac.abababababababababababababababab.dom9.test.validate-akdv.net",
-							ChallengeToken:            "t0ken9",
-							ChallengeTokenExpiresDate: test.NewTimeFromString(t, "2025-08-05T13:26:29Z"),
-							HTTPRedirectFrom:          ptr.To("https://dom9.test/.well-known/akamai/akamai-challenge/r4dirFrom9"),
-							HTTPRedirectTo:            ptr.To("https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken9"),
+							CNAMERecord: CNAMERecord{
+								Name:   "cname-name-9",
+								Target: "cname-target-9",
+							},
+							TXTRecord: TXTRecord{
+								Name:  "txt-name-9",
+								Value: "txt-value-9",
+							},
+							HTTPFile: &HTTPFile{
+								Path:        "http-file-path-9",
+								Content:     "http-file-content-9",
+								ContentType: "text/plain",
+							},
+							HTTPRedirect: &HTTPRedirect{
+								From: "http-redirect-from-9",
+								To:   "http-redirect-to-9",
+							},
+							ExpirationDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
 						},
 					},
 					{
@@ -342,9 +581,24 @@ func TestListDomains(t *testing.T) {
 						ValidationRequestedBy:   "someuser",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:26:29Z"),
 						ValidationChallenge: &ValidationChallenge{
-							DNSCname:                  "ac.cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd.dom10.test.validate-akdv.net",
-							ChallengeToken:            "t0ken10",
-							ChallengeTokenExpiresDate: test.NewTimeFromString(t, "2025-08-05T13:26:29Z"),
+							CNAMERecord: CNAMERecord{
+								Name:   "cname-name-10",
+								Target: "cname-target-10",
+							},
+							TXTRecord: TXTRecord{
+								Name:  "txt-name-10",
+								Value: "txt-value-10",
+							},
+							HTTPFile: &HTTPFile{
+								Path:        "http-file-path-10",
+								Content:     "http-file-content-10",
+								ContentType: "text/plain",
+							},
+							HTTPRedirect: &HTTPRedirect{
+								From: "http-redirect-from-10",
+								To:   "http-redirect-to-10",
+							},
+							ExpirationDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
 						},
 					},
 				},
@@ -380,12 +634,25 @@ func TestListDomains(t *testing.T) {
             "domainStatus": "REQUEST_ACCEPTED",
             "validationRequestedBy": "someuser",
             "validationRequestedDate": "2025-08-04T13:27:19Z",
-            "validationChallenge": {
-                "dnsCname": "ac.abababababababababababababababab.dom1.test.validate-akdv.net",
-                "challengeToken": "t0ken1",
-                "challengeTokenExpiresDate": "2025-08-05T13:27:19Z",
-                "httpRedirectFrom": "https://dom1.test/.well-known/akamai/akamai-challenge/r4dirFrom1",
-                "httpRedirectTo": "https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken1"
+             "validationChallenge": {
+                "cnameRecord": {
+                    "name": "cname-name-1",
+                    "target": "cname-target-1"
+                },
+                "txtRecord": {
+                    "name": "txt-name-1",
+                    "value": "txt-value-1"
+                },
+                "httpFile": {
+                    "path": "http-file-path-1",
+                    "content": "http-file-content-1",
+                    "contentType": "text/plain"
+                },
+                "httpRedirect": {
+                    "from": "http-redirect-from-1",
+                    "to": "http-redirect-to-1"
+                },
+                "expirationDate": "2025-08-05T13:27:19Z"
             }
         }
     ],
@@ -414,11 +681,24 @@ func TestListDomains(t *testing.T) {
 						ValidationRequestedBy:   "someuser",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:27:19Z"),
 						ValidationChallenge: &ValidationChallenge{
-							DNSCname:                  "ac.abababababababababababababababab.dom1.test.validate-akdv.net",
-							ChallengeToken:            "t0ken1",
-							ChallengeTokenExpiresDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
-							HTTPRedirectFrom:          ptr.To("https://dom1.test/.well-known/akamai/akamai-challenge/r4dirFrom1"),
-							HTTPRedirectTo:            ptr.To("https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken1"),
+							CNAMERecord: CNAMERecord{
+								Name:   "cname-name-1",
+								Target: "cname-target-1",
+							},
+							TXTRecord: TXTRecord{
+								Name:  "txt-name-1",
+								Value: "txt-value-1",
+							},
+							HTTPFile: &HTTPFile{
+								Path:        "http-file-path-1",
+								Content:     "http-file-content-1",
+								ContentType: "text/plain",
+							},
+							HTTPRedirect: &HTTPRedirect{
+								From: "http-redirect-from-1",
+								To:   "http-redirect-to-1",
+							},
+							ExpirationDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
 						},
 					},
 				},
@@ -449,17 +729,30 @@ func TestListDomains(t *testing.T) {
     "domains": [
         {
             "accountId": "1-ACCOUN",
-            "domainName": "dom1.test",
+            "domainName": "dom9.test",
             "validationScope": "HOST",
             "domainStatus": "REQUEST_ACCEPTED",
             "validationRequestedBy": "someuser",
-            "validationRequestedDate": "2025-08-04T13:27:19Z",
+            "validationRequestedDate": "2025-08-04T13:26:29Z",
             "validationChallenge": {
-                "dnsCname": "ac.abababababababababababababababab.dom1.test.validate-akdv.net",
-                "challengeToken": "t0ken1",
-                "challengeTokenExpiresDate": "2025-08-05T13:27:19Z",
-                "httpRedirectFrom": "https://dom1.test/.well-known/akamai/akamai-challenge/r4dirFrom1",
-                "httpRedirectTo": "https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken1"
+                "cnameRecord": {
+                    "name": "cname-name-9",
+                    "target": "cname-target-9"
+                },
+                "txtRecord": {
+                    "name": "txt-name-9",
+                    "value": "txt-value-9"
+                },
+                "httpFile": {
+                    "path": "http-file-path-9",
+                    "content": "http-file-content-9",
+                    "contentType": "text/plain"
+                },
+                "httpRedirect": {
+                    "from": "http-redirect-from-9",
+                    "to": "http-redirect-to-9"
+                },
+                "expirationDate": "2025-08-05T13:27:19Z"
             }
         }
     ],
@@ -482,17 +775,30 @@ func TestListDomains(t *testing.T) {
 				Domains: []DomainItem{
 					{
 						AccountID:               "1-ACCOUN",
-						DomainName:              "dom1.test",
+						DomainName:              "dom9.test",
 						ValidationScope:         "HOST",
 						DomainStatus:            "REQUEST_ACCEPTED",
 						ValidationRequestedBy:   "someuser",
-						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:27:19Z"),
+						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:26:29Z"),
 						ValidationChallenge: &ValidationChallenge{
-							DNSCname:                  "ac.abababababababababababababababab.dom1.test.validate-akdv.net",
-							ChallengeToken:            "t0ken1",
-							ChallengeTokenExpiresDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
-							HTTPRedirectFrom:          ptr.To("https://dom1.test/.well-known/akamai/akamai-challenge/r4dirFrom1"),
-							HTTPRedirectTo:            ptr.To("https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken1"),
+							CNAMERecord: CNAMERecord{
+								Name:   "cname-name-9",
+								Target: "cname-target-9",
+							},
+							TXTRecord: TXTRecord{
+								Name:  "txt-name-9",
+								Value: "txt-value-9",
+							},
+							HTTPFile: &HTTPFile{
+								Path:        "http-file-path-9",
+								Content:     "http-file-content-9",
+								ContentType: "text/plain",
+							},
+							HTTPRedirect: &HTTPRedirect{
+								From: "http-redirect-from-9",
+								To:   "http-redirect-to-9",
+							},
+							ExpirationDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
 						},
 					},
 				},
@@ -526,12 +832,25 @@ func TestListDomains(t *testing.T) {
             "domainStatus": "REQUEST_ACCEPTED",
             "validationRequestedBy": "someuser",
             "validationRequestedDate": "2025-08-04T13:27:19Z",
-            "validationChallenge": {
-                "dnsCname": "ac.abababababababababababababababab.dom1.test.validate-akdv.net",
-                "challengeToken": "t0ken1",
-                "challengeTokenExpiresDate": "2025-08-05T13:27:19Z",
-                "httpRedirectFrom": "https://dom1.test/.well-known/akamai/akamai-challenge/r4dirFrom1",
-                "httpRedirectTo": "https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken1"
+             "validationChallenge": {
+                "cnameRecord": {
+                    "name": "cname-name-1",
+                    "target": "cname-target-1"
+                },
+                "txtRecord": {
+                    "name": "txt-name-1",
+                    "value": "txt-value-1"
+                },
+                "httpFile": {
+                    "path": "http-file-path-1",
+                    "content": "http-file-content-1",
+                    "contentType": "text/plain"
+                },
+                "httpRedirect": {
+                    "from": "http-redirect-from-1",
+                    "to": "http-redirect-to-1"
+                },
+                "expirationDate": "2025-08-05T13:27:19Z"
             }
         }
     ],
@@ -560,11 +879,24 @@ func TestListDomains(t *testing.T) {
 						ValidationRequestedBy:   "someuser",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:27:19Z"),
 						ValidationChallenge: &ValidationChallenge{
-							DNSCname:                  "ac.abababababababababababababababab.dom1.test.validate-akdv.net",
-							ChallengeToken:            "t0ken1",
-							ChallengeTokenExpiresDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
-							HTTPRedirectFrom:          ptr.To("https://dom1.test/.well-known/akamai/akamai-challenge/r4dirFrom1"),
-							HTTPRedirectTo:            ptr.To("https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken1"),
+							CNAMERecord: CNAMERecord{
+								Name:   "cname-name-1",
+								Target: "cname-target-1",
+							},
+							TXTRecord: TXTRecord{
+								Name:  "txt-name-1",
+								Value: "txt-value-1",
+							},
+							HTTPFile: &HTTPFile{
+								Path:        "http-file-path-1",
+								Content:     "http-file-content-1",
+								ContentType: "text/plain",
+							},
+							HTTPRedirect: &HTTPRedirect{
+								From: "http-redirect-from-1",
+								To:   "http-redirect-to-1",
+							},
+							ExpirationDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
 						},
 					},
 				},
@@ -599,11 +931,24 @@ func TestListDomains(t *testing.T) {
             "validationRequestedBy": "someuser",
             "validationRequestedDate": "2025-08-04T13:27:19Z",
             "validationChallenge": {
-                "dnsCname": "ac.abababababababababababababababab.dom1.test.validate-akdv.net",
-                "challengeToken": "t0ken1",
-                "challengeTokenExpiresDate": "2025-08-05T13:27:19Z",
-                "httpRedirectFrom": "https://dom1.test/.well-known/akamai/akamai-challenge/r4dirFrom1",
-                "httpRedirectTo": "https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken1"
+                "cnameRecord": {
+                    "name": "cname-name-1",
+                    "target": "cname-target-1"
+                },
+                "txtRecord": {
+                    "name": "txt-name-1",
+                    "value": "txt-value-1"
+                },
+                "httpFile": {
+                    "path": "http-file-path-1",
+                    "content": "http-file-content-1",
+                    "contentType": "text/plain"
+                },
+                "httpRedirect": {
+                    "from": "http-redirect-from-1",
+                    "to": "http-redirect-to-1"
+                },
+                "expirationDate": "2025-08-05T13:27:19Z"
             }
         }
     ],
@@ -632,11 +977,24 @@ func TestListDomains(t *testing.T) {
 						ValidationRequestedBy:   "someuser",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:27:19Z"),
 						ValidationChallenge: &ValidationChallenge{
-							DNSCname:                  "ac.abababababababababababababababab.dom1.test.validate-akdv.net",
-							ChallengeToken:            "t0ken1",
-							ChallengeTokenExpiresDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
-							HTTPRedirectFrom:          ptr.To("https://dom1.test/.well-known/akamai/akamai-challenge/r4dirFrom1"),
-							HTTPRedirectTo:            ptr.To("https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken1"),
+							CNAMERecord: CNAMERecord{
+								Name:   "cname-name-1",
+								Target: "cname-target-1",
+							},
+							TXTRecord: TXTRecord{
+								Name:  "txt-name-1",
+								Value: "txt-value-1",
+							},
+							HTTPFile: &HTTPFile{
+								Path:        "http-file-path-1",
+								Content:     "http-file-content-1",
+								ContentType: "text/plain",
+							},
+							HTTPRedirect: &HTTPRedirect{
+								From: "http-redirect-from-1",
+								To:   "http-redirect-to-1",
+							},
+							ExpirationDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
 						},
 					},
 				},
@@ -654,38 +1012,51 @@ func TestListDomains(t *testing.T) {
 			},
 			responseStatus: http.StatusOK,
 			responseBody: `
-{
-    "metadata": {
-        "hasPrevious": false,
-        "hasNext": false,
-        "page": 1,
-        "pageSize": 10,
-        "totalItems": 1
-    },
-    "domains": [
-        {
-            "accountId": "1-ACCOUN",
-            "domainName": "dom1.test",
-            "validationScope": "HOST",
-            "domainStatus": "REQUEST_ACCEPTED",
-            "validationRequestedBy": "someuser",
-            "validationRequestedDate": "2025-08-04T13:27:19Z",
-            "validationChallenge": {
-                "dnsCname": "ac.abababababababababababababababab.dom1.test.validate-akdv.net",
-                "challengeToken": "t0ken1",
-                "challengeTokenExpiresDate": "2025-08-05T13:27:19Z",
-                "httpRedirectFrom": "https://dom1.test/.well-known/akamai/akamai-challenge/r4dirFrom1",
-                "httpRedirectTo": "https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken1"
-            }
-        }
-    ],
-    "links": [
-        {
-            "rel": "self",
-            "href": "/domain-validation-service/api/v1/domains?page=1&pageSize=10"
-        }
-    ]
-}`,
+		{
+		    "metadata": {
+		        "hasPrevious": false,
+		        "hasNext": false,
+		        "page": 1,
+		        "pageSize": 10,
+		        "totalItems": 1
+		    },
+		    "domains": [
+		        {
+		            "accountId": "1-ACCOUN",
+		            "domainName": "dom1.test",
+		            "validationScope": "HOST",
+		            "domainStatus": "REQUEST_ACCEPTED",
+		            "validationRequestedBy": "someuser",
+		            "validationRequestedDate": "2025-08-04T13:27:19Z",
+		            "validationChallenge": {
+                		"cnameRecord": {
+                    		"name": "cname-name-1",
+                    		"target": "cname-target-1"
+               		 	},
+                		"txtRecord": {
+                    		"name": "txt-name-1",
+                    		"value": "txt-value-1"
+                		},
+                		"httpFile": {
+                    		"path": "http-file-path-1",
+                    		"content": "http-file-content-1",
+                    		"contentType": "text/plain"
+                		},
+                		"httpRedirect": {
+                    		"from": "http-redirect-from-1",
+                    		"to": "http-redirect-to-1"
+                		},
+                		"expirationDate": "2025-08-05T13:27:19Z"
+            		}
+		        }
+		    ],
+		    "links": [
+		        {
+		            "rel": "self",
+		            "href": "/domain-validation-service/api/v1/domains?page=1&pageSize=10"
+		        }
+		    ]
+		}`,
 			expectedPath: "/domain-validation/v1/domains?page=1",
 			expectedResponse: &ListDomainsResponse{
 				Metadata: Metadata{
@@ -704,11 +1075,24 @@ func TestListDomains(t *testing.T) {
 						ValidationRequestedBy:   "someuser",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:27:19Z"),
 						ValidationChallenge: &ValidationChallenge{
-							DNSCname:                  "ac.abababababababababababababababab.dom1.test.validate-akdv.net",
-							ChallengeToken:            "t0ken1",
-							ChallengeTokenExpiresDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
-							HTTPRedirectFrom:          ptr.To("https://dom1.test/.well-known/akamai/akamai-challenge/r4dirFrom1"),
-							HTTPRedirectTo:            ptr.To("https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken1"),
+							CNAMERecord: CNAMERecord{
+								Name:   "cname-name-1",
+								Target: "cname-target-1",
+							},
+							TXTRecord: TXTRecord{
+								Name:  "txt-name-1",
+								Value: "txt-value-1",
+							},
+							HTTPFile: &HTTPFile{
+								Path:        "http-file-path-1",
+								Content:     "http-file-content-1",
+								ContentType: "text/plain",
+							},
+							HTTPRedirect: &HTTPRedirect{
+								From: "http-redirect-from-1",
+								To:   "http-redirect-to-1",
+							},
+							ExpirationDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
 						},
 					},
 				},
@@ -810,18 +1194,31 @@ func TestGetDomain(t *testing.T) {
 			responseBody: `
 {
     "accountId": "1-ACCOUN",
-	"domainName": "dom1.test",
-	"validationScope": "HOST",
-	"domainStatus": "REQUEST_ACCEPTED",
-	"validationRequestedBy": "someuser",
-	"validationRequestedDate": "2025-08-04T13:27:19Z",
-	"validationChallenge": {
-		"dnsCname": "ac.abababababababababababababababab.dom1.test.validate-akdv.net",
-		"challengeToken": "t0ken1",
-		"challengeTokenExpiresDate": "2025-08-05T13:27:19Z",
-		"httpRedirectFrom": "https://dom1.test/.well-known/akamai/akamai-challenge/r4dirFrom1",
-		"httpRedirectTo": "https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken1"
-	}
+    "domainName": "dom1.test",
+    "validationScope": "HOST",
+    "domainStatus": "REQUEST_ACCEPTED",
+    "validationRequestedBy": "someuser",
+    "validationRequestedDate": "2025-08-04T13:27:19Z",
+    "validationChallenge": {
+                "cnameRecord": {
+                    "name": "cname-name-1",
+                    "target": "cname-target-1"
+                },
+                "txtRecord": {
+                    "name": "txt-name-1",
+                    "value": "txt-value-1"
+                },
+                "httpFile": {
+                    "path": "http-file-path-1",
+                    "content": "http-file-content-1",
+                    "contentType": "text/plain"
+                },
+                "httpRedirect": {
+                    "from": "http-redirect-from-1",
+                    "to": "http-redirect-to-1"
+                },
+                "expirationDate": "2025-08-05T13:27:19Z"
+            }
 }`,
 			expectedPath: "/domain-validation/v1/domains/dom1.test?validationScope=HOST",
 			expectedResponse: &GetDomainResponse{
@@ -832,11 +1229,24 @@ func TestGetDomain(t *testing.T) {
 				ValidationRequestedBy:   "someuser",
 				ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:27:19Z"),
 				ValidationChallenge: &ValidationChallenge{
-					DNSCname:                  "ac.abababababababababababababababab.dom1.test.validate-akdv.net",
-					ChallengeToken:            "t0ken1",
-					ChallengeTokenExpiresDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
-					HTTPRedirectFrom:          ptr.To("https://dom1.test/.well-known/akamai/akamai-challenge/r4dirFrom1"),
-					HTTPRedirectTo:            ptr.To("https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken1"),
+					CNAMERecord: CNAMERecord{
+						Name:   "cname-name-1",
+						Target: "cname-target-1",
+					},
+					TXTRecord: TXTRecord{
+						Name:  "txt-name-1",
+						Value: "txt-value-1",
+					},
+					HTTPFile: &HTTPFile{
+						Path:        "http-file-path-1",
+						Content:     "http-file-content-1",
+						ContentType: "text/plain",
+					},
+					HTTPRedirect: &HTTPRedirect{
+						From: "http-redirect-from-1",
+						To:   "http-redirect-to-1",
+					},
+					ExpirationDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
 				},
 			},
 		},
@@ -849,16 +1259,31 @@ func TestGetDomain(t *testing.T) {
 			responseBody: `
 {
     "accountId": "1-ACCOUN",
-	"domainName": "dom1.test",
-	"validationScope": "HOST",
-	"domainStatus": "REQUEST_ACCEPTED",
-	"validationRequestedBy": "someuser",
-	"validationRequestedDate": "2025-08-04T13:27:19Z",
-	"validationChallenge": {
-		"dnsCname": "ac.abababababababababababababababab.dom1.test.validate-akdv.net",
-		"challengeToken": "t0ken1",
-		"challengeTokenExpiresDate": "2025-08-05T13:27:19Z"
-	}
+    "domainName": "dom1.test",
+    "validationScope": "HOST",
+    "domainStatus": "REQUEST_ACCEPTED",
+    "validationRequestedBy": "someuser",
+    "validationRequestedDate": "2025-08-04T13:27:19Z",
+    "validationChallenge": {
+                "cnameRecord": {
+                    "name": "cname-name-1",
+                    "target": "cname-target-1"
+                },
+                "txtRecord": {
+                    "name": "txt-name-1",
+                    "value": "txt-value-1"
+                },
+                "httpFile": {
+                    "path": "http-file-path-1",
+                    "content": "http-file-content-1",
+                    "contentType": "text/plain"
+                },
+                "httpRedirect": {
+                    "from": "http-redirect-from-1",
+                    "to": "http-redirect-to-1"
+                },
+                "expirationDate": "2025-08-05T13:27:19Z"
+            }
 }`,
 			expectedPath: "/domain-validation/v1/domains/dom1.test?validationScope=HOST",
 			expectedResponse: &GetDomainResponse{
@@ -869,9 +1294,24 @@ func TestGetDomain(t *testing.T) {
 				ValidationRequestedBy:   "someuser",
 				ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:27:19Z"),
 				ValidationChallenge: &ValidationChallenge{
-					DNSCname:                  "ac.abababababababababababababababab.dom1.test.validate-akdv.net",
-					ChallengeToken:            "t0ken1",
-					ChallengeTokenExpiresDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
+					CNAMERecord: CNAMERecord{
+						Name:   "cname-name-1",
+						Target: "cname-target-1",
+					},
+					TXTRecord: TXTRecord{
+						Name:  "txt-name-1",
+						Value: "txt-value-1",
+					},
+					HTTPFile: &HTTPFile{
+						Path:        "http-file-path-1",
+						Content:     "http-file-content-1",
+						ContentType: "text/plain",
+					},
+					HTTPRedirect: &HTTPRedirect{
+						From: "http-redirect-from-1",
+						To:   "http-redirect-to-1",
+					},
+					ExpirationDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
 				},
 			},
 		},
@@ -885,19 +1325,32 @@ func TestGetDomain(t *testing.T) {
 			responseBody: `
 {
     "accountId": "1-ACCOUN",
-	"domainName": "dom1.test",
-	"validationScope": "HOST",
-	"domainStatus": "VALIDATION_IN_PROGRESS",
-	"validationRequestedBy": "someuser",
-	"validationRequestedDate": "2025-08-04T13:27:19Z",
-	"validationChallenge": {
-		"dnsCname": "ac.abababababababababababababababab.dom1.test.validate-akdv.net",
-		"challengeToken": "t0ken1",
-		"challengeTokenExpiresDate": "2025-08-05T13:27:19Z",
-		"httpRedirectFrom": "https://dom1.test/.well-known/akamai/akamai-challenge/r4dirFrom1",
-		"httpRedirectTo": "https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken1"
-	},
-	"domainStatusHistory": [
+    "domainName": "dom1.test",
+    "validationScope": "HOST",
+    "domainStatus": "VALIDATION_IN_PROGRESS",
+    "validationRequestedBy": "someuser",
+    "validationRequestedDate": "2025-08-04T13:27:19Z",
+    "validationChallenge": {
+                "cnameRecord": {
+                    "name": "cname-name-1",
+                    "target": "cname-target-1"
+                },
+                "txtRecord": {
+                    "name": "txt-name-1",
+                    "value": "txt-value-1"
+                },
+                "httpFile": {
+                    "path": "http-file-path-1",
+                    "content": "http-file-content-1",
+                    "contentType": "text/plain"
+                },
+                "httpRedirect": {
+                    "from": "http-redirect-from-1",
+                    "to": "http-redirect-to-1"
+                },
+                "expirationDate": "2025-08-05T13:27:19Z"
+            },
+    "domainStatusHistory": [
         {
             "domainStatus": "REQUEST_ACCEPTED",
             "modifiedUser": "someuser",
@@ -920,11 +1373,24 @@ func TestGetDomain(t *testing.T) {
 				ValidationRequestedBy:   "someuser",
 				ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:27:19Z"),
 				ValidationChallenge: &ValidationChallenge{
-					DNSCname:                  "ac.abababababababababababababababab.dom1.test.validate-akdv.net",
-					ChallengeToken:            "t0ken1",
-					ChallengeTokenExpiresDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
-					HTTPRedirectFrom:          ptr.To("https://dom1.test/.well-known/akamai/akamai-challenge/r4dirFrom1"),
-					HTTPRedirectTo:            ptr.To("https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken1"),
+					CNAMERecord: CNAMERecord{
+						Name:   "cname-name-1",
+						Target: "cname-target-1",
+					},
+					TXTRecord: TXTRecord{
+						Name:  "txt-name-1",
+						Value: "txt-value-1",
+					},
+					HTTPFile: &HTTPFile{
+						Path:        "http-file-path-1",
+						Content:     "http-file-content-1",
+						ContentType: "text/plain",
+					},
+					HTTPRedirect: &HTTPRedirect{
+						From: "http-redirect-from-1",
+						To:   "http-redirect-to-1",
+					},
+					ExpirationDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
 				},
 				DomainStatusHistory: []DomainStatusHistory{
 					{
@@ -1123,12 +1589,25 @@ func TestSearchDomains(t *testing.T) {
 			"validationRequestedBy": "someuser",
 			"validationRequestedDate": "2025-08-04T13:27:19Z",
 			"validationChallenge": {
-				"dnsCname": "ac.abababababababababababababababab.dom1.test.validate-akdv.net",
-				"challengeToken": "t0ken1",
-				"challengeTokenExpiresDate": "2025-08-05T13:27:19Z",
-				"httpRedirectFrom": "https://dom1.test/.well-known/akamai/akamai-challenge/r4dirFrom1",
-				"httpRedirectTo": "https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken1"
-			}
+                "cnameRecord": {
+                    "name": "cname-name-1",
+                    "target": "cname-target-1"
+                },
+                "txtRecord": {
+                    "name": "txt-name-1",
+                    "value": "txt-value-1"
+                },
+                "httpFile": {
+                    "path": "http-file-path-1",
+                    "content": "http-file-content-1",
+                    "contentType": "text/plain"
+                },
+                "httpRedirect": {
+                    "from": "http-redirect-from-1",
+                    "to": "http-redirect-to-1"
+                },
+                "expirationDate": "2025-08-05T13:27:19Z"
+            }
 		},
 		{
 			"accountId": "1-ACCOUN",
@@ -1156,11 +1635,24 @@ func TestSearchDomains(t *testing.T) {
 						ValidationRequestedBy:   ptr.To("someuser"),
 						ValidationRequestedDate: ptr.To(test.NewTimeFromString(t, "2025-08-04T13:27:19Z")),
 						ValidationChallenge: &ValidationChallenge{
-							DNSCname:                  "ac.abababababababababababababababab.dom1.test.validate-akdv.net",
-							ChallengeToken:            "t0ken1",
-							ChallengeTokenExpiresDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
-							HTTPRedirectFrom:          ptr.To("https://dom1.test/.well-known/akamai/akamai-challenge/r4dirFrom1"),
-							HTTPRedirectTo:            ptr.To("https://validation.akamai.com/.well-known/akamai/akamai-challenge/t0ken1"),
+							CNAMERecord: CNAMERecord{
+								Name:   "cname-name-1",
+								Target: "cname-target-1",
+							},
+							TXTRecord: TXTRecord{
+								Name:  "txt-name-1",
+								Value: "txt-value-1",
+							},
+							HTTPFile: &HTTPFile{
+								Path:        "http-file-path-1",
+								Content:     "http-file-content-1",
+								ContentType: "text/plain",
+							},
+							HTTPRedirect: &HTTPRedirect{
+								From: "http-redirect-from-1",
+								To:   "http-redirect-to-1",
+							},
+							ExpirationDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
 						},
 					},
 					{
@@ -1303,11 +1795,24 @@ func TestAddDomains(t *testing.T) {
             "validationRequestedBy": "someone",
             "validationRequestedDate": "2024-02-06T06:01:45Z",
             "validationChallenge": {
-                "dnsCname": "ac.1234.example.com.validate-akdv.net",
-                "challengeToken": "abcdE12345",
-                "challengeTokenExpiresDate": "2024-05-14T05:25:56Z",
-                "httpRedirectFrom": "https://www.testsite.com/.well-known/akamai/akamai-challenge",
-                "httpRedirectTo": "https://validation.akamai.com/.well-known/akamai/akamai-challenge/token1"
+                "cnameRecord": {
+                    "name": "cname-name-1",
+                    "target": "cname-target-1"
+                },
+                "txtRecord": {
+                    "name": "txt-name-1",
+                    "value": "txt-value-1"
+                },
+                "httpFile": {
+                    "path": "http-file-path-1",
+                    "content": "http-file-content-1",
+                    "contentType": "text/plain"
+                },
+                "httpRedirect": {
+                    "from": "http-redirect-from-1",
+                    "to": "http-redirect-to-1"
+                },
+                "expirationDate": "2025-08-05T13:27:19Z"
             }
         },
         {
@@ -1318,11 +1823,24 @@ func TestAddDomains(t *testing.T) {
             "validationRequestedBy": "someone",
             "validationRequestedDate": "2024-02-06T06:01:45Z",
             "validationChallenge": {
-                "dnsCname": "ac.1234.example.com.validate-akdv.net",
-                "challengeToken": "abcdE12345",
-                "challengeTokenExpiresDate": "2024-05-14T05:25:56Z",
-                "httpRedirectFrom": "https://www.testsite.com/.well-known/akamai/akamai-challenge",
-                "httpRedirectTo": "https://validation.akamai.com/.well-known/akamai/akamai-challenge/token2"
+                "cnameRecord": {
+                    "name": "cname-name-2",
+                    "target": "cname-target-2"
+                },
+                "txtRecord": {
+                    "name": "txt-name-2",
+                    "value": "txt-value-2"
+                },
+                "httpFile": {
+                    "path": "http-file-path-2",
+                    "content": "http-file-content-2",
+                    "contentType": "text/plain"
+                },
+                "httpRedirect": {
+                    "from": "http-redirect-from-2",
+                    "to": "http-redirect-to-2"
+                },
+                "expirationDate": "2025-08-05T13:27:19Z"
             }
         }
     ]
@@ -1341,11 +1859,24 @@ func TestAddDomains(t *testing.T) {
 						ValidationRequestedBy:   "someone",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2024-02-06T06:01:45Z"),
 						ValidationChallenge: ValidationChallenge{
-							DNSCname:                  "ac.1234.example.com.validate-akdv.net",
-							ChallengeToken:            "abcdE12345",
-							ChallengeTokenExpiresDate: test.NewTimeFromString(t, "2024-05-14T05:25:56Z"),
-							HTTPRedirectFrom:          ptr.To("https://www.testsite.com/.well-known/akamai/akamai-challenge"),
-							HTTPRedirectTo:            ptr.To("https://validation.akamai.com/.well-known/akamai/akamai-challenge/token1"),
+							CNAMERecord: CNAMERecord{
+								Name:   "cname-name-1",
+								Target: "cname-target-1",
+							},
+							TXTRecord: TXTRecord{
+								Name:  "txt-name-1",
+								Value: "txt-value-1",
+							},
+							HTTPFile: &HTTPFile{
+								Path:        "http-file-path-1",
+								Content:     "http-file-content-1",
+								ContentType: "text/plain",
+							},
+							HTTPRedirect: &HTTPRedirect{
+								From: "http-redirect-from-1",
+								To:   "http-redirect-to-1",
+							},
+							ExpirationDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
 						},
 					},
 					{
@@ -1357,11 +1888,24 @@ func TestAddDomains(t *testing.T) {
 						ValidationRequestedBy:   "someone",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2024-02-06T06:01:45Z"),
 						ValidationChallenge: ValidationChallenge{
-							DNSCname:                  "ac.1234.example.com.validate-akdv.net",
-							ChallengeToken:            "abcdE12345",
-							ChallengeTokenExpiresDate: test.NewTimeFromString(t, "2024-05-14T05:25:56Z"),
-							HTTPRedirectFrom:          ptr.To("https://www.testsite.com/.well-known/akamai/akamai-challenge"),
-							HTTPRedirectTo:            ptr.To("https://validation.akamai.com/.well-known/akamai/akamai-challenge/token2"),
+							CNAMERecord: CNAMERecord{
+								Name:   "cname-name-2",
+								Target: "cname-target-2",
+							},
+							TXTRecord: TXTRecord{
+								Name:  "txt-name-2",
+								Value: "txt-value-2",
+							},
+							HTTPFile: &HTTPFile{
+								Path:        "http-file-path-2",
+								Content:     "http-file-content-2",
+								ContentType: "text/plain",
+							},
+							HTTPRedirect: &HTTPRedirect{
+								From: "http-redirect-from-2",
+								To:   "http-redirect-to-2",
+							},
+							ExpirationDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
 						},
 					},
 				},
@@ -1427,11 +1971,24 @@ func TestAddDomains(t *testing.T) {
             "validationRequestedBy": "someone",
             "validationRequestedDate": "2024-02-06T06:01:45Z",
             "validationChallenge": {
-                "dnsCname": "ac.1234.example.com.validate-akdv.net",
-                "challengeToken": "abcdE12345",
-                "challengeTokenExpiresDate": "2024-05-14T05:25:56Z",
-                "httpRedirectFrom": "https://www.testsite.com/.well-known/akamai/akamai-challenge",
-                "httpRedirectTo": "https://validation.akamai.com/.well-known/akamai/akamai-challenge/abcdE12345"
+                "cnameRecord": {
+                    "name": "cname-name-1",
+                    "target": "cname-target-1"
+                },
+                "txtRecord": {
+                    "name": "txt-name-1",
+                    "value": "txt-value-1"
+                },
+                "httpFile": {
+                    "path": "http-file-path-1",
+                    "content": "http-file-content-1",
+                    "contentType": "text/plain"
+                },
+                "httpRedirect": {
+                    "from": "http-redirect-from-1",
+                    "to": "http-redirect-to-1"
+                },
+                "expirationDate": "2025-08-05T13:27:19Z"
             }
         },
         {
@@ -1442,11 +1999,24 @@ func TestAddDomains(t *testing.T) {
             "validationRequestedBy": "someone",
             "validationRequestedDate": "2024-02-06T06:01:45Z",
             "validationChallenge": {
-                "dnsCname": "ac.1234.example.com.validate-akdv.net",
-                "challengeToken": "abcdE12345",
-                "challengeTokenExpiresDate": "2024-05-14T05:25:56Z",
-                "httpRedirectFrom": "https://www.testsite.com/.well-known/akamai/akamai-challenge",
-                "httpRedirectTo": "https://validation.akamai.com/.well-known/akamai/akamai-challenge/abcdE12345"
+                "cnameRecord": {
+                    "name": "cname-name-2",
+                    "target": "cname-target-2"
+                },
+                "txtRecord": {
+                    "name": "txt-name-2",
+                    "value": "txt-value-2"
+                },
+                "httpFile": {
+                    "path": "http-file-path-2",
+                    "content": "http-file-content-2",
+                    "contentType": "text/plain"
+                },
+                "httpRedirect": {
+                    "from": "http-redirect-from-2",
+                    "to": "http-redirect-to-2"
+                },
+                "expirationDate": "2025-08-05T13:27:19Z"
             }
         }
     ]
@@ -1487,11 +2057,24 @@ func TestAddDomains(t *testing.T) {
 						ValidationRequestedBy:   "someone",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2024-02-06T06:01:45Z"),
 						ValidationChallenge: ValidationChallenge{
-							DNSCname:                  "ac.1234.example.com.validate-akdv.net",
-							ChallengeToken:            "abcdE12345",
-							ChallengeTokenExpiresDate: test.NewTimeFromString(t, "2024-05-14T05:25:56Z"),
-							HTTPRedirectFrom:          ptr.To("https://www.testsite.com/.well-known/akamai/akamai-challenge"),
-							HTTPRedirectTo:            ptr.To("https://validation.akamai.com/.well-known/akamai/akamai-challenge/abcdE12345"),
+							CNAMERecord: CNAMERecord{
+								Name:   "cname-name-1",
+								Target: "cname-target-1",
+							},
+							TXTRecord: TXTRecord{
+								Name:  "txt-name-1",
+								Value: "txt-value-1",
+							},
+							HTTPFile: &HTTPFile{
+								Path:        "http-file-path-1",
+								Content:     "http-file-content-1",
+								ContentType: "text/plain",
+							},
+							HTTPRedirect: &HTTPRedirect{
+								From: "http-redirect-from-1",
+								To:   "http-redirect-to-1",
+							},
+							ExpirationDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
 						},
 					},
 					{
@@ -1503,11 +2086,24 @@ func TestAddDomains(t *testing.T) {
 						ValidationRequestedBy:   "someone",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2024-02-06T06:01:45Z"),
 						ValidationChallenge: ValidationChallenge{
-							DNSCname:                  "ac.1234.example.com.validate-akdv.net",
-							ChallengeToken:            "abcdE12345",
-							ChallengeTokenExpiresDate: test.NewTimeFromString(t, "2024-05-14T05:25:56Z"),
-							HTTPRedirectFrom:          ptr.To("https://www.testsite.com/.well-known/akamai/akamai-challenge"),
-							HTTPRedirectTo:            ptr.To("https://validation.akamai.com/.well-known/akamai/akamai-challenge/abcdE12345"),
+							CNAMERecord: CNAMERecord{
+								Name:   "cname-name-2",
+								Target: "cname-target-2",
+							},
+							TXTRecord: TXTRecord{
+								Name:  "txt-name-2",
+								Value: "txt-value-2",
+							},
+							HTTPFile: &HTTPFile{
+								Path:        "http-file-path-2",
+								Content:     "http-file-content-2",
+								ContentType: "text/plain",
+							},
+							HTTPRedirect: &HTTPRedirect{
+								From: "http-redirect-from-2",
+								To:   "http-redirect-to-2",
+							},
+							ExpirationDate: test.NewTimeFromString(t, "2025-08-05T13:27:19Z"),
 						},
 					},
 				},

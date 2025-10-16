@@ -149,20 +149,54 @@ type (
 
 	// ValidationChallenge contains the details of the validation challenge for a domain.
 	ValidationChallenge struct {
-		// ChallengeToken is the challenge token you need to use for domain validation.
-		ChallengeToken string `json:"challengeToken"`
+		// CNAMERecord is the CNAME record details for DNS CNAME validation.
+		CNAMERecord CNAMERecord `json:"cnameRecord"`
 
-		// ChallengeTokenExpiresDate is an ISO 8601 timestamp indicating when the domain validation token expires.
-		ChallengeTokenExpiresDate time.Time `json:"challengeTokenExpiresDate"`
+		// TXTRecord is the TXT record details for DNS TXT validation.
+		TXTRecord TXTRecord `json:"txtRecord"`
 
-		// DNSCname is the DNS CNAME you need to use for DNS CNAME domain validation.
-		DNSCname string `json:"dnsCname"`
+		// HTTPFile is the HTTP file details for HTTP validation.
+		HTTPFile *HTTPFile `json:"httpFile"`
 
-		// HTTPRedirectFrom is the HTTP URL for checking the challenge token during HTTP validation.
-		HTTPRedirectFrom *string `json:"httpRedirectFrom"`
+		// HTTPRedirect is the HTTP redirect URL for HTTP validation.
+		HTTPRedirect *HTTPRedirect `json:"httpRedirect"`
 
-		// HTTPRedirectTo is the HTTP redirect URL for HTTP validation.
-		HTTPRedirectTo *string `json:"httpRedirectTo"`
+		// ExpirationDate is the timestamp when the validation challenge expires.
+		ExpirationDate time.Time `json:"expirationDate"`
+	}
+
+	// CNAMERecord holds the CNAME record details.
+	CNAMERecord struct {
+		// Name is the hostname where the CNAME record should be created
+		Name string `json:"name"`
+		// Target is the target hostname for the CNAME record
+		Target string `json:"target"`
+	}
+
+	// TXTRecord holds the TXT record details.
+	TXTRecord struct {
+		// Name is the hostname where the TXT record should be created
+		Name string `json:"name"`
+		// Value is the content of the TXT record
+		Value string `json:"value"`
+	}
+
+	// HTTPFile holds the details for HTTP file validation.
+	HTTPFile struct {
+		// Path is the URL path where the file should be accessible
+		Path string `json:"path"`
+		// Content is the expected content of the file
+		Content string `json:"content"`
+		// ContentType is the expected Content-Type header value
+		ContentType string `json:"contentType"`
+	}
+
+	// HTTPRedirect holds the details for HTTP redirect validation.
+	HTTPRedirect struct {
+		// From is the source URL that should redirect
+		From string `json:"from"`
+		// To is the target URL where the redirect should point to
+		To string `json:"to"`
 	}
 
 	// Metadata represents the metadata section of a paginated API response.
