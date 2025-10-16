@@ -1580,3 +1580,21 @@ func (m *Mock) UpdateRapidRuleException(ctx context.Context, req UpdateRapidRule
 	}
 	return args.Get(0).(*UpdateRapidRuleExceptionResponse), args.Error(1)
 }
+
+// GetHostMoveValidation mocks the host move validation functionality
+func (m *Mock) GetHostMoveValidation(ctx context.Context, req GetHostMoveValidationRequest) (*GetHostMoveValidationResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*GetHostMoveValidationResponse), args.Error(1)
+}
+
+// CreateActivationsWithHostMove mocks the activation with host move functionality
+func (m *Mock) CreateActivationsWithHostMove(ctx context.Context, req CreateActivationsWithHostMoveRequest) (*CreateActivationsWithHostMoveResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*CreateActivationsWithHostMoveResponse), args.Error(1)
+}

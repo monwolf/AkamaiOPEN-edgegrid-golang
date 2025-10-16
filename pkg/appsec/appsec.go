@@ -53,6 +53,7 @@ type (
 		EvalRule
 		ExportConfiguration
 		FailoverHostnames
+		HostMoveActivations
 		IPGeo
 		IPGeoProtection
 		MalwareContentTypes

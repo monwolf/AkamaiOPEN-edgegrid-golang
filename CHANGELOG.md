@@ -22,7 +22,8 @@
 
 
 
-
+* Appsec
+  * Added new methods `GetHostMoveValidation` and `CreateActivationsWithHostMove`.
 
 
 
