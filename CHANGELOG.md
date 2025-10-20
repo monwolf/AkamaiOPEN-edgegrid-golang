@@ -40,6 +40,9 @@
 
 
 
+* PAPI
+  * Added CCM specific fields to the response of the `ListActivePropertyHostnames` method.
+
 
 
 

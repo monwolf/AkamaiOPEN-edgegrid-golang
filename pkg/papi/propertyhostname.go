@@ -89,11 +89,16 @@ type (
 		RSAStagingStatus string `json:"rsaStagingStatus,omitempty"`
 	}
 
-	// CertStatusItem contains information about certificate status for specific Hostname
+	// CertStatusItem contains information about certificate status for specific Hostname.
 	CertStatusItem struct {
+		// ValidationCname is the CNAME record used to validate the certificate’s domain.
 		ValidationCname ValidationCname `json:"validationCname,omitempty"`
-		Staging         []StatusItem    `json:"staging,omitempty"`
-		Production      []StatusItem    `json:"production,omitempty"`
+
+		// Staging contains certificate status for the hostname on the staging network.
+		Staging []StatusItem `json:"staging,omitempty"`
+
+		// Production contains certificate status for the hostname on the production network.
+		Production []StatusItem `json:"production,omitempty"`
 	}
 
 	// CCMCertificates contains identifiers for the RSA and ECDSA certificates.
