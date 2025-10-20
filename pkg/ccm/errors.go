@@ -18,6 +18,9 @@ var (
 	// ErrPatchCertificate represents error when patching certificate fails.
 	ErrPatchCertificate = errors.New("patching certificate")
 
+	// ErrUpdateCertificate represents error when updating certificate fails.
+	ErrUpdateCertificate = errors.New("updating certificate")
+
 	// ErrListCertificates represents error when listing certificates fails.
 	ErrListCertificates = errors.New("listing certificates")
 

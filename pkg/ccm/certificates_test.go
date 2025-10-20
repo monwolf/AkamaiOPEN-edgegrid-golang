@@ -1916,6 +1916,955 @@ func TestPatchCertificate(t *testing.T) {
 	}
 }
 
+func TestUpdateCertificate(t *testing.T) {
+	t.Parallel()
+	tests := map[string]struct {
+		params              UpdateCertificateRequest
+		responseStatus      int
+		responseBody        string
+		expectedResponse    *UpdateCertificateResponse
+		expectedRequestBody string
+		expectedPath        string
+		expectedHeaders     map[string]string
+		withError           func(*testing.T, error)
+	}{
+		"200 OK - only rename with all allowed characters": {
+			params: UpdateCertificateRequest{
+				CertificateID:   "123",
+				CertificateName: ptr.To("test 0123456789.-_"),
+			},
+			expectedResponse: &UpdateCertificateResponse{
+				AccountID:               "acc_123",
+				CertificateID:           "123",
+				CertificateName:         "test 0123456789.-_",
+				CertificateStatus:       "CSR_READY",
+				CertificateType:         "THIRD_PARTY",
+				ContractID:              "A-123",
+				CreatedBy:               "user",
+				CreatedDate:             test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
+				CSRExpirationDate:       test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
+				CSRPEM:                  ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
+				KeySize:                 "2048",
+				KeyType:                 "RSA",
+				ModifiedBy:              "user",
+				ModifiedDate:            test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
+				SANs:                    []string{"example.com", "www.example.com"},
+				SecureNetwork:           "ENHANCED_TLS",
+				SignedCertificateIssuer: nil,
+				Subject: &Subject{
+					Country:      "US",
+					Organization: "ExampleOrg",
+					State:        "Massachusetts",
+					Locality:     "Cambridge",
+					CommonName:   "example.com",
+				},
+			},
+			expectedRequestBody: `{"certificateName":"test 0123456789.-_"}`,
+			responseStatus:      200,
+			responseBody: `
+			{
+				"accountId": "acc_123",
+				"certificateId": "123",
+				"certificateName": "test 0123456789.-_",
+				"certificateStatus": "CSR_READY",
+				"certificateType": "THIRD_PARTY",
+				"contractId": "A-123",
+				"createdBy": "user",
+				"createdDate": "2025-08-22T09:01:32.607357Z",
+				"csrExpirationDate": "2026-10-24T09:01:34Z",
+				"csrPem": "-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n",
+				"keySize": "2048",
+				"keyType": "RSA",
+				"modifiedBy": "user",
+				"modifiedDate": "2025-08-22T09:01:32.607358Z",
+				"sans": [
+					"example.com",
+					"www.example.com"
+				],
+				"secureNetwork": "ENHANCED_TLS",
+				"signedCertificateIssuer": null,
+				"signedCertificateNotValidAfterDate": null,
+				"signedCertificateNotValidBeforeDate": null,
+				"signedCertificatePem": null,
+				"signedCertificateSHA256Fingerprint": null,
+				"signedCertificateSerialNumber": null,
+				"subject": {
+					"commonName": "example.com",
+					"country": "US",
+					"locality": "Cambridge",
+					"organization": "ExampleOrg",
+					"state": "Massachusetts"
+				},
+				"trustChainPem": null
+			}`,
+			expectedPath: "/ccm/v1/certificates/123",
+			expectedHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+		},
+		"200 OK - reset name by providing empty value": {
+			params: UpdateCertificateRequest{
+				CertificateID:   "123",
+				CertificateName: ptr.To(""),
+			},
+			expectedResponse: &UpdateCertificateResponse{
+				AccountID:               "acc_123",
+				CertificateID:           "123",
+				CertificateName:         "example.com20250822092651008941",
+				CertificateStatus:       "CSR_READY",
+				CertificateType:         "THIRD_PARTY",
+				ContractID:              "A-123",
+				CreatedBy:               "user",
+				CreatedDate:             test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
+				CSRExpirationDate:       test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
+				CSRPEM:                  ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
+				KeySize:                 "2048",
+				KeyType:                 "RSA",
+				ModifiedBy:              "user",
+				ModifiedDate:            test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
+				SANs:                    []string{"example.com", "www.example.com"},
+				SecureNetwork:           "ENHANCED_TLS",
+				SignedCertificateIssuer: nil,
+				Subject: &Subject{
+					Country:      "US",
+					Organization: "ExampleOrg",
+					State:        "Massachusetts",
+					Locality:     "Cambridge",
+					CommonName:   "example.com",
+				},
+			},
+			expectedRequestBody: "{\"certificateName\":\"\"}",
+			responseStatus:      200,
+			responseBody: `
+			{
+				"accountId": "acc_123",
+				"certificateId": "123",
+				"certificateName": "example.com20250822092651008941",
+				"certificateStatus": "CSR_READY",
+				"certificateType": "THIRD_PARTY",
+				"contractId": "A-123",
+				"createdBy": "user",
+				"createdDate": "2025-08-22T09:01:32.607357Z",
+				"csrExpirationDate": "2026-10-24T09:01:34Z",
+				"csrPem": "-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n",
+				"keySize": "2048",
+				"keyType": "RSA",
+				"modifiedBy": "user",
+				"modifiedDate": "2025-08-22T09:01:32.607358Z",
+				"sans": [
+					"example.com",
+					"www.example.com"
+				],
+				"secureNetwork": "ENHANCED_TLS",
+				"signedCertificateIssuer": null,
+				"signedCertificateNotValidAfterDate": null,
+				"signedCertificateNotValidBeforeDate": null,
+				"signedCertificatePem": null,
+				"signedCertificateSHA256Fingerprint": null,
+				"signedCertificateSerialNumber": null,
+				"subject": {
+					"commonName": "example.com",
+					"country": "US",
+					"locality": "Cambridge",
+					"organization": "ExampleOrg",
+					"state": "Massachusetts"
+				},
+				"trustChainPem": null
+			}`,
+			expectedPath: "/ccm/v1/certificates/123",
+			expectedHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+		},
+		"200 OK - upload signed certificate PEM only": {
+			params: UpdateCertificateRequest{
+				CertificateID:        "123",
+				SignedCertificatePEM: "-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n",
+			},
+			expectedResponse: &UpdateCertificateResponse{
+				AccountID:                           "acc_123",
+				CertificateID:                       "123",
+				CertificateName:                     "Certificate-name-rename",
+				CertificateStatus:                   "CSR_READY",
+				CertificateType:                     "THIRD_PARTY",
+				ContractID:                          "A-123",
+				CreatedBy:                           "user",
+				CreatedDate:                         test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
+				CSRExpirationDate:                   test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
+				CSRPEM:                              ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
+				KeySize:                             "2048",
+				KeyType:                             "RSA",
+				ModifiedBy:                          "user",
+				ModifiedDate:                        test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
+				SANs:                                []string{"example.com", "www.example.com"},
+				SecureNetwork:                       "ENHANCED_TLS",
+				SignedCertificateIssuer:             ptr.To("CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA"),
+				SignedCertificateNotValidAfterDate:  ptr.To(test.NewTimeFromString(t, "2027-11-22T12:11:31Z")),
+				SignedCertificateNotValidBeforeDate: ptr.To(test.NewTimeFromString(t, "2025-08-22T11:11:31Z")),
+				SignedCertificatePEM:                ptr.To("-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"),
+				SignedCertificateSHA256Fingerprint:  ptr.To("4E:69:28:A1:CE:F1:E4:97:CE:39:FE:12:98"),
+				SignedCertificateSerialNumber:       ptr.To("a2:84:7d:dc:97:f1"),
+				Subject: &Subject{
+					CommonName:   "example.com",
+					Country:      "US",
+					Locality:     "Cambridge",
+					Organization: "ExampleOrg",
+					State:        "Massachusetts",
+				},
+				TrustChainPEM: nil,
+			},
+			expectedRequestBody: `{"signedCertificatePem":"-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"}`,
+			responseStatus:      200,
+			responseBody: `
+			{
+				"accountId": "acc_123",
+				"certificateId": "123",
+				"certificateName": "Certificate-name-rename",
+				"certificateStatus": "CSR_READY",
+				"certificateType": "THIRD_PARTY",
+				"contractId": "A-123",
+				"createdBy": "user",
+				"createdDate": "2025-08-22T09:01:32.607357Z",
+				"csrExpirationDate": "2026-10-24T09:01:34Z",
+				"csrPem": "-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n",
+				"keySize": "2048",
+				"keyType": "RSA",
+				"modifiedBy": "user",
+				"modifiedDate": "2025-08-22T09:01:32.607358Z",
+				"sans": [
+					"example.com",
+					"www.example.com"
+				],
+				"secureNetwork": "ENHANCED_TLS",
+				"signedCertificateIssuer": "CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA",
+				"signedCertificateNotValidAfterDate": "2027-11-22T12:11:31Z",
+				"signedCertificateNotValidBeforeDate": "2025-08-22T11:11:31Z",
+				"signedCertificatePem": "-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n",
+				"signedCertificateSHA256Fingerprint": "4E:69:28:A1:CE:F1:E4:97:CE:39:FE:12:98",
+				"signedCertificateSerialNumber": "a2:84:7d:dc:97:f1",
+				"subject": {
+					"commonName": "example.com",
+					"country": "US",
+					"locality": "Cambridge",
+					"organization": "ExampleOrg",
+					"state": "Massachusetts"
+				},
+				"trustChainPem": null
+			}`,
+			expectedPath: "/ccm/v1/certificates/123",
+			expectedHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+		},
+		"200 OK - upload signed certificate PEM with trust chain": {
+			params: UpdateCertificateRequest{
+				CertificateID:        "123",
+				SignedCertificatePEM: "-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n",
+				TrustChainPEM:        "-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n",
+			},
+			expectedResponse: &UpdateCertificateResponse{
+				AccountID:                           "acc_123",
+				CertificateID:                       "123",
+				CertificateName:                     "Certificate-name-rename",
+				CertificateStatus:                   "CSR_READY",
+				CertificateType:                     "THIRD_PARTY",
+				ContractID:                          "A-123",
+				CreatedBy:                           "user",
+				CreatedDate:                         test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
+				CSRExpirationDate:                   test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
+				CSRPEM:                              ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
+				KeySize:                             "2048",
+				KeyType:                             "RSA",
+				ModifiedBy:                          "user",
+				ModifiedDate:                        test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
+				SANs:                                []string{"example.com", "www.example.com"},
+				SecureNetwork:                       "ENHANCED_TLS",
+				SignedCertificateIssuer:             ptr.To("CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA"),
+				SignedCertificateNotValidAfterDate:  ptr.To(test.NewTimeFromString(t, "2027-11-22T12:11:31Z")),
+				SignedCertificateNotValidBeforeDate: ptr.To(test.NewTimeFromString(t, "2025-08-22T11:11:31Z")),
+				SignedCertificatePEM:                ptr.To("-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"),
+				SignedCertificateSHA256Fingerprint:  ptr.To("4E:69:28:A1:CE:F1:E4:97:CE:39:FE:12:98"),
+				SignedCertificateSerialNumber:       ptr.To("a2:84:7d:dc:97:f1"),
+				Subject: &Subject{
+					CommonName:   "example.com",
+					Country:      "US",
+					Locality:     "Cambridge",
+					Organization: "ExampleOrg",
+					State:        "Massachusetts",
+				},
+				TrustChainPEM: ptr.To("-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n"),
+			},
+			expectedRequestBody: `{"signedCertificatePem":"-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n","trustChainPem":"-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n"}`,
+			responseStatus:      200,
+			responseBody: `
+			{
+				"accountId": "acc_123",
+				"certificateId": "123",
+				"certificateName": "Certificate-name-rename",
+				"certificateStatus": "CSR_READY",
+				"certificateType": "THIRD_PARTY",
+				"contractId": "A-123",
+				"createdBy": "user",
+				"createdDate": "2025-08-22T09:01:32.607357Z",
+				"csrExpirationDate": "2026-10-24T09:01:34Z",
+				"csrPem": "-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n",
+				"keySize": "2048",
+				"keyType": "RSA",
+				"modifiedBy": "user",
+				"modifiedDate": "2025-08-22T09:01:32.607358Z",
+				"sans": [
+					"example.com",
+					"www.example.com"
+				],
+				"secureNetwork": "ENHANCED_TLS",
+				"signedCertificateIssuer": "CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA",
+				"signedCertificateNotValidAfterDate": "2027-11-22T12:11:31Z",
+				"signedCertificateNotValidBeforeDate": "2025-08-22T11:11:31Z",
+				"signedCertificatePem": "-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n",
+				"signedCertificateSHA256Fingerprint": "4E:69:28:A1:CE:F1:E4:97:CE:39:FE:12:98",
+				"signedCertificateSerialNumber": "a2:84:7d:dc:97:f1",
+				"subject": {
+					"commonName": "example.com",
+					"country": "US",
+					"locality": "Cambridge",
+					"organization": "ExampleOrg",
+					"state": "Massachusetts"
+				},
+				"trustChainPem": "-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n"
+			}`,
+			expectedPath: "/ccm/v1/certificates/123",
+			expectedHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+		},
+		"200 OK - upload signed certificate with AcknowledgeWarnings query param": {
+			params: UpdateCertificateRequest{
+				CertificateID:        "123",
+				SignedCertificatePEM: "-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n",
+				AcknowledgeWarnings:  true,
+			},
+			expectedResponse: &UpdateCertificateResponse{
+				AccountID:                           "acc_123",
+				CertificateID:                       "123",
+				CertificateName:                     "Certificate-name-rename",
+				CertificateStatus:                   "CSR_READY",
+				CertificateType:                     "THIRD_PARTY",
+				ContractID:                          "A-123",
+				CreatedBy:                           "user",
+				CreatedDate:                         test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
+				CSRExpirationDate:                   test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
+				CSRPEM:                              ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
+				KeySize:                             "2048",
+				KeyType:                             "RSA",
+				ModifiedBy:                          "user",
+				ModifiedDate:                        test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
+				SANs:                                []string{"example.com", "www.example.com"},
+				SecureNetwork:                       "ENHANCED_TLS",
+				SignedCertificateIssuer:             ptr.To("CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA"),
+				SignedCertificateNotValidAfterDate:  ptr.To(test.NewTimeFromString(t, "2027-11-22T12:11:31Z")),
+				SignedCertificateNotValidBeforeDate: ptr.To(test.NewTimeFromString(t, "2025-08-22T11:11:31Z")),
+				SignedCertificatePEM:                ptr.To("-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"),
+				SignedCertificateSHA256Fingerprint:  ptr.To("4E:69:28:A1:CE:F1:E4:97:CE:39:FE:12:98"),
+				SignedCertificateSerialNumber:       ptr.To("a2:84:7d:dc:97:f1"),
+				Subject: &Subject{
+					CommonName:   "example.com",
+					Country:      "US",
+					Locality:     "Cambridge",
+					Organization: "ExampleOrg",
+					State:        "Massachusetts",
+				},
+				TrustChainPEM: nil,
+			},
+			expectedRequestBody: `{"signedCertificatePem":"-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"}`,
+			responseStatus:      200,
+			responseBody: `
+			{
+				"accountId": "acc_123",
+				"certificateId": "123",
+				"certificateName": "Certificate-name-rename",
+				"certificateStatus": "CSR_READY",
+				"certificateType": "THIRD_PARTY",
+				"contractId": "A-123",
+				"createdBy": "user",
+				"createdDate": "2025-08-22T09:01:32.607357Z",
+				"csrExpirationDate": "2026-10-24T09:01:34Z",
+				"csrPem": "-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n",
+				"keySize": "2048",
+				"keyType": "RSA",
+				"modifiedBy": "user",
+				"modifiedDate": "2025-08-22T09:01:32.607358Z",
+				"sans": [
+					"example.com",
+					"www.example.com"
+				],
+				"secureNetwork": "ENHANCED_TLS",
+				"signedCertificateIssuer": "CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA",
+				"signedCertificateNotValidAfterDate": "2027-11-22T12:11:31Z",
+				"signedCertificateNotValidBeforeDate": "2025-08-22T11:11:31Z",
+				"signedCertificatePem": "-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n",
+				"signedCertificateSHA256Fingerprint": "4E:69:28:A1:CE:F1:E4:97:CE:39:FE:12:98",
+				"signedCertificateSerialNumber": "a2:84:7d:dc:97:f1",
+				"subject": {
+					"commonName": "example.com",
+					"country": "US",
+					"locality": "Cambridge",
+					"organization": "ExampleOrg",
+					"state": "Massachusetts"
+				},
+				"trustChainPem": null
+			}`,
+			expectedPath: "/ccm/v1/certificates/123?acknowledgeWarnings=true",
+			expectedHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+		},
+		"200 OK - upload signed certificate and trust chain PEM with AcknowledgeWarnings query param and rename certificate": {
+			params: UpdateCertificateRequest{
+				CertificateID:        "123",
+				SignedCertificatePEM: "-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n",
+				TrustChainPEM:        "-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n",
+				CertificateName:      ptr.To("Certificate-name-rename"),
+				AcknowledgeWarnings:  true,
+			},
+			expectedResponse: &UpdateCertificateResponse{
+				AccountID:                           "acc_123",
+				CertificateID:                       "123",
+				CertificateName:                     "Certificate-name-rename",
+				CertificateStatus:                   "CSR_READY",
+				CertificateType:                     "THIRD_PARTY",
+				ContractID:                          "A-123",
+				CreatedBy:                           "user",
+				CreatedDate:                         test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
+				CSRExpirationDate:                   test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
+				CSRPEM:                              ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
+				KeySize:                             "2048",
+				KeyType:                             "RSA",
+				ModifiedBy:                          "user",
+				ModifiedDate:                        test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
+				SANs:                                []string{"example.com", "www.example.com"},
+				SecureNetwork:                       "ENHANCED_TLS",
+				SignedCertificateIssuer:             ptr.To("CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA"),
+				SignedCertificateNotValidAfterDate:  ptr.To(test.NewTimeFromString(t, "2027-11-22T12:11:31Z")),
+				SignedCertificateNotValidBeforeDate: ptr.To(test.NewTimeFromString(t, "2025-08-22T11:11:31Z")),
+				SignedCertificatePEM:                ptr.To("-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"),
+				SignedCertificateSHA256Fingerprint:  ptr.To("4E:69:28:A1:CE:F1:E4:97:CE:39:FE:12:98"),
+				SignedCertificateSerialNumber:       ptr.To("a2:84:7d:dc:97:f1"),
+				Subject: &Subject{
+					CommonName:   "example.com",
+					Country:      "US",
+					Locality:     "Cambridge",
+					Organization: "ExampleOrg",
+					State:        "Massachusetts",
+				},
+				TrustChainPEM: ptr.To("-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n"),
+			},
+			expectedRequestBody: `{"signedCertificatePem":"-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n","trustChainPem":"-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n","certificateName":"Certificate-name-rename"}`,
+			responseStatus:      200,
+			responseBody: `
+			{
+				"accountId": "acc_123",
+				"certificateId": "123",
+				"certificateName": "Certificate-name-rename",
+				"certificateStatus": "CSR_READY",
+				"certificateType": "THIRD_PARTY",
+				"contractId": "A-123",
+				"createdBy": "user",
+				"createdDate": "2025-08-22T09:01:32.607357Z",
+				"csrExpirationDate": "2026-10-24T09:01:34Z",
+				"csrPem": "-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n",
+				"keySize": "2048",
+				"keyType": "RSA",
+				"modifiedBy": "user",
+				"modifiedDate": "2025-08-22T09:01:32.607358Z",
+				"sans": [
+					"example.com",
+					"www.example.com"
+				],
+				"secureNetwork": "ENHANCED_TLS",
+				"signedCertificateIssuer": "CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA",
+				"signedCertificateNotValidAfterDate": "2027-11-22T12:11:31Z",
+				"signedCertificateNotValidBeforeDate": "2025-08-22T11:11:31Z",
+				"signedCertificatePem": "-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n",
+				"signedCertificateSHA256Fingerprint": "4E:69:28:A1:CE:F1:E4:97:CE:39:FE:12:98",
+				"signedCertificateSerialNumber": "a2:84:7d:dc:97:f1",
+				"subject": {
+					"commonName": "example.com",
+					"country": "US",
+					"locality": "Cambridge",
+					"organization": "ExampleOrg",
+					"state": "Massachusetts"
+				},
+				"trustChainPem": "-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n"
+			}`,
+			expectedPath: "/ccm/v1/certificates/123?acknowledgeWarnings=true",
+			expectedHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+		},
+		"409 OK - warnings in the response for certificate pem": {
+			params: UpdateCertificateRequest{
+				CertificateID:        "123",
+				SignedCertificatePEM: "-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n",
+			},
+			expectedRequestBody: `{"signedCertificatePem":"-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"}`,
+			responseStatus:      409,
+			responseBody: `
+			{
+				"data": {
+					"signedCertificatePem": "-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n",
+					"signedCertificates": [
+						{
+							"certificatePem": "-----BEGIN CERTIFICATE-----\nexample-PEM\n-----END CERTIFICATE-----",
+							"createdBy": null,
+							"createdDate": null,
+							"displayName": null,
+							"endDate": "2027-11-22T12:45:19Z",
+							"fingerprint": null,
+							"issuer": "CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA",
+							"sans": [
+								"example.com",
+								"www.example.com"
+							],
+							"serialNumber": "1234567890",
+							"signatureAlgorithm": "SHA256WITHRSA",
+							"startDate": "2025-08-22T11:45:19Z",
+							"subject": {
+								"commonName": "example.com",
+								"country": "US",
+								"locality": "Cambridge",
+								"state": "Massachusetts"
+							},
+							"validation": {
+								"errors": [],
+								"notices": [],
+								"warnings": [
+									{
+										"detail": "Message: Certificate validity period is above the maximum 398 days.. Name: LEAF_CERTIFICATE",
+										"instance": "/error-types/certificate-validation-warning?traceId=123456789",
+										"message": "Certificate validity period is above the maximum 398 days.",
+										"name": "LEAF_CERTIFICATE",
+										"title": "Certificate validation warning.",
+										"type": "/error-types/certificate-validation-warning"
+									}
+								]
+							}
+						}
+					],
+					"trustChain": [],
+					"trustChainPem": null,
+					"validation": {
+						"errors": [],
+						"notices": [],
+						"warnings": [
+							{
+								"detail": "Message: Name: MaxMinExpirationDateValidator Message: RSA certificate expiration is longer than allowed. Must expire within 398 days. Name: UNKNOWN",
+								"instance": "/error-types/certificate-validation-warning?traceId=123456789",
+								"message": "Name: MaxMinExpirationDateValidator Message: RSA certificate expiration is longer than allowed. Must expire within 398 days",
+								"name": "UNKNOWN",
+								"status": 400,
+								"title": "Certificate validation warning.",
+								"type": "/error-types/certificate-validation-warning"
+							},
+							{
+								"detail": "Message: Name: TrustChainRequiredValidator Message: RSA certificate does not come with a trust chain and this is a non-standard practice. Name: UNKNOWN",
+								"instance": "/error-types/certificate-validation-warning?traceId=123456789",
+								"message": "Name: TrustChainRequiredValidator Message: RSA certificate does not come with a trust chain and this is a non-standard practice",
+								"name": "UNKNOWN",
+								"status": 400,
+								"title": "Certificate validation warning.",
+								"type": "/error-types/certificate-validation-warning"
+							}
+						]
+					}
+				},
+				"detail": "Warnings detected in one or more of the uploaded certificates.",
+				"instance": "/error-types/upload-certificate-validation-warnings?traceId=123456789",
+				"status": 409,
+				"title": "Validation warnings for uploaded signed certificate(s) and trust chain(s) for one or more key types.",
+				"type": "/error-types/upload-certificate-validation-warnings"
+			}`,
+			expectedPath: "/ccm/v1/certificates/123",
+			expectedHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+			withError: func(t *testing.T, err error) {
+				want := fmt.Errorf("%w: %w", ErrUpdateCertificate, &Error{
+					Type:     "/error-types/upload-certificate-validation-warnings",
+					Title:    "Validation warnings for uploaded signed certificate(s) and trust chain(s) for one or more key types.",
+					Detail:   "Warnings detected in one or more of the uploaded certificates.",
+					Instance: "/error-types/upload-certificate-validation-warnings?traceId=123456789",
+					Status:   409,
+					Data: &ValidationData{
+						SignedCertificatePEM: "-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n",
+						SignedCertificates: []PEMValidation{
+							{
+								CertificatePEM:     "-----BEGIN CERTIFICATE-----\nexample-PEM\n-----END CERTIFICATE-----",
+								CreatedBy:          nil,
+								CreatedDate:        nil,
+								DisplayName:        nil,
+								EndDate:            ptr.To("2027-11-22T12:45:19Z"),
+								Fingerprint:        nil,
+								Issuer:             ptr.To("CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA"),
+								SerialNumber:       ptr.To("1234567890"),
+								SignatureAlgorithm: ptr.To("SHA256WITHRSA"),
+								StartDate:          ptr.To("2025-08-22T11:45:19Z"),
+								Subject: &Subject{
+									CommonName: "example.com",
+									Country:    "US",
+									Locality:   "Cambridge",
+									State:      "Massachusetts",
+								},
+								Validation: &ValidationResult{
+									Errors:  []ValidationDetail{},
+									Notices: []ValidationDetail{},
+									Warnings: []ValidationDetail{
+										{
+											Detail:   "Message: Certificate validity period is above the maximum 398 days.. Name: LEAF_CERTIFICATE",
+											Instance: "/error-types/certificate-validation-warning?traceId=123456789",
+											Message:  "Certificate validity period is above the maximum 398 days.",
+											Name:     "LEAF_CERTIFICATE",
+											Title:    "Certificate validation warning.",
+											Type:     "/error-types/certificate-validation-warning",
+										},
+									},
+								},
+							},
+						},
+						TrustChain:    []PEMValidation{},
+						TrustChainPEM: nil,
+						Validation: &ValidationResult{
+							Errors:  []ValidationDetail{},
+							Notices: []ValidationDetail{},
+							Warnings: []ValidationDetail{
+								{
+									Detail:   "Message: Name: MaxMinExpirationDateValidator Message: RSA certificate expiration is longer than allowed. Must expire within 398 days. Name: UNKNOWN",
+									Instance: "/error-types/certificate-validation-warning?traceId=123456789",
+									Message:  "Name: MaxMinExpirationDateValidator Message: RSA certificate expiration is longer than allowed. Must expire within 398 days",
+									Name:     "UNKNOWN",
+									Status:   ptr.To(400),
+									Title:    "Certificate validation warning.",
+									Type:     "/error-types/certificate-validation-warning",
+								},
+								{
+									Detail:   "Message: Name: TrustChainRequiredValidator Message: RSA certificate does not come with a trust chain and this is a non-standard practice. Name: UNKNOWN",
+									Instance: "/error-types/certificate-validation-warning?traceId=123456789",
+									Message:  "Name: TrustChainRequiredValidator Message: RSA certificate does not come with a trust chain and this is a non-standard practice",
+									Name:     "UNKNOWN",
+									Status:   ptr.To(400),
+									Title:    "Certificate validation warning.",
+									Type:     "/error-types/certificate-validation-warning",
+								},
+							},
+						},
+					},
+				})
+				assert.EqualError(t, err, want.Error(), "want: %s; got: %s", want, err)
+			},
+		},
+		"409 OK - warnings in the response for certificate pem and trust chain": {
+			params: UpdateCertificateRequest{
+				CertificateID:        "123",
+				SignedCertificatePEM: "-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n",
+			},
+			expectedRequestBody: `{"signedCertificatePem":"-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"}`,
+			responseStatus:      409,
+			responseBody: `
+			{
+				"data": {
+					"signedCertificatePem": "-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n",
+					"signedCertificates": [
+						{
+							"certificatePem": "-----BEGIN CERTIFICATE-----\nexample-PEM\n-----END CERTIFICATE-----",
+							"createdBy": null,
+							"createdDate": null,
+							"displayName": null,
+							"endDate": "2027-11-22T12:45:19Z",
+							"fingerprint": null,
+							"issuer": "CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA",
+							"sans": [
+								"example.com",
+								"www.example.com"
+							],
+							"serialNumber": "1234567890",
+							"signatureAlgorithm": "SHA256WITHRSA",
+							"startDate": "2025-08-22T11:45:19Z",
+							"subject": {
+								"commonName": "example.com",
+								"country": "US",
+								"locality": "Cambridge",
+								"organization": null,
+								"state": "Massachusetts"
+							},
+							"validation": {
+								"errors": [],
+								"notices": [],
+								"warnings": [
+									{
+										"detail": "Message: Certificate validity period is above the maximum 398 days.. Name: LEAF_CERTIFICATE",
+										"instance": "/error-types/certificate-validation-warning?traceId=123456789",
+										"message": "Certificate validity period is above the maximum 398 days.",
+										"name": "LEAF_CERTIFICATE",
+										"title": "Certificate validation warning.",
+										"type": "/error-types/certificate-validation-warning"
+									}
+								]
+							}
+						}
+					],
+					"trustChain": [
+						{
+							"certificatePem": "-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----",
+							"createdBy": null,
+							"createdDate": null,
+							"displayName": null,
+							"endDate": "2027-11-22T12:45:19Z",
+							"fingerprint": null,
+							"issuer": "CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA",
+							"sans": null,
+							"serialNumber": "1234567890",
+							"signatureAlgorithm": "SHA256WITHRSA",
+							"startDate": "2025-08-22T11:45:19Z",
+							"subject": null,
+							"validation": {
+								"errors": [
+									{
+										"detail": "Message: Certificate is not an intermediate trust chain certificate. Name: TRUST_CHAIN_CERTIFICATE",
+										"instance": "/error-types/certificate-validation-failed?traceId=123456789",
+										"message": "Certificate is not an intermediate trust chain certificate.",
+										"name": "TRUST_CHAIN_CERTIFICATE",
+										"title": "Certificate validation error.",
+										"type": "/error-types/certificate-validation-failed"
+									}
+								],
+								"notices": [],
+								"warnings": []
+							}
+						}
+					],
+					"trustChainPem": "-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n",
+					"validation": {
+						"errors": [],
+						"notices": [],
+						"warnings": []
+					}
+				},
+				"detail": "Errors detected in one or more of the uploaded certificates.",
+				"instance": "/error-types/upload-certificate-validation-failed?traceId=123456789",
+				"status": 400,
+				"title": "Validation failed for uploaded signed certificate(s) and trust chain(s) for one or more key types.",
+				"type": "/error-types/upload-certificate-validation-failed"
+			}`,
+			expectedPath: "/ccm/v1/certificates/123",
+			expectedHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+			withError: func(t *testing.T, err error) {
+				want := fmt.Errorf("%w: %w", ErrUpdateCertificate, &Error{
+					Type:     "/error-types/upload-certificate-validation-failed",
+					Title:    "Validation failed for uploaded signed certificate(s) and trust chain(s) for one or more key types.",
+					Detail:   "Errors detected in one or more of the uploaded certificates.",
+					Instance: "/error-types/upload-certificate-validation-failed?traceId=123456789",
+					Status:   409,
+					Data: &ValidationData{
+						SignedCertificatePEM: "-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n",
+						SignedCertificates: []PEMValidation{
+							{
+								CertificatePEM:     "-----BEGIN CERTIFICATE-----\nexample-PEM\n-----END CERTIFICATE-----",
+								CreatedBy:          nil,
+								CreatedDate:        nil,
+								DisplayName:        nil,
+								EndDate:            ptr.To("2027-11-22T12:45:19Z"),
+								Fingerprint:        nil,
+								Issuer:             ptr.To("CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA"),
+								SerialNumber:       ptr.To("1234567890"),
+								SignatureAlgorithm: ptr.To("SHA256WITHRSA"),
+								StartDate:          ptr.To("2025-08-22T11:45:19Z"),
+								Subject: &Subject{
+									CommonName: "example.com",
+									Country:    "US",
+									Locality:   "Cambridge",
+									State:      "Massachusetts",
+								},
+								Validation: &ValidationResult{
+									Errors:  []ValidationDetail{},
+									Notices: []ValidationDetail{},
+									Warnings: []ValidationDetail{
+										{
+											Detail:   "Message: Certificate validity period is above the maximum 398 days.. Name: LEAF_CERTIFICATE",
+											Instance: "/error-types/certificate-validation-warning?traceId=123456789",
+											Message:  "Certificate validity period is above the maximum 398 days.",
+											Name:     "LEAF_CERTIFICATE",
+											Title:    "Certificate validation warning.",
+											Type:     "/error-types/certificate-validation-warning",
+										},
+									},
+								},
+							},
+						},
+						TrustChain: []PEMValidation{
+							{
+								CertificatePEM:     "-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----",
+								CreatedBy:          nil,
+								CreatedDate:        nil,
+								DisplayName:        nil,
+								EndDate:            ptr.To("2027-11-22T12:45:19Z"),
+								Fingerprint:        nil,
+								Issuer:             ptr.To("CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA"),
+								SerialNumber:       ptr.To("1234567890"),
+								SignatureAlgorithm: ptr.To("SHA256WITHRSA"),
+								StartDate:          ptr.To("2025-08-22T11:45:19Z"),
+								Subject:            nil,
+								Validation: &ValidationResult{
+									Errors: []ValidationDetail{
+										{
+											Detail:   "Message: Certificate is not an intermediate trust chain certificate. Name: TRUST_CHAIN_CERTIFICATE",
+											Instance: "/error-types/certificate-validation-failed?traceId=123456789",
+											Message:  "Certificate is not an intermediate trust chain certificate.",
+											Name:     "TRUST_CHAIN_CERTIFICATE",
+											Title:    "Certificate validation error.",
+											Type:     "/error-types/certificate-validation-failed",
+										},
+									},
+									Notices:  []ValidationDetail{},
+									Warnings: []ValidationDetail{},
+								},
+							},
+						},
+						TrustChainPEM: ptr.To("-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n"),
+						Validation: &ValidationResult{
+							Errors:   []ValidationDetail{},
+							Notices:  []ValidationDetail{},
+							Warnings: []ValidationDetail{},
+						},
+					},
+				})
+				assert.EqualError(t, err, want.Error(), "want: %s; got: %s", want, err)
+			},
+		},
+		"409 Conflict - name already in use": {
+			params: UpdateCertificateRequest{
+				CertificateID:   "123",
+				CertificateName: ptr.To("duplicate-name"),
+			},
+			expectedRequestBody: `{"certificateName":"duplicate-name"}`,
+			responseStatus:      409,
+			responseBody: `
+			{
+				"certificateIdentifier": "certificateName",
+				"certificateIdentifierValue": "duplicate-name.com20250821015427758880",
+				"detail": "Certificate with {certificateName}: {duplicate-name.com20250821015427758880} already exists with the current account Id!",
+				"instance": "/error-types/certificate-name-already-in-use?traceId=-123",
+				"status": 409,
+				"title": "Certificate name already in use.",
+				"type": "/error-types/certificate-name-already-in-use"
+			}`,
+			expectedPath: "/ccm/v1/certificates/123",
+			expectedHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+			withError: func(t *testing.T, err error) {
+				want := fmt.Errorf("%w: %w", ErrUpdateCertificate, &Error{
+					Type:                       "/error-types/certificate-name-already-in-use",
+					Title:                      "Certificate name already in use.",
+					Detail:                     "Certificate with {certificateName}: {duplicate-name.com20250821015427758880} already exists with the current account Id!",
+					Status:                     http.StatusConflict,
+					Instance:                   "/error-types/certificate-name-already-in-use?traceId=-123",
+					CertificateIdentifier:      "certificateName",
+					CertificateIdentifierValue: "duplicate-name.com20250821015427758880",
+				})
+				assert.EqualError(t, err, want.Error(), "want: %s; got: %s", want, err)
+				assert.ErrorIs(t, err, ErrCertificateNameInUse)
+			},
+		},
+		"validation error - name too long - assert that error is ErrUpdateCertificate and ErrStructValidation": {
+			params: UpdateCertificateRequest{
+				CertificateID:   "123",
+				CertificateName: ptr.To(strings.Repeat("A", 271)),
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "updating certificate: struct validation: CertificateName: the length must be no more than 270",
+					err.Error())
+				assert.ErrorIs(t, err, ErrUpdateCertificate)
+				assert.ErrorIs(t, err, ErrStructValidation)
+			},
+		},
+		"validation error - name contains invalid characters": {
+			params: UpdateCertificateRequest{
+				CertificateID:   "123",
+				CertificateName: ptr.To("Invalid@Name"),
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "updating certificate: struct validation: CertificateName: the input can only contain digits (1-9), letters (a-z, A-Z), spaces, hyphens, periods, and underscores.",
+					err.Error())
+				assert.ErrorIs(t, err, ErrUpdateCertificate)
+				assert.ErrorIs(t, err, ErrStructValidation)
+			},
+		},
+		"validation error - missing required parameters": {
+			params: UpdateCertificateRequest{},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "updating certificate: struct validation: CertificateID: cannot be blank", err.Error())
+				assert.ErrorIs(t, err, ErrUpdateCertificate)
+				assert.ErrorIs(t, err, ErrStructValidation)
+			},
+		},
+		"500 internal server error - assert that error is ErrUpdateCertificate": {
+			params: UpdateCertificateRequest{
+				CertificateID:   "123",
+				CertificateName: ptr.To("New-Certificate-Name"),
+			},
+			expectedRequestBody: `{"certificateName":"New-Certificate-Name"}`,
+			responseStatus:      500,
+			responseBody: `
+			{
+				"type": "internal_error",
+				"title": "Internal Server Error",
+				"detail": "Error removing property hostname",
+				"status": 500
+			}`,
+			expectedPath: "/ccm/v1/certificates/123",
+			withError: func(t *testing.T, err error) {
+				want := fmt.Errorf("%w: %w", ErrUpdateCertificate, &Error{
+					Type:   "internal_error",
+					Title:  "Internal Server Error",
+					Detail: "Error removing property hostname",
+					Status: http.StatusInternalServerError,
+				})
+				assert.EqualError(t, err, want.Error(), "want: %s; got: %s", want, err)
+				assert.ErrorIs(t, err, ErrUpdateCertificate)
+			},
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				assert.Equal(t, tc.expectedPath, r.URL.String())
+				assert.Equal(t, http.MethodPut, r.Method)
+				for k, v := range tc.expectedHeaders {
+					assert.Equal(t, v, r.Header.Get(k))
+				}
+				requestBody, err := io.ReadAll(r.Body)
+				assert.NoError(t, err)
+				assert.Equal(t, tc.expectedRequestBody, string(requestBody))
+				w.WriteHeader(tc.responseStatus)
+				_, err = w.Write([]byte(tc.responseBody))
+				assert.NoError(t, err)
+			}))
+			client := mockAPIClient(t, mockServer)
+			result, err := client.UpdateCertificate(context.Background(), tc.params)
+
+			if tc.withError != nil {
+				tc.withError(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tc.expectedResponse, result)
+		})
+	}
+}
+
 func TestListCertificates(t *testing.T) {
 	t.Parallel()
 	tests := map[string]struct {

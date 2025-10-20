@@ -50,6 +50,14 @@
 
 
 
+* CCM
+    * Added new methods:
+        * [UpdateCertificate](TBD) - Allows to upload a signed certificate PEM and optionally a trust chain and rename or reset the certificate name.
+
+
+
+
+
 
 * CCM
   * Added new methods:

@@ -21,16 +21,16 @@ type (
 		// See: TBD
 		GetCertificate(ctx context.Context, params GetCertificateRequest) (*GetCertificateResponse, error)
 
-		// PatchCertificate update the certificate.
+		// PatchCertificate patches some fields of the certificate: name, signed certificate, and trust chain.
 		// It allows to rename or reset the name of certificate or upload of signed certificate and optional trust chain or both in one request.
 		//
 		// See: TBD
 		PatchCertificate(ctx context.Context, params PatchCertificateRequest) (*PatchCertificateResponse, error)
 
-		//// UpdateCertificate update a certificate. This includes renaming the certificate, uploading a signed certificate, and an optional trust chain.
-		//// You can perform one or both of these actions in a single request.
-		//UpdateCertificate(ctx context.Context, params UpdateCertificateRequest) (*UpdateCertificateResponse, error)
+		// UpdateCertificate updates a certificate. This includes renaming the certificate, uploading a signed certificate, and an optional trust chain.
 		//
+		// See: TBD
+		UpdateCertificate(ctx context.Context, params UpdateCertificateRequest) (*UpdateCertificateResponse, error)
 
 		// DeleteCertificate deletes a certificate by its certificateId. Note that only certificates that are not ACTIVE can be deleted.
 		//

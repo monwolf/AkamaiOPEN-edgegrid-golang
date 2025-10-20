@@ -128,6 +128,44 @@ func (c *ccm) PatchCertificate(ctx context.Context, params PatchCertificateReque
 	return &result, nil
 }
 
+func (c *ccm) UpdateCertificate(ctx context.Context, params UpdateCertificateRequest) (*UpdateCertificateResponse, error) {
+	logger := c.Log(ctx)
+	logger.Debug("UpdateCertificate")
+
+	if err := params.Validate(); err != nil {
+		return nil, fmt.Errorf("%w: %w: %w", ErrUpdateCertificate, ErrStructValidation, err)
+	}
+
+	uri, err := url.Parse(fmt.Sprintf("/ccm/v1/certificates/%s", params.CertificateID))
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to parse URL: %w", ErrUpdateCertificate, err)
+	}
+
+	query := url.Values{}
+	if params.AcknowledgeWarnings {
+		query.Set("acknowledgeWarnings", strconv.FormatBool(params.AcknowledgeWarnings))
+	}
+	uri.RawQuery = query.Encode()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPut, uri.String(), nil)
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to create request: %w", ErrUpdateCertificate, err)
+	}
+
+	var result UpdateCertificateResponse
+
+	resp, err := c.Exec(req, &result, params)
+	if err != nil {
+		return nil, fmt.Errorf("%w: request failed: %w", ErrUpdateCertificate, err)
+	}
+	defer session.CloseResponseBody(resp)
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("%w: %w", ErrUpdateCertificate, c.Error(resp))
+	}
+	return &result, nil
+}
+
 func buildPatchRequestBody(params PatchCertificateRequest) []patch {
 	var reqBody []patch
 
