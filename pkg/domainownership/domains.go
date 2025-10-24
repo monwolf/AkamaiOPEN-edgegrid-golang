@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"regexp"
 	"strings"
 	"time"
 
@@ -400,7 +399,7 @@ func domainNameValidation(domainName string) error {
 	switch {
 	case len(domainName) > 200:
 		return fmt.Errorf("domain '%s': %w", domainName, ErrDomainTooLong)
-	case !domainRegex.MatchString(domainName):
+	case strings.HasPrefix(domainName, "*"):
 		return fmt.Errorf("domain '%s': %w", domainName, ErrDomainInvalidFmt)
 	default:
 		return nil
@@ -483,9 +482,6 @@ func emptyOrTrue(paginate *bool) validation.RuleFunc {
 }
 
 var (
-	// domainRegex is a regular expression to validate domain names.
-	domainRegex = regexp.MustCompile(`^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$`)
-
 	// ErrAddDomains is returned when there is an error adding domains.
 	ErrAddDomains = errors.New("add domains")
 
@@ -514,7 +510,7 @@ var (
 	ErrDomainInvalidFmt = errors.New("invalid name format")
 
 	// ErrDomainNameValidationHint is returned along with the error in domain name validation.
-	ErrDomainNameValidationHint = "Domain must: not be empty, not begin with '*', use only lowercase letters, digits, and hyphens (not at start or end), include a dot with a valid TLD (min 2 letters), and not exceed 200 characters."
+	ErrDomainNameValidationHint = "Domain must: not be empty, not begin with '*', and not exceed 200 characters"
 )
 
 func (d *domainownership) AddDomains(ctx context.Context, params AddDomainsRequest) (*AddDomainsResponse, error) {
