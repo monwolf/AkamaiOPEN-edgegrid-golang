@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"strconv"
 
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/internal/request"
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/internal/texts"
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/session"
 )
@@ -25,51 +26,25 @@ func (c *ccm) ListCertificates(ctx context.Context, params ListCertificatesReque
 		return nil, fmt.Errorf("%w: %w: %w", ErrListCertificates, ErrStructValidation, err)
 	}
 
-	uri, err := url.Parse("/ccm/v1/certificates")
-	if err != nil {
-		return nil, fmt.Errorf("%w: failed to parse URL: %w", ErrListCertificates, err)
-	}
-
-	query := url.Values{}
-	if params.ContractID != "" {
-		query.Set("contractId", params.ContractID)
-	}
-	if params.GroupID != "" {
-		query.Set("groupId", params.GroupID)
-	}
-	if len(params.CertificateStatus) > 0 {
-		query.Set("certificateStatus", texts.JoinStringBased(params.CertificateStatus, ","))
-	}
-	if params.ExpiringInDays != nil {
-		query.Set("expiringInDays", strconv.FormatInt(*params.ExpiringInDays, 10))
-	}
-	if params.Domain != "" {
-		query.Set("domain", params.Domain)
-	}
-	if params.CertificateName != "" {
-		query.Set("certificateName", params.CertificateName)
-	}
-	if params.KeyType != "" {
-		query.Set("keyType", string(params.KeyType))
-	}
-	if params.Issuer != "" {
-		query.Set("issuer", params.Issuer)
-	}
-	if params.IncludeCertificateMaterials {
-		query.Set("includeCertificateMaterials", strconv.FormatBool(params.IncludeCertificateMaterials))
-	}
-	if params.PageSize > 0 {
-		query.Set("pageSize", strconv.FormatInt(params.PageSize, 10))
-	}
-	if params.Page > 0 {
-		query.Set("page", strconv.FormatInt(params.Page, 10))
-	}
-	if params.Sort != "" {
-		query.Set("sort", params.Sort)
-	}
-	uri.RawQuery = query.Encode()
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri.String(), nil)
+	req, err := request.NewGet(ctx, "/ccm/v1/certificates").
+		AddQueryParamIf("contractId", params.ContractID, params.ContractID != "").
+		AddQueryParamIf("groupId", params.GroupID, params.GroupID != "").
+		AddQueryParamsFunc("certificateStatus", func() []string {
+			return texts.ToStrings(params.CertificateStatus)
+		}, len(params.CertificateStatus) > 0).
+		AddQueryParamFunc("expiringInDays", func() string {
+			return strconv.FormatInt(*params.ExpiringInDays, 10)
+		}, params.ExpiringInDays != nil).
+		AddQueryParamIf("domain", params.Domain, params.Domain != "").
+		AddQueryParamIf("certificateName", params.CertificateName, params.CertificateName != "").
+		AddQueryParamIf("keyType", string(params.KeyType), params.KeyType != "").
+		AddQueryParamIf("issuer", params.Issuer, params.Issuer != "").
+		AddQueryParamIf("includeCertificateMaterials", strconv.FormatBool(params.IncludeCertificateMaterials), params.IncludeCertificateMaterials).
+		AddQueryParamIf("pageSize", strconv.FormatInt(params.PageSize, 10), params.PageSize > 0).
+		AddQueryParamIf("page", strconv.FormatInt(params.Page, 10), params.Page > 0).
+		AddQueryParamIf("sort", params.Sort, params.Sort != "").
+		UseCommaSeparatedQuery().
+		Build()
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to create request: %w", ErrListCertificates, err)
 	}
@@ -96,22 +71,13 @@ func (c *ccm) PatchCertificate(ctx context.Context, params PatchCertificateReque
 		return nil, fmt.Errorf("%w: %w: %w", ErrPatchCertificate, ErrStructValidation, err)
 	}
 
-	uri, err := url.Parse(fmt.Sprintf("/ccm/v1/certificates/%s", params.CertificateID))
-	if err != nil {
-		return nil, fmt.Errorf("%w: failed to parse URL: %w", ErrPatchCertificate, err)
-	}
-
-	query := url.Values{}
-	if params.AcknowledgeWarnings {
-		query.Set("acknowledgeWarnings", strconv.FormatBool(params.AcknowledgeWarnings))
-	}
-	uri.RawQuery = query.Encode()
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodPatch, uri.String(), nil)
+	req, err := request.NewPatch(ctx, "/ccm/v1/certificates/%s", params.CertificateID).
+		AddQueryParamIf("acknowledgeWarnings", strconv.FormatBool(params.AcknowledgeWarnings), params.AcknowledgeWarnings).
+		AddHeader("Content-Type", "application/json-patch+json").
+		Build()
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to create request: %w", ErrPatchCertificate, err)
 	}
-	req.Header.Set("Content-Type", "application/json-patch+json")
 
 	reqBody := buildPatchRequestBody(params)
 	var result PatchCertificateResponse
@@ -202,19 +168,10 @@ func (c *ccm) CreateCertificate(ctx context.Context, params CreateCertificateReq
 		return nil, fmt.Errorf("%w: %w: %w", ErrCreateCertificate, ErrStructValidation, err)
 	}
 
-	uri, err := url.Parse("/ccm/v1/certificates")
-	if err != nil {
-		return nil, fmt.Errorf("%w: failed to parse url: %w", ErrCreateCertificate, err)
-	}
-
-	query := url.Values{}
-
-	query.Set("contractId", params.ContractID)
-	query.Set("groupId", params.GroupID)
-
-	uri.RawQuery = query.Encode()
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, uri.String(), nil)
+	req, err := request.NewPost(ctx, "/ccm/v1/certificates").
+		AddQueryParam("contractId", params.ContractID).
+		AddQueryParam("groupId", params.GroupID).
+		Build()
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to create request: %w", ErrCreateCertificate, err)
 	}
@@ -257,12 +214,8 @@ func (c *ccm) GetCertificate(ctx context.Context, params GetCertificateRequest) 
 		return nil, fmt.Errorf("%w: %w: %w", ErrGetCertificate, ErrStructValidation, err)
 	}
 
-	uri, err := url.Parse(fmt.Sprintf("/ccm/v1/certificates/%s", params.CertificateID))
-	if err != nil {
-		return nil, fmt.Errorf("%w: failed to parse url: %w", ErrGetCertificate, err)
-	}
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri.String(), nil)
+	req, err := request.NewGet(ctx, "/ccm/v1/certificates/%s", params.CertificateID).
+		Build()
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to create request: %w", ErrGetCertificate, err)
 	}
@@ -289,12 +242,8 @@ func (c *ccm) DeleteCertificate(ctx context.Context, params DeleteCertificateReq
 		return fmt.Errorf("%w: %w: %w", ErrDeleteCertificate, ErrStructValidation, err)
 	}
 
-	uri, err := url.Parse(fmt.Sprintf("/ccm/v1/certificates/%s", params.CertificateID))
-	if err != nil {
-		return fmt.Errorf("%w: failed to parse url: %w", ErrDeleteCertificate, err)
-	}
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, uri.String(), nil)
+	req, err := request.NewDelete(ctx, "/ccm/v1/certificates/%s", params.CertificateID).
+		Build()
 	if err != nil {
 		return fmt.Errorf("%w: failed to create request: %w", ErrDeleteCertificate, err)
 	}

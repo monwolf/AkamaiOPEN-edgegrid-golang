@@ -12,3 +12,13 @@ func JoinStringBased[T ~string](elems []T, sep string) string {
 	}
 	return strings.Join(ss, sep)
 }
+
+// ToStrings converts a slice of elements of type T (where T is a type whose underlying type is string)
+// to a slice of strings. Each element is converted to a string and placed in the resulting slice.
+func ToStrings[T ~string](elems []T) []string {
+	ss := make([]string, len(elems))
+	for i, v := range elems {
+		ss[i] = string(v)
+	}
+	return ss
+}

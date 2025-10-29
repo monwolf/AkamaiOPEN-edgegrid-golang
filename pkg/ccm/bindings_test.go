@@ -255,7 +255,6 @@ func TestListBindings(t *testing.T) {
 		responseBody     string
 		expectedResponse *ListBindingsResponse
 		expectedPath     string
-		expectedHeaders  map[string]string
 		withError        func(*testing.T, error)
 	}{
 		"200 - fetch of bindings successful": {
@@ -529,9 +528,6 @@ func TestListBindings(t *testing.T) {
 			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				assert.Equal(t, tc.expectedPath, r.URL.String())
 				assert.Equal(t, http.MethodGet, r.Method)
-				for k, v := range tc.expectedHeaders {
-					assert.Equal(t, v, r.Header.Get(k))
-				}
 				w.WriteHeader(tc.responseStatus)
 				_, err := w.Write([]byte(tc.responseBody))
 				assert.NoError(t, err)

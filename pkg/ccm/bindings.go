@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"net/url"
 	"strconv"
 
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/internal/request"
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/session"
 )
 
@@ -18,20 +18,10 @@ func (c *ccm) ListCertificateBindings(ctx context.Context, params ListCertificat
 		return nil, fmt.Errorf("%w: %w: %w", ErrListCertificateBindings, ErrStructValidation, err)
 	}
 
-	uri, err := url.Parse(fmt.Sprintf("/ccm/v1/certificates/%s/certificate-bindings", params.CertificateID))
-	if err != nil {
-		return nil, fmt.Errorf("%w: failed to parse url: %w", ErrListCertificateBindings, err)
-	}
-	query := url.Values{}
-	if params.PageSize > 0 {
-		query.Set("pageSize", strconv.FormatInt(params.PageSize, 10))
-	}
-	if params.Page > 0 {
-		query.Set("page", strconv.FormatInt(params.Page, 10))
-	}
-	uri.RawQuery = query.Encode()
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri.String(), nil)
+	req, err := request.NewGet(ctx, "/ccm/v1/certificates/%s/certificate-bindings", params.CertificateID).
+		AddQueryParamIf("pageSize", strconv.FormatInt(params.PageSize, 10), params.PageSize > 0).
+		AddQueryParamIf("page", strconv.FormatInt(params.Page, 10), params.Page > 0).
+		Build()
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to create request: %w", ErrListCertificateBindings, err)
 	}
@@ -58,35 +48,17 @@ func (c *ccm) ListBindings(ctx context.Context, params ListBindingsRequest) (*Li
 		return nil, fmt.Errorf("%w: %w: %w", ErrListBindings, ErrStructValidation, err)
 	}
 
-	uri, err := url.Parse("/ccm/v1/certificate-bindings")
-	if err != nil {
-		return nil, fmt.Errorf("%w: failed to parse url: %w", ErrListBindings, err)
-	}
-	query := url.Values{}
-	if params.ContractID != "" {
-		query.Set("contractId", params.ContractID)
-	}
-	if params.GroupID != "" {
-		query.Set("groupId", params.GroupID)
-	}
-	if params.ExpiringInDays != nil {
-		query.Set("expiringInDays", strconv.FormatInt(*params.ExpiringInDays, 10))
-	}
-	if params.Domain != "" {
-		query.Set("domain", params.Domain)
-	}
-	if params.Network != "" {
-		query.Set("network", string(params.Network))
-	}
-	if params.PageSize > 0 {
-		query.Set("pageSize", strconv.FormatInt(params.PageSize, 10))
-	}
-	if params.Page > 0 {
-		query.Set("page", strconv.FormatInt(params.Page, 10))
-	}
-	uri.RawQuery = query.Encode()
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri.String(), nil)
+	req, err := request.NewGet(ctx, "/ccm/v1/certificate-bindings").
+		AddQueryParamIf("contractId", params.ContractID, params.ContractID != "").
+		AddQueryParamIf("groupId", params.GroupID, params.GroupID != "").
+		AddQueryParamFunc("expiringInDays", func() string {
+			return strconv.FormatInt(*params.ExpiringInDays, 10)
+		}, params.ExpiringInDays != nil).
+		AddQueryParamIf("domain", params.Domain, params.Domain != "").
+		AddQueryParamIf("network", string(params.Network), params.Network != "").
+		AddQueryParamIf("pageSize", strconv.FormatInt(params.PageSize, 10), params.PageSize > 0).
+		AddQueryParamIf("page", strconv.FormatInt(params.Page, 10), params.Page > 0).
+		Build()
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to create request: %w", ErrListBindings, err)
 	}
