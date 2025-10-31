@@ -615,7 +615,7 @@ func TestListDomains(t *testing.T) {
 			},
 		},
 		"200 OK - explicit page and pageSize": {
-			params:         ListDomainsRequest{Page: ptr.To(int64(1)), PageSize: ptr.To(int64(10))},
+			params:         ListDomainsRequest{Page: 1, PageSize: 10},
 			responseStatus: http.StatusOK,
 			responseBody: `
 {
@@ -713,8 +713,8 @@ func TestListDomains(t *testing.T) {
 		"200 OK - explicit paginate, page and pageSize": {
 			params: ListDomainsRequest{
 				Paginate: ptr.To(true),
-				Page:     ptr.To(int64(1)),
-				PageSize: ptr.To(int64(10)),
+				Page:     1,
+				PageSize: 10,
 			},
 			responseStatus: http.StatusOK,
 			responseBody: `
@@ -910,7 +910,7 @@ func TestListDomains(t *testing.T) {
 		},
 		"200 OK - only pageSize": {
 			params: ListDomainsRequest{
-				PageSize: ptr.To(int64(10)),
+				PageSize: 10,
 			},
 			responseStatus: http.StatusOK,
 			responseBody: `
@@ -1008,7 +1008,7 @@ func TestListDomains(t *testing.T) {
 		},
 		"200 OK - only page": {
 			params: ListDomainsRequest{
-				Page: ptr.To(int64(1)),
+				Page: 1,
 			},
 			responseStatus: http.StatusOK,
 			responseBody: `
@@ -1107,16 +1107,16 @@ func TestListDomains(t *testing.T) {
 		"validation - page or pageSize without paging": {
 			params: ListDomainsRequest{
 				Paginate: ptr.To(false),
-				Page:     ptr.To(int64(1)),
-				PageSize: ptr.To(int64(10)),
+				Page:     1,
+				PageSize: 10,
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "list domains: struct validation:\nPage: must be empty when Paginate is false\nPageSize: must be empty when Paginate is false", err.Error())
+				assert.Equal(t, "list domains: struct validation:\nPage: must be 0 when Paginate is false\nPageSize: must be 0 when Paginate is false", err.Error())
 			},
 		},
 		"validation - pageSize too small": {
 			params: ListDomainsRequest{
-				PageSize: ptr.To(int64(1)),
+				PageSize: 1,
 			},
 			withError: func(t *testing.T, err error) {
 				assert.Equal(t, "list domains: struct validation:\nPageSize: must be no less than 10", err.Error())
@@ -1124,7 +1124,7 @@ func TestListDomains(t *testing.T) {
 		},
 		"validation - pageSize too big": {
 			params: ListDomainsRequest{
-				PageSize: ptr.To(int64(1001)),
+				PageSize: 1001,
 			},
 			withError: func(t *testing.T, err error) {
 				assert.Equal(t, "list domains: struct validation:\nPageSize: must be no greater than 1000", err.Error())

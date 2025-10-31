@@ -98,10 +98,10 @@ type (
 		Paginate *bool
 
 		// Page specifies the page number for pagination.
-		Page *int64
+		Page int64
 
 		// PageSize specifies the number of items per page for pagination.
-		PageSize *int64
+		PageSize int64
 	}
 
 	// ListDomainsResponse represents the response from listing domains.
@@ -408,8 +408,8 @@ func domainNameValidation(domainName string) error {
 // Validate validates the ListDomainsRequest parameters.
 func (r ListDomainsRequest) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
-		"PageSize": validation.Validate(r.PageSize, validation.When(r.PageSize != nil, validation.By(emptyOrTrue(r.Paginate)), validation.Min(10), validation.Max(1000))),
-		"Page":     validation.Validate(r.Page, validation.When(r.Page != nil, validation.By(emptyOrTrue(r.Paginate)))),
+		"PageSize": validation.Validate(r.PageSize, validation.When(r.PageSize != 0, validation.By(emptyOrTrue(r.Paginate)), validation.Min(10), validation.Max(1000))),
+		"Page":     validation.Validate(r.Page, validation.When(r.Page != 0, validation.By(emptyOrTrue(r.Paginate)))),
 	})
 }
 
@@ -474,7 +474,7 @@ func validateValidationMethod(method *ValidationMethod) error {
 func emptyOrTrue(paginate *bool) validation.RuleFunc {
 	return func(_ interface{}) error {
 		if paginate != nil && !*paginate {
-			return fmt.Errorf("must be empty when Paginate is false")
+			return fmt.Errorf("must be 0 when Paginate is false")
 		}
 		return nil
 	}
@@ -629,12 +629,12 @@ func (d *domainownership) ListDomains(ctx context.Context, params ListDomainsReq
 		q.Add("paginate", fmt.Sprintf("%t", *params.Paginate))
 	}
 
-	if params.Page != nil {
-		q.Add("page", fmt.Sprintf("%d", *params.Page))
+	if params.Page != 0 {
+		q.Add("page", fmt.Sprintf("%d", params.Page))
 	}
 
-	if params.PageSize != nil {
-		q.Add("pageSize", fmt.Sprintf("%d", *params.PageSize))
+	if params.PageSize != 0 {
+		q.Add("pageSize", fmt.Sprintf("%d", params.PageSize))
 	}
 	uri.RawQuery = q.Encode()
 
