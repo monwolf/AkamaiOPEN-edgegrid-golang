@@ -82,23 +82,14 @@ var (
 // Validate validates the InvalidateDomainsRequest parameters.
 func (r InvalidateDomainsRequest) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
-		"Domains": validation.Validate(
-			r.Domains,
-			validation.Required,
-			validation.Length(1, 0),
-			validation.Each()),
+		"Domains": validation.Validate(r.Domains, validation.Required, validation.Length(1, 0)),
 	})
 }
 
 // Validate validates the ValidateDomainsRequest parameters.
 func (r ValidateDomainsRequest) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
-		"Domains": validation.Validate(
-			r.Domains,
-			validation.Required,
-			validation.Length(1, 0),
-			validation.Each(),
-		),
+		"Domains": validation.Validate(r.Domains, validation.Required, validation.Length(1, 0)),
 	})
 }
 
@@ -107,7 +98,7 @@ func (d ValidateDomainRequest) Validate() error {
 	return validation.Errors{
 		"DomainName":       domainNameValidation(d.DomainName),
 		"ValidationScope":  scopeValidation(d.ValidationScope),
-		"ValidationMethod": validateValidationMethod((*ValidationMethod)(d.ValidationMethod)),
+		"ValidationMethod": validateValidationMethod(d.ValidationMethod),
 	}.Filter()
 }
 

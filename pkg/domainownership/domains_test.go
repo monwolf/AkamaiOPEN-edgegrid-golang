@@ -2030,21 +2030,21 @@ func TestAddDomains(t *testing.T) {
 						Detail:          "Domain already exists.",
 						Title:           "Internal Server Error",
 						Type:            "internal-server-error",
-						ValidationScope: ValidationScopeHost,
+						ValidationScope: "HOST",
 					},
 					{
 						DomainName:      "sample4.com",
 						Detail:          "Supernet domain has been validated and is ready for use.",
 						Title:           "Internal Server Error",
 						Type:            "internal-server-error",
-						ValidationScope: ValidationScopeHost,
+						ValidationScope: "HOST",
 					},
 					{
 						DomainName:      "sample5.com",
 						Detail:          "Domain is already in use within the system. You cannot use this domain.",
 						Title:           "Internal Server Error",
 						Type:            "internal-server-error",
-						ValidationScope: ValidationScopeHost,
+						ValidationScope: "HOST",
 					},
 				},
 				Successes: []AddDomainSuccess{
@@ -2130,7 +2130,7 @@ func TestAddDomains(t *testing.T) {
 				},
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "add domains: struct validation:\nDomains[1]: {\n\tDomainName: cannot be blank\n}\nHint: Domain must: not be empty, not begin with '*', and not exceed 200 characters", err.Error())
+				assert.Equal(t, "add domains: struct validation:\nDomains[1]: {\n\tDomainName: cannot be blank\n}\nHint: Domain must: not be empty, not begin with '*', not begin or end with whitespace, and not exceed 200 characters", err.Error())
 			},
 		},
 		"validation - validation scope not supplied": {
@@ -2155,7 +2155,7 @@ func TestAddDomains(t *testing.T) {
 				},
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "add domains: struct validation:\nDomains[0]: {\n\tDomainName: domain '*sample1.com': invalid name format\n}\nHint: Domain must: not be empty, not begin with '*', and not exceed 200 characters", err.Error())
+				assert.Equal(t, "add domains: struct validation:\nDomains[0]: {\n\tDomainName: domain '*sample1.com': invalid name format\n}\nHint: Domain must: not be empty, not begin with '*', not begin or end with whitespace, and not exceed 200 characters", err.Error())
 			},
 		},
 		"validation - domain Name does not match the allowed format": {
@@ -2168,7 +2168,7 @@ func TestAddDomains(t *testing.T) {
 				},
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "add domains: struct validation:\nDomains[0]: {\n\tDomainName: domain '*example.com': invalid name format\n}\nHint: Domain must: not be empty, not begin with '*', and not exceed 200 characters", err.Error())
+				assert.Equal(t, "add domains: struct validation:\nDomains[0]: {\n\tDomainName: domain '*example.com': invalid name format\n}\nHint: Domain must: not be empty, not begin with '*', not begin or end with whitespace, and not exceed 200 characters", err.Error())
 			},
 		},
 		"validation - domain Name greater than 200 characters": {
@@ -2181,7 +2181,7 @@ func TestAddDomains(t *testing.T) {
 				},
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "add domains: struct validation:\nDomains[0]: {\n\tDomainName: domain 'sample1.comaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa': cannot exceed 200 characters\n}\nHint: Domain must: not be empty, not begin with '*', and not exceed 200 characters", err.Error())
+				assert.Equal(t, "add domains: struct validation:\nDomains[0]: {\n\tDomainName: domain 'sample1.comaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa': cannot exceed 200 characters\n}\nHint: Domain must: not be empty, not begin with '*', not begin or end with whitespace, and not exceed 200 characters", err.Error())
 			},
 		},
 		"validation - incorrect ValidationScope": {

@@ -36,7 +36,7 @@ type (
 		Type string `json:"type"`
 
 		// ValidationScope of the domain validation, either HOST, WILDCARD, or DOMAIN.
-		ValidationScope ValidationScope `json:"validationScope"`
+		ValidationScope string `json:"validationScope"`
 	}
 
 	// AddDomainSuccess represents a successful addition of a domain.
@@ -375,8 +375,7 @@ func (r AddDomainsRequest) Validate() error {
 		"Domains": validation.Validate(
 			r.Domains,
 			validation.Required,
-			validation.Length(1, 0),
-			validation.Each()),
+			validation.Length(1, 0)),
 	})
 
 	if err == nil {
@@ -390,8 +389,6 @@ func (r AddDomainsRequest) Validate() error {
 }
 
 func domainNameValidation(domainName string) error {
-	domainName = strings.TrimSpace(domainName)
-
 	if err := validation.Validate(domainName, validation.Required); err != nil {
 		return ErrDomainEmpty
 	}
@@ -400,6 +397,8 @@ func domainNameValidation(domainName string) error {
 	case len(domainName) > 200:
 		return fmt.Errorf("domain '%s': %w", domainName, ErrDomainTooLong)
 	case strings.HasPrefix(domainName, "*"):
+		return fmt.Errorf("domain '%s': %w", domainName, ErrDomainInvalidFmt)
+	case strings.HasPrefix(domainName, " ") || strings.HasSuffix(domainName, " "):
 		return fmt.Errorf("domain '%s': %w", domainName, ErrDomainInvalidFmt)
 	default:
 		return nil
@@ -510,7 +509,7 @@ var (
 	ErrDomainInvalidFmt = errors.New("invalid name format")
 
 	// ErrDomainNameValidationHint is returned along with the error in domain name validation.
-	ErrDomainNameValidationHint = "Domain must: not be empty, not begin with '*', and not exceed 200 characters"
+	ErrDomainNameValidationHint = "Domain must: not be empty, not begin with '*', not begin or end with whitespace, and not exceed 200 characters"
 )
 
 func (d *domainownership) AddDomains(ctx context.Context, params AddDomainsRequest) (*AddDomainsResponse, error) {

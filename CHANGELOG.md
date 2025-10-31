@@ -25,23 +25,19 @@
   * Added enum value `StatusInactive` for enum `StatusValue` used in activation APIs.
 
 
-* Domain Ownership
-  * Added support for Domain Ownership:
+* PAPI Domain Ownership Validation (Beta)
+  * Added support for Domain Ownership methods:
     * [ListDomains](https://techdocs.akamai.com/domain-validation/reference/get-domains) - Lists available domains.
-    * [GetDomain](https://techdocs.akamai.com/domain-validation/reference/get-domain) - Gets details of a specific domain.
     * [SearchDomains](https://techdocs.akamai.com/domain-validation/reference/post-search-domains) - Returns the status of specified domains.
-
-
-
-* Domain Validation
-  * Added support for Domain Validation endpoints:
     * [AddDomains](https://techdocs.akamai.com/domain-validation/reference/post-domains) - Adds domains to validate.
+    * [GetDomain](https://techdocs.akamai.com/domain-validation/reference/get-domain) - Gets details of a specific domain.
     * [DeleteDomain](https://techdocs.akamai.com/domain-validation/reference/delete-domain) - Deletes a domain validation.
     * [DeleteDomains](https://techdocs.akamai.com/domain-validation/reference/delete-domains) - Deletes a batch of domains validation.
+    * [ValidateDomains](https://techdocs.akamai.com/domain-validation/reference/post-validate-domains) - Immediately validates the domains using the DNS CNAME, DNS TXT, and HTTP methods.
     * [InvalidateDomain](https://techdocs.akamai.com/domain-validation/reference/post-invalidate-domain) - Invalidates the specified domain.
     * [InvalidateDomains](https://techdocs.akamai.com/domain-validation/reference/post-invalidate-domains) - Invalidates the specified domains.
-    * [ValidateDomains](https://techdocs.akamai.com/domain-validation/reference/post-validate-domains) - Immediately validates the domains using the DNS CNAME, DNS TXT, and HTTP methods.
-    
+
+
 
 
 
