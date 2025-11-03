@@ -326,7 +326,7 @@ type (
 		// ValidationScope indicates the scope of the validation, either HOST, DOMAIN, or WILDCARD.
 		ValidationScope string `json:"validationScope"`
 
-		// ValidationLevel is the level of the domain validation, either FQDN or WILDCARD.
+		// ValidationLevel is the level of the domain validation, either FQDN or ROOT/WILDCARD.
 		ValidationLevel string `json:"validationLevel"`
 
 		// AccountID is the ID of an account.
