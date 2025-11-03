@@ -43,6 +43,9 @@ const (
 
 	// NetworkProduction represents production network.
 	NetworkProduction Network = "PRODUCTION"
+
+	// SortFieldPat is a regex pattern for validating sort fields.
+	SortFieldPat = `[+\-]?(modifiedDate|expirationDate|createdDate|certificateName)`
 )
 
 type (
@@ -161,7 +164,7 @@ type (
 		// If provided, search across SAN domains and Subject CN for the provided domain exact match or wildcard match. Comparison is case-insensitive.
 		Domain string
 
-		//Substring match on certificate name.
+		// Substring match on certificate name.
 		CertificateName string
 
 		// Key type to filter certificates. Either `RSA` or `ECDSA`.
@@ -498,13 +501,12 @@ func certificateStatusRule(value any) error {
 }
 
 func sortValidationRule(value any) error {
-	const sortFieldPat = `[+\-]?(modifiedDate|expirationDate|createdDate|certificateName)`
 	s, ok := value.(string)
 	if !ok {
 		return fmt.Errorf("expected string, got %T", value)
 	}
 
-	re := regexp.MustCompile(`^` + sortFieldPat + `(,` + sortFieldPat + `)*$`)
+	re := regexp.MustCompile(`^` + SortFieldPat + `(,` + SortFieldPat + `)*$`)
 	if !re.MatchString(s) {
 		return fmt.Errorf("must be a comma-separated list of fields, optionally prefixed by + or - (e.g. +createdDate,-certificateName)")
 	}
