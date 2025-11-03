@@ -13,8 +13,8 @@ import (
 )
 
 type (
-	// ValidateDomainRequest represents the structure for validating a domain.
-	ValidateDomainRequest struct {
+	// ValidateDomain represents the structure for validating a domain.
+	ValidateDomain struct {
 		// DomainName is the name of the domain to search for.
 		DomainName string `json:"domainName"`
 
@@ -40,7 +40,7 @@ type (
 	// ValidateDomainsRequest represents the request structure for ValidateDomains.
 	ValidateDomainsRequest struct {
 		// Domains is a list of domains to validate.
-		Domains []ValidateDomainRequest `json:"domains"`
+		Domains []ValidateDomain `json:"domains"`
 	}
 
 	// ValidateDomainsResponse represents the response structure for ValidateDomains.
@@ -93,8 +93,8 @@ func (r ValidateDomainsRequest) Validate() error {
 	})
 }
 
-// Validate validates the ValidateDomainRequest parameters.
-func (d ValidateDomainRequest) Validate() error {
+// Validate validates the ValidateDomain parameters.
+func (d ValidateDomain) Validate() error {
 	return validation.Errors{
 		"DomainName":       domainNameValidation(d.DomainName),
 		"ValidationScope":  scopeValidation(d.ValidationScope),

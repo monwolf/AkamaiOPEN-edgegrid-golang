@@ -338,7 +338,7 @@ func TestListDomains(t *testing.T) {
 						ValidationRequestedBy:   "someuser",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:27:19Z"),
 						ValidationChallenge: &ValidationChallenge{
-							CNAMERecord: CNAMERecord{
+							CnameRecord: CnameRecord{
 								Name:   "cname-name-1",
 								Target: "cname-target-1",
 							},
@@ -366,7 +366,7 @@ func TestListDomains(t *testing.T) {
 						ValidationRequestedBy:   "someuser",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:26:58Z"),
 						ValidationChallenge: &ValidationChallenge{
-							CNAMERecord: CNAMERecord{
+							CnameRecord: CnameRecord{
 								Name:   "cname-name-2",
 								Target: "cname-target-2",
 							},
@@ -385,7 +385,7 @@ func TestListDomains(t *testing.T) {
 						ValidationRequestedBy:   "someuser",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:26:50Z"),
 						ValidationChallenge: &ValidationChallenge{
-							CNAMERecord: CNAMERecord{
+							CnameRecord: CnameRecord{
 								Name:   "cname-name-3",
 								Target: "cname-target-3",
 							},
@@ -413,7 +413,7 @@ func TestListDomains(t *testing.T) {
 						ValidationRequestedBy:   "someuser",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:26:50Z"),
 						ValidationChallenge: &ValidationChallenge{
-							CNAMERecord: CNAMERecord{
+							CnameRecord: CnameRecord{
 								Name:   "cname-name-4",
 								Target: "cname-target-4",
 							},
@@ -441,7 +441,7 @@ func TestListDomains(t *testing.T) {
 						ValidationRequestedBy:   "someuser",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:26:50Z"),
 						ValidationChallenge: &ValidationChallenge{
-							CNAMERecord: CNAMERecord{
+							CnameRecord: CnameRecord{
 								Name:   "cname-name-5",
 								Target: "cname-target-5",
 							},
@@ -469,7 +469,7 @@ func TestListDomains(t *testing.T) {
 						ValidationRequestedBy:   "someuser",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:26:50Z"),
 						ValidationChallenge: &ValidationChallenge{
-							CNAMERecord: CNAMERecord{
+							CnameRecord: CnameRecord{
 								Name:   "cname-name-6",
 								Target: "cname-target-6",
 							},
@@ -497,7 +497,7 @@ func TestListDomains(t *testing.T) {
 						ValidationRequestedBy:   "someuser",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:26:50Z"),
 						ValidationChallenge: &ValidationChallenge{
-							CNAMERecord: CNAMERecord{
+							CnameRecord: CnameRecord{
 								Name:   "cname-name-7",
 								Target: "cname-target-7",
 							},
@@ -525,7 +525,7 @@ func TestListDomains(t *testing.T) {
 						ValidationRequestedBy:   "someuser",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:26:29Z"),
 						ValidationChallenge: &ValidationChallenge{
-							CNAMERecord: CNAMERecord{
+							CnameRecord: CnameRecord{
 								Name:   "cname-name-8",
 								Target: "cname-target-8",
 							},
@@ -553,7 +553,7 @@ func TestListDomains(t *testing.T) {
 						ValidationRequestedBy:   "someuser",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:26:29Z"),
 						ValidationChallenge: &ValidationChallenge{
-							CNAMERecord: CNAMERecord{
+							CnameRecord: CnameRecord{
 								Name:   "cname-name-9",
 								Target: "cname-target-9",
 							},
@@ -581,7 +581,7 @@ func TestListDomains(t *testing.T) {
 						ValidationRequestedBy:   "someuser",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:26:29Z"),
 						ValidationChallenge: &ValidationChallenge{
-							CNAMERecord: CNAMERecord{
+							CnameRecord: CnameRecord{
 								Name:   "cname-name-10",
 								Target: "cname-target-10",
 							},
@@ -681,7 +681,7 @@ func TestListDomains(t *testing.T) {
 						ValidationRequestedBy:   "someuser",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:27:19Z"),
 						ValidationChallenge: &ValidationChallenge{
-							CNAMERecord: CNAMERecord{
+							CnameRecord: CnameRecord{
 								Name:   "cname-name-1",
 								Target: "cname-target-1",
 							},
@@ -781,7 +781,7 @@ func TestListDomains(t *testing.T) {
 						ValidationRequestedBy:   "someuser",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:26:29Z"),
 						ValidationChallenge: &ValidationChallenge{
-							CNAMERecord: CNAMERecord{
+							CnameRecord: CnameRecord{
 								Name:   "cname-name-9",
 								Target: "cname-target-9",
 							},
@@ -879,7 +879,7 @@ func TestListDomains(t *testing.T) {
 						ValidationRequestedBy:   "someuser",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:27:19Z"),
 						ValidationChallenge: &ValidationChallenge{
-							CNAMERecord: CNAMERecord{
+							CnameRecord: CnameRecord{
 								Name:   "cname-name-1",
 								Target: "cname-target-1",
 							},
@@ -977,7 +977,7 @@ func TestListDomains(t *testing.T) {
 						ValidationRequestedBy:   "someuser",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:27:19Z"),
 						ValidationChallenge: &ValidationChallenge{
-							CNAMERecord: CNAMERecord{
+							CnameRecord: CnameRecord{
 								Name:   "cname-name-1",
 								Target: "cname-target-1",
 							},
@@ -1075,7 +1075,7 @@ func TestListDomains(t *testing.T) {
 						ValidationRequestedBy:   "someuser",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:27:19Z"),
 						ValidationChallenge: &ValidationChallenge{
-							CNAMERecord: CNAMERecord{
+							CnameRecord: CnameRecord{
 								Name:   "cname-name-1",
 								Target: "cname-target-1",
 							},
@@ -1229,7 +1229,7 @@ func TestGetDomain(t *testing.T) {
 				ValidationRequestedBy:   "someuser",
 				ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:27:19Z"),
 				ValidationChallenge: &ValidationChallenge{
-					CNAMERecord: CNAMERecord{
+					CnameRecord: CnameRecord{
 						Name:   "cname-name-1",
 						Target: "cname-target-1",
 					},
@@ -1294,7 +1294,7 @@ func TestGetDomain(t *testing.T) {
 				ValidationRequestedBy:   "someuser",
 				ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:27:19Z"),
 				ValidationChallenge: &ValidationChallenge{
-					CNAMERecord: CNAMERecord{
+					CnameRecord: CnameRecord{
 						Name:   "cname-name-1",
 						Target: "cname-target-1",
 					},
@@ -1373,7 +1373,7 @@ func TestGetDomain(t *testing.T) {
 				ValidationRequestedBy:   "someuser",
 				ValidationRequestedDate: test.NewTimeFromString(t, "2025-08-04T13:27:19Z"),
 				ValidationChallenge: &ValidationChallenge{
-					CNAMERecord: CNAMERecord{
+					CnameRecord: CnameRecord{
 						Name:   "cname-name-1",
 						Target: "cname-target-1",
 					},
@@ -1635,7 +1635,7 @@ func TestSearchDomains(t *testing.T) {
 						ValidationRequestedBy:   ptr.To("someuser"),
 						ValidationRequestedDate: ptr.To(test.NewTimeFromString(t, "2025-08-04T13:27:19Z")),
 						ValidationChallenge: &ValidationChallenge{
-							CNAMERecord: CNAMERecord{
+							CnameRecord: CnameRecord{
 								Name:   "cname-name-1",
 								Target: "cname-target-1",
 							},
@@ -1859,7 +1859,7 @@ func TestAddDomains(t *testing.T) {
 						ValidationRequestedBy:   "someone",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2024-02-06T06:01:45Z"),
 						ValidationChallenge: ValidationChallenge{
-							CNAMERecord: CNAMERecord{
+							CnameRecord: CnameRecord{
 								Name:   "cname-name-1",
 								Target: "cname-target-1",
 							},
@@ -1888,7 +1888,7 @@ func TestAddDomains(t *testing.T) {
 						ValidationRequestedBy:   "someone",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2024-02-06T06:01:45Z"),
 						ValidationChallenge: ValidationChallenge{
-							CNAMERecord: CNAMERecord{
+							CnameRecord: CnameRecord{
 								Name:   "cname-name-2",
 								Target: "cname-target-2",
 							},
@@ -2057,7 +2057,7 @@ func TestAddDomains(t *testing.T) {
 						ValidationRequestedBy:   "someone",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2024-02-06T06:01:45Z"),
 						ValidationChallenge: ValidationChallenge{
-							CNAMERecord: CNAMERecord{
+							CnameRecord: CnameRecord{
 								Name:   "cname-name-1",
 								Target: "cname-target-1",
 							},
@@ -2086,7 +2086,7 @@ func TestAddDomains(t *testing.T) {
 						ValidationRequestedBy:   "someone",
 						ValidationRequestedDate: test.NewTimeFromString(t, "2024-02-06T06:01:45Z"),
 						ValidationChallenge: ValidationChallenge{
-							CNAMERecord: CNAMERecord{
+							CnameRecord: CnameRecord{
 								Name:   "cname-name-2",
 								Target: "cname-target-2",
 							},

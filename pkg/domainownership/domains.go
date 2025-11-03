@@ -148,8 +148,8 @@ type (
 
 	// ValidationChallenge contains the details of the validation challenge for a domain.
 	ValidationChallenge struct {
-		// CNAMERecord is the CNAME record details for DNS CNAME validation.
-		CNAMERecord CNAMERecord `json:"cnameRecord"`
+		// CnameRecord is the CNAME record details for DNS CNAME validation.
+		CnameRecord CnameRecord `json:"cnameRecord"`
 
 		// TXTRecord is the TXT record details for DNS TXT validation.
 		TXTRecord TXTRecord `json:"txtRecord"`
@@ -164,8 +164,8 @@ type (
 		ExpirationDate time.Time `json:"expirationDate"`
 	}
 
-	// CNAMERecord holds the CNAME record details.
-	CNAMERecord struct {
+	// CnameRecord holds the CNAME record details.
+	CnameRecord struct {
 		// Name is the hostname where the CNAME record should be created
 		Name string `json:"name"`
 		// Target is the target hostname for the CNAME record

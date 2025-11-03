@@ -24,7 +24,7 @@ func TestValidateDomains(t *testing.T) {
 	}{
 		"200 OK": {
 			request: ValidateDomainsRequest{
-				Domains: []ValidateDomainRequest{
+				Domains: []ValidateDomain{
 					{
 						DomainName:       "sample1.com",
 						ValidationScope:  ValidationScopeHost,
@@ -86,7 +86,7 @@ func TestValidateDomains(t *testing.T) {
 		},
 		"validation - empty domain": {
 			request: ValidateDomainsRequest{
-				Domains: []ValidateDomainRequest{},
+				Domains: []ValidateDomain{},
 			},
 			withError: func(t *testing.T, err error) {
 				assert.Equal(t, "validate domains: struct validation:\nDomains: cannot be blank", err.Error())
@@ -94,7 +94,7 @@ func TestValidateDomains(t *testing.T) {
 		},
 		"validation - domain Name not supplied": {
 			request: ValidateDomainsRequest{
-				Domains: []ValidateDomainRequest{
+				Domains: []ValidateDomain{
 					{
 						DomainName:      "sample1.com",
 						ValidationScope: ValidationScopeHost,
@@ -110,7 +110,7 @@ func TestValidateDomains(t *testing.T) {
 		},
 		"validation - validation scope not supplied": {
 			request: ValidateDomainsRequest{
-				Domains: []ValidateDomainRequest{
+				Domains: []ValidateDomain{
 					{
 						DomainName: "sample1.com",
 					},
@@ -122,7 +122,7 @@ func TestValidateDomains(t *testing.T) {
 		},
 		"validation - incorrect ValidationScope": {
 			request: ValidateDomainsRequest{
-				Domains: []ValidateDomainRequest{
+				Domains: []ValidateDomain{
 					{
 						DomainName:      "sample1.com",
 						ValidationScope: ValidationScope("incorrect"),
@@ -139,7 +139,7 @@ func TestValidateDomains(t *testing.T) {
 		},
 		"validation - incorrect ValidationMethod": {
 			request: ValidateDomainsRequest{
-				Domains: []ValidateDomainRequest{
+				Domains: []ValidateDomain{
 					{
 						DomainName:       "sample1.com",
 						ValidationMethod: ptr.To(ValidationMethod("incorrect")),
@@ -158,7 +158,7 @@ func TestValidateDomains(t *testing.T) {
 		},
 		"500 internal server error": {
 			request: ValidateDomainsRequest{
-				Domains: []ValidateDomainRequest{
+				Domains: []ValidateDomain{
 					{
 						DomainName:      "sample1.com",
 						ValidationScope: ValidationScopeDomain,
