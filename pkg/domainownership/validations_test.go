@@ -28,7 +28,7 @@ func TestValidateDomains(t *testing.T) {
 					{
 						DomainName:       "sample1.com",
 						ValidationScope:  ValidationScopeHost,
-						ValidationMethod: ptr.To(string(ValidationMethodHTTP)),
+						ValidationMethod: ptr.To(ValidationMethodHTTP),
 					},
 					{
 						DomainName:      "sample2.com",
@@ -142,13 +142,13 @@ func TestValidateDomains(t *testing.T) {
 				Domains: []ValidateDomainRequest{
 					{
 						DomainName:       "sample1.com",
-						ValidationMethod: ptr.To("incorrect"),
+						ValidationMethod: ptr.To(ValidationMethod("incorrect")),
 						ValidationScope:  ValidationScopeHost,
 					},
 					{
 						DomainName:       "sample2.com",
 						ValidationScope:  ValidationScopeHost,
-						ValidationMethod: ptr.To(string(ValidationMethodHTTP)),
+						ValidationMethod: ptr.To(ValidationMethodHTTP),
 					},
 				},
 			},
@@ -357,7 +357,7 @@ func TestInvalidateDomains(t *testing.T) {
 			responseStatus: http.StatusOK,
 			responseBody: `
 {
-  "successes": [
+  "domains": [
     {
       "domainName": "sample1.com",
       "domainStatus": "INVALIDATED",

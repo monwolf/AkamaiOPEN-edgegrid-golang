@@ -19,7 +19,7 @@ type (
 		DomainName string `json:"domainName"`
 
 		// ValidationMethod (Optional) for instant validation of a domain, either DNS_CNAME, DNS_TXT, or HTTP.
-		ValidationMethod *string `json:"validationMethod,omitempty"`
+		ValidationMethod *ValidationMethod `json:"validationMethod,omitempty"`
 
 		// ValidationScope indicates the scope of the validation, either HOST, DOMAIN, or WILDCARD.
 		ValidationScope ValidationScope `json:"validationScope"`
@@ -64,7 +64,7 @@ type (
 	// InvalidateDomainsResponse represents the response structure for InvalidateDomains.
 	InvalidateDomainsResponse struct {
 		// Domains contains the list of invalidated domains.
-		Domains []InvalidateDomainResponse `json:"successes"`
+		Domains []InvalidateDomainResponse `json:"domains"`
 	}
 )
 
