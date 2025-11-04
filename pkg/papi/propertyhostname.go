@@ -294,8 +294,14 @@ func (c CCMCertificates) Validate() error {
 
 func validateCCMHostname(certType string, certs *CCMCertificates, mTLS *MTLS, tls *TLSConfiguration) error {
 	if certType != string(CertTypeCCM) {
-		if certs != nil || mTLS != nil || tls != nil {
-			return errors.New("the CCM cert details, or the mTLS configuration, or the TLS configuration is provided without `certProvisioningType` set to `CCM`")
+		if certs != nil {
+			return errors.New("the CCM cert details are provided without `certProvisioningType` set to `CCM`")
+		}
+		if mTLS != nil {
+			return errors.New("the mTLS configuration is provided without `certProvisioningType` set to `CCM`")
+		}
+		if tls != nil {
+			return errors.New("the TLS configuration is provided without `certProvisioningType` set to `CCM`")
 		}
 		return nil
 	}

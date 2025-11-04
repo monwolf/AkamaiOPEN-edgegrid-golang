@@ -806,7 +806,7 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 			withError: func(t *testing.T, err error) {
 				want := ErrStructValidation
 				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
-				assert.Contains(t, err.Error(), "the CCM cert details, or the mTLS configuration, or the TLS configuration is provided without `certProvisioningType` set to `CCM`")
+				assert.Contains(t, err.Error(), "the mTLS configuration is provided without `certProvisioningType` set to `CCM`")
 			},
 		},
 		"validation error - TLSConfiguration is only valid for CCM": {
@@ -834,7 +834,7 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 			withError: func(t *testing.T, err error) {
 				want := ErrStructValidation
 				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
-				assert.Contains(t, err.Error(), "the CCM cert details, or the mTLS configuration, or the TLS configuration is provided without `certProvisioningType` set to `CCM`")
+				assert.Contains(t, err.Error(), "the TLS configuration is provided without `certProvisioningType` set to `CCM`")
 			},
 		},
 		"validation error - CCMCertificates is only valid for CCM": {
@@ -860,7 +860,7 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 			withError: func(t *testing.T, err error) {
 				want := ErrStructValidation
 				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
-				assert.Contains(t, err.Error(), "the CCM cert details, or the mTLS configuration, or the TLS configuration is provided without `certProvisioningType` set to `CCM`")
+				assert.Contains(t, err.Error(), "the CCM cert details are provided without `certProvisioningType` set to `CCM`")
 			},
 		},
 		"validation error - missed CASetID when MTLS provided": {
@@ -1768,7 +1768,7 @@ func TestPapiPatchPropertyVersionHostnames(t *testing.T) {
 			withError: func(t *testing.T, err error) {
 				want := ErrStructValidation
 				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
-				assert.Contains(t, err.Error(), "the CCM cert details, or the mTLS configuration, or the TLS configuration is provided without `certProvisioningType` set to `CCM`")
+				assert.Contains(t, err.Error(), "the mTLS configuration is provided without `certProvisioningType` set to `CCM`")
 			},
 		},
 		"validation error - TLSConfiguration is only valid for CCM": {
@@ -1798,7 +1798,7 @@ func TestPapiPatchPropertyVersionHostnames(t *testing.T) {
 			withError: func(t *testing.T, err error) {
 				want := ErrStructValidation
 				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
-				assert.Contains(t, err.Error(), "the CCM cert details, or the mTLS configuration, or the TLS configuration is provided without `certProvisioningType` set to `CCM`")
+				assert.Contains(t, err.Error(), "the TLS configuration is provided without `certProvisioningType` set to `CCM`")
 			},
 		},
 		"validation error - CCMCertificates is only valid for CCM": {
@@ -1826,7 +1826,7 @@ func TestPapiPatchPropertyVersionHostnames(t *testing.T) {
 			withError: func(t *testing.T, err error) {
 				want := ErrStructValidation
 				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
-				assert.Contains(t, err.Error(), "the CCM cert details, or the mTLS configuration, or the TLS configuration is provided without `certProvisioningType` set to `CCM`")
+				assert.Contains(t, err.Error(), "the CCM cert details are provided without `certProvisioningType` set to `CCM`")
 			},
 		},
 		"validation error - missed CASetID when MTLS provided": {
