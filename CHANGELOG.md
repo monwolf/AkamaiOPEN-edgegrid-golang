@@ -52,41 +52,16 @@
 
 
 
-* CCM
-    * Added new methods:
-      * [ListCertificates](TBD) - Lists all certificates that are accessible for the requesting end user.
-
-
-
-
-* CCM
-    * Added new methods:
-        * [UpdateCertificate](TBD) - Allows to upload a signed certificate PEM and optionally a trust chain and rename or reset the certificate name.
-
-
-
-
-
-
-* CCM
-  * Added new methods:
-    * [PatchCertificate](TBD) - Allows to upload a signed certificate PEM and optionally a trust chain and rename or reset the certificate name. 
-
-
-* CCM
-    * Added new methods:
-        * [CreateCertificate](TBD) - Creates a third party certificate.
-        * [GetCertificate](TBD) - Retrieves a single certificate by its certificateId.
-        * [DeleteCertificate](TBD) - Deletes a certificate by its certificateId. Note that only certificates that are not ACTIVE can be deleted.
-
-
-
-
-
-* CCM
-    * Added new methods:
-        * [ListCertificateBindings](TBD) - Provides hostname bindings for the given certificate.
-        * [ListBindings](TBD) - Provides hostname bindings for user accessible certificates, optionally filtered by contract, group, domain, certificate type, and expiration days.
+* CloudCertificates (Beta)
+  * Added support for the Cloud Certificates Manager (CCM) API:
+    * [CreateCertificate](https://techdocs.akamai.com/ccm/reference/post-certificates) - Creates a third party certificate.
+    * [GetCertificate](https://techdocs.akamai.com/ccm/reference/get-cert) - Retrieves a single certificate by its certificateID.
+    * [UpdateCertificate](https://techdocs.akamai.com/ccm/reference/put-cert) - Allows to upload a signed certificate PEM and optionally a trust chain and rename or reset the certificate name.
+    * [PatchCertificate](https://techdocs.akamai.com/ccm/reference/patch-certificate) - Allows to upload a signed certificate PEM and optionally a trust chain and rename or reset the certificate name. 
+    * [DeleteCertificate](https://techdocs.akamai.com/ccm/reference/delete-certificate) - Deletes a certificate by its certificateID. Note that only certificates that are not ACTIVE can be deleted.
+    * [ListCertificates](https://techdocs.akamai.com/ccm/reference/get-certificates) - Lists all certificates that are accessible for the requesting end user.
+    * [ListCertificateBindings](https://techdocs.akamai.com/ccm/reference/get-single-cert-bindings) - Provides hostname bindings for the given certificate.
+    * [ListBindings](https://techdocs.akamai.com/ccm/reference/get-all-cert-bindings) - Provides hostname bindings for user accessible certificates, optionally filtered by contract, group, domain, or expiration days.
 
 
 * Appsec

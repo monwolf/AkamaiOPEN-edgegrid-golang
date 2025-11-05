@@ -1,6 +1,6 @@
 //revive:disable:exported
 
-package ccm
+package cloudcertificates
 
 import (
 	"context"
@@ -12,7 +12,7 @@ type Mock struct {
 	mock.Mock
 }
 
-var _ CCM = &Mock{}
+var _ CloudCertificates = &Mock{}
 
 func (m *Mock) CreateCertificate(ctx context.Context, req CreateCertificateRequest) (*CreateCertificateResponse, error) {
 	args := m.Called(ctx, req)

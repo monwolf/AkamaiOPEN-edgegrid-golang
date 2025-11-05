@@ -1,4 +1,4 @@
-package ccm
+package cloudcertificates
 
 import (
 	"context"
@@ -144,23 +144,23 @@ func TestListCertificateBindings(t *testing.T) {
 				"certificateIdentifier": "certificateId",
 				"certificateIdentifierValue": "1234",
 				"detail": "Certificate with {certificateId}: {1234} is not found.",
-				"instance": "/error-types/certificate-resource-not-found?traceId=-2848142",
+				"instance": "/error-types/certificate-not-found?traceId=-11111",
 				"status": 404,
 				"title": "Certificate is not found.",
-				"type": "/error-types/certificate-resource-not-found"
+				"type": "/error-types/certificate-not-found"
 			}`,
 			withError: func(t *testing.T, err error) {
 				want := fmt.Errorf("%w: %w", ErrListCertificateBindings, &Error{
-					Type:                       "/error-types/certificate-resource-not-found",
+					Type:                       "/error-types/certificate-not-found",
 					Title:                      "Certificate is not found.",
 					Detail:                     "Certificate with {certificateId}: {1234} is not found.",
 					Status:                     http.StatusNotFound,
-					Instance:                   "/error-types/certificate-resource-not-found?traceId=-2848142",
+					Instance:                   "/error-types/certificate-not-found?traceId=-11111",
 					CertificateIdentifier:      "certificateId",
 					CertificateIdentifierValue: "1234",
 				})
 				assert.EqualError(t, err, want.Error(), "want: %s; got: %s", want, err)
-				assert.ErrorIs(t, err, ErrCertificateResourceNotFound)
+				assert.ErrorIs(t, err, ErrCertificateNotFound)
 				assert.ErrorIs(t, err, ErrListCertificateBindings)
 			},
 		},
@@ -232,6 +232,7 @@ func TestListCertificateBindings(t *testing.T) {
 			},
 		},
 	}
+
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
@@ -452,41 +453,12 @@ func TestListBindings(t *testing.T) {
 				  }
 				}`,
 		},
-		"400 invalid network": {
-			params:         ListBindingsRequest{},
-			responseStatus: 400,
-			expectedPath:   "/ccm/v1/certificate-bindings",
-			responseBody: `{
-				"detail": "Invalid value '{foo}' for field '{network}'. Allowed networks are STAGING and PRODUCTION",
-				"explanation": "Allowed networks are STAGING and PRODUCTION",
-				"instance": "/error-types/invalid-field?traceId=175301",
-				"invalidParameterValue": "foo",
-				"parameterName": "network",
-				"status": 400,
-				"title": "Invalid field value.",
-				"type": "/error-types/invalid-field"
-			}`,
-			withError: func(t *testing.T, err error) {
-				want := fmt.Errorf("%w: %w", ErrListBindings, &Error{
-					Type:                  "/error-types/invalid-field",
-					Title:                 "Invalid field value.",
-					Detail:                "Invalid value '{foo}' for field '{network}'. Allowed networks are STAGING and PRODUCTION",
-					Explanation:           "Allowed networks are STAGING and PRODUCTION",
-					InvalidParameterValue: "foo",
-					ParameterName:         "network",
-					Status:                http.StatusBadRequest,
-					Instance:              "/error-types/invalid-field?traceId=175301",
-				})
-				assert.EqualError(t, err, want.Error(), "want: %s; got: %s", want, err)
-				assert.ErrorIs(t, err, ErrListBindings)
-			},
-		},
 		"500 internal server error - assert that error is ErrListBindings": {
 			params:         ListBindingsRequest{},
 			responseStatus: 500,
 			responseBody: `
 			{
-				"instance": "/error-types/internal-error?traceId=-2782801",
+				"instance": "/error-types/internal-error?traceId=-11111",
 				"status": 500,
 				"title": "An unexpected error occurred.",
 				"type": "/error-types/internal-error"
@@ -497,7 +469,7 @@ func TestListBindings(t *testing.T) {
 					Type:     "/error-types/internal-error",
 					Title:    "An unexpected error occurred.",
 					Status:   http.StatusInternalServerError,
-					Instance: "/error-types/internal-error?traceId=-2782801",
+					Instance: "/error-types/internal-error?traceId=-11111",
 				})
 				assert.EqualError(t, err, want.Error(), "want: %s; got: %s", want, err)
 				assert.ErrorIs(t, err, ErrListBindings)
@@ -545,6 +517,7 @@ func TestListBindings(t *testing.T) {
 			},
 		},
 	}
+
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()

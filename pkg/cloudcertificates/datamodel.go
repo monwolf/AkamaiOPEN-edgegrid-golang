@@ -1,4 +1,4 @@
-package ccm
+package cloudcertificates
 
 import (
 	"encoding/json"
@@ -13,8 +13,23 @@ import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
+var (
+	_ validation.Validatable = &CreateCertificateRequest{}
+	_ validation.Validatable = &GetCertificateRequest{}
+	_ validation.Validatable = &UpdateCertificateRequest{}
+	_ validation.Validatable = &PatchCertificateRequest{}
+	_ validation.Validatable = &ListCertificatesRequest{}
+	_ validation.Validatable = &DeleteCertificateRequest{}
+	_ validation.Validatable = &ListCertificateBindingsRequest{}
+	_ validation.Validatable = &ListBindingsRequest{}
+	_ validation.Validatable = &Subject{}
+	_ validation.Validatable = CryptographicAlgorithm("")
+	_ validation.Validatable = KeySize("")
+	_ validation.Validatable = SecureNetwork("")
+)
+
 const (
-	// StatusActive indicates the certificate is bound to one or more property hostnames and is ACTIVE on one or more networks.
+	// StatusActive indicates the certificate is bound to one or more property hostnames and is `ACTIVE` on one or more networks.
 	StatusActive CertificateStatus = "ACTIVE"
 
 	// StatusReadyForUse indicates the accepted signed certificate (and/or trust chain) for one or both key types and is ready for usage.
@@ -23,13 +38,13 @@ const (
 	// StatusCSRReady indicates the CSR generation is complete and are available for download.
 	StatusCSRReady CertificateStatus = "CSR_READY"
 
-	// CryptographicAlgorithmRSA indicates the RSA algorithm.
+	// CryptographicAlgorithmRSA indicates the `RSA` algorithm.
 	CryptographicAlgorithmRSA CryptographicAlgorithm = "RSA"
 
-	// CryptographicAlgorithmECDSA indicates the ECDSA algorithm.
+	// CryptographicAlgorithmECDSA indicates the `ECDSA` algorithm.
 	CryptographicAlgorithmECDSA CryptographicAlgorithm = "ECDSA"
 
-	// SecureNetworkEnhancedTLS represents the ENHANCED_TLS secure network type.
+	// SecureNetworkEnhancedTLS represents the `ENHANCED_TLS` secure network type.
 	SecureNetworkEnhancedTLS SecureNetwork = "ENHANCED_TLS"
 
 	// KeySize2048 represents a key size of 2048 bits.
@@ -63,13 +78,17 @@ type (
 
 	// CreateCertificateResponse contains the response for a certificate creation request.
 	CreateCertificateResponse struct {
-		Certificate    Certificate
+		// Certificate contains the created certificate details.
+		Certificate Certificate
+
+		// ResourceLimits contains information about certificate limits.
 		ResourceLimits ResourceLimitsMetadata
 		RateLimits     RateLimitsMetadata
 	}
 
 	// GetCertificateRequest represents the parameters for retrieving a certificate.
 	GetCertificateRequest struct {
+		// Certificate identifier on which to perform the desired operation.
 		CertificateID string
 	}
 
@@ -131,6 +150,7 @@ type (
 
 	// DeleteCertificateRequest represents the parameters for deleting a certificate.
 	DeleteCertificateRequest struct {
+		// Certificate identifier on which to perform the desired operation.
 		CertificateID string
 	}
 
@@ -142,10 +162,10 @@ type (
 		// CertificateID is an identifier on which to perform the desired operation.
 		CertificateID string
 
-		// PageSize is the number of items to return in the response. The default is `10`, and the maximum is `100`.
+		// PageSize is the number of items to return in the response. The default is 10, and the maximum is 100.
 		PageSize int64
 
-		// Page is the specific page from the resultset. `1` by default.
+		// Page is the specific page from the result set. 1 by default.
 		Page int64
 	}
 
@@ -162,18 +182,18 @@ type (
 
 	// ListCertificatesRequest represents the parameters for listing certificates.
 	ListCertificatesRequest struct {
-		// Filter by contract identifier and only return CCM certificates associated with that contract.
+		// Filter by contract identifier and only return CloudCertificates certificates associated with that contract.
 		ContractID string
 
 		// Unique identifier for the group.
 		GroupID string
 
 		// Filter by status of certificate. Can accept comma separated value list and will return all certificates in the given status list.
-		// Valid values: `ACTIVE`, `READY_FOR_USE`, `CSR_READY`
+		// Valid values: `ACTIVE`, `READY_FOR_USE`, `CSR_READY`.
 		CertificateStatus []CertificateStatus
 
 		// If provided, return certificates where the expiration date is within the provided number of days from the date of request.
-		// A value of 0 or less constitutes request to find and return expired certificates.
+		// A value of 0 returns only expired certificates.
 		ExpiringInDays *int64
 
 		// If provided, search across SAN domains and Subject CN for the provided domain exact match or wildcard match. Comparison is case-insensitive.
@@ -191,11 +211,11 @@ type (
 		// If true, returns full materials for each certificate (CSR, signed certificate, trust chain).
 		IncludeCertificateMaterials bool
 
-		// The number of items to return in the response. The default is `10`, and the maximum is `100`.
-		// If you specify a value greater than `100`, the API will return an error.
+		// The number of items to return in the response. The default is 10, and the maximum is 100.
+		// If you specify a value greater than 100, the API will return an error.
 		PageSize int64
 
-		// Specific page from the resultset. `1` by default.
+		// Specific page from the result set. 1 by default.
 		Page int64
 
 		// Certificate fields prefixed with optional `+` or `-` ( `+` to indicate ascending and `-` for descending order) of the fields.
@@ -212,13 +232,20 @@ type (
 
 	// ListCertificatesResponse contains a list of certificates and metadata.
 	ListCertificatesResponse struct {
+		// Certificates filtered or paginated per request.
 		Certificates []Certificate `json:"certificates"`
-		Links        Links         `json:"links"`
-		Metadata     ListMetadata  `json:"metadata"`
-		RateLimits   RateLimitsMetadata
+
+		// Links contains pagination and navigation links.
+		Links Links `json:"links"`
+
+		// Metadata contains metadata about the list of certificates.
+		Metadata ListMetadata `json:"metadata"`
+
+		// RateLimits contains information about API rate limits.
+		RateLimits RateLimitsMetadata
 	}
 
-	// ListBindingsRequest represents the parameters for listing certificate bindings.
+	// ListBindingsRequest represents the parameters for listing all certificate bindings.
 	ListBindingsRequest struct {
 		// ContractID filters results to certificates created under the specified contract.
 		ContractID string
@@ -234,13 +261,13 @@ type (
 		Network Network
 
 		// ExpiringInDays, if provided, filters results to certificates where the expiration date is within the provided number of days from the date of request.
-		// A value of 0 or less constitutes request to find and return expired certificates.
+		// A value of 0 returns only expired certificates.
 		ExpiringInDays *int64
 
-		// PageSize is the number of items to return in the response. The default is `10`, and the maximum is `100`.
+		// PageSize is the number of items to return in the response. The default is 10, and the maximum is 100.
 		PageSize int64
 
-		// Page is the specific page from the resultset. `1` by default.
+		// Page is the specific page from the result set. 1 by default.
 		Page int64
 	}
 
@@ -260,13 +287,13 @@ type (
 		// The name of the certificate.
 		CertificateName string `json:"certificateName,omitempty"`
 
-		// The key type for a certificate. Valid values are 'RSA' or 'ECDSA'.
+		// The key type for a certificate. Valid values are `RSA` or `ECDSA`.
 		KeyType CryptographicAlgorithm `json:"keyType"`
 
-		// The key size for a certificate. Valid values for key type RSA: '2048'. Valid values for key type ECDSA: 'P-256'.
+		// The key size for a certificate. Valid values for key type RSA: `2048`. Valid values for key type ECDSA: `P-256`.
 		KeySize KeySize `json:"keySize"`
 
-		// Secure network type to use for the certificate. The only valid value is 'ENHANCED_TLS'.
+		// Secure network type to use for the certificate. The only valid value is `ENHANCED_TLS`.
 		SecureNetwork SecureNetwork `json:"secureNetwork"`
 
 		// The list of Subject Alternative Names (SANs) for the certificate.
@@ -278,7 +305,7 @@ type (
 
 	// Certificate represents a certificate and its metadata.
 	Certificate struct {
-		// Unique identifier assigned to the newly created CCM certificate.
+		// Unique identifier assigned to the newly created CloudCertificates certificate.
 		CertificateID string `json:"certificateId"`
 
 		// Name of the certificate. User provided, if not autogenerated by the system.
@@ -290,10 +317,10 @@ type (
 		// Provided subject with optional fields as applicable.
 		Subject *Subject `json:"subject"`
 
-		// Certificate type. Defaults to THIRD_PARTY.
+		// Certificate type. Defaults to `THIRD_PARTY`.
 		CertificateType string `json:"certificateType"`
 
-		// Key type to use for CSR. Either RSA or ECDSA.
+		// Key type to use for CSR. Either `RSA` or `ECDSA`.
 		KeyType CryptographicAlgorithm `json:"keyType"`
 
 		// Key size to use for CSR.
@@ -323,13 +350,13 @@ type (
 		// Status of the certificate.
 		CertificateStatus string `json:"certificateStatus"`
 
-		// CSR PEM content generated by Akamai for RSA key type.
-		CSRPEM *string `json:"csrPem"`
+		// PEM-encoded certificate signing request (CSR) generated by Akamai for your selected key type.
+		CSRPEM string `json:"csrPem"`
 
 		// Date when CSR will expire.
 		CSRExpirationDate time.Time `json:"csrExpirationDate"`
 
-		// Signed certificate PEM content uploaded by end user for RSA key type.
+		// PEM-encoded signed certificate you uploaded for your selected key type.
 		SignedCertificatePEM *string `json:"signedCertificatePem"`
 
 		// Expiration date of signed certificate.
@@ -380,7 +407,7 @@ type (
 		// Network is the network the certificate is bound to. Valid values are `STAGING` and `PRODUCTION`.
 		Network string `json:"network"`
 
-		// ResourceType is the type of the certificate is bound to. Currently, only CDN_HOSTNAME is available.
+		// ResourceType is the type of the certificate is bound to. Currently, only `CDN_HOSTNAME` is available.
 		ResourceType string `json:"resourceType"`
 	}
 
@@ -398,14 +425,20 @@ type (
 
 	// ListMetadata contains metadata for paginated lists.
 	ListMetadata struct {
+		// Total number of items in the list.
 		TotalItems int64 `json:"totalItems"`
+
+		// Total number of pages.
 		TotalPages int64 `json:"totalPages"`
 	}
 
 	// ResourceLimitsMetadata contains information about certificate limits.
 	ResourceLimitsMetadata struct {
-		CertificateLimitTotal     int64
-		CertificateLimitRemaining int64
+		// Total number of certificates allowed.
+		CertificateLimitTotal *int64
+
+		// Number of remaining certificates that can be created.
+		CertificateLimitRemaining *int64
 	}
 
 	// RateLimitsMetadata contains information about API rate limits.
@@ -419,13 +452,13 @@ type (
 		Remaining *int64
 	}
 
-	// CertificateStatus represents the status of a certificate: `ACTIVE`, `READY_FOR_USE`, `CSR_READY`, `PENDING_CSR_GENERATION`, or `CERT_UPLOAD_PROCESSING`.
+	// CertificateStatus represents the status of a certificate: `ACTIVE`, `READY_FOR_USE`, or `CSR_READY`.
 	CertificateStatus string
 
 	// CryptographicAlgorithm represents the cryptographic algorithm type: `RSA` or `ECDSA`.
 	CryptographicAlgorithm string
 
-	// SecureNetwork represents the type of secure network (e.g. ENHANCED_TLS).
+	// SecureNetwork represents the type of secure network (e.g. `ENHANCED_TLS`).
 	SecureNetwork string
 
 	// KeySize represents the size of the key in bits.
@@ -460,7 +493,7 @@ func (r PatchCertificateRequest) Validate() error {
 func (r ListCertificatesRequest) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
 		"CertificateStatus": validation.Validate(r.CertificateStatus, validation.By(certificateStatusRule)),
-		"KeyType":           validation.Validate(r.KeyType, r.KeyType.Validate()),
+		"KeyType":           validation.Validate(r.KeyType),
 		"PageSize": validation.Validate(r.PageSize,
 			validation.Min(int64(1)).Error("must be 1 or greater"),
 			validation.Max(int64(100)).Error("cannot be greater than 100"),
@@ -473,9 +506,10 @@ func (r ListCertificatesRequest) Validate() error {
 }
 
 // Validate validates CryptographicAlgorithm.
-func (c CryptographicAlgorithm) Validate() validation.InRule {
+func (c CryptographicAlgorithm) Validate() error {
 	return validation.In(CryptographicAlgorithmRSA, CryptographicAlgorithmECDSA).
-		Error(fmt.Sprintf("value '%s' is invalid. Must be either '%s' or '%s'", c, CryptographicAlgorithmRSA, CryptographicAlgorithmECDSA))
+		Error(fmt.Sprintf("value '%s' is invalid. Must be either '%s' or '%s'", c, CryptographicAlgorithmRSA, CryptographicAlgorithmECDSA)).
+		Validate(c)
 }
 
 // Validate validates ListCertificateBindingsRequest.
@@ -554,8 +588,7 @@ func (r CreateCertificateRequest) Validate() error {
 		"SecureNetwork":   validation.Validate(r.Body.SecureNetwork, validation.Required),
 		"SANs":            validation.Validate(r.Body.SANs, validation.Required),
 		"Subject":         validation.Validate(r.Body.Subject),
-	},
-	)
+	})
 }
 
 // Validate validates UpdateCertificateRequest.
@@ -581,17 +614,19 @@ func (s Subject) Validate() error {
 }
 
 // Validate validates KeySize.
-func (k KeySize) Validate() validation.InRule {
+func (k KeySize) Validate() error {
 	return validation.In(KeySize2048, KeySizeP256).
 		Error(fmt.Sprintf("value '%s' is invalid. Must be one of: '%s', or '%s'",
-			k, KeySize2048, KeySizeP256))
+			k, KeySize2048, KeySizeP256)).
+		Validate(k)
 }
 
 // Validate validates SecureNetwork.
-func (s SecureNetwork) Validate() validation.InRule {
+func (s SecureNetwork) Validate() error {
 	return validation.In(SecureNetworkEnhancedTLS).
 		Error(fmt.Sprintf("value '%s' is invalid. Must be: '%s'",
-			s, SecureNetworkEnhancedTLS))
+			s, SecureNetworkEnhancedTLS)).
+		Validate(s)
 }
 
 // Validate validates GetCertificateRequest.

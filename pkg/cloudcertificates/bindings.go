@@ -1,4 +1,4 @@
-package ccm
+package cloudcertificates
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/session"
 )
 
-func (c *ccm) ListCertificateBindings(ctx context.Context, params ListCertificateBindingsRequest) (*ListCertificateBindingsResponse, error) {
+func (c *cloudcertificates) ListCertificateBindings(ctx context.Context, params ListCertificateBindingsRequest) (*ListCertificateBindingsResponse, error) {
 	logger := c.Log(ctx)
 	logger.Debug("ListCertificateBindings")
 
@@ -42,7 +42,7 @@ func (c *ccm) ListCertificateBindings(ctx context.Context, params ListCertificat
 	return &result, nil
 }
 
-func (c *ccm) ListBindings(ctx context.Context, params ListBindingsRequest) (*ListBindingsResponse, error) {
+func (c *cloudcertificates) ListBindings(ctx context.Context, params ListBindingsRequest) (*ListBindingsResponse, error) {
 	logger := c.Log(ctx)
 	logger.Debug("ListBindings")
 

@@ -1,4 +1,4 @@
-package ccm
+package cloudcertificates
 
 import (
 	"context"
@@ -19,7 +19,7 @@ type patch struct {
 	Value string `json:"value"`
 }
 
-func (c *ccm) ListCertificates(ctx context.Context, params ListCertificatesRequest) (*ListCertificatesResponse, error) {
+func (c *cloudcertificates) ListCertificates(ctx context.Context, params ListCertificatesRequest) (*ListCertificatesResponse, error) {
 	logger := c.Log(ctx)
 	logger.Debug("ListCertificates")
 
@@ -67,7 +67,7 @@ func (c *ccm) ListCertificates(ctx context.Context, params ListCertificatesReque
 	return &result, nil
 }
 
-func (c *ccm) PatchCertificate(ctx context.Context, params PatchCertificateRequest) (*PatchCertificateResponse, error) {
+func (c *cloudcertificates) PatchCertificate(ctx context.Context, params PatchCertificateRequest) (*PatchCertificateResponse, error) {
 	logger := c.Log(ctx)
 	logger.Debug("PatchCertificate")
 
@@ -101,7 +101,7 @@ func (c *ccm) PatchCertificate(ctx context.Context, params PatchCertificateReque
 	return &result, nil
 }
 
-func (c *ccm) UpdateCertificate(ctx context.Context, params UpdateCertificateRequest) (*UpdateCertificateResponse, error) {
+func (c *cloudcertificates) UpdateCertificate(ctx context.Context, params UpdateCertificateRequest) (*UpdateCertificateResponse, error) {
 	logger := c.Log(ctx)
 	logger.Debug("UpdateCertificate")
 
@@ -170,7 +170,7 @@ func buildPatchRequestBody(params PatchCertificateRequest) []patch {
 	return reqBody
 }
 
-func (c *ccm) CreateCertificate(ctx context.Context, params CreateCertificateRequest) (*CreateCertificateResponse, error) {
+func (c *cloudcertificates) CreateCertificate(ctx context.Context, params CreateCertificateRequest) (*CreateCertificateResponse, error) {
 	logger := c.Log(ctx)
 	logger.Debug("CreateCertificate")
 
@@ -199,18 +199,18 @@ func (c *ccm) CreateCertificate(ctx context.Context, params CreateCertificateReq
 	if resp.Header.Get("Akamai-Limit-Certificates") != "" {
 		limitTotal, err := strconv.ParseInt(resp.Header.Get("Akamai-Limit-Certificates"), 10, 64)
 		if err != nil {
-			return nil, fmt.Errorf("%w: failed to parse Akamai-Limit-Certificates header: %w",
-				ErrCreateCertificate, err)
+			logger.Warnf("failed to parse Akamai-Limit-Certificates header: %v", err)
+		} else {
+			result.ResourceLimits.CertificateLimitTotal = &limitTotal
 		}
-		result.ResourceLimits.CertificateLimitTotal = limitTotal
 	}
 	if resp.Header.Get("Akamai-Limit-Certificates-Remaining") != "" {
 		limitRemaining, err := strconv.ParseInt(resp.Header.Get("Akamai-Limit-Certificates-Remaining"), 10, 64)
 		if err != nil {
-			return nil, fmt.Errorf("%w: failed to parse Akamai-Limit-Certificates-Remaining header: %w",
-				ErrCreateCertificate, err)
+			logger.Warnf("failed to parse Akamai-Limit-Certificates-Remaining header: %v", err)
+		} else {
+			result.ResourceLimits.CertificateLimitRemaining = &limitRemaining
 		}
-		result.ResourceLimits.CertificateLimitRemaining = limitRemaining
 	}
 
 	result.RateLimits = extractRateLimitHeaders(resp, logger)
@@ -218,7 +218,7 @@ func (c *ccm) CreateCertificate(ctx context.Context, params CreateCertificateReq
 	return &result, nil
 }
 
-func (c *ccm) GetCertificate(ctx context.Context, params GetCertificateRequest) (*GetCertificateResponse, error) {
+func (c *cloudcertificates) GetCertificate(ctx context.Context, params GetCertificateRequest) (*GetCertificateResponse, error) {
 	logger := c.Log(ctx)
 	logger.Debug("GetCertificate")
 
@@ -248,7 +248,7 @@ func (c *ccm) GetCertificate(ctx context.Context, params GetCertificateRequest) 
 	return &result, nil
 }
 
-func (c *ccm) DeleteCertificate(ctx context.Context, params DeleteCertificateRequest) (*DeleteCertificateResponse, error) {
+func (c *cloudcertificates) DeleteCertificate(ctx context.Context, params DeleteCertificateRequest) (*DeleteCertificateResponse, error) {
 	logger := c.Log(ctx)
 	logger.Debug("DeleteCertificate")
 

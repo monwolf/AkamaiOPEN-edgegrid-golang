@@ -1,5 +1,5 @@
-// Package ccm provides access to the Akamai CCM API.
-package ccm
+// Package cloudcertificates provides access to the Akamai Cloud Certificates Manager API.
+package cloudcertificates
 
 import (
 	"encoding/json"
@@ -15,13 +15,13 @@ var (
 	// ErrStructValidation is returned when given struct validation failed.
 	ErrStructValidation = errors.New("struct validation")
 
-	// ErrPatchCertificate represents error when patching certificate fails.
+	// ErrPatchCertificate is returned when patching certificate fails.
 	ErrPatchCertificate = errors.New("patching certificate")
 
-	// ErrUpdateCertificate represents error when updating certificate fails.
+	// ErrUpdateCertificate is returned when updating certificate fails.
 	ErrUpdateCertificate = errors.New("updating certificate")
 
-	// ErrListCertificates represents error when listing certificates fails.
+	// ErrListCertificates is returned when listing certificates fails.
 	ErrListCertificates = errors.New("listing certificates")
 
 	// ErrCreateCertificate is returned when CreateCertificate fails.
@@ -46,14 +46,10 @@ var (
 
 	// ErrCertificateNotFound represents error when the certificate is not found.
 	ErrCertificateNotFound = &Error{Type: "/error-types/certificate-not-found"}
-
-	// ErrCertificateResourceNotFound represents error when the certificate is not found.
-	// TODO Waiting for the response if should be removed in favour of ErrCertificateNotFound
-	ErrCertificateResourceNotFound = &Error{Type: "/error-types/certificate-resource-not-found"}
 )
 
 type (
-	// Error is a CCM error interface.
+	// Error is a CloudCertificates error interface.
 	Error struct {
 		Type     string `json:"type"`
 		Title    string `json:"title"`
@@ -126,8 +122,8 @@ type (
 	}
 )
 
-// Error parses an error from the CCM API response.
-func (c *ccm) Error(r *http.Response) error {
+// Error parses an error from the CloudCertificates API response.
+func (c *cloudcertificates) Error(r *http.Response) error {
 	var e Error
 	var body []byte
 	body, err := io.ReadAll(r.Body)

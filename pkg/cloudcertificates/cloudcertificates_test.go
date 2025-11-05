@@ -1,4 +1,4 @@
-package ccm
+package cloudcertificates
 
 import (
 	"crypto/tls"
@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func mockAPIClient(t *testing.T, mockServer *httptest.Server) CCM {
+func mockAPIClient(t *testing.T, mockServer *httptest.Server) CloudCertificates {
 	serverURL, err := url.Parse(mockServer.URL)
 	require.NoError(t, err)
 	certPool := x509.NewCertPool()
@@ -37,19 +37,19 @@ func TestClient(t *testing.T) {
 	require.NoError(t, err)
 	tests := map[string]struct {
 		options  []Option
-		expected *ccm
+		expected *cloudcertificates
 	}{
 		"no options provided, return default": {
 			options: nil,
-			expected: &ccm{
+			expected: &cloudcertificates{
 				Session: sess,
 			},
 		},
 		"option provided, overwrite session": {
-			options: []Option{func(c *ccm) {
+			options: []Option{func(c *cloudcertificates) {
 				c.Session = nil
 			}},
-			expected: &ccm{
+			expected: &cloudcertificates{
 				Session: nil,
 			},
 		},

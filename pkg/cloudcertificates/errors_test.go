@@ -1,4 +1,4 @@
-package ccm
+package cloudcertificates
 
 import (
 	"io"
@@ -153,7 +153,7 @@ func TestNewError(t *testing.T) {
 	}
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			res := Client(sess).(*ccm).Error(tc.response)
+			res := Client(sess).(*cloudcertificates).Error(tc.response)
 			assert.Equal(t, tc.expected, res)
 		})
 	}
