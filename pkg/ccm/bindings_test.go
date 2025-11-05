@@ -20,11 +20,16 @@ func TestListCertificateBindings(t *testing.T) {
 		responseBody     string
 		expectedResponse *ListCertificateBindingsResponse
 		expectedPath     string
+		returnedHeaders  map[string]string
 		withError        func(*testing.T, error)
 	}{
 		"200 - fetch of certificate bindings successful": {
 			params: ListCertificateBindingsRequest{
 				CertificateID: "123",
+			},
+			returnedHeaders: map[string]string{
+				"Akamai-RateLimit-Limit":     "60",
+				"Akamai-RateLimit-Remaining": "59",
 			},
 			expectedResponse: &ListCertificateBindingsResponse{
 				Bindings: []CertificateBinding{
@@ -52,6 +57,10 @@ func TestListCertificateBindings(t *testing.T) {
 					Next:     ptr.To("https://api.example.com/v1/certificates/123/certificate-bindings?page=2&pageSize=10"),
 					Previous: nil,
 					Self:     "https://api.example.com/v1/certificates/123/certificate-bindings?page=1&pageSize=10",
+				},
+				RateLimits: RateLimitsMetadata{
+					Limit:     ptr.To(int64(60)),
+					Remaining: ptr.To(int64(59)),
 				},
 			},
 			responseStatus: 200,
@@ -229,6 +238,11 @@ func TestListCertificateBindings(t *testing.T) {
 			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				assert.Equal(t, tc.expectedPath, r.URL.String())
 				assert.Equal(t, http.MethodGet, r.Method)
+				if len(tc.returnedHeaders) > 0 {
+					for header, value := range tc.returnedHeaders {
+						w.Header().Set(header, value)
+					}
+				}
 				w.WriteHeader(tc.responseStatus)
 				_, err := w.Write([]byte(tc.responseBody))
 				assert.NoError(t, err)
@@ -255,10 +269,15 @@ func TestListBindings(t *testing.T) {
 		responseBody     string
 		expectedResponse *ListBindingsResponse
 		expectedPath     string
+		returnedHeaders  map[string]string
 		withError        func(*testing.T, error)
 	}{
 		"200 - fetch of bindings successful": {
 			params: ListBindingsRequest{},
+			returnedHeaders: map[string]string{
+				"Akamai-RateLimit-Limit":     "60",
+				"Akamai-RateLimit-Remaining": "59",
+			},
 			expectedResponse: &ListBindingsResponse{
 				Bindings: []CertificateBinding{
 					{
@@ -285,6 +304,10 @@ func TestListBindings(t *testing.T) {
 					Next:     ptr.To("https://api.example.com/v1/certificate-bindings?page=2&pageSize=10"),
 					Previous: nil,
 					Self:     "https://api.example.com/v1/certificate-bindings?page=1&pageSize=10",
+				},
+				RateLimits: RateLimitsMetadata{
+					Limit:     ptr.To(int64(60)),
+					Remaining: ptr.To(int64(59)),
 				},
 			},
 			responseStatus: 200,
@@ -528,6 +551,11 @@ func TestListBindings(t *testing.T) {
 			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				assert.Equal(t, tc.expectedPath, r.URL.String())
 				assert.Equal(t, http.MethodGet, r.Method)
+				if len(tc.returnedHeaders) > 0 {
+					for header, value := range tc.returnedHeaders {
+						w.Header().Set(header, value)
+					}
+				}
 				w.WriteHeader(tc.responseStatus)
 				_, err := w.Write([]byte(tc.responseBody))
 				assert.NoError(t, err)

@@ -9,6 +9,7 @@ import (
 
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/internal/request"
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/internal/texts"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/log"
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/session"
 )
 
@@ -60,6 +61,9 @@ func (c *ccm) ListCertificates(ctx context.Context, params ListCertificatesReque
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("%w: %w", ErrListCertificates, c.Error(resp))
 	}
+
+	result.RateLimits = extractRateLimitHeaders(resp, logger)
+
 	return &result, nil
 }
 
@@ -82,7 +86,7 @@ func (c *ccm) PatchCertificate(ctx context.Context, params PatchCertificateReque
 	reqBody := buildPatchRequestBody(params)
 	var result PatchCertificateResponse
 
-	resp, err := c.Exec(req, &result, reqBody)
+	resp, err := c.Exec(req, &result.Certificate, reqBody)
 	if err != nil {
 		return nil, fmt.Errorf("%w: request failed: %w", ErrPatchCertificate, err)
 	}
@@ -91,6 +95,9 @@ func (c *ccm) PatchCertificate(ctx context.Context, params PatchCertificateReque
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("%w: %w", ErrPatchCertificate, c.Error(resp))
 	}
+
+	result.RateLimits = extractRateLimitHeaders(resp, logger)
+
 	return &result, nil
 }
 
@@ -120,7 +127,7 @@ func (c *ccm) UpdateCertificate(ctx context.Context, params UpdateCertificateReq
 
 	var result UpdateCertificateResponse
 
-	resp, err := c.Exec(req, &result, params)
+	resp, err := c.Exec(req, &result.Certificate, params)
 	if err != nil {
 		return nil, fmt.Errorf("%w: request failed: %w", ErrUpdateCertificate, err)
 	}
@@ -129,6 +136,9 @@ func (c *ccm) UpdateCertificate(ctx context.Context, params UpdateCertificateReq
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("%w: %w", ErrUpdateCertificate, c.Error(resp))
 	}
+
+	result.RateLimits = extractRateLimitHeaders(resp, logger)
+
 	return &result, nil
 }
 
@@ -203,6 +213,8 @@ func (c *ccm) CreateCertificate(ctx context.Context, params CreateCertificateReq
 		result.ResourceLimits.CertificateLimitRemaining = limitRemaining
 	}
 
+	result.RateLimits = extractRateLimitHeaders(resp, logger)
+
 	return &result, nil
 }
 
@@ -221,7 +233,7 @@ func (c *ccm) GetCertificate(ctx context.Context, params GetCertificateRequest) 
 	}
 
 	var result GetCertificateResponse
-	resp, err := c.Exec(req, &result)
+	resp, err := c.Exec(req, &result.Certificate)
 	if err != nil {
 		return nil, fmt.Errorf("%w: request execution failed: %w", ErrGetCertificate, err)
 	}
@@ -231,32 +243,56 @@ func (c *ccm) GetCertificate(ctx context.Context, params GetCertificateRequest) 
 		return nil, fmt.Errorf("%w: %w", ErrGetCertificate, c.Error(resp))
 	}
 
+	result.RateLimits = extractRateLimitHeaders(resp, logger)
+
 	return &result, nil
 }
 
-func (c *ccm) DeleteCertificate(ctx context.Context, params DeleteCertificateRequest) error {
+func (c *ccm) DeleteCertificate(ctx context.Context, params DeleteCertificateRequest) (*DeleteCertificateResponse, error) {
 	logger := c.Log(ctx)
 	logger.Debug("DeleteCertificate")
 
 	if err := params.Validate(); err != nil {
-		return fmt.Errorf("%w: %w: %w", ErrDeleteCertificate, ErrStructValidation, err)
+		return nil, fmt.Errorf("%w: %w: %w", ErrDeleteCertificate, ErrStructValidation, err)
 	}
 
 	req, err := request.NewDelete(ctx, "/ccm/v1/certificates/%s", params.CertificateID).
 		Build()
 	if err != nil {
-		return fmt.Errorf("%w: failed to create request: %w", ErrDeleteCertificate, err)
+		return nil, fmt.Errorf("%w: failed to create request: %w", ErrDeleteCertificate, err)
 	}
 
 	resp, err := c.Exec(req, nil)
 	if err != nil {
-		return fmt.Errorf("%w: request execution failed: %w", ErrDeleteCertificate, err)
+		return nil, fmt.Errorf("%w: request execution failed: %w", ErrDeleteCertificate, err)
 	}
 	defer session.CloseResponseBody(resp)
 
 	if resp.StatusCode != http.StatusNoContent {
-		return fmt.Errorf("%w: %w", ErrDeleteCertificate, c.Error(resp))
+		return nil, fmt.Errorf("%w: %w", ErrDeleteCertificate, c.Error(resp))
 	}
 
-	return nil
+	result := extractRateLimitHeaders(resp, logger)
+
+	return &result, nil
+}
+
+func extractRateLimitHeaders(resp *http.Response, logger log.Interface) RateLimitsMetadata {
+	var rateLimits RateLimitsMetadata
+
+	limitTotal, err := strconv.ParseInt(resp.Header.Get("Akamai-RateLimit-Limit"), 10, 64)
+	if err == nil {
+		rateLimits.Limit = &limitTotal
+	} else {
+		logger.Warnf("Failed to parse Akamai-RateLimit-Limit header: %v", err)
+	}
+
+	limitRemaining, err := strconv.ParseInt(resp.Header.Get("Akamai-RateLimit-Remaining"), 10, 64)
+	if err == nil {
+		rateLimits.Remaining = &limitRemaining
+	} else {
+		logger.Warnf("Failed to parse Akamai-RateLimit-Remaining header: %v", err)
+	}
+
+	return rateLimits
 }

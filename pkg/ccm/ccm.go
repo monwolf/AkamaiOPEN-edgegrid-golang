@@ -35,7 +35,7 @@ type (
 		// DeleteCertificate deletes a certificate by its certificateId. Note that only certificates that are not ACTIVE can be deleted.
 		//
 		// See: TBD
-		DeleteCertificate(ctx context.Context, params DeleteCertificateRequest) error
+		DeleteCertificate(ctx context.Context, params DeleteCertificateRequest) (*DeleteCertificateResponse, error)
 
 		// ListCertificateBindings provides hostname bindings for the given certificate.
 		//

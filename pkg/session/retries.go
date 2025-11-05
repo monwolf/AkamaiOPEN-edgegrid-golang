@@ -114,10 +114,12 @@ func overrideRetryPolicy(basePolicy retryablehttp.CheckRetry, excludedEndpoints 
 			return false, err
 		}
 
-		// Retry all PAPI GET requests resulting status code 429
+		// Retry all PAPI and CCM GET requests resulting status code 429
 		// The backoff time is calculated in getXRateLimitBackoff
 		is429 := resp.StatusCode == http.StatusTooManyRequests
-		if is429 && (resp.Request.URL != nil && strings.HasPrefix(resp.Request.URL.Path, "/papi/")) {
+		isPAPI := resp.Request.URL != nil && strings.HasPrefix(resp.Request.URL.Path, "/papi/")
+		isCCM := resp.Request.URL != nil && strings.HasPrefix(resp.Request.URL.Path, "/ccm/")
+		if is429 && (isPAPI || isCCM) {
 			return true, nil
 		}
 		if resp.StatusCode == http.StatusConflict {
@@ -131,7 +133,10 @@ func overrideBackoff(baseBackoff retryablehttp.Backoff, logger log.Interface) re
 	return func(minT, maxT time.Duration, attemptNum int, resp *http.Response) time.Duration {
 		if resp != nil {
 			if resp.StatusCode == http.StatusTooManyRequests {
-				if wait, ok := getXRateLimitBackoff(resp, logger); ok {
+				if wait, ok := getRateLimitBackoff("Akamai-RateLimit-Next", resp, logger); ok {
+					return wait
+				}
+				if wait, ok := getRateLimitBackoff("X-RateLimit-Next", resp, logger); ok {
 					return wait
 				}
 			}
@@ -140,20 +145,22 @@ func overrideBackoff(baseBackoff retryablehttp.Backoff, logger log.Interface) re
 	}
 }
 
+// getRateLimitBackoff extracts the backoff duration from the given headerKey
+// in the http.Response headers. Supports "X-RateLimit-Next" and "Akamai-RateLimit-Next".
 // Note that Date's resolution is seconds (e.g. Mon, 01 Jul 2024 14:32:14 GMT),
 // while X-RateLimit-Next's resolution is milliseconds (2024-07-01T14:32:28.645Z).
 // This may cause the wait time to be inflated by at most one second, like for the
 // actual server response time around 2024-07-01T14:32:14.999Z. This is acceptable behavior
 // as retry does not occur earlier than expected.
-func getXRateLimitBackoff(resp *http.Response, logger log.Interface) (time.Duration, bool) {
-	nextHeader := resp.Header.Get("X-RateLimit-Next")
+func getRateLimitBackoff(headerKey string, resp *http.Response, logger log.Interface) (time.Duration, bool) {
+	nextHeader := resp.Header.Get(headerKey)
 	if nextHeader == "" {
 		return 0, false
 	}
 	next, err := time.Parse(time.RFC3339Nano, nextHeader)
 	if err != nil {
 		if logger != nil {
-			logger.Error("Could not parse X-RateLimit-Next header", "error", err)
+			logger.Errorf("Could not parse %s header: %v", headerKey, err)
 		}
 		return 0, false
 	}
@@ -161,7 +168,7 @@ func getXRateLimitBackoff(resp *http.Response, logger log.Interface) (time.Durat
 	dateHeader := resp.Header.Get("Date")
 	if dateHeader == "" {
 		if logger != nil {
-			logger.Warnf("No Date header for X-RateLimit-Next: %s", nextHeader)
+			logger.Warnf("No Date header for %s: %s", headerKey, nextHeader)
 		}
 		return 0, false
 	}
@@ -176,7 +183,7 @@ func getXRateLimitBackoff(resp *http.Response, logger log.Interface) (time.Durat
 	// Next in the past does not make sense
 	if next.Before(date) {
 		if logger != nil {
-			logger.Warnf("X-RateLimit-Next: %s before Date: %s", nextHeader, dateHeader)
+			logger.Warnf("%s: %s before Date: %s", headerKey, nextHeader, dateHeader)
 		}
 		return 0, false
 	}

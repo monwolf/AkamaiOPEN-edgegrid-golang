@@ -17,6 +17,98 @@ import (
 
 func TestCreateCertificate(t *testing.T) {
 	t.Parallel()
+
+	baseRequest := CreateCertificateRequest{
+		ContractID: "111",
+		GroupID:    "222",
+		Body: CreateCertificateRequestBody{
+			CertificateName: "test-cert",
+			SANs:            []string{"example.com", "www.example.com"},
+			SecureNetwork:   "ENHANCED_TLS",
+			KeyType:         "RSA",
+			KeySize:         "2048",
+			Subject: &Subject{
+				CommonName:   "example.com",
+				Country:      "US",
+				State:        "Massachusetts",
+				Locality:     "Cambridge",
+				Organization: "ExampleOrg",
+			},
+		},
+	}
+
+	baseResponseBody := `{
+		"accountId": "A-CCT7890",
+		"certificateId": "123",
+		"certificateName": "test-cert",
+		"certificateStatus": "CSR_READY",
+		"certificateType": "THIRD_PARTY",
+		"contractId": "C-0N7RAC7",
+		"createdBy": "jsmith",
+		"createdDate": "2025-09-01T06:16:05.952613Z",
+		"csrExpirationDate": "2026-11-03T06:16:07Z",
+		"csrPem": "-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n",
+		"keySize": "2048",
+		"keyType": "RSA",
+		"modifiedBy": "jsmith",
+		"modifiedDate": "2025-09-02T06:16:05.952613Z",
+		"sans": [
+			"example.com",
+			"www.example.com"
+		],
+		"secureNetwork": "ENHANCED_TLS",
+		"signedCertificateIssuer": null,
+		"signedCertificateNotValidAfterDate": null,
+		"signedCertificateNotValidBeforeDate": null,
+		"signedCertificatePem": null,
+		"signedCertificateSHA256Fingerprint": null,
+		"signedCertificateSerialNumber": null,
+		"subject": {
+			"commonName": "example.com",
+			"country": "US",
+			"locality": "Cambridge",
+			"organization": "ExampleOrg",
+			"state": "Massachusetts"
+		},
+		"trustChainPem": null
+	}`
+
+	expectedResponseWithoutRateLimits := &CreateCertificateResponse{
+		Certificate: Certificate{
+			AccountID:         "A-CCT7890",
+			CertificateID:     "123",
+			CertificateName:   "test-cert",
+			CertificateStatus: "CSR_READY",
+			CertificateType:   "THIRD_PARTY",
+			ContractID:        "C-0N7RAC7",
+			CreatedBy:         "jsmith",
+			CreatedDate:       test.NewTimeFromString(t, "2025-09-01T06:16:05.952613Z"),
+			CSRExpirationDate: test.NewTimeFromString(t, "2026-11-03T06:16:07Z"),
+			CSRPEM:            ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
+			KeySize:           "2048",
+			KeyType:           "RSA",
+			ModifiedBy:        "jsmith",
+			ModifiedDate:      test.NewTimeFromString(t, "2025-09-02T06:16:05.952613Z"),
+			SANs:              []string{"example.com", "www.example.com"},
+			SecureNetwork:     "ENHANCED_TLS",
+			Subject: &Subject{
+				Country:      "US",
+				Organization: "ExampleOrg",
+				State:        "Massachusetts",
+				Locality:     "Cambridge",
+				CommonName:   "example.com",
+			},
+		},
+		ResourceLimits: ResourceLimitsMetadata{
+			CertificateLimitTotal:     50,
+			CertificateLimitRemaining: 27,
+		},
+		RateLimits: RateLimitsMetadata{
+			Limit:     nil,
+			Remaining: nil,
+		},
+	}
+
 	tests := map[string]struct {
 		params              CreateCertificateRequest
 		responseStatus      int
@@ -28,29 +120,14 @@ func TestCreateCertificate(t *testing.T) {
 		withError           func(*testing.T, error)
 	}{
 		"201 Created - create certificate with all possible fields": {
-			params: CreateCertificateRequest{
-				ContractID: "111",
-				GroupID:    "222",
-				Body: CreateCertificateRequestBody{
-					CertificateName: "test-cert",
-					SANs:            []string{"example.com", "www.example.com"},
-					SecureNetwork:   "ENHANCED_TLS",
-					KeyType:         "RSA",
-					KeySize:         "2048",
-					Subject: &Subject{
-						CommonName:   "example.com",
-						Country:      "US",
-						State:        "Massachusetts",
-						Locality:     "Cambridge",
-						Organization: "ExampleOrg",
-					},
-				},
-			},
+			params:              baseRequest,
 			expectedPath:        "/ccm/v1/certificates?contractId=111&groupId=222",
 			expectedRequestBody: `{"certificateName":"test-cert","keyType":"RSA","keySize":"2048","secureNetwork":"ENHANCED_TLS","sans":["example.com","www.example.com"],"subject":{"commonName":"example.com","organization":"ExampleOrg","country":"US","state":"Massachusetts","locality":"Cambridge"}}`,
 			returnedHeaders: map[string]string{
 				"Akamai-Limit-Certificates":           "50",
 				"Akamai-Limit-Certificates-Remaining": "27",
+				"Akamai-RateLimit-Limit":              "60",
+				"Akamai-RateLimit-Remaining":          "59",
 			},
 			expectedResponse: &CreateCertificateResponse{
 				Certificate: Certificate{
@@ -82,43 +159,39 @@ func TestCreateCertificate(t *testing.T) {
 					CertificateLimitTotal:     50,
 					CertificateLimitRemaining: 27,
 				},
+				RateLimits: RateLimitsMetadata{
+					Limit:     ptr.To(int64(60)),
+					Remaining: ptr.To(int64(59)),
+				},
 			},
 			responseStatus: 201,
-			responseBody: `{
-				"accountId": "A-CCT7890",
-				"certificateId": "123",
-				"certificateName": "test-cert",
-				"certificateStatus": "CSR_READY",
-				"certificateType": "THIRD_PARTY",
-				"contractId": "C-0N7RAC7",
-				"createdBy": "jsmith",
-				"createdDate": "2025-09-01T06:16:05.952613Z",
-				"csrExpirationDate": "2026-11-03T06:16:07Z",
-				"csrPem": "-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n",
-				"keySize": "2048",
-				"keyType": "RSA",
-				"modifiedBy": "jsmith",
-				"modifiedDate": "2025-09-02T06:16:05.952613Z",
-				"sans": [
-					"example.com",
-					"www.example.com"
-				],
-				"secureNetwork": "ENHANCED_TLS",
-				"signedCertificateIssuer": null,
-				"signedCertificateNotValidAfterDate": null,
-				"signedCertificateNotValidBeforeDate": null,
-				"signedCertificatePem": null,
-				"signedCertificateSHA256Fingerprint": null,
-				"signedCertificateSerialNumber": null,
-				"subject": {
-					"commonName": "example.com",
-					"country": "US",
-					"locality": "Cambridge",
-					"organization": "ExampleOrg",
-					"state": "Massachusetts"
-				},
-				"trustChainPem": null
-			}`,
+			responseBody:   baseResponseBody,
+		},
+		"201 Created - no rate limit headers": {
+			params:              baseRequest,
+			expectedPath:        "/ccm/v1/certificates?contractId=111&groupId=222",
+			expectedRequestBody: `{"certificateName":"test-cert","keyType":"RSA","keySize":"2048","secureNetwork":"ENHANCED_TLS","sans":["example.com","www.example.com"],"subject":{"commonName":"example.com","organization":"ExampleOrg","country":"US","state":"Massachusetts","locality":"Cambridge"}}`,
+			returnedHeaders: map[string]string{
+				"Akamai-Limit-Certificates":           "50",
+				"Akamai-Limit-Certificates-Remaining": "27",
+			},
+			expectedResponse: expectedResponseWithoutRateLimits,
+			responseStatus:   201,
+			responseBody:     baseResponseBody,
+		},
+		"201 Created - empty rate limit headers": {
+			params:              baseRequest,
+			expectedPath:        "/ccm/v1/certificates?contractId=111&groupId=222",
+			expectedRequestBody: `{"certificateName":"test-cert","keyType":"RSA","keySize":"2048","secureNetwork":"ENHANCED_TLS","sans":["example.com","www.example.com"],"subject":{"commonName":"example.com","organization":"ExampleOrg","country":"US","state":"Massachusetts","locality":"Cambridge"}}`,
+			returnedHeaders: map[string]string{
+				"Akamai-Limit-Certificates":           "50",
+				"Akamai-Limit-Certificates-Remaining": "27",
+				"Akamai-RateLimit-Limit":              "",
+				"Akamai-RateLimit-Remaining":          "",
+			},
+			expectedResponse: expectedResponseWithoutRateLimits,
+			responseStatus:   201,
+			responseBody:     baseResponseBody,
 		},
 		"201 Created - create certificate without name": {
 			params: CreateCertificateRequest{
@@ -143,6 +216,8 @@ func TestCreateCertificate(t *testing.T) {
 			returnedHeaders: map[string]string{
 				"Akamai-Limit-Certificates":           "50",
 				"Akamai-Limit-Certificates-Remaining": "27",
+				"Akamai-RateLimit-Limit":              "60",
+				"Akamai-RateLimit-Remaining":          "59",
 			},
 			expectedResponse: &CreateCertificateResponse{
 				Certificate: Certificate{
@@ -173,6 +248,10 @@ func TestCreateCertificate(t *testing.T) {
 				ResourceLimits: ResourceLimitsMetadata{
 					CertificateLimitTotal:     50,
 					CertificateLimitRemaining: 27,
+				},
+				RateLimits: RateLimitsMetadata{
+					Limit:     ptr.To(int64(60)),
+					Remaining: ptr.To(int64(59)),
 				},
 			},
 			responseStatus: 201,
@@ -686,38 +765,49 @@ func TestGetCertificate(t *testing.T) {
 		expectedResponse *GetCertificateResponse
 		expectedPath     string
 		expectedHeaders  map[string]string
+		returnedHeaders  map[string]string
 		withError        func(*testing.T, error)
 	}{
 		"200 -fetch of certificate successful": {
 			params: GetCertificateRequest{
 				CertificateID: "123",
 			},
+			returnedHeaders: map[string]string{
+				"Akamai-RateLimit-Limit":     "60",
+				"Akamai-RateLimit-Remaining": "59",
+			},
 			expectedResponse: &GetCertificateResponse{
-				AccountID:                          "A-CCT7890",
-				CertificateID:                      "123",
-				CertificateName:                    "test-cert",
-				CertificateStatus:                  "CSR_READY",
-				CertificateType:                    "THIRD_PARTY",
-				ContractID:                         "C-0N7RAC7",
-				CreatedBy:                          "jsmith",
-				CreatedDate:                        test.NewTimeFromString(t, "2025-09-01T06:16:05.952613Z"),
-				CSRExpirationDate:                  test.NewTimeFromString(t, "2026-11-03T06:16:07Z"),
-				CSRPEM:                             ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
-				KeySize:                            "2048",
-				KeyType:                            "RSA",
-				ModifiedBy:                         "jsmith",
-				ModifiedDate:                       test.NewTimeFromString(t, "2025-09-02T06:16:05.952613Z"),
-				SANs:                               []string{"example.com", "www.example.com"},
-				SecureNetwork:                      "ENHANCED_TLS",
-				SignedCertificateIssuer:            nil,
-				SignedCertificateSerialNumber:      nil,
-				SignedCertificateSHA256Fingerprint: nil,
-				Subject: &Subject{
-					Country:      "US",
-					Organization: "ExampleOrg",
-					State:        "Massachusetts",
-					Locality:     "Cambridge",
-					CommonName:   "example.com",
+				Certificate: Certificate{
+					AccountID:                          "A-CCT7890",
+					CertificateID:                      "123",
+					CertificateName:                    "test-cert",
+					CertificateStatus:                  "CSR_READY",
+					CertificateType:                    "THIRD_PARTY",
+					ContractID:                         "C-0N7RAC7",
+					CreatedBy:                          "jsmith",
+					CreatedDate:                        test.NewTimeFromString(t, "2025-09-01T06:16:05.952613Z"),
+					CSRExpirationDate:                  test.NewTimeFromString(t, "2026-11-03T06:16:07Z"),
+					CSRPEM:                             ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
+					KeySize:                            "2048",
+					KeyType:                            "RSA",
+					ModifiedBy:                         "jsmith",
+					ModifiedDate:                       test.NewTimeFromString(t, "2025-09-02T06:16:05.952613Z"),
+					SANs:                               []string{"example.com", "www.example.com"},
+					SecureNetwork:                      "ENHANCED_TLS",
+					SignedCertificateIssuer:            nil,
+					SignedCertificateSerialNumber:      nil,
+					SignedCertificateSHA256Fingerprint: nil,
+					Subject: &Subject{
+						Country:      "US",
+						Organization: "ExampleOrg",
+						State:        "Massachusetts",
+						Locality:     "Cambridge",
+						CommonName:   "example.com",
+					},
+				},
+				RateLimits: RateLimitsMetadata{
+					Limit:     ptr.To(int64(60)),
+					Remaining: ptr.To(int64(59)),
 				},
 			},
 			responseStatus: 200,
@@ -829,6 +919,11 @@ func TestGetCertificate(t *testing.T) {
 			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				assert.Equal(t, tc.expectedPath, r.URL.String())
 				assert.Equal(t, http.MethodGet, r.Method)
+				if len(tc.returnedHeaders) > 0 {
+					for header, value := range tc.returnedHeaders {
+						w.Header().Set(header, value)
+					}
+				}
 				for k, v := range tc.expectedHeaders {
 					assert.Equal(t, v, r.Header.Get(k))
 				}
@@ -853,16 +948,26 @@ func TestGetCertificate(t *testing.T) {
 func TestDeleteCertificate(t *testing.T) {
 	t.Parallel()
 	tests := map[string]struct {
-		params          DeleteCertificateRequest
-		responseStatus  int
-		responseBody    string
-		expectedPath    string
-		expectedHeaders map[string]string
-		withError       func(*testing.T, error)
+		params           DeleteCertificateRequest
+		responseStatus   int
+		responseBody     string
+		expectedResponse *DeleteCertificateResponse
+		expectedPath     string
+		returnedHeaders  map[string]string
+		expectedHeaders  map[string]string
+		withError        func(*testing.T, error)
 	}{
 		"204 certificate deleted successfully": {
 			params: DeleteCertificateRequest{
 				CertificateID: "certificate_123",
+			},
+			returnedHeaders: map[string]string{
+				"Akamai-RateLimit-Limit":     "60",
+				"Akamai-RateLimit-Remaining": "59",
+			},
+			expectedResponse: &DeleteCertificateResponse{
+				Limit:     ptr.To(int64(60)),
+				Remaining: ptr.To(int64(59)),
 			},
 			responseStatus: 204,
 			expectedPath:   "/ccm/v1/certificates/certificate_123",
@@ -938,6 +1043,11 @@ func TestDeleteCertificate(t *testing.T) {
 			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				assert.Equal(t, tc.expectedPath, r.URL.String())
 				assert.Equal(t, http.MethodDelete, r.Method)
+				if len(tc.returnedHeaders) > 0 {
+					for header, value := range tc.returnedHeaders {
+						w.Header().Set(header, value)
+					}
+				}
 				w.WriteHeader(tc.responseStatus)
 				if tc.responseBody != "" {
 					_, err := w.Write([]byte(tc.responseBody))
@@ -945,13 +1055,14 @@ func TestDeleteCertificate(t *testing.T) {
 				}
 			}))
 			client := mockAPIClient(t, mockServer)
-			err := client.DeleteCertificate(context.Background(), tc.params)
+			result, err := client.DeleteCertificate(context.Background(), tc.params)
 
 			if tc.withError != nil {
 				tc.withError(t, err)
 				return
 			}
 			require.NoError(t, err)
+			assert.Equal(t, tc.expectedResponse, result)
 		})
 	}
 }
@@ -966,6 +1077,7 @@ func TestPatchCertificate(t *testing.T) {
 		expectedRequestBody string
 		expectedPath        string
 		expectedHeaders     map[string]string
+		returnedHeaders     map[string]string
 		withError           func(*testing.T, error)
 	}{
 		"200 OK - only rename with all allowed characters": {
@@ -973,30 +1085,40 @@ func TestPatchCertificate(t *testing.T) {
 				CertificateID:   "123",
 				CertificateName: ptr.To("test 0123456789.-_"),
 			},
+			returnedHeaders: map[string]string{
+				"Akamai-RateLimit-Limit":     "60",
+				"Akamai-RateLimit-Remaining": "59",
+			},
 			expectedResponse: &PatchCertificateResponse{
-				AccountID:               "acc_123",
-				CertificateID:           "123",
-				CertificateName:         "test 0123456789.-_",
-				CertificateStatus:       "CSR_READY",
-				CertificateType:         "THIRD_PARTY",
-				ContractID:              "A-123",
-				CreatedBy:               "user",
-				CreatedDate:             test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
-				CSRExpirationDate:       test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
-				CSRPEM:                  ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
-				KeySize:                 "2048",
-				KeyType:                 "RSA",
-				ModifiedBy:              "user",
-				ModifiedDate:            test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
-				SANs:                    []string{"example.com", "www.example.com"},
-				SecureNetwork:           "ENHANCED_TLS",
-				SignedCertificateIssuer: nil,
-				Subject: &Subject{
-					Country:      "US",
-					Organization: "ExampleOrg",
-					State:        "Massachusetts",
-					Locality:     "Cambridge",
-					CommonName:   "example.com",
+				Certificate: Certificate{
+					AccountID:               "acc_123",
+					CertificateID:           "123",
+					CertificateName:         "test 0123456789.-_",
+					CertificateStatus:       "CSR_READY",
+					CertificateType:         "THIRD_PARTY",
+					ContractID:              "A-123",
+					CreatedBy:               "user",
+					CreatedDate:             test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
+					CSRExpirationDate:       test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
+					CSRPEM:                  ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
+					KeySize:                 "2048",
+					KeyType:                 "RSA",
+					ModifiedBy:              "user",
+					ModifiedDate:            test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
+					SANs:                    []string{"example.com", "www.example.com"},
+					SecureNetwork:           "ENHANCED_TLS",
+					SignedCertificateIssuer: nil,
+					Subject: &Subject{
+						Country:      "US",
+						Organization: "ExampleOrg",
+						State:        "Massachusetts",
+						Locality:     "Cambridge",
+						CommonName:   "example.com",
+					},
+				},
+				RateLimits: RateLimitsMetadata{
+					Limit:     ptr.To(int64(60)),
+					Remaining: ptr.To(int64(59)),
 				},
 			},
 			expectedRequestBody: "[{\"op\":\"replace\",\"path\":\"/certificateName\",\"value\":\"test 0123456789.-_\"}]",
@@ -1048,29 +1170,31 @@ func TestPatchCertificate(t *testing.T) {
 				CertificateName: ptr.To(""),
 			},
 			expectedResponse: &PatchCertificateResponse{
-				AccountID:               "acc_123",
-				CertificateID:           "123",
-				CertificateName:         "example.com20250822092651008941",
-				CertificateStatus:       "CSR_READY",
-				CertificateType:         "THIRD_PARTY",
-				ContractID:              "A-123",
-				CreatedBy:               "user",
-				CreatedDate:             test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
-				CSRExpirationDate:       test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
-				CSRPEM:                  ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
-				KeySize:                 "2048",
-				KeyType:                 "RSA",
-				ModifiedBy:              "user",
-				ModifiedDate:            test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
-				SANs:                    []string{"example.com", "www.example.com"},
-				SecureNetwork:           "ENHANCED_TLS",
-				SignedCertificateIssuer: nil,
-				Subject: &Subject{
-					Country:      "US",
-					Organization: "ExampleOrg",
-					State:        "Massachusetts",
-					Locality:     "Cambridge",
-					CommonName:   "example.com",
+				Certificate: Certificate{
+					AccountID:               "acc_123",
+					CertificateID:           "123",
+					CertificateName:         "example.com20250822092651008941",
+					CertificateStatus:       "CSR_READY",
+					CertificateType:         "THIRD_PARTY",
+					ContractID:              "A-123",
+					CreatedBy:               "user",
+					CreatedDate:             test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
+					CSRExpirationDate:       test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
+					CSRPEM:                  ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
+					KeySize:                 "2048",
+					KeyType:                 "RSA",
+					ModifiedBy:              "user",
+					ModifiedDate:            test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
+					SANs:                    []string{"example.com", "www.example.com"},
+					SecureNetwork:           "ENHANCED_TLS",
+					SignedCertificateIssuer: nil,
+					Subject: &Subject{
+						Country:      "US",
+						Organization: "ExampleOrg",
+						State:        "Massachusetts",
+						Locality:     "Cambridge",
+						CommonName:   "example.com",
+					},
 				},
 			},
 			expectedRequestBody: "[{\"op\":\"replace\",\"path\":\"/certificateName\",\"value\":\"\"}]",
@@ -1122,36 +1246,38 @@ func TestPatchCertificate(t *testing.T) {
 				SignedCertificatePEM: "-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n",
 			},
 			expectedResponse: &PatchCertificateResponse{
-				AccountID:                           "acc_123",
-				CertificateID:                       "123",
-				CertificateName:                     "Certificate-name-rename",
-				CertificateStatus:                   "CSR_READY",
-				CertificateType:                     "THIRD_PARTY",
-				ContractID:                          "A-123",
-				CreatedBy:                           "user",
-				CreatedDate:                         test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
-				CSRExpirationDate:                   test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
-				CSRPEM:                              ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
-				KeySize:                             "2048",
-				KeyType:                             "RSA",
-				ModifiedBy:                          "user",
-				ModifiedDate:                        test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
-				SANs:                                []string{"example.com", "www.example.com"},
-				SecureNetwork:                       "ENHANCED_TLS",
-				SignedCertificateIssuer:             ptr.To("CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA"),
-				SignedCertificateNotValidAfterDate:  ptr.To(test.NewTimeFromString(t, "2027-11-22T12:11:31Z")),
-				SignedCertificateNotValidBeforeDate: ptr.To(test.NewTimeFromString(t, "2025-08-22T11:11:31Z")),
-				SignedCertificatePEM:                ptr.To("-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"),
-				SignedCertificateSHA256Fingerprint:  ptr.To("4E:69:28:A1:CE:F1:E4:97:CE:39:FE:12:98"),
-				SignedCertificateSerialNumber:       ptr.To("a2:84:7d:dc:97:f1"),
-				Subject: &Subject{
-					CommonName:   "example.com",
-					Country:      "US",
-					Locality:     "Cambridge",
-					Organization: "ExampleOrg",
-					State:        "Massachusetts",
+				Certificate: Certificate{
+					AccountID:                           "acc_123",
+					CertificateID:                       "123",
+					CertificateName:                     "Certificate-name-rename",
+					CertificateStatus:                   "CSR_READY",
+					CertificateType:                     "THIRD_PARTY",
+					ContractID:                          "A-123",
+					CreatedBy:                           "user",
+					CreatedDate:                         test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
+					CSRExpirationDate:                   test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
+					CSRPEM:                              ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
+					KeySize:                             "2048",
+					KeyType:                             "RSA",
+					ModifiedBy:                          "user",
+					ModifiedDate:                        test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
+					SANs:                                []string{"example.com", "www.example.com"},
+					SecureNetwork:                       "ENHANCED_TLS",
+					SignedCertificateIssuer:             ptr.To("CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA"),
+					SignedCertificateNotValidAfterDate:  ptr.To(test.NewTimeFromString(t, "2027-11-22T12:11:31Z")),
+					SignedCertificateNotValidBeforeDate: ptr.To(test.NewTimeFromString(t, "2025-08-22T11:11:31Z")),
+					SignedCertificatePEM:                ptr.To("-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"),
+					SignedCertificateSHA256Fingerprint:  ptr.To("4E:69:28:A1:CE:F1:E4:97:CE:39:FE:12:98"),
+					SignedCertificateSerialNumber:       ptr.To("a2:84:7d:dc:97:f1"),
+					Subject: &Subject{
+						CommonName:   "example.com",
+						Country:      "US",
+						Locality:     "Cambridge",
+						Organization: "ExampleOrg",
+						State:        "Massachusetts",
+					},
+					TrustChainPEM: nil,
 				},
-				TrustChainPEM: nil,
 			},
 			expectedRequestBody: `[{"op":"add","path":"/signedCertificatePem","value":"-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"}]`,
 			responseStatus:      200,
@@ -1203,36 +1329,38 @@ func TestPatchCertificate(t *testing.T) {
 				TrustChainPEM:        "-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n",
 			},
 			expectedResponse: &PatchCertificateResponse{
-				AccountID:                           "acc_123",
-				CertificateID:                       "123",
-				CertificateName:                     "Certificate-name-rename",
-				CertificateStatus:                   "CSR_READY",
-				CertificateType:                     "THIRD_PARTY",
-				ContractID:                          "A-123",
-				CreatedBy:                           "user",
-				CreatedDate:                         test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
-				CSRExpirationDate:                   test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
-				CSRPEM:                              ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
-				KeySize:                             "2048",
-				KeyType:                             "RSA",
-				ModifiedBy:                          "user",
-				ModifiedDate:                        test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
-				SANs:                                []string{"example.com", "www.example.com"},
-				SecureNetwork:                       "ENHANCED_TLS",
-				SignedCertificateIssuer:             ptr.To("CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA"),
-				SignedCertificateNotValidAfterDate:  ptr.To(test.NewTimeFromString(t, "2027-11-22T12:11:31Z")),
-				SignedCertificateNotValidBeforeDate: ptr.To(test.NewTimeFromString(t, "2025-08-22T11:11:31Z")),
-				SignedCertificatePEM:                ptr.To("-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"),
-				SignedCertificateSHA256Fingerprint:  ptr.To("4E:69:28:A1:CE:F1:E4:97:CE:39:FE:12:98"),
-				SignedCertificateSerialNumber:       ptr.To("a2:84:7d:dc:97:f1"),
-				Subject: &Subject{
-					CommonName:   "example.com",
-					Country:      "US",
-					Locality:     "Cambridge",
-					Organization: "ExampleOrg",
-					State:        "Massachusetts",
+				Certificate: Certificate{
+					AccountID:                           "acc_123",
+					CertificateID:                       "123",
+					CertificateName:                     "Certificate-name-rename",
+					CertificateStatus:                   "CSR_READY",
+					CertificateType:                     "THIRD_PARTY",
+					ContractID:                          "A-123",
+					CreatedBy:                           "user",
+					CreatedDate:                         test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
+					CSRExpirationDate:                   test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
+					CSRPEM:                              ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
+					KeySize:                             "2048",
+					KeyType:                             "RSA",
+					ModifiedBy:                          "user",
+					ModifiedDate:                        test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
+					SANs:                                []string{"example.com", "www.example.com"},
+					SecureNetwork:                       "ENHANCED_TLS",
+					SignedCertificateIssuer:             ptr.To("CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA"),
+					SignedCertificateNotValidAfterDate:  ptr.To(test.NewTimeFromString(t, "2027-11-22T12:11:31Z")),
+					SignedCertificateNotValidBeforeDate: ptr.To(test.NewTimeFromString(t, "2025-08-22T11:11:31Z")),
+					SignedCertificatePEM:                ptr.To("-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"),
+					SignedCertificateSHA256Fingerprint:  ptr.To("4E:69:28:A1:CE:F1:E4:97:CE:39:FE:12:98"),
+					SignedCertificateSerialNumber:       ptr.To("a2:84:7d:dc:97:f1"),
+					Subject: &Subject{
+						CommonName:   "example.com",
+						Country:      "US",
+						Locality:     "Cambridge",
+						Organization: "ExampleOrg",
+						State:        "Massachusetts",
+					},
+					TrustChainPEM: ptr.To("-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n"),
 				},
-				TrustChainPEM: ptr.To("-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n"),
 			},
 			expectedRequestBody: `[{"op":"add","path":"/signedCertificatePem","value":"-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"},{"op":"add","path":"/trustChainPem","value":"-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n"}]`,
 			responseStatus:      200,
@@ -1284,36 +1412,38 @@ func TestPatchCertificate(t *testing.T) {
 				AcknowledgeWarnings:  true,
 			},
 			expectedResponse: &PatchCertificateResponse{
-				AccountID:                           "acc_123",
-				CertificateID:                       "123",
-				CertificateName:                     "Certificate-name-rename",
-				CertificateStatus:                   "CSR_READY",
-				CertificateType:                     "THIRD_PARTY",
-				ContractID:                          "A-123",
-				CreatedBy:                           "user",
-				CreatedDate:                         test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
-				CSRExpirationDate:                   test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
-				CSRPEM:                              ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
-				KeySize:                             "2048",
-				KeyType:                             "RSA",
-				ModifiedBy:                          "user",
-				ModifiedDate:                        test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
-				SANs:                                []string{"example.com", "www.example.com"},
-				SecureNetwork:                       "ENHANCED_TLS",
-				SignedCertificateIssuer:             ptr.To("CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA"),
-				SignedCertificateNotValidAfterDate:  ptr.To(test.NewTimeFromString(t, "2027-11-22T12:11:31Z")),
-				SignedCertificateNotValidBeforeDate: ptr.To(test.NewTimeFromString(t, "2025-08-22T11:11:31Z")),
-				SignedCertificatePEM:                ptr.To("-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"),
-				SignedCertificateSHA256Fingerprint:  ptr.To("4E:69:28:A1:CE:F1:E4:97:CE:39:FE:12:98"),
-				SignedCertificateSerialNumber:       ptr.To("a2:84:7d:dc:97:f1"),
-				Subject: &Subject{
-					CommonName:   "example.com",
-					Country:      "US",
-					Locality:     "Cambridge",
-					Organization: "ExampleOrg",
-					State:        "Massachusetts",
+				Certificate: Certificate{
+					AccountID:                           "acc_123",
+					CertificateID:                       "123",
+					CertificateName:                     "Certificate-name-rename",
+					CertificateStatus:                   "CSR_READY",
+					CertificateType:                     "THIRD_PARTY",
+					ContractID:                          "A-123",
+					CreatedBy:                           "user",
+					CreatedDate:                         test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
+					CSRExpirationDate:                   test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
+					CSRPEM:                              ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
+					KeySize:                             "2048",
+					KeyType:                             "RSA",
+					ModifiedBy:                          "user",
+					ModifiedDate:                        test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
+					SANs:                                []string{"example.com", "www.example.com"},
+					SecureNetwork:                       "ENHANCED_TLS",
+					SignedCertificateIssuer:             ptr.To("CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA"),
+					SignedCertificateNotValidAfterDate:  ptr.To(test.NewTimeFromString(t, "2027-11-22T12:11:31Z")),
+					SignedCertificateNotValidBeforeDate: ptr.To(test.NewTimeFromString(t, "2025-08-22T11:11:31Z")),
+					SignedCertificatePEM:                ptr.To("-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"),
+					SignedCertificateSHA256Fingerprint:  ptr.To("4E:69:28:A1:CE:F1:E4:97:CE:39:FE:12:98"),
+					SignedCertificateSerialNumber:       ptr.To("a2:84:7d:dc:97:f1"),
+					Subject: &Subject{
+						CommonName:   "example.com",
+						Country:      "US",
+						Locality:     "Cambridge",
+						Organization: "ExampleOrg",
+						State:        "Massachusetts",
+					},
+					TrustChainPEM: nil,
 				},
-				TrustChainPEM: nil,
 			},
 			expectedRequestBody: `[{"op":"add","path":"/signedCertificatePem","value":"-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"}]`,
 			responseStatus:      200,
@@ -1367,36 +1497,38 @@ func TestPatchCertificate(t *testing.T) {
 				AcknowledgeWarnings:  true,
 			},
 			expectedResponse: &PatchCertificateResponse{
-				AccountID:                           "acc_123",
-				CertificateID:                       "123",
-				CertificateName:                     "Certificate-name-rename",
-				CertificateStatus:                   "CSR_READY",
-				CertificateType:                     "THIRD_PARTY",
-				ContractID:                          "A-123",
-				CreatedBy:                           "user",
-				CreatedDate:                         test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
-				CSRExpirationDate:                   test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
-				CSRPEM:                              ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
-				KeySize:                             "2048",
-				KeyType:                             "RSA",
-				ModifiedBy:                          "user",
-				ModifiedDate:                        test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
-				SANs:                                []string{"example.com", "www.example.com"},
-				SecureNetwork:                       "ENHANCED_TLS",
-				SignedCertificateIssuer:             ptr.To("CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA"),
-				SignedCertificateNotValidAfterDate:  ptr.To(test.NewTimeFromString(t, "2027-11-22T12:11:31Z")),
-				SignedCertificateNotValidBeforeDate: ptr.To(test.NewTimeFromString(t, "2025-08-22T11:11:31Z")),
-				SignedCertificatePEM:                ptr.To("-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"),
-				SignedCertificateSHA256Fingerprint:  ptr.To("4E:69:28:A1:CE:F1:E4:97:CE:39:FE:12:98"),
-				SignedCertificateSerialNumber:       ptr.To("a2:84:7d:dc:97:f1"),
-				Subject: &Subject{
-					CommonName:   "example.com",
-					Country:      "US",
-					Locality:     "Cambridge",
-					Organization: "ExampleOrg",
-					State:        "Massachusetts",
+				Certificate: Certificate{
+					AccountID:                           "acc_123",
+					CertificateID:                       "123",
+					CertificateName:                     "Certificate-name-rename",
+					CertificateStatus:                   "CSR_READY",
+					CertificateType:                     "THIRD_PARTY",
+					ContractID:                          "A-123",
+					CreatedBy:                           "user",
+					CreatedDate:                         test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
+					CSRExpirationDate:                   test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
+					CSRPEM:                              ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
+					KeySize:                             "2048",
+					KeyType:                             "RSA",
+					ModifiedBy:                          "user",
+					ModifiedDate:                        test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
+					SANs:                                []string{"example.com", "www.example.com"},
+					SecureNetwork:                       "ENHANCED_TLS",
+					SignedCertificateIssuer:             ptr.To("CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA"),
+					SignedCertificateNotValidAfterDate:  ptr.To(test.NewTimeFromString(t, "2027-11-22T12:11:31Z")),
+					SignedCertificateNotValidBeforeDate: ptr.To(test.NewTimeFromString(t, "2025-08-22T11:11:31Z")),
+					SignedCertificatePEM:                ptr.To("-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"),
+					SignedCertificateSHA256Fingerprint:  ptr.To("4E:69:28:A1:CE:F1:E4:97:CE:39:FE:12:98"),
+					SignedCertificateSerialNumber:       ptr.To("a2:84:7d:dc:97:f1"),
+					Subject: &Subject{
+						CommonName:   "example.com",
+						Country:      "US",
+						Locality:     "Cambridge",
+						Organization: "ExampleOrg",
+						State:        "Massachusetts",
+					},
+					TrustChainPEM: ptr.To("-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n"),
 				},
-				TrustChainPEM: ptr.To("-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n"),
 			},
 			expectedRequestBody: `[{"op":"add","path":"/signedCertificatePem","value":"-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"},{"op":"add","path":"/trustChainPem","value":"-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n"},{"op":"replace","path":"/certificateName","value":"Certificate-name-rename"}]`,
 			responseStatus:      200,
@@ -1893,6 +2025,11 @@ func TestPatchCertificate(t *testing.T) {
 			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				assert.Equal(t, tc.expectedPath, r.URL.String())
 				assert.Equal(t, http.MethodPatch, r.Method)
+				if len(tc.returnedHeaders) > 0 {
+					for header, value := range tc.returnedHeaders {
+						w.Header().Set(header, value)
+					}
+				}
 				for k, v := range tc.expectedHeaders {
 					assert.Equal(t, v, r.Header.Get(k))
 				}
@@ -1926,6 +2063,7 @@ func TestUpdateCertificate(t *testing.T) {
 		expectedRequestBody string
 		expectedPath        string
 		expectedHeaders     map[string]string
+		returnedHeaders     map[string]string
 		withError           func(*testing.T, error)
 	}{
 		"200 OK - only rename with all allowed characters": {
@@ -1933,30 +2071,40 @@ func TestUpdateCertificate(t *testing.T) {
 				CertificateID:   "123",
 				CertificateName: ptr.To("test 0123456789.-_"),
 			},
+			returnedHeaders: map[string]string{
+				"Akamai-RateLimit-Limit":     "60",
+				"Akamai-RateLimit-Remaining": "59",
+			},
 			expectedResponse: &UpdateCertificateResponse{
-				AccountID:               "acc_123",
-				CertificateID:           "123",
-				CertificateName:         "test 0123456789.-_",
-				CertificateStatus:       "CSR_READY",
-				CertificateType:         "THIRD_PARTY",
-				ContractID:              "A-123",
-				CreatedBy:               "user",
-				CreatedDate:             test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
-				CSRExpirationDate:       test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
-				CSRPEM:                  ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
-				KeySize:                 "2048",
-				KeyType:                 "RSA",
-				ModifiedBy:              "user",
-				ModifiedDate:            test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
-				SANs:                    []string{"example.com", "www.example.com"},
-				SecureNetwork:           "ENHANCED_TLS",
-				SignedCertificateIssuer: nil,
-				Subject: &Subject{
-					Country:      "US",
-					Organization: "ExampleOrg",
-					State:        "Massachusetts",
-					Locality:     "Cambridge",
-					CommonName:   "example.com",
+				Certificate: Certificate{
+					AccountID:               "acc_123",
+					CertificateID:           "123",
+					CertificateName:         "test 0123456789.-_",
+					CertificateStatus:       "CSR_READY",
+					CertificateType:         "THIRD_PARTY",
+					ContractID:              "A-123",
+					CreatedBy:               "user",
+					CreatedDate:             test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
+					CSRExpirationDate:       test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
+					CSRPEM:                  ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
+					KeySize:                 "2048",
+					KeyType:                 "RSA",
+					ModifiedBy:              "user",
+					ModifiedDate:            test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
+					SANs:                    []string{"example.com", "www.example.com"},
+					SecureNetwork:           "ENHANCED_TLS",
+					SignedCertificateIssuer: nil,
+					Subject: &Subject{
+						Country:      "US",
+						Organization: "ExampleOrg",
+						State:        "Massachusetts",
+						Locality:     "Cambridge",
+						CommonName:   "example.com",
+					},
+				},
+				RateLimits: RateLimitsMetadata{
+					Limit:     ptr.To(int64(60)),
+					Remaining: ptr.To(int64(59)),
 				},
 			},
 			expectedRequestBody: `{"certificateName":"test 0123456789.-_"}`,
@@ -2008,29 +2156,31 @@ func TestUpdateCertificate(t *testing.T) {
 				CertificateName: ptr.To(""),
 			},
 			expectedResponse: &UpdateCertificateResponse{
-				AccountID:               "acc_123",
-				CertificateID:           "123",
-				CertificateName:         "example.com20250822092651008941",
-				CertificateStatus:       "CSR_READY",
-				CertificateType:         "THIRD_PARTY",
-				ContractID:              "A-123",
-				CreatedBy:               "user",
-				CreatedDate:             test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
-				CSRExpirationDate:       test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
-				CSRPEM:                  ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
-				KeySize:                 "2048",
-				KeyType:                 "RSA",
-				ModifiedBy:              "user",
-				ModifiedDate:            test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
-				SANs:                    []string{"example.com", "www.example.com"},
-				SecureNetwork:           "ENHANCED_TLS",
-				SignedCertificateIssuer: nil,
-				Subject: &Subject{
-					Country:      "US",
-					Organization: "ExampleOrg",
-					State:        "Massachusetts",
-					Locality:     "Cambridge",
-					CommonName:   "example.com",
+				Certificate: Certificate{
+					AccountID:               "acc_123",
+					CertificateID:           "123",
+					CertificateName:         "example.com20250822092651008941",
+					CertificateStatus:       "CSR_READY",
+					CertificateType:         "THIRD_PARTY",
+					ContractID:              "A-123",
+					CreatedBy:               "user",
+					CreatedDate:             test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
+					CSRExpirationDate:       test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
+					CSRPEM:                  ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
+					KeySize:                 "2048",
+					KeyType:                 "RSA",
+					ModifiedBy:              "user",
+					ModifiedDate:            test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
+					SANs:                    []string{"example.com", "www.example.com"},
+					SecureNetwork:           "ENHANCED_TLS",
+					SignedCertificateIssuer: nil,
+					Subject: &Subject{
+						Country:      "US",
+						Organization: "ExampleOrg",
+						State:        "Massachusetts",
+						Locality:     "Cambridge",
+						CommonName:   "example.com",
+					},
 				},
 			},
 			expectedRequestBody: "{\"certificateName\":\"\"}",
@@ -2082,36 +2232,38 @@ func TestUpdateCertificate(t *testing.T) {
 				SignedCertificatePEM: "-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n",
 			},
 			expectedResponse: &UpdateCertificateResponse{
-				AccountID:                           "acc_123",
-				CertificateID:                       "123",
-				CertificateName:                     "Certificate-name-rename",
-				CertificateStatus:                   "CSR_READY",
-				CertificateType:                     "THIRD_PARTY",
-				ContractID:                          "A-123",
-				CreatedBy:                           "user",
-				CreatedDate:                         test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
-				CSRExpirationDate:                   test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
-				CSRPEM:                              ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
-				KeySize:                             "2048",
-				KeyType:                             "RSA",
-				ModifiedBy:                          "user",
-				ModifiedDate:                        test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
-				SANs:                                []string{"example.com", "www.example.com"},
-				SecureNetwork:                       "ENHANCED_TLS",
-				SignedCertificateIssuer:             ptr.To("CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA"),
-				SignedCertificateNotValidAfterDate:  ptr.To(test.NewTimeFromString(t, "2027-11-22T12:11:31Z")),
-				SignedCertificateNotValidBeforeDate: ptr.To(test.NewTimeFromString(t, "2025-08-22T11:11:31Z")),
-				SignedCertificatePEM:                ptr.To("-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"),
-				SignedCertificateSHA256Fingerprint:  ptr.To("4E:69:28:A1:CE:F1:E4:97:CE:39:FE:12:98"),
-				SignedCertificateSerialNumber:       ptr.To("a2:84:7d:dc:97:f1"),
-				Subject: &Subject{
-					CommonName:   "example.com",
-					Country:      "US",
-					Locality:     "Cambridge",
-					Organization: "ExampleOrg",
-					State:        "Massachusetts",
+				Certificate: Certificate{
+					AccountID:                           "acc_123",
+					CertificateID:                       "123",
+					CertificateName:                     "Certificate-name-rename",
+					CertificateStatus:                   "CSR_READY",
+					CertificateType:                     "THIRD_PARTY",
+					ContractID:                          "A-123",
+					CreatedBy:                           "user",
+					CreatedDate:                         test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
+					CSRExpirationDate:                   test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
+					CSRPEM:                              ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
+					KeySize:                             "2048",
+					KeyType:                             "RSA",
+					ModifiedBy:                          "user",
+					ModifiedDate:                        test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
+					SANs:                                []string{"example.com", "www.example.com"},
+					SecureNetwork:                       "ENHANCED_TLS",
+					SignedCertificateIssuer:             ptr.To("CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA"),
+					SignedCertificateNotValidAfterDate:  ptr.To(test.NewTimeFromString(t, "2027-11-22T12:11:31Z")),
+					SignedCertificateNotValidBeforeDate: ptr.To(test.NewTimeFromString(t, "2025-08-22T11:11:31Z")),
+					SignedCertificatePEM:                ptr.To("-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"),
+					SignedCertificateSHA256Fingerprint:  ptr.To("4E:69:28:A1:CE:F1:E4:97:CE:39:FE:12:98"),
+					SignedCertificateSerialNumber:       ptr.To("a2:84:7d:dc:97:f1"),
+					Subject: &Subject{
+						CommonName:   "example.com",
+						Country:      "US",
+						Locality:     "Cambridge",
+						Organization: "ExampleOrg",
+						State:        "Massachusetts",
+					},
+					TrustChainPEM: nil,
 				},
-				TrustChainPEM: nil,
 			},
 			expectedRequestBody: `{"signedCertificatePem":"-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"}`,
 			responseStatus:      200,
@@ -2163,36 +2315,38 @@ func TestUpdateCertificate(t *testing.T) {
 				TrustChainPEM:        "-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n",
 			},
 			expectedResponse: &UpdateCertificateResponse{
-				AccountID:                           "acc_123",
-				CertificateID:                       "123",
-				CertificateName:                     "Certificate-name-rename",
-				CertificateStatus:                   "CSR_READY",
-				CertificateType:                     "THIRD_PARTY",
-				ContractID:                          "A-123",
-				CreatedBy:                           "user",
-				CreatedDate:                         test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
-				CSRExpirationDate:                   test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
-				CSRPEM:                              ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
-				KeySize:                             "2048",
-				KeyType:                             "RSA",
-				ModifiedBy:                          "user",
-				ModifiedDate:                        test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
-				SANs:                                []string{"example.com", "www.example.com"},
-				SecureNetwork:                       "ENHANCED_TLS",
-				SignedCertificateIssuer:             ptr.To("CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA"),
-				SignedCertificateNotValidAfterDate:  ptr.To(test.NewTimeFromString(t, "2027-11-22T12:11:31Z")),
-				SignedCertificateNotValidBeforeDate: ptr.To(test.NewTimeFromString(t, "2025-08-22T11:11:31Z")),
-				SignedCertificatePEM:                ptr.To("-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"),
-				SignedCertificateSHA256Fingerprint:  ptr.To("4E:69:28:A1:CE:F1:E4:97:CE:39:FE:12:98"),
-				SignedCertificateSerialNumber:       ptr.To("a2:84:7d:dc:97:f1"),
-				Subject: &Subject{
-					CommonName:   "example.com",
-					Country:      "US",
-					Locality:     "Cambridge",
-					Organization: "ExampleOrg",
-					State:        "Massachusetts",
+				Certificate: Certificate{
+					AccountID:                           "acc_123",
+					CertificateID:                       "123",
+					CertificateName:                     "Certificate-name-rename",
+					CertificateStatus:                   "CSR_READY",
+					CertificateType:                     "THIRD_PARTY",
+					ContractID:                          "A-123",
+					CreatedBy:                           "user",
+					CreatedDate:                         test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
+					CSRExpirationDate:                   test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
+					CSRPEM:                              ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
+					KeySize:                             "2048",
+					KeyType:                             "RSA",
+					ModifiedBy:                          "user",
+					ModifiedDate:                        test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
+					SANs:                                []string{"example.com", "www.example.com"},
+					SecureNetwork:                       "ENHANCED_TLS",
+					SignedCertificateIssuer:             ptr.To("CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA"),
+					SignedCertificateNotValidAfterDate:  ptr.To(test.NewTimeFromString(t, "2027-11-22T12:11:31Z")),
+					SignedCertificateNotValidBeforeDate: ptr.To(test.NewTimeFromString(t, "2025-08-22T11:11:31Z")),
+					SignedCertificatePEM:                ptr.To("-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"),
+					SignedCertificateSHA256Fingerprint:  ptr.To("4E:69:28:A1:CE:F1:E4:97:CE:39:FE:12:98"),
+					SignedCertificateSerialNumber:       ptr.To("a2:84:7d:dc:97:f1"),
+					Subject: &Subject{
+						CommonName:   "example.com",
+						Country:      "US",
+						Locality:     "Cambridge",
+						Organization: "ExampleOrg",
+						State:        "Massachusetts",
+					},
+					TrustChainPEM: ptr.To("-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n"),
 				},
-				TrustChainPEM: ptr.To("-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n"),
 			},
 			expectedRequestBody: `{"signedCertificatePem":"-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n","trustChainPem":"-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n"}`,
 			responseStatus:      200,
@@ -2244,36 +2398,38 @@ func TestUpdateCertificate(t *testing.T) {
 				AcknowledgeWarnings:  true,
 			},
 			expectedResponse: &UpdateCertificateResponse{
-				AccountID:                           "acc_123",
-				CertificateID:                       "123",
-				CertificateName:                     "Certificate-name-rename",
-				CertificateStatus:                   "CSR_READY",
-				CertificateType:                     "THIRD_PARTY",
-				ContractID:                          "A-123",
-				CreatedBy:                           "user",
-				CreatedDate:                         test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
-				CSRExpirationDate:                   test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
-				CSRPEM:                              ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
-				KeySize:                             "2048",
-				KeyType:                             "RSA",
-				ModifiedBy:                          "user",
-				ModifiedDate:                        test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
-				SANs:                                []string{"example.com", "www.example.com"},
-				SecureNetwork:                       "ENHANCED_TLS",
-				SignedCertificateIssuer:             ptr.To("CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA"),
-				SignedCertificateNotValidAfterDate:  ptr.To(test.NewTimeFromString(t, "2027-11-22T12:11:31Z")),
-				SignedCertificateNotValidBeforeDate: ptr.To(test.NewTimeFromString(t, "2025-08-22T11:11:31Z")),
-				SignedCertificatePEM:                ptr.To("-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"),
-				SignedCertificateSHA256Fingerprint:  ptr.To("4E:69:28:A1:CE:F1:E4:97:CE:39:FE:12:98"),
-				SignedCertificateSerialNumber:       ptr.To("a2:84:7d:dc:97:f1"),
-				Subject: &Subject{
-					CommonName:   "example.com",
-					Country:      "US",
-					Locality:     "Cambridge",
-					Organization: "ExampleOrg",
-					State:        "Massachusetts",
+				Certificate: Certificate{
+					AccountID:                           "acc_123",
+					CertificateID:                       "123",
+					CertificateName:                     "Certificate-name-rename",
+					CertificateStatus:                   "CSR_READY",
+					CertificateType:                     "THIRD_PARTY",
+					ContractID:                          "A-123",
+					CreatedBy:                           "user",
+					CreatedDate:                         test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
+					CSRExpirationDate:                   test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
+					CSRPEM:                              ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
+					KeySize:                             "2048",
+					KeyType:                             "RSA",
+					ModifiedBy:                          "user",
+					ModifiedDate:                        test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
+					SANs:                                []string{"example.com", "www.example.com"},
+					SecureNetwork:                       "ENHANCED_TLS",
+					SignedCertificateIssuer:             ptr.To("CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA"),
+					SignedCertificateNotValidAfterDate:  ptr.To(test.NewTimeFromString(t, "2027-11-22T12:11:31Z")),
+					SignedCertificateNotValidBeforeDate: ptr.To(test.NewTimeFromString(t, "2025-08-22T11:11:31Z")),
+					SignedCertificatePEM:                ptr.To("-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"),
+					SignedCertificateSHA256Fingerprint:  ptr.To("4E:69:28:A1:CE:F1:E4:97:CE:39:FE:12:98"),
+					SignedCertificateSerialNumber:       ptr.To("a2:84:7d:dc:97:f1"),
+					Subject: &Subject{
+						CommonName:   "example.com",
+						Country:      "US",
+						Locality:     "Cambridge",
+						Organization: "ExampleOrg",
+						State:        "Massachusetts",
+					},
+					TrustChainPEM: nil,
 				},
-				TrustChainPEM: nil,
 			},
 			expectedRequestBody: `{"signedCertificatePem":"-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"}`,
 			responseStatus:      200,
@@ -2327,36 +2483,38 @@ func TestUpdateCertificate(t *testing.T) {
 				AcknowledgeWarnings:  true,
 			},
 			expectedResponse: &UpdateCertificateResponse{
-				AccountID:                           "acc_123",
-				CertificateID:                       "123",
-				CertificateName:                     "Certificate-name-rename",
-				CertificateStatus:                   "CSR_READY",
-				CertificateType:                     "THIRD_PARTY",
-				ContractID:                          "A-123",
-				CreatedBy:                           "user",
-				CreatedDate:                         test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
-				CSRExpirationDate:                   test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
-				CSRPEM:                              ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
-				KeySize:                             "2048",
-				KeyType:                             "RSA",
-				ModifiedBy:                          "user",
-				ModifiedDate:                        test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
-				SANs:                                []string{"example.com", "www.example.com"},
-				SecureNetwork:                       "ENHANCED_TLS",
-				SignedCertificateIssuer:             ptr.To("CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA"),
-				SignedCertificateNotValidAfterDate:  ptr.To(test.NewTimeFromString(t, "2027-11-22T12:11:31Z")),
-				SignedCertificateNotValidBeforeDate: ptr.To(test.NewTimeFromString(t, "2025-08-22T11:11:31Z")),
-				SignedCertificatePEM:                ptr.To("-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"),
-				SignedCertificateSHA256Fingerprint:  ptr.To("4E:69:28:A1:CE:F1:E4:97:CE:39:FE:12:98"),
-				SignedCertificateSerialNumber:       ptr.To("a2:84:7d:dc:97:f1"),
-				Subject: &Subject{
-					CommonName:   "example.com",
-					Country:      "US",
-					Locality:     "Cambridge",
-					Organization: "ExampleOrg",
-					State:        "Massachusetts",
+				Certificate: Certificate{
+					AccountID:                           "acc_123",
+					CertificateID:                       "123",
+					CertificateName:                     "Certificate-name-rename",
+					CertificateStatus:                   "CSR_READY",
+					CertificateType:                     "THIRD_PARTY",
+					ContractID:                          "A-123",
+					CreatedBy:                           "user",
+					CreatedDate:                         test.NewTimeFromString(t, "2025-08-22T09:01:32.607357Z"),
+					CSRExpirationDate:                   test.NewTimeFromString(t, "2026-10-24T09:01:34Z"),
+					CSRPEM:                              ptr.To("-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n"),
+					KeySize:                             "2048",
+					KeyType:                             "RSA",
+					ModifiedBy:                          "user",
+					ModifiedDate:                        test.NewTimeFromString(t, "2025-08-22T09:01:32.607358Z"),
+					SANs:                                []string{"example.com", "www.example.com"},
+					SecureNetwork:                       "ENHANCED_TLS",
+					SignedCertificateIssuer:             ptr.To("CN=mkcert user (name surname),OU=organization (name surname),O=mkcert development CA"),
+					SignedCertificateNotValidAfterDate:  ptr.To(test.NewTimeFromString(t, "2027-11-22T12:11:31Z")),
+					SignedCertificateNotValidBeforeDate: ptr.To(test.NewTimeFromString(t, "2025-08-22T11:11:31Z")),
+					SignedCertificatePEM:                ptr.To("-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n"),
+					SignedCertificateSHA256Fingerprint:  ptr.To("4E:69:28:A1:CE:F1:E4:97:CE:39:FE:12:98"),
+					SignedCertificateSerialNumber:       ptr.To("a2:84:7d:dc:97:f1"),
+					Subject: &Subject{
+						CommonName:   "example.com",
+						Country:      "US",
+						Locality:     "Cambridge",
+						Organization: "ExampleOrg",
+						State:        "Massachusetts",
+					},
+					TrustChainPEM: ptr.To("-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n"),
 				},
-				TrustChainPEM: ptr.To("-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n"),
 			},
 			expectedRequestBody: `{"signedCertificatePem":"-----BEGIN CERTIFICATE-----\nexample-signed-PEM\n-----END CERTIFICATE-----\n","trustChainPem":"-----BEGIN CERTIFICATE-----\nexample-trust-chain-PEM\n-----END CERTIFICATE-----\n","certificateName":"Certificate-name-rename"}`,
 			responseStatus:      200,
@@ -2842,6 +3000,11 @@ func TestUpdateCertificate(t *testing.T) {
 			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				assert.Equal(t, tc.expectedPath, r.URL.String())
 				assert.Equal(t, http.MethodPut, r.Method)
+				if len(tc.returnedHeaders) > 0 {
+					for header, value := range tc.returnedHeaders {
+						w.Header().Set(header, value)
+					}
+				}
 				for k, v := range tc.expectedHeaders {
 					assert.Equal(t, v, r.Header.Get(k))
 				}
@@ -2873,10 +3036,15 @@ func TestListCertificates(t *testing.T) {
 		responseStatus   int
 		responseBody     string
 		expectedPath     string
+		returnedHeaders  map[string]string
 		withError        func(t *testing.T, err error)
 	}{
 		"200 OK - list certificates with no params": {
 			params: ListCertificatesRequest{},
+			returnedHeaders: map[string]string{
+				"Akamai-RateLimit-Limit":     "60",
+				"Akamai-RateLimit-Remaining": "59",
+			},
 			expectedResponse: &ListCertificatesResponse{
 				Certificates: []Certificate{
 					{
@@ -3002,6 +3170,10 @@ func TestListCertificates(t *testing.T) {
 				Metadata: ListMetadata{
 					TotalItems: 4,
 					TotalPages: 1,
+				},
+				RateLimits: RateLimitsMetadata{
+					Limit:     ptr.To(int64(60)),
+					Remaining: ptr.To(int64(59)),
 				},
 			},
 			responseStatus: 200,
@@ -4087,6 +4259,11 @@ func TestListCertificates(t *testing.T) {
 			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				assert.Equal(t, tc.expectedPath, r.URL.String())
 				assert.Equal(t, http.MethodGet, r.Method)
+				if len(tc.returnedHeaders) > 0 {
+					for header, value := range tc.returnedHeaders {
+						w.Header().Set(header, value)
+					}
+				}
 				w.WriteHeader(tc.responseStatus)
 				_, err := w.Write([]byte(tc.responseBody))
 				assert.NoError(t, err)

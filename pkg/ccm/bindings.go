@@ -37,6 +37,8 @@ func (c *ccm) ListCertificateBindings(ctx context.Context, params ListCertificat
 		return nil, fmt.Errorf("%w: %w", ErrListCertificateBindings, c.Error(resp))
 	}
 
+	result.RateLimits = extractRateLimitHeaders(resp, logger)
+
 	return &result, nil
 }
 
@@ -73,6 +75,8 @@ func (c *ccm) ListBindings(ctx context.Context, params ListBindingsRequest) (*Li
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("%w: %w", ErrListBindings, c.Error(resp))
 	}
+
+	result.RateLimits = extractRateLimitHeaders(resp, logger)
 
 	return &result, nil
 }

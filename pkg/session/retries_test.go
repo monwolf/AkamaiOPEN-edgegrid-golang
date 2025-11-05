@@ -46,6 +46,14 @@ func TestOverrideRetryPolicy(t *testing.T) {
 			},
 			expectedResult: true,
 		},
+		"should retry for CCM GET with status 429": {
+			ctx: context.Background(),
+			resp: &http.Response{
+				Request:    newRequest(t, http.MethodGet, "/ccm/v1/sth"),
+				StatusCode: http.StatusTooManyRequests,
+			},
+			expectedResult: true,
+		},
 		"should retry for GET with status 409 conflict": {
 			ctx: context.Background(),
 			resp: &http.Response{
@@ -129,7 +137,7 @@ func TestOverrideRetryPolicy(t *testing.T) {
 	}
 }
 
-func stat429ResponseWaiting(wait time.Duration) *http.Response {
+func stat429ResponseWaiting(wait time.Duration, headerKey string) *http.Response {
 	res := http.Response{
 		StatusCode: http.StatusTooManyRequests,
 		Header:     http.Header{},
@@ -139,8 +147,8 @@ func stat429ResponseWaiting(wait time.Duration) *http.Response {
 	date := strings.Replace(now.Format(time.RFC1123), "UTC", "GMT", 1)
 	res.Header.Add("Date", date)
 	if wait != 0 {
-		// Add: allow to canonicalize to X-Ratelimit-Next or the header won't be recognized
-		res.Header.Add("X-RateLimit-Next", now.Add(wait).Format(time.RFC3339Nano))
+		// Add: allow to canonicalize to X-RateLimit-Next or Akamai-RateLimit-Next
+		res.Header.Add(headerKey, now.Add(wait).Format(time.RFC3339Nano))
 	}
 	return &res
 }
@@ -157,20 +165,24 @@ func Test_overrideBackoff(t *testing.T) {
 		expectedResult time.Duration
 	}{
 		"correctly calculates backoff from X-RateLimit-Next": {
-			resp:           stat429ResponseWaiting(time.Duration(5729) * time.Millisecond),
+			resp:           stat429ResponseWaiting(time.Duration(5729)*time.Millisecond, "X-RateLimit-Next"),
 			expectedResult: time.Duration(5729) * time.Millisecond,
 		},
+		"correctly calculates backoff from Akamai-RateLimit-Next": {
+			resp:           stat429ResponseWaiting(time.Duration(8729)*time.Millisecond, "Akamai-RateLimit-Next"),
+			expectedResult: time.Duration(8729) * time.Millisecond,
+		},
 		"falls back for next in the past": {
-			resp:           stat429ResponseWaiting(-time.Duration(5729) * time.Millisecond),
+			resp:           stat429ResponseWaiting(-time.Duration(5729)*time.Millisecond, "X-RateLimit-Next"),
 			expectedResult: baseWait,
 		},
 		"falls back for no X-RateLimit-Next header": {
-			resp:           stat429ResponseWaiting(0),
+			resp:           stat429ResponseWaiting(0, ""),
 			expectedResult: baseWait,
 		},
 		"falls back for invalid X-RateLimit-Next header": {
 			resp: func() *http.Response {
-				r := stat429ResponseWaiting(time.Duration(5729) * time.Millisecond)
+				r := stat429ResponseWaiting(time.Duration(5729)*time.Millisecond, "X-RateLimit-Next")
 				r.Header.Set("X-RateLimit-Next", "2024-07-01T14:32:28.645???")
 				return r
 			}(),
@@ -178,7 +190,7 @@ func Test_overrideBackoff(t *testing.T) {
 		},
 		"falls back for no Date header": {
 			resp: func() *http.Response {
-				r := stat429ResponseWaiting(time.Duration(5729) * time.Millisecond)
+				r := stat429ResponseWaiting(time.Duration(5729)*time.Millisecond, "X-RateLimit-Next")
 				r.Header.Del("Date")
 				return r
 			}(),
@@ -186,7 +198,7 @@ func Test_overrideBackoff(t *testing.T) {
 		},
 		"falls back for invalid Date header": {
 			resp: func() *http.Response {
-				r := stat429ResponseWaiting(time.Duration(5729) * time.Millisecond)
+				r := stat429ResponseWaiting(time.Duration(5729)*time.Millisecond, "X-RateLimit-Next")
 				r.Header.Set("Date", "Mon, 01 Jul 2024 99:99:99 GMT")
 				return r
 			}(),
@@ -202,7 +214,7 @@ func Test_overrideBackoff(t *testing.T) {
 }
 
 func TestXRateLimitGet(t *testing.T) {
-	xrlHandler := test.XRateLimitHTTPHandler{
+	xrlHandler := test.RateLimitHTTPHandler{
 		T:           t,
 		SuccessCode: http.StatusOK,
 	}
@@ -210,7 +222,7 @@ func TestXRateLimitGet(t *testing.T) {
 	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "/papi/test", r.URL.String())
 		assert.Equal(t, http.MethodGet, r.Method)
-		xrlHandler.ServeHTTP(w, r)
+		xrlHandler.ServeHTTP(w, r, "X-RateLimit-Next")
 	}))
 	defer mockServer.Close()
 
@@ -226,6 +238,33 @@ func TestXRateLimitGet(t *testing.T) {
 	assert.Less(t,
 		xrlHandler.ReturnTimes()[1],
 		xrlHandler.AvailableAt().Add(time.Duration(time.Millisecond)*1100))
+}
+
+func TestAkamaiRateLimitGet(t *testing.T) {
+	arlHandler := test.RateLimitHTTPHandler{
+		T:           t,
+		SuccessCode: http.StatusOK,
+	}
+
+	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "/ccm/test", r.URL.String())
+		assert.Equal(t, http.MethodGet, r.Method)
+		arlHandler.ServeHTTP(w, r, "Akamai-RateLimit-Next")
+	}))
+	defer mockServer.Close()
+
+	mockSession := mockRetrySession(t, mockServer)
+	client := mockSession.Client()
+	_, err := client.Get(fmt.Sprintf("%s/ccm/test", mockServer.URL))
+	assert.NoError(t, err)
+
+	// We expect exactly two requests to the server:
+	// - the first resulting in code 429
+	// - the second after a proper backoff, resulting in status 200
+	assert.Equal(t, []int{http.StatusTooManyRequests, http.StatusOK}, arlHandler.ReturnedCodes())
+	assert.Less(t,
+		arlHandler.ReturnTimes()[1],
+		arlHandler.AvailableAt().Add(time.Duration(time.Millisecond)*1100))
 }
 
 func mockRetrySession(t *testing.T, mockServer *httptest.Server) Session {

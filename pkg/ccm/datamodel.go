@@ -65,6 +65,7 @@ type (
 	CreateCertificateResponse struct {
 		Certificate    Certificate
 		ResourceLimits ResourceLimitsMetadata
+		RateLimits     RateLimitsMetadata
 	}
 
 	// GetCertificateRequest represents the parameters for retrieving a certificate.
@@ -73,7 +74,10 @@ type (
 	}
 
 	// GetCertificateResponse contains the response for retrieving a certificate.
-	GetCertificateResponse = Certificate
+	GetCertificateResponse struct {
+		Certificate Certificate
+		RateLimits  RateLimitsMetadata
+	}
 
 	// PatchCertificateRequest represents the parameters for patching a certificate.
 	PatchCertificateRequest struct {
@@ -95,7 +99,10 @@ type (
 	}
 
 	// PatchCertificateResponse contains the response for patching a certificate.
-	PatchCertificateResponse = Certificate
+	PatchCertificateResponse struct {
+		Certificate Certificate
+		RateLimits  RateLimitsMetadata
+	}
 
 	// UpdateCertificateRequest represents the parameters for updating a certificate.
 	UpdateCertificateRequest struct {
@@ -117,12 +124,18 @@ type (
 	}
 
 	// UpdateCertificateResponse contains the response for updating a certificate.
-	UpdateCertificateResponse = Certificate
+	UpdateCertificateResponse struct {
+		Certificate Certificate
+		RateLimits  RateLimitsMetadata
+	}
 
 	// DeleteCertificateRequest represents the parameters for deleting a certificate.
 	DeleteCertificateRequest struct {
 		CertificateID string
 	}
+
+	// DeleteCertificateResponse contains the response for deleting a certificate.
+	DeleteCertificateResponse = RateLimitsMetadata
 
 	// ListCertificateBindingsRequest represents the parameters for retrieving certificate bindings.
 	ListCertificateBindingsRequest struct {
@@ -143,6 +156,8 @@ type (
 
 		// Links contains pagination and navigation links.
 		Links Links `json:"links"`
+
+		RateLimits RateLimitsMetadata
 	}
 
 	// ListCertificatesRequest represents the parameters for listing certificates.
@@ -200,6 +215,7 @@ type (
 		Certificates []Certificate `json:"certificates"`
 		Links        Links         `json:"links"`
 		Metadata     ListMetadata  `json:"metadata"`
+		RateLimits   RateLimitsMetadata
 	}
 
 	// ListBindingsRequest represents the parameters for listing certificate bindings.
@@ -235,6 +251,8 @@ type (
 
 		// Links contains pagination and navigation links.
 		Links Links `json:"links"`
+
+		RateLimits RateLimitsMetadata
 	}
 
 	// CreateCertificateRequestBody contains the details for requesting a certificate.
@@ -388,6 +406,17 @@ type (
 	ResourceLimitsMetadata struct {
 		CertificateLimitTotal     int64
 		CertificateLimitRemaining int64
+	}
+
+	// RateLimitsMetadata contains information about API rate limits.
+	RateLimitsMetadata struct {
+		// Limit is the maximum number of requests allowed in the current rate limit window.
+		// Nil is returned if the header is not present.
+		Limit *int64
+
+		// Remaining is the number of requests remaining in the current rate limit window.
+		// Nil is returned if the header is not present.
+		Remaining *int64
 	}
 
 	// CertificateStatus represents the status of a certificate: `ACTIVE`, `READY_FOR_USE`, `CSR_READY`, `PENDING_CSR_GENERATION`, or `CERT_UPLOAD_PROCESSING`.

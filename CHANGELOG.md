@@ -38,6 +38,12 @@
     * [InvalidateDomains](https://techdocs.akamai.com/domain-validation/reference/post-invalidate-domains) - Invalidates the specified domains.
 
 
+* CCM 
+  * Added support for `Akamai-RateLimit-Limit` and `Akamai-RateLimit-Remaining` headers in CCM API responses to help monitor and manage API rate limits.
+  * Added support for `Akamai-RateLimit-Next` which is returned when the rate limit is exceeded, indicating when the next request can be made.
+
+
+
 
 
 * PAPI

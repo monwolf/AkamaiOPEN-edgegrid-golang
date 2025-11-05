@@ -54,9 +54,14 @@ func (m *Mock) UpdateCertificate(ctx context.Context, req UpdateCertificateReque
 	return args.Get(0).(*UpdateCertificateResponse), args.Error(1)
 }
 
-func (m *Mock) DeleteCertificate(ctx context.Context, req DeleteCertificateRequest) error {
+func (m *Mock) DeleteCertificate(ctx context.Context, req DeleteCertificateRequest) (*DeleteCertificateResponse, error) {
 	args := m.Called(ctx, req)
-	return args.Error(0)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*DeleteCertificateResponse), args.Error(1)
 }
 
 func (m *Mock) ListCertificateBindings(ctx context.Context, req ListCertificateBindingsRequest) (*ListCertificateBindingsResponse, error) {
