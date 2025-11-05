@@ -58,25 +58,25 @@ func (d *ds) GetProperties(ctx context.Context, params GetPropertiesRequest) (*P
 	logger.Debug("GetProperties")
 
 	if err := params.Validate(); err != nil {
-		return nil, fmt.Errorf("%s: %w: %s", ErrGetProperties, ErrStructValidation, err)
+		return nil, fmt.Errorf("%w: %w: %w", ErrGetProperties, ErrStructValidation, err)
 	}
 
 	uri, err := url.Parse(fmt.Sprintf(
-		"/datastream-config-api/v2/log/groups/%d/properties",
+		"/datastream-config-api/v3/log/cdn/groups/%d/properties",
 		params.GroupId))
 	if err != nil {
-		return nil, fmt.Errorf("%w: parsing URL: %s", ErrGetProperties, err)
+		return nil, fmt.Errorf("%w: parsing URL: %w", ErrGetProperties, err)
 	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri.String(), nil)
 	if err != nil {
-		return nil, fmt.Errorf("%w: failed to create request: %s", ErrGetProperties, err)
+		return nil, fmt.Errorf("%w: failed to create request: %w", ErrGetProperties, err)
 	}
 
 	var rval PropertiesDetails
 	resp, err := d.Exec(req, &rval)
 	if err != nil {
-		return nil, fmt.Errorf("%w: request failed: %s", ErrGetProperties, err)
+		return nil, fmt.Errorf("%w: request failed: %w", ErrGetProperties, err)
 	}
 	defer session.CloseResponseBody(resp)
 
@@ -91,9 +91,9 @@ func (d *ds) GetDatasetFields(ctx context.Context, params GetDatasetFieldsReques
 	logger := d.Log(ctx)
 	logger.Debug("GetDatasetFields")
 
-	uri, err := url.Parse("/datastream-config-api/v2/log/datasets-fields")
+	uri, err := url.Parse("/datastream-config-api/v3/log/cdn/datasets-fields")
 	if err != nil {
-		return nil, fmt.Errorf("%w: parsing URL: %s", ErrGetDatasetFields, err)
+		return nil, fmt.Errorf("%w: parsing URL: %w", ErrGetDatasetFields, err)
 	}
 
 	q := uri.Query()
@@ -104,13 +104,13 @@ func (d *ds) GetDatasetFields(ctx context.Context, params GetDatasetFieldsReques
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri.String(), nil)
 	if err != nil {
-		return nil, fmt.Errorf("%w: failed to create request: %s", ErrGetDatasetFields, err)
+		return nil, fmt.Errorf("%w: failed to create request: %w", ErrGetDatasetFields, err)
 	}
 
 	var rval DataSets
 	resp, err := d.Exec(req, &rval)
 	if err != nil {
-		return nil, fmt.Errorf("%w: request failed: %s", ErrGetDatasetFields, err)
+		return nil, fmt.Errorf("%w: request failed: %w", ErrGetDatasetFields, err)
 	}
 	defer session.CloseResponseBody(resp)
 

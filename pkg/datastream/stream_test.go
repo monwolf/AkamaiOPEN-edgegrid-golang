@@ -87,7 +87,7 @@ func TestDs_GetStream(t *testing.T) {
     "streamVersion": 2
 }
 `,
-			expectedPath: "/datastream-config-api/v2/log/streams/1",
+			expectedPath: "/datastream-config-api/v3/log/cdn/streams/1",
 			expectedResponse: &DetailedStreamVersion{
 				StreamStatus: StreamStatusActivated,
 				DeliveryConfiguration: DeliveryConfiguration{
@@ -210,7 +210,7 @@ func TestDs_GetStream(t *testing.T) {
     "streamVersion": 2
 }
 `,
-			expectedPath: "/datastream-config-api/v2/log/streams/1",
+			expectedPath: "/datastream-config-api/v3/log/cdn/streams/1",
 			expectedResponse: &DetailedStreamVersion{
 				CollectMidgress: true,
 				StreamStatus:    StreamStatusActivated,
@@ -279,7 +279,7 @@ func TestDs_GetStream(t *testing.T) {
 		"400 bad request": {
 			request:        GetStreamRequest{StreamID: 12},
 			responseStatus: http.StatusBadRequest,
-			expectedPath:   "/datastream-config-api/v2/log/streams/12",
+			expectedPath:   "/datastream-config-api/v3/log/cdn/streams/12",
 			responseBody: `
 {
 	"type": "bad-request",
@@ -454,7 +454,7 @@ func TestDs_CreateStream(t *testing.T) {
 
 
 `,
-			expectedPath: "/datastream-config-api/v2/log/streams?activate=true",
+			expectedPath: "/datastream-config-api/v3/log/cdn/streams?activate=true",
 			expectedResponse: &DetailedStreamVersion{
 				CollectMidgress: true,
 				ContractID:      "2-AB1234",
@@ -612,7 +612,7 @@ func TestDs_CreateStream(t *testing.T) {
 	]
 }
 `,
-			expectedPath: "/datastream-config-api/v2/log/streams?activate=true",
+			expectedPath: "/datastream-config-api/v3/log/cdn/streams?activate=true",
 			withError: &Error{
 				Type:       "forbidden",
 				Title:      "Forbidden",
@@ -647,7 +647,7 @@ func TestDs_CreateStream(t *testing.T) {
 	]
 }
 `,
-			expectedPath: "/datastream-config-api/v2/log/streams?activate=true",
+			expectedPath: "/datastream-config-api/v3/log/cdn/streams?activate=true",
 			withError: &Error{
 				Type:       "bad-request",
 				Title:      "Bad Request",
@@ -817,7 +817,7 @@ func TestDs_UpdateStream(t *testing.T) {
     "streamVersion": 2
 }
 `,
-			expectedPath: "/datastream-config-api/v2/log/streams/7050?activate=true",
+			expectedPath: "/datastream-config-api/v3/log/cdn/streams/7050?activate=true",
 			expectedResponse: &DetailedStreamVersion{
 				CollectMidgress: true,
 				ContractID:      "2-AB1234",
@@ -924,7 +924,7 @@ func TestDs_UpdateStream(t *testing.T) {
 	]
 }
 `,
-			expectedPath: "/datastream-config-api/v2/log/streams/7050?activate=true",
+			expectedPath: "/datastream-config-api/v3/log/cdn/streams/7050?activate=true",
 			withError: &Error{
 				Type:       "bad-request",
 				Title:      "Bad Request",
@@ -977,7 +977,7 @@ func TestDs_DeleteStream(t *testing.T) {
 			},
 			responseStatus: http.StatusNoContent,
 			responseBody:   ``,
-			expectedPath:   "/datastream-config-api/v2/log/streams/1",
+			expectedPath:   "/datastream-config-api/v3/log/cdn/streams/1",
 		},
 		"validation error": {
 			request: DeleteStreamRequest{},
@@ -989,7 +989,7 @@ func TestDs_DeleteStream(t *testing.T) {
 		"400 bad request": {
 			request:        DeleteStreamRequest{StreamID: 12},
 			responseStatus: http.StatusBadRequest,
-			expectedPath:   "/datastream-config-api/v2/log/streams/12",
+			expectedPath:   "/datastream-config-api/v3/log/cdn/streams/12",
 			responseBody: `
 {
 	"type": "bad-request",
@@ -1306,6 +1306,75 @@ func TestDs_Destinations(t *testing.T) {
 }
 `,
 		},
+		"S3CompatibleConnector": {
+			destination: &S3CompatibleConnector{
+				Path:            "testPath",
+				DisplayName:     "testDisplayName",
+				Bucket:          "testBucket",
+				Region:          "testRegion",
+				AccessKey:       "testAccessKey",
+				SecretAccessKey: "testSecretKey",
+				Endpoint:        "testEndpoint",
+			},
+			expectedJSON: `
+{
+	"path": "testPath",
+	"displayName": "testDisplayName",
+	"bucket": "testBucket",
+	"region": "testRegion",
+	"accessKey": "testAccessKey",
+	"secretAccessKey": "testSecretKey",
+	"destinationType": "S3_COMPATIBLE",
+	"endpoint": "testEndpoint"
+}
+`,
+		},
+		"DynatraceConnector": {
+			destination: &DynatraceConnector{
+				DisplayName:       "testDisplayName",
+				Endpoint:          "testEndpoint",
+				AuthToken:         "testAuthToken",
+				CustomHeaderName:  "testCustomHeaderName",
+				CustomHeaderValue: "testCustomHeaderValue",
+			},
+			expectedJSON: `
+{
+	"destinationType": "DYNATRACE",
+	"displayName": "testDisplayName",
+	"endpoint": "testEndpoint",
+	"authToken": "testAuthToken",
+	"customHeaderName": "testCustomHeaderName",
+	"customHeaderValue": "testCustomHeaderValue"
+}
+    `,
+		},
+		"TrafficPeakConnector": {
+			destination: &TrafficPeakConnector{
+				AuthenticationType: AuthenticationTypeBasic,
+				DisplayName:        "testDisplayName",
+				Endpoint:           "testURL",
+				UserName:           "testUserName",
+				Password:           "testPassword",
+				CompressLogs:       true,
+				CustomHeaderName:   "custom-header",
+				CustomHeaderValue:  "custom-header-value",
+				ContentType:        "application/json",
+			},
+			expectedJSON: `
+{
+    "authenticationType": "BASIC",
+    "displayName": "testDisplayName",
+    "endpoint": "testURL",
+    "userName": "testUserName",
+    "password": "testPassword",
+    "destinationType": "TRAFFICPEAK",
+    "compressLogs": true,
+	"customHeaderName": "custom-header",
+	"customHeaderValue": "custom-header-value",
+	"contentType": "application/json"
+}
+`,
+		},
 	}
 
 	request := CreateStreamRequest{
@@ -1497,7 +1566,7 @@ func TestDs_ListStreams(t *testing.T) {
    }
 ]
 `,
-			expectedPath: "/datastream-config-api/v2/log/streams",
+			expectedPath: "/datastream-config-api/v3/log/cdn/streams",
 			expectedResponse: []StreamDetails{
 				{
 					StreamStatus:  StreamStatusActivated,
@@ -1574,7 +1643,7 @@ func TestDs_ListStreams(t *testing.T) {
     }
 ]
 `,
-			expectedPath: "/datastream-config-api/v2/log/streams?groupId=1234",
+			expectedPath: "/datastream-config-api/v3/log/cdn/streams?groupId=1234",
 			expectedResponse: []StreamDetails{
 				{
 					StreamStatus:  StreamStatusActivated,
@@ -1601,7 +1670,7 @@ func TestDs_ListStreams(t *testing.T) {
 		"400 bad request": {
 			request:        ListStreamsRequest{},
 			responseStatus: http.StatusBadRequest,
-			expectedPath:   "/datastream-config-api/v2/log/streams",
+			expectedPath:   "/datastream-config-api/v3/log/cdn/streams",
 			responseBody: `
 {
 	"type": "bad-request",

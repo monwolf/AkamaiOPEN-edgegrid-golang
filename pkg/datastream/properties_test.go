@@ -54,7 +54,7 @@ func TestDs_GetProperties(t *testing.T) {
 ]
 }
 `,
-			expectedPath: "/datastream-config-api/v2/log/groups/12345/properties",
+			expectedPath: "/datastream-config-api/v3/log/cdn/groups/12345/properties",
 			expectedResponse: &PropertiesDetails{
 				GroupID: 12345,
 				Properties: []PropertyDetails{
@@ -105,7 +105,7 @@ func TestDs_GetProperties(t *testing.T) {
 	]
 }
 `,
-			expectedPath: "/datastream-config-api/v2/log/groups/12345/properties",
+			expectedPath: "/datastream-config-api/v3/log/cdn/groups/12345/properties",
 			withError: &Error{
 				Type:       "bad-request",
 				Title:      "Bad Request",
@@ -139,7 +139,7 @@ func TestDs_GetProperties(t *testing.T) {
 	]
 }
 `,
-			expectedPath: "/datastream-config-api/v2/log/groups/12345/properties",
+			expectedPath: "/datastream-config-api/v3/log/cdn/groups/12345/properties",
 			withError: &Error{
 				Type:       "forbidden",
 				Title:      "Forbidden",
@@ -218,7 +218,7 @@ func TestDs_GetDatasetFields(t *testing.T) {
     ]
 }
 `,
-			expectedPath: "/datastream-config-api/v2/log/datasets-fields",
+			expectedPath: "/datastream-config-api/v3/log/cdn/datasets-fields",
 			expectedResponse: &DataSets{
 				DataSetFields: []DataSetField{
 					{
@@ -265,7 +265,7 @@ func TestDs_GetDatasetFields(t *testing.T) {
     "type": "bad-request"
 }
 `,
-			expectedPath: "/datastream-config-api/v2/log/datasets-fields?productId=INVALID_PROD_ID",
+			expectedPath: "/datastream-config-api/v3/log/cdn/datasets-fields?productId=INVALID_PROD_ID",
 			withError: &Error{
 				Type:       "bad-request",
 				Title:      "Bad Request",
