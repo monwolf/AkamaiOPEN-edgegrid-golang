@@ -12,7 +12,7 @@ import (
 )
 
 type (
-	// The HostMoveActivations interface supports host move validation and activation with host move.
+	// HostMoveActivations interface supports host move validation and activation with host move.
 	HostMoveActivations interface {
 		// GetHostMoveValidation validates if hosts need to be moved during activation
 		GetHostMoveValidation(ctx context.Context, params GetHostMoveValidationRequest) (*GetHostMoveValidationResponse, error)
@@ -47,7 +47,7 @@ type (
 	// GetHostMoveValidationResponse is returned from a call to GetHostMoveValidation
 	GetHostMoveValidationResponse struct {
 		HostsToMove []HostToMove `json:"hostsToMove"`
-		Network     NetworkValue `json:"network"`
+		Network     string       `json:"network"`
 	}
 
 	// AcknowledgedInvalidHostsByConfig represents acknowledged invalid hosts by configuration
@@ -64,8 +64,6 @@ type (
 		Network                          NetworkValue                       `json:"network"`
 		Note                             string                             `json:"note"`
 		NotificationEmails               []string                           `json:"notificationEmails"`
-		SubmitDate                       *time.Time                         `json:"submitDate,omitempty"`
-		SubmittedBy                      string                             `json:"submittedBy,omitempty"`
 		AcknowledgedInvalidHosts         []string                           `json:"acknowledgedInvalidHosts"`
 		AcknowledgedInvalidHostsByConfig []AcknowledgedInvalidHostsByConfig `json:"acknowledgedInvalidHostsByConfig"`
 		HostsToMove                      []HostToMove                       `json:"hostsToMove"`
@@ -94,19 +92,19 @@ type (
 // Validate validates a GetHostMoveValidationRequest.
 func (v GetHostMoveValidationRequest) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
-		"configId":      validation.Validate(v.ConfigID, validation.Required),
-		"configVersion": validation.Validate(v.ConfigVersion, validation.Required),
-		"network":       validation.Validate(v.Network, validation.Required, validation.In(NetworkProduction, NetworkStaging)),
+		"ConfigID":      validation.Validate(v.ConfigID, validation.Required),
+		"ConfigVersion": validation.Validate(v.ConfigVersion, validation.Required),
+		"Network":       validation.Validate(v.Network, validation.Required, validation.In(NetworkProduction, NetworkStaging)),
 	})
 }
 
 // Validate validates a CreateActivationsWithHostMoveRequest.
 func (v CreateActivationsWithHostMoveRequest) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
-		"configId":      validation.Validate(v.ConfigID, validation.Required),
-		"configVersion": validation.Validate(v.ConfigVersion, validation.Required),
-		"action":        validation.Validate(v.Action, validation.Required),
-		"network":       validation.Validate(v.Network, validation.Required),
+		"ConfigID":      validation.Validate(v.ConfigID, validation.Required),
+		"ConfigVersion": validation.Validate(v.ConfigVersion, validation.Required),
+		"Action":        validation.Validate(v.Action, validation.Required),
+		"Network":       validation.Validate(v.Network, validation.Required, validation.In(NetworkProduction, NetworkStaging)),
 	})
 }
 

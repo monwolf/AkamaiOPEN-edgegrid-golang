@@ -13,7 +13,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// HTTP Integration Tests Group
 func TestAppSec_GetHostMoveValidation(t *testing.T) {
 
 	result := GetHostMoveValidationResponse{}
@@ -86,6 +85,14 @@ func TestAppSec_GetHostMoveValidation(t *testing.T) {
 			params: GetHostMoveValidationRequest{
 				ConfigID:      43253,
 				ConfigVersion: 1,
+			},
+			withError: ErrStructValidation,
+		},
+		"incorrect Network": {
+			params: GetHostMoveValidationRequest{
+				ConfigID:      43253,
+				ConfigVersion: 1,
+				Network:       "INCORRECT",
 			},
 			withError: ErrStructValidation,
 		},
@@ -318,6 +325,15 @@ func TestAppSec_CreateActivationsWithHostMove(t *testing.T) {
 				ConfigID:      43253,
 				ConfigVersion: 1,
 				Action:        "ACTIVATE",
+			},
+			withError: ErrStructValidation,
+		},
+		"incorrect Network": {
+			params: CreateActivationsWithHostMoveRequest{
+				ConfigID:      43253,
+				ConfigVersion: 1,
+				Action:        "ACTIVATE",
+				Network:       "INCORRECT",
 			},
 			withError: ErrStructValidation,
 		},

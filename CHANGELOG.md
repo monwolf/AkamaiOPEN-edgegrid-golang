@@ -13,13 +13,16 @@
 
 
 
-* Appsec
- * Added enum value `StatusInactive` for enum `StatusValue` used in activation APIs.
+
 
 ### FEATURES/ENHANCEMENTS:
 
 
 
+
+
+* Appsec
+  * Added enum value `StatusInactive` for enum `StatusValue` used in activation APIs.
 
 
 
