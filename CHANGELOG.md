@@ -1,32 +1,32 @@
 # RELEASE NOTES
 
-## X.X.X (X X, X)
-
-
-
-
-
-
-
-
-
-
-
-
-
+## 12.2.0 (Nov 10, 2025)
 
 ### FEATURES/ENHANCEMENTS:
 
-
-
-
-
 * Appsec
-  * Added enum value `StatusInactive` for enum `StatusValue` used in activation APIs.
+  * Added an enum value of `StatusInactive` to the `StatusValue` enum when activating APIs.
+  * Added new methods `GetHostMoveValidation` and `CreateActivationsWithHostMove`.
 
+* Cloud Certificates (Beta)
+  * Added support for the Cloud Certificate Manager (CCM) API:
+    * [CreateCertificate](https://techdocs.akamai.com/ccm/reference/post-certificates) - Creates a third party certificate.
+    * [GetCertificate](https://techdocs.akamai.com/ccm/reference/get-cert) - Retrieves a single certificate by its certificate ID.
+    * [UpdateCertificate](https://techdocs.akamai.com/ccm/reference/put-cert) - Uploads a PEM-encoded signed certificate and optionally a trust chain and renames or resets the certificate name.
+    * [PatchCertificate](https://techdocs.akamai.com/ccm/reference/patch-certificate) - Uploads a PEM-encoded signed certificate and optionally a trust chain and renames or resets the certificate name.
+    * [DeleteCertificate](https://techdocs.akamai.com/ccm/reference/delete-certificate) - Deletes a certificate by its certificate ID. Note that only certificates that are not `ACTIVE` can be deleted.
+    * [ListCertificates](https://techdocs.akamai.com/ccm/reference/get-certificates) - Lists all certificates that are accessible for the requesting user.
+    * [ListCertificateBindings](https://techdocs.akamai.com/ccm/reference/get-single-cert-bindings) - Provides hostname bindings for the given certificate.
+    * [ListBindings](https://techdocs.akamai.com/ccm/reference/get-all-cert-bindings) - Provides hostname bindings for certificates accessible to the requesting user, optionally filtered by contract, group, domain, or expiration days.
+  * Added support for the `Akamai-RateLimit-Limit` and `Akamai-RateLimit-Remaining` headers in the CCM API responses to help monitor and manage the API rate limits.
+  * Added support for the `Akamai-RateLimit-Next` header which is returned when the rate limit is exceeded, indicating when the next request can be made.
+
+* Datastream
+  * Added support for the `S3-Compatible`, `TrafficPeak`, and `Dynatrace` destinations. See [Supported destinations](https://techdocs.akamai.com/datastream2/v3/reference/destinations).
+  * Migrated Datastream APIs from `V2` to `V3` for `CDN` log types. Other log types available in `V3` APIs (`eDNS`, `GTM`, and `Edgeworkers`) are not yet supported.
 
 * PAPI Domain Ownership Validation (Beta)
-  * Added support for Domain Ownership methods:
+  * Added support for the Domain Ownership methods:
     * [ListDomains](https://techdocs.akamai.com/domain-validation/reference/get-domains) - Lists available domains.
     * [SearchDomains](https://techdocs.akamai.com/domain-validation/reference/post-search-domains) - Returns the status of specified domains.
     * [AddDomains](https://techdocs.akamai.com/domain-validation/reference/post-domains) - Adds domains to validate.
@@ -36,124 +36,19 @@
     * [ValidateDomains](https://techdocs.akamai.com/domain-validation/reference/post-validate-domains) - Immediately validates the domains using the DNS CNAME, DNS TXT, and HTTP methods.
     * [InvalidateDomain](https://techdocs.akamai.com/domain-validation/reference/post-invalidate-domain) - Invalidates the specified domain.
     * [InvalidateDomains](https://techdocs.akamai.com/domain-validation/reference/post-invalidate-domains) - Invalidates the specified domains.
-
-
-* CCM 
-  * Added support for `Akamai-RateLimit-Limit` and `Akamai-RateLimit-Remaining` headers in CCM API responses to help monitor and manage API rate limits.
-  * Added support for `Akamai-RateLimit-Next` which is returned when the rate limit is exceeded, indicating when the next request can be made.
-
-
-
-
-
+  
 * PAPI
-  * Added CCM specific fields to the response of the `ListActivePropertyHostnames` method.
-
-
-
-
-* CloudCertificates (Beta)
-  * Added support for the Cloud Certificates Manager (CCM) API:
-    * [CreateCertificate](https://techdocs.akamai.com/ccm/reference/post-certificates) - Creates a third party certificate.
-    * [GetCertificate](https://techdocs.akamai.com/ccm/reference/get-cert) - Retrieves a single certificate by its certificateID.
-    * [UpdateCertificate](https://techdocs.akamai.com/ccm/reference/put-cert) - Allows to upload a signed certificate PEM and optionally a trust chain and rename or reset the certificate name.
-    * [PatchCertificate](https://techdocs.akamai.com/ccm/reference/patch-certificate) - Allows to upload a signed certificate PEM and optionally a trust chain and rename or reset the certificate name. 
-    * [DeleteCertificate](https://techdocs.akamai.com/ccm/reference/delete-certificate) - Deletes a certificate by its certificateID. Note that only certificates that are not ACTIVE can be deleted.
-    * [ListCertificates](https://techdocs.akamai.com/ccm/reference/get-certificates) - Lists all certificates that are accessible for the requesting end user.
-    * [ListCertificateBindings](https://techdocs.akamai.com/ccm/reference/get-single-cert-bindings) - Provides hostname bindings for the given certificate.
-    * [ListBindings](https://techdocs.akamai.com/ccm/reference/get-all-cert-bindings) - Provides hostname bindings for user accessible certificates, optionally filtered by contract, group, domain, or expiration days.
-
-
-* Appsec
-  * Added new methods `GetHostMoveValidation` and `CreateActivationsWithHostMove`.
-
-
-
-
-
-
-
-* Datastream
-  * Added support for `S3-Compatible`, `TrafficPeak`, and `Dynatrace` destinations. See [Supported destinations](https://techdocs.akamai.com/datastream2/v3/reference/destinations).
-  * Migrated Datastream APIs from `V2` to `V3` for `CDN` log types. Other log types available in `V3` APIs (`eDNS`, `GTM` and `Edgeworkers`) are not yet supported.
-
-
-
-
-
-
-
-
-
-
-
-
-
-* PAPI
-  * Added new fields for `Hostname` structure:
+  * Added new fields for the `Hostname` structure:
     * `CCMCertStatus`
     * `CCMCertificates`
     * `MTLS`
     * `TLSConfiguration`
-  * Added new fields for `HostnameAdd` structure:
+  * Added new fields for the `HostnameAdd` structure:
     * `MTLS`
     * `TLSConfiguration`
     * `CCMCertificates`
-  * Added new certificate type `CertTypeCCM` for Cloud Controller Manager (CCM) certificates.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### BUG FIXES:
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  * Added a new certificate type `CertTypeCCM` for certificates created via Cloud Certificate Manager (CCM).
+  * Added fields specific to Cloud Certificate Manager (CCM) in the response of the `ListActivePropertyHostnames` method.
 
 ## 12.1.0 (Oct 13, 2025)
 
