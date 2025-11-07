@@ -46,6 +46,9 @@ var (
 
 	// ErrCertificateNotFound represents error when the certificate is not found.
 	ErrCertificateNotFound = &Error{Type: "/error-types/certificate-not-found"}
+
+	// ErrCertificateResourceNotFound represents error when the certificate resource is not found.
+	ErrCertificateResourceNotFound = &Error{Type: "/error-types/certificate-resource-not-found"}
 )
 
 type (
