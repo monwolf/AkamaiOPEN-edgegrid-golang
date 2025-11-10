@@ -285,7 +285,7 @@ func (d *ds) CreateStream(ctx context.Context, params CreateStreamRequest) (*Det
 		return nil, fmt.Errorf("%s: %w: %s", ErrCreateStream, ErrStructValidation, err)
 	}
 
-	uri, err := url.Parse("/datastream-config-api/v2/log/streams")
+	uri, err := url.Parse("/datastream-config-api/v3/log/cdn/streams")
 	if err != nil {
 		return nil, fmt.Errorf("%w: parsing URL: %s", ErrCreateStream, err)
 	}
@@ -322,7 +322,7 @@ func (d *ds) GetStream(ctx context.Context, params GetStreamRequest) (*DetailedS
 	}
 
 	uri, err := url.Parse(fmt.Sprintf(
-		"/datastream-config-api/v2/log/streams/%d",
+		"/datastream-config-api/v3/log/cdn/streams/%d",
 		params.StreamID))
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrGetStream, err)
@@ -362,7 +362,7 @@ func (d *ds) UpdateStream(ctx context.Context, params UpdateStreamRequest) (*Det
 		return nil, fmt.Errorf("%s: %w: %s", ErrUpdateStream, ErrStructValidation, err)
 	}
 
-	uri, err := url.Parse(fmt.Sprintf("/datastream-config-api/v2/log/streams/%d", params.StreamID))
+	uri, err := url.Parse(fmt.Sprintf("/datastream-config-api/v3/log/cdn/streams/%d", params.StreamID))
 
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrUpdateStream, err)
@@ -400,7 +400,7 @@ func (d *ds) DeleteStream(ctx context.Context, params DeleteStreamRequest) error
 	}
 
 	uri, err := url.Parse(fmt.Sprintf(
-		"/datastream-config-api/v2/log/streams/%d",
+		"/datastream-config-api/v3/log/cdn/streams/%d",
 		params.StreamID),
 	)
 	if err != nil {
@@ -429,7 +429,7 @@ func (d *ds) ListStreams(ctx context.Context, params ListStreamsRequest) ([]Stre
 	logger := d.Log(ctx)
 	logger.Debug("ListStreams")
 
-	uri, err := url.Parse("/datastream-config-api/v2/log/streams")
+	uri, err := url.Parse("/datastream-config-api/v3/log/cdn/streams")
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to parse url: %s", ErrListStreams, err)
 	}

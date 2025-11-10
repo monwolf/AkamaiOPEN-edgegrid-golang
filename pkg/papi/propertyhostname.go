@@ -11,6 +11,7 @@ import (
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/edgegriderr"
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/session"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/go-ozzo/ozzo-validation/v4/is"
 )
 
 type (
@@ -42,19 +43,107 @@ type (
 
 	// Hostname contains information about each of the HostnameResponseItems
 	Hostname struct {
-		CnameType            HostnameCnameType `json:"cnameType"`
-		EdgeHostnameID       string            `json:"edgeHostnameId,omitempty"`
-		CnameFrom            string            `json:"cnameFrom"`
-		CnameTo              string            `json:"cnameTo,omitempty"`
-		CertProvisioningType string            `json:"certProvisioningType"`
-		CertStatus           CertStatusItem    `json:"certStatus,omitempty"`
+		// CnameType is only one supported `EDGE_HOSTNAME` value.
+		CnameType HostnameCnameType `json:"cnameType"`
+
+		// EdgeHostnameID identifies each edge hostname.
+		EdgeHostnameID string `json:"edgeHostnameId,omitempty"`
+
+		// CnameFrom is the hostname that your end users see, indicated by the `Host` header in end user requests.
+		CnameFrom string `json:"cnameFrom"`
+
+		// CnameTo is the edge hostname you point the property hostname to so that you can start serving traffic through Akamai servers. This member corresponds to the edge hostname object's `edgeHostnameDomain` member.
+		CnameTo string `json:"cnameTo,omitempty"`
+
+		// CertProvisioningType indicates the certificate's provisioning type. Either `CPS_MANAGED` type for the certificates you create with the Certificate Provisioning System API (CPS), `DEFAULT` for the Default Domain Validation (DV) certificates created automatically, or `CCM` type for the third party certificates you create with the Cloud Certificate Manager.
+		CertProvisioningType string `json:"certProvisioningType"`
+
+		// CertStatus determines whether a hostname is capable of serving secure content over the staging or production network.
+		CertStatus CertStatusItem `json:"certStatus,omitempty"`
+
+		// CCMCertStatus is deployment status for the RSA and ECDSA certificates created with Cloud Certificate Manager (CCM).
+		CCMCertStatus *CCMCertStatus `json:"ccmCertStatus,omitempty"`
+
+		// CCMCertificates is certificate identifiers and links for the CCM-managed certificates.
+		CCMCertificates *CCMCertificates `json:"ccmCertificates,omitempty"`
+
+		// MTLS is mutual TLS configuration settings applicable to the Cloud Certificate Manager (CCM) hostnames.
+		MTLS *MTLS `json:"mtls,omitempty"`
+
+		// TLSConfiguration is optional TLS configuration settings applicable to the Cloud Certificate Manager (CCM) hostnames.
+		TLSConfiguration *TLSConfiguration `json:"tlsConfiguration,omitempty"`
 	}
 
-	// CertStatusItem contains information about certificate status for specific Hostname
+	// CCMCertStatus is status of CCM certificates in each environment.
+	CCMCertStatus struct {
+		// ECDSAProductionStatus is ECDSA production status.
+		ECDSAProductionStatus string `json:"ecdsaProductionStatus,omitempty"`
+
+		// ECDSAStagingStatus is ECDSA staging status.
+		ECDSAStagingStatus string `json:"ecdsaStagingStatus,omitempty"`
+
+		// RSAProductionStatus is RSA production status.
+		RSAProductionStatus string `json:"rsaProductionStatus,omitempty"`
+
+		// RSAStagingStatus is RSA staging status.
+		RSAStagingStatus string `json:"rsaStagingStatus,omitempty"`
+	}
+
+	// CertStatusItem contains information about certificate status for specific Hostname.
 	CertStatusItem struct {
+		// ValidationCname is the CNAME record used to validate the certificate’s domain.
 		ValidationCname ValidationCname `json:"validationCname,omitempty"`
-		Staging         []StatusItem    `json:"staging,omitempty"`
-		Production      []StatusItem    `json:"production,omitempty"`
+
+		// Staging contains certificate status for the hostname on the staging network.
+		Staging []StatusItem `json:"staging,omitempty"`
+
+		// Production contains certificate status for the hostname on the production network.
+		Production []StatusItem `json:"production,omitempty"`
+	}
+
+	// CCMCertificates contains identifiers for the RSA and ECDSA certificates.
+	CCMCertificates struct {
+		// ECDSACertID is certificate ID for ECDSA.
+		ECDSACertID string `json:"ecdsaCertId,omitempty"`
+
+		// ECDSACertLink is link to the ECSDA certificate.
+		ECDSACertLink string `json:"ecdsaCertLink,omitempty"`
+
+		// RSACertID is certificate ID for RSA.
+		RSACertID string `json:"rsaCertId,omitempty"`
+
+		// RSACertLink is link to the RSA certificate.
+		RSACertLink string `json:"rsaCertLink,omitempty"`
+	}
+
+	// MTLS is mutual TLS configuration used only for the `CCM` provisioning.
+	MTLS struct {
+		// CASetID is ID of the Client CA set used for mutual TLS.
+		CASetID string `json:"caSetId,omitempty"`
+
+		// CASetLink is link of the Client CA set used for mutual TLS.
+		CASetLink string `json:"caSetLink,omitempty"`
+
+		// CheckClientOCSP specifies whether to check the OCSP status of the client certificate.
+		CheckClientOCSP bool `json:"checkClientOcsp,omitempty"`
+
+		// SendCASetClient specifies whether to send the CA set to the client during the TLS handshake.
+		SendCASetClient bool `json:"sendCaSetClient,omitempty"`
+	}
+
+	// TLSConfiguration is optional TLS configuration settings applicable to the Cloud Certificate Manager (CCM) hostnames.
+	TLSConfiguration struct {
+		// CipherProfile is cipher profile name.
+		CipherProfile string `json:"cipherProfile,omitempty"`
+
+		// DisallowedTLSVersions is  list of TLS versions that are disallowed.
+		DisallowedTLSVersions []string `json:"disallowedTlsVersions,omitempty"`
+
+		// StapleServerOcspResponse specifies whether to staple the OCSP response for the server certificate.
+		StapleServerOcspResponse bool `json:"stapleServerOcspResponse,omitempty"`
+
+		// FIPSMode specifies whether to enable the FIPS mode.
+		FIPSMode bool `json:"fipsMode,omitempty"`
 	}
 
 	// ValidationCname is the CNAME record used to validate the certificate’s domain
@@ -109,11 +198,29 @@ type (
 
 	// HostnameAdd contains information about the hostname to be added in patch property version hostnames
 	HostnameAdd struct {
-		CnameFrom            string            `json:"cnameFrom"`
-		CnameType            HostnameCnameType `json:"cnameType,omitempty"`
-		CnameTo              string            `json:"cnameTo,omitempty"`
-		CertProvisioningType CertType          `json:"certProvisioningType,omitempty"`
-		EdgeHostnameID       string            `json:"edgeHostnameId,omitempty"`
+		// CnameFrom is the hostname that your end users see, indicated by the `Host` header in end user requests.
+		CnameFrom string `json:"cnameFrom"`
+
+		// CnameType is only one supported `EDGE_HOSTNAME` value.
+		CnameType HostnameCnameType `json:"cnameType,omitempty"`
+
+		// CnameTo is the edge hostname you point the property hostname to so that you can start serving traffic through Akamai servers. This member corresponds to the edge hostname object's `edgeHostnameDomain` member.
+		CnameTo string `json:"cnameTo,omitempty"`
+
+		// CertProvisioningType indicates the certificate's provisioning type. Either `CPS_MANAGED` type for the certificates you create with the Certificate Provisioning System API (CPS), `DEFAULT` for the Default Domain Validation (DV) certificates created automatically, or `CCM` type for the third party certificates you create with the Cloud Certificate Manager.
+		CertProvisioningType CertType `json:"certProvisioningType,omitempty"`
+
+		// EdgeHostnameID identifies each edge hostname.
+		EdgeHostnameID string `json:"edgeHostnameId,omitempty"`
+
+		// MTLS is mutual TLS configuration settings applicable to the Cloud Certificate Manager (CCM) hostnames.
+		MTLS *MTLS `json:"mtls,omitempty"`
+
+		// TLSConfiguration is optional TLS configuration settings applicable to the Cloud Certificate Manager (CCM) hostnames.
+		TLSConfiguration *TLSConfiguration `json:"tlsConfiguration,omitempty"`
+
+		// CCMCertStatus is deployment status for the RSA and ECDSA certificates created with Cloud Certificate Manager (CCM).
+		CCMCertificates *CCMCertificates `json:"ccmCertificates,omitempty"`
 	}
 
 	// PatchPropertyVersionHostnamesResponse contains response from patch property version hostnames
@@ -153,11 +260,61 @@ func (ph GetPropertyVersionHostnamesRequest) Validate() error {
 }
 
 // Validate validates UpdatePropertyVersionHostnamesRequest
-func (ch UpdatePropertyVersionHostnamesRequest) Validate() error {
+func (r UpdatePropertyVersionHostnamesRequest) Validate() error {
+	return edgegriderr.ParseValidationErrors(validation.Errors{
+		"PropertyID":      validation.Validate(r.PropertyID, validation.Required),
+		"PropertyVersion": validation.Validate(r.PropertyVersion, validation.Required),
+		"Hostnames":       validation.Validate(r.Hostnames),
+	})
+}
+
+// Validate validates Hostname
+func (h Hostname) Validate() error {
 	return validation.Errors{
-		"PropertyID":      validation.Validate(ch.PropertyID, validation.Required),
-		"PropertyVersion": validation.Validate(ch.PropertyVersion, validation.Required),
+		"MTLS":                validation.Validate(h.MTLS),
+		"CCMCertificates":     validation.Validate(h.CCMCertificates),
+		"ValidateCCMHostname": validateCCMHostname(h.CertProvisioningType, h.CCMCertificates, h.MTLS, h.TLSConfiguration),
 	}.Filter()
+}
+
+// Validate validates MTLS
+func (m MTLS) Validate() error {
+	return validation.Errors{
+		"CASetID": validation.Validate(m.CASetID, validation.Required, is.Digit),
+	}.Filter()
+}
+
+// Validate validates CCMCertificates
+func (c CCMCertificates) Validate() error {
+	return validation.Errors{
+		"RSACertID":   validation.Validate(c.RSACertID, validation.When(c.RSACertID != "", is.Digit)),
+		"ECDSACertID": validation.Validate(c.ECDSACertID, validation.When(c.ECDSACertID != "", is.Digit)),
+	}.Filter()
+}
+
+func validateCCMHostname(certType string, certs *CCMCertificates, mTLS *MTLS, tls *TLSConfiguration) error {
+	if certType != string(CertTypeCCM) {
+		if certs != nil {
+			return errors.New("the CCM cert details are provided without `certProvisioningType` set to `CCM`")
+		}
+		if mTLS != nil {
+			return errors.New("the mTLS configuration is provided without `certProvisioningType` set to `CCM`")
+		}
+		if tls != nil {
+			return errors.New("the TLS configuration is provided without `certProvisioningType` set to `CCM`")
+		}
+		return nil
+	}
+	if certs == nil {
+		return errors.New("when using `certProvisioningType` set to `CCM`, the request body must contain `ccmCertificates` with at least `rsaCertId` or `ecdsaCertId`")
+	}
+	if certs.RSACertID == "" && certs.ECDSACertID == "" {
+		return errors.New("either RSACertID or ECDSACertID must be provided")
+	}
+	if tls != nil && len(tls.CipherProfile) == 0 {
+		return errors.New("the cipher profile is empty in the TLS configuration")
+	}
+	return nil
 }
 
 // Validate validates PatchPropertyVersionHostnamesRequest
@@ -177,16 +334,19 @@ func (b PatchPropertyVersionHostnamesRequestBody) Validate() error {
 }
 
 // Validate validates HostnameAdd
-func (b HostnameAdd) Validate() error {
+func (h HostnameAdd) Validate() error {
 	return validation.Errors{
-		"CnameFrom": validation.Validate(b.CnameFrom, validation.Required),
-		"CnameType": validation.Validate(b.CnameType,
-			validation.When(b.CnameType != "", b.CnameType.Validate())),
-		"CertProvisioningType": validation.Validate(b.CertProvisioningType,
-			validation.When(b.CertProvisioningType != "", b.CertProvisioningType.Validate())),
+		"CnameFrom": validation.Validate(h.CnameFrom, validation.Required),
+		"CnameType": validation.Validate(h.CnameType,
+			validation.When(h.CnameType != "", h.CnameType.Validate())),
+		"CertProvisioningType": validation.Validate(h.CertProvisioningType,
+			validation.When(h.CertProvisioningType != "", h.CertProvisioningType.Validate())),
+		"MTLS":                validation.Validate(h.MTLS),
+		"CCMCertificates":     validation.Validate(h.CCMCertificates),
+		"ValidateCCMHostname": validateCCMHostname(string(h.CertProvisioningType), h.CCMCertificates, h.MTLS, h.TLSConfiguration),
 		"required parameters": validation.Validate(nil,
 			validation.By(func(interface{}) error {
-				if b.CnameTo == "" && b.EdgeHostnameID == "" {
+				if h.CnameTo == "" && h.EdgeHostnameID == "" {
 					return fmt.Errorf("either CnameTo or EdgeHostnameID must be provided")
 				}
 				return nil

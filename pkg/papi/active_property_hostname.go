@@ -83,15 +83,55 @@ type (
 
 	// HostnameItem contains information about each of the HostnamesResponseItems.
 	HostnameItem struct {
-		CertStatus               *CertStatusItem   `json:"certStatus"`
-		CnameFrom                string            `json:"cnameFrom"`
-		CnameType                HostnameCnameType `json:"cnameType"`
-		ProductionCertType       CertType          `json:"productionCertType"`
-		ProductionCnameTo        string            `json:"productionCnameTo"`
-		ProductionEdgeHostnameID string            `json:"productionEdgeHostnameId"`
-		StagingCertType          CertType          `json:"stagingCertType"`
-		StagingCnameTo           string            `json:"StagingCnameTo"`
-		StagingEdgeHostnameID    string            `json:"stagingEdgeHostnameId"`
+		// CCMCertStatus is deployment status for the RSA and ECDSA certificates created with Cloud Certificate Manager (CCM).
+		CCMCertStatus *CCMCertStatus `json:"ccmCertStatus,omitempty"`
+
+		// CCMCertificates is certificate identifiers and links for the CCM-managed certificates.
+		CCMCertificates *CCMCertificates `json:"ccmCertificates,omitempty"`
+
+		// CertStatus with the `includeCertStatus` parameter set to `true`,
+		// determines whether a hostname is capable of serving secure content over the staging or production network.
+		CertStatus *CertStatusItem `json:"certStatus"`
+
+		// CnameFrom is hostname that your end users see, indicated by the `Host` header in end user requests.
+		CnameFrom string `json:"cnameFrom"`
+
+		// CnameType has one supported `EDGE_HOSTNAME` value.
+		CnameType HostnameCnameType `json:"cnameType"`
+
+		// MTLS is mutual TLS configuration settings applicable to the Cloud Certificate Manager (CCM) hostnames.
+		MTLS *MTLS `json:"mtls,omitempty"`
+
+		// ProductionCertProvisioningType indicates the certificate's provisioning type.
+		// Either `CPS_MANAGED` type for the certificates you create with the Certificate Provisioning System API (CPS),
+		// `DEFAULT` for the Default Domain Validation (DV) certificates created automatically,
+		// or `CCM` type for the third party certificates you create with the Cloud Certificate Manager.
+		// Note that you can't specify the `DEFAULT` value if your property hostname uses the `akamaized.net` domain suffix.
+		ProductionCertType CertType `json:"productionCertType"`
+
+		// ProductionCnameTo is the edge hostname you point the property hostname to so that you can start serving traffic through Akamai servers.
+		// This member corresponds to the edge hostname object's `edgeHostnameDomain` member.
+		ProductionCnameTo string `json:"productionCnameTo"`
+
+		// ProductionEdgeHostnameID identifies each edge hostname.
+		ProductionEdgeHostnameID string `json:"productionEdgeHostnameId"`
+
+		// StagingCertType indicates the certificate's provisioning type.
+		// Either `CPS_MANAGED` type for the certificates you create with the Certificate Provisioning System API (CPS),
+		// `DEFAULT` for the Default Domain Validation (DV) certificates created automatically,
+		// or `CCM` type for the third party certificates you create with the Cloud Certificate Manager.
+		// Note that you can't specify the `DEFAULT` value if your property hostname uses the `akamaized.net` domain suffix.
+		StagingCertType CertType `json:"stagingCertType"`
+
+		// StagingCnameTo is the edge hostname you point the property hostname to so that you can start serving traffic through Akamai servers.
+		// This member corresponds to the edge hostname object's `edgeHostnameDomain` member.
+		StagingCnameTo string `json:"StagingCnameTo"`
+
+		// StagingEdgeHostnameID identifies each edge hostname.
+		StagingEdgeHostnameID string `json:"stagingEdgeHostnameId"`
+
+		// TLSConfiguration is optional TLS configuration settings applicable to the Cloud Certificate Manager (CCM) hostnames.
+		TLSConfiguration *TLSConfiguration `json:"tlsConfiguration,omitempty"`
 	}
 
 	// HostnameDiffItem contains information about each of the HostnamesDiffResponseItems.
@@ -117,6 +157,8 @@ const (
 	CertTypeCPSManaged CertType = "CPS_MANAGED"
 	// CertTypeDefault indicates that the certificate is a Default Domain Validation (DV) certificate.
 	CertTypeDefault CertType = "DEFAULT"
+	// CertTypeCCM indicates that the certificate is a Cloud Controller Manager (CCM) certificate.
+	CertTypeCCM CertType = "CCM"
 	// maxHostnamesPerPage indicates the maximum possible value for 'limit' parameter for Get and List active property hostnames.
 	maxHostnamesPerPage int = 999
 )
@@ -138,9 +180,9 @@ func (o SortOrder) Validate() validation.InRule {
 
 // Validate validates CertType.
 func (t CertType) Validate() validation.InRule {
-	return validation.In(CertTypeCPSManaged, CertTypeDefault).
-		Error(fmt.Sprintf("value '%s' is invalid. Must be one of: '%s' or '%s'",
-			t, CertTypeCPSManaged, CertTypeDefault))
+	return validation.In(CertTypeCPSManaged, CertTypeDefault, CertTypeCCM).
+		Error(fmt.Sprintf("value '%s' is invalid. Must be one of: '%s', '%s' or '%s'",
+			t, CertTypeCPSManaged, CertTypeDefault, CertTypeCCM))
 }
 
 // Validate validates ListActivePropertyHostnamesRequest.

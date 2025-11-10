@@ -8,6 +8,8 @@ vendor/
 # testing and custom build code
 *.log
 coverage.out
+/bin/
+/test/
 
 # eclipse
 .classpath

@@ -319,7 +319,7 @@ func TestPapiPatchPropertyHostnameBucket(t *testing.T) {
 				},
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "patching property hostname bucket: struct validation: Body: {\n\tAdd[0]: {\n\t\tCertProvisioningType: value 'wrong cert type' is invalid. Must be one of: 'CPS_MANAGED' or 'DEFAULT'\n\t}\n}",
+				assert.Equal(t, "patching property hostname bucket: struct validation: Body: {\n\tAdd[0]: {\n\t\tCertProvisioningType: value 'wrong cert type' is invalid. Must be one of: 'CPS_MANAGED', 'DEFAULT' or 'CCM'\n\t}\n}",
 					err.Error())
 			},
 		},

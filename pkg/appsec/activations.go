@@ -326,6 +326,9 @@ const (
 	// StatusActive indicates that a configuration has been activated.
 	StatusActive StatusValue = "ACTIVATED"
 
+	// StatusInProgress indicates that a configuration activation is in progress.
+	StatusInProgress StatusValue = "ACTIVATION_IN_PROGRESS"
+
 	// StatusInactive indicates that a configuration is inactive.
 	StatusInactive StatusValue = "INACTIVE"
 

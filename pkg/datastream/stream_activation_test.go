@@ -83,7 +83,7 @@ func TestDs_ActivateStream(t *testing.T) {
     "streamVersion": 2
 }
 `,
-			expectedPath: "/datastream-config-api/v2/log/streams/3/activate",
+			expectedPath: "/datastream-config-api/v3/log/cdn/streams/3/activate",
 			expectedResponse: &DetailedStreamVersion{
 				CollectMidgress: true,
 				StreamStatus:    StreamStatusActivating,
@@ -164,7 +164,7 @@ func TestDs_ActivateStream(t *testing.T) {
 	]
 }
 `,
-			expectedPath: "/datastream-config-api/v2/log/streams/123/activate",
+			expectedPath: "/datastream-config-api/v3/log/cdn/streams/123/activate",
 			withError: &Error{
 				Type:       "bad-request",
 				Title:      "Bad Request",
@@ -274,7 +274,7 @@ func TestDs_DeactivateStream(t *testing.T) {
     "streamVersion": 2
 }
 `,
-			expectedPath: "/datastream-config-api/v2/log/streams/3/deactivate",
+			expectedPath: "/datastream-config-api/v3/log/cdn/streams/3/deactivate",
 			expectedResponse: &DetailedStreamVersion{
 				CollectMidgress: true,
 				StreamStatus:    StreamStatusDeactivating,
@@ -355,7 +355,7 @@ func TestDs_DeactivateStream(t *testing.T) {
 	]
 }
 `,
-			expectedPath: "/datastream-config-api/v2/log/streams/123/deactivate",
+			expectedPath: "/datastream-config-api/v3/log/cdn/streams/123/deactivate",
 			withError: &Error{
 				Type:       "bad-request",
 				Title:      "Bad Request",
@@ -423,7 +423,7 @@ func TestDs_GetActivationHistory(t *testing.T) {
     }
 ]
 `,
-			expectedPath: "/datastream-config-api/v2/log/streams/3/activation-history",
+			expectedPath: "/datastream-config-api/v3/log/cdn/streams/3/activation-history",
 			expectedResponse: []ActivationHistoryEntry{
 				{
 					ModifiedBy:    "user1",
@@ -464,7 +464,7 @@ func TestDs_GetActivationHistory(t *testing.T) {
 	]
 }
 `,
-			expectedPath: "/datastream-config-api/v2/log/streams/123/activation-history",
+			expectedPath: "/datastream-config-api/v3/log/cdn/streams/123/activation-history",
 			withError: &Error{
 				Type:       "bad-request",
 				Title:      "Bad Request",
