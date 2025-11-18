@@ -4,7 +4,10 @@
 
 ### FEATURES/ENHANCEMENTS:
 
-
+* General
+    * Migrated to Go `1.24`.
+    * Updated various dependencies.
+    * Adopted toolchain Go `1.24.10`.
 
 
 

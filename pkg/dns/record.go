@@ -92,7 +92,7 @@ func (rec *RecordBody) Validate() error {
 	if rec.TTL == 0 {
 		return fmt.Errorf("RecordBody is missing TTL")
 	}
-	if rec.Target == nil || len(rec.Target) < 1 {
+	if len(rec.Target) < 1 {
 		return fmt.Errorf("RecordBody is missing Target")
 	}
 
