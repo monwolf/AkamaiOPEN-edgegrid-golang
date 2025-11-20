@@ -587,7 +587,7 @@ func TestPapiCreateEdgeHostname(t *testing.T) {
 				},
 			},
 			withError: func(t *testing.T, err error) {
-				want := "A prefix for the edge hostname with the \"akamaized.net\" suffix must begin with a letter, end with a letter or digit, and contain only letters, digits, and hyphens, for example, abc-def, or abc-123"
+				want := "A prefix for the edge hostname with the \"akamaized.net\" suffix must begin and end with a letter or digit, and contain only letters, digits, and hyphens, for example, abc-def, or 1abc-123"
 				assert.True(t, err != nil && strings.Contains(err.Error(), want), "Expected error containing %q, got %v", want, err)
 			},
 		},
@@ -605,7 +605,7 @@ func TestPapiCreateEdgeHostname(t *testing.T) {
 				},
 			},
 			withError: func(t *testing.T, err error) {
-				want := "A prefix for the edge hostname with the \"akamaized.net\" suffix must begin with a letter, end with a letter or digit, and contain only letters, digits, and hyphens, for example, abc-def, or abc-123"
+				want := "A prefix for the edge hostname with the \"akamaized.net\" suffix must begin and end with a letter or digit, and contain only letters, digits, and hyphens, for example, abc-def, or 1abc-123"
 				assert.True(t, err != nil && strings.Contains(err.Error(), want), "Expected error containing %q, got %v", want, err)
 			},
 		},
@@ -623,7 +623,7 @@ func TestPapiCreateEdgeHostname(t *testing.T) {
 				},
 			},
 			withError: func(t *testing.T, err error) {
-				want := "A prefix for the edge hostname with the \"akamaized.net\" suffix must begin with a letter, end with a letter or digit, and contain only letters, digits, and hyphens, for example, abc-def, or abc-123"
+				want := "A prefix for the edge hostname with the \"akamaized.net\" suffix must begin and end with a letter or digit, and contain only letters, digits, and hyphens, for example, abc-def, or 1abc-123"
 				assert.True(t, err != nil && strings.Contains(err.Error(), want), "expected error containing %q, got %v", want, err)
 			},
 		},
@@ -641,7 +641,7 @@ func TestPapiCreateEdgeHostname(t *testing.T) {
 				},
 			},
 			withError: func(t *testing.T, err error) {
-				want := "A prefix for the edge hostname with the \"edgesuite.net\" suffix must begin with a letter, end with a letter, digit or dot, and contain only letters, digits, dots, and hyphens, for example, abc-def.123.456., or abc.123-def"
+				want := "A prefix for the edge hostname with the \"edgesuite.net\" suffix must begin with a letter or digit, end with a letter, digit or dot, and contain only letters, digits, dots, and hyphens, for example, abc-def.123.456., or 1abc.123-def"
 				assert.True(t, err != nil && strings.Contains(err.Error(), want), "Expected error containing %q, got %v", want, err)
 			},
 		},
@@ -978,6 +978,139 @@ func TestPapiCreateEdgeHostname(t *testing.T) {
 			}
 			require.NoError(t, err)
 			assert.Equal(t, test.expectedResponse, result)
+		})
+	}
+}
+
+func TestValidateDomainPrefix(t *testing.T) {
+	tests := map[string]struct {
+		domainPrefix, domainSuffix string
+		expectedErr                bool
+	}{
+		"valid domain prefix": {
+			domainPrefix: "abc",
+			domainSuffix: "edgesuite.net",
+			expectedErr:  false,
+		},
+		"valid domain prefix with hyphen": {
+			domainPrefix: "a-bc",
+			domainSuffix: "edgesuite.net",
+			expectedErr:  false,
+		},
+		"valid domain prefix starting with digit": {
+			domainPrefix: "1bc",
+			domainSuffix: "edgesuite.net",
+			expectedErr:  false,
+		},
+		"valid domain prefix ending with digit": {
+			domainPrefix: "abc1",
+			domainSuffix: "edgesuite.net",
+			expectedErr:  false,
+		},
+		"valid akamaized domain prefix starting with digit": {
+			domainPrefix: "1abc",
+			domainSuffix: "akamaized.net",
+			expectedErr:  false,
+		},
+		"valid akamaized domain prefix ending with digit": {
+			domainPrefix: "abc1",
+			domainSuffix: "akamaized.net",
+			expectedErr:  false,
+		},
+		"valid domain prefix with min length": {
+			domainPrefix: "a",
+			domainSuffix: "edgesuite.net",
+			expectedErr:  false,
+		},
+		"invalid akamaized domain prefix with min length": {
+			domainPrefix: "a",
+			domainSuffix: "akamaized.net",
+			expectedErr:  true,
+		},
+		"valid domain prefix with underscore": {
+			domainPrefix: "a_bc",
+			domainSuffix: "edgesuite.net",
+			expectedErr:  false,
+		},
+		"invalid akamaized domain prefix with underscore": {
+			domainPrefix: "a_bc",
+			domainSuffix: "akamaized.net",
+			expectedErr:  true,
+		},
+		"invalid domain prefix starting with hyphen": {
+			domainPrefix: "-abc",
+			domainSuffix: "edgesuite.net",
+			expectedErr:  true,
+		},
+		"invalid domain prefix ending with hyphen": {
+			domainPrefix: "abc-",
+			domainSuffix: "edgesuite.net",
+			expectedErr:  true,
+		},
+		"invalid domain prefix with special characters": {
+			domainPrefix: "a!bc",
+			domainSuffix: "edgesuite.net",
+			expectedErr:  true,
+		},
+		"invalid domain prefix with space": {
+			domainPrefix: "a bc",
+			domainSuffix: "edgesuite.net",
+			expectedErr:  true,
+		},
+		"invalid domain prefix exceeding max prefix length": {
+			domainPrefix: strings.Repeat("a", 64),
+			domainSuffix: "edgesuite.net",
+			expectedErr:  true,
+		},
+		"valid domain with dot in prefix": {
+			domainPrefix: "a.bc",
+			domainSuffix: "edgesuite.net",
+			expectedErr:  false,
+		},
+		"valid domain prefix ending with dot": {
+			domainPrefix: "abc.",
+			domainSuffix: "edgesuite.net",
+			expectedErr:  false,
+		},
+		"invalid akamized domain with dot in prefix": {
+			domainPrefix: "a.bc",
+			domainSuffix: "akamaized.net",
+			expectedErr:  true,
+		},
+		"invalid domain with consecutive dots in prefix": {
+			domainPrefix: "a..bc",
+			domainSuffix: "edgesuite.net",
+			expectedErr:  true,
+		},
+		"invalid akamaized domain with consecutive dots in prefix": {
+			domainPrefix: "a..bc",
+			domainSuffix: "akamaized.net",
+			expectedErr:  true,
+		},
+		"invalid domain with empty prefix": {
+			domainPrefix: "",
+			domainSuffix: "edgesuite.net",
+			expectedErr:  true,
+		},
+		"invalid akamized domain with empty prefix": {
+			domainPrefix: "",
+			domainSuffix: "akamaized.net",
+			expectedErr:  true,
+		},
+		"valid domain with consecutive hyphens in prefix": {
+			domainPrefix: "a--bc",
+			domainSuffix: "edgesuite.net",
+			expectedErr:  false,
+		},
+		"valid akamaized domain with consecutive hyphens in prefix": {
+			domainPrefix: "a--bc",
+			domainSuffix: "akamaized.net",
+			expectedErr:  false,
+		},
+	}
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, test.expectedErr, validateDomainPrefix(test.domainPrefix, test.domainSuffix) != nil)
 		})
 	}
 }

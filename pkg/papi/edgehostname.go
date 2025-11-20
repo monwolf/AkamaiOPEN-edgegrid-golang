@@ -95,8 +95,8 @@ type (
 var (
 	// domainPrefixPatterns maps domain suffixes to their respective regex patterns for validating domain prefixes
 	domainPrefixPatterns = map[string]*regexp.Regexp{
-		"akamaized.net": regexp.MustCompile(`^[A-Za-z]([A-Za-z0-9-]*[A-Za-z0-9])?$`),
-		"default":       regexp.MustCompile(`^[A-Za-z]([A-Za-z0-9.-]*[A-Za-z0-9])?(\.)?$`),
+		"akamaized.net": regexp.MustCompile(AkamaizedNetDomainRegexPattern),
+		"default":       regexp.MustCompile(DefaultEHDomainRegexPattern),
 	}
 )
 
@@ -120,6 +120,11 @@ const (
 
 	minDomainPrefixLength          = 1
 	minDomainPrefixLengthAkamaized = 4
+
+	// AkamaizedNetDomainRegexPattern pattern for akamaized.net domain prefix validation
+	AkamaizedNetDomainRegexPattern = `^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])$`
+	// DefaultEHDomainRegexPattern pattern for default edge hostname domain prefix validation
+	DefaultEHDomainRegexPattern = `^[A-Za-z0-9](?:[A-Za-z0-9_-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9_-]*[A-Za-z0-9])?)*\.?$`
 )
 
 // Validate validates CreateEdgeHostnameRequest
@@ -327,9 +332,9 @@ func validateDomainPrefix(domainPrefix, domainSuffix string) error {
 
 	if !pattern.MatchString(domainPrefix) {
 		if domainSuffix == "akamaized.net" {
-			return fmt.Errorf("A prefix for the edge hostname with the \"akamaized.net\" suffix must begin with a letter, end with a letter or digit, and contain only letters, digits, and hyphens, for example, abc-def, or abc-123")
+			return fmt.Errorf("A prefix for the edge hostname with the \"akamaized.net\" suffix must begin and end with a letter or digit, and contain only letters, digits, and hyphens, for example, abc-def, or 1abc-123")
 		}
-		return fmt.Errorf("A prefix for the edge hostname with the \"%s\" suffix must begin with a letter, end with a letter, digit or dot, and contain only letters, digits, dots, and hyphens, for example, abc-def.123.456., or abc.123-def", domainSuffix)
+		return fmt.Errorf("A prefix for the edge hostname with the \"%s\" suffix must begin with a letter or digit, end with a letter, digit or dot, and contain only letters, digits, dots, and hyphens, for example, abc-def.123.456., or 1abc.123-def", domainSuffix)
 	}
 	return nil
 }
