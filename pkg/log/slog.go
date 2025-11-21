@@ -40,7 +40,7 @@ type SlogAdapter struct {
 // If an argument is a string and this is not the last argument, the following argument is treated as the value and the two are combined into an key - value pair.
 // Otherwise, the argument is treated as a value with key "!BADKEY".
 func (l SlogAdapter) Trace(msg string, args ...any) {
-	l.Logger.Log(context.Background(), LevelTrace, msg, args...)
+	l.Log(context.Background(), LevelTrace, msg, args...)
 }
 
 // Debug logs at debug level,
@@ -80,14 +80,14 @@ func (l SlogAdapter) Error(msg string, args ...any) {
 // If an argument is a string and this is not the last argument, the following argument is treated as the value and the two are combined into an key - value pair.
 // Otherwise, the argument is treated as a value with key "!BADKEY".
 func (l SlogAdapter) Fatal(msg string, args ...any) {
-	l.Logger.Log(context.Background(), LevelFatal, msg, args...)
+	l.Log(context.Background(), LevelFatal, msg, args...)
 	os.Exit(1)
 }
 
 // Tracef formats according to a format specifier and logs the resulting string at trace level
 func (l SlogAdapter) Tracef(msg string, args ...any) {
 	m := fmt.Sprintf(msg, args...)
-	l.Logger.Log(context.Background(), LevelTrace, m)
+	l.Log(context.Background(), LevelTrace, m)
 }
 
 // Debugf formats according to a format specifier and logs the resulting string at debug level
@@ -117,7 +117,7 @@ func (l SlogAdapter) Errorf(msg string, args ...any) {
 // Fatalf formats according to a format specifier and logs the resulting string at fatal level, followed by an exit.
 func (l SlogAdapter) Fatalf(msg string, args ...any) {
 	m := fmt.Sprintf(msg, args...)
-	l.Logger.Log(context.Background(), LevelFatal, m)
+	l.Log(context.Background(), LevelFatal, m)
 	os.Exit(1)
 }
 

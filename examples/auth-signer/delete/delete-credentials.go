@@ -15,7 +15,6 @@
 // A successful call returns an empty response body.
 //
 // For more information on the call used in this example, see https://techdocs.akamai.com/iam-api/reference/delete-self-credential.
-
 package main
 
 import (
@@ -31,6 +30,10 @@ func main() {
 		edgegrid.WithFile("~/.edgerc"),
 		edgegrid.WithSection("default"),
 	)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	client := http.Client{}
 
@@ -48,7 +51,9 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	defer res.Body.Close()
+	defer func() {
+		_ = res.Body.Close()
+	}()
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {

@@ -720,7 +720,7 @@ func TestFromOpenAPIFile(t *testing.T) {
 			responseStatus: http.StatusOK,
 			expectedResult: &FromOpenAPIFileResponse{
 				Problems: []Error{},
-				API:      bookStoreAPI.RegisterAPIRequest.APIAttributes,
+				API:      bookStoreAPI.APIAttributes,
 			},
 			expectedPath: "/api-definitions/v0/endpoints/openapi",
 			responseBody: loadJson("testdata/book_store_api_from_openapi.json"),

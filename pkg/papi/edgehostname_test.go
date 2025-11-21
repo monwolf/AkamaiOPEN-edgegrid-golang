@@ -587,7 +587,7 @@ func TestPapiCreateEdgeHostname(t *testing.T) {
 				},
 			},
 			withError: func(t *testing.T, err error) {
-				want := "A prefix for the edge hostname with the \"akamaized.net\" suffix must begin and end with a letter or digit, and contain only letters, digits, and hyphens, for example, abc-def, or 1abc-123"
+				want := "a prefix for the edge hostname with the \"akamaized.net\" suffix must begin and end with a letter or digit, and contain only letters, digits, and hyphens, for example, abc-def, or 1abc-123"
 				assert.True(t, err != nil && strings.Contains(err.Error(), want), "Expected error containing %q, got %v", want, err)
 			},
 		},
@@ -605,7 +605,7 @@ func TestPapiCreateEdgeHostname(t *testing.T) {
 				},
 			},
 			withError: func(t *testing.T, err error) {
-				want := "A prefix for the edge hostname with the \"akamaized.net\" suffix must begin and end with a letter or digit, and contain only letters, digits, and hyphens, for example, abc-def, or 1abc-123"
+				want := "a prefix for the edge hostname with the \"akamaized.net\" suffix must begin and end with a letter or digit, and contain only letters, digits, and hyphens, for example, abc-def, or 1abc-123"
 				assert.True(t, err != nil && strings.Contains(err.Error(), want), "Expected error containing %q, got %v", want, err)
 			},
 		},
@@ -623,7 +623,7 @@ func TestPapiCreateEdgeHostname(t *testing.T) {
 				},
 			},
 			withError: func(t *testing.T, err error) {
-				want := "A prefix for the edge hostname with the \"akamaized.net\" suffix must begin and end with a letter or digit, and contain only letters, digits, and hyphens, for example, abc-def, or 1abc-123"
+				want := "a prefix for the edge hostname with the \"akamaized.net\" suffix must begin and end with a letter or digit, and contain only letters, digits, and hyphens, for example, abc-def, or 1abc-123"
 				assert.True(t, err != nil && strings.Contains(err.Error(), want), "expected error containing %q, got %v", want, err)
 			},
 		},
@@ -641,7 +641,7 @@ func TestPapiCreateEdgeHostname(t *testing.T) {
 				},
 			},
 			withError: func(t *testing.T, err error) {
-				want := "A prefix for the edge hostname with the \"edgesuite.net\" suffix must begin with a letter or digit, end with a letter, digit or dot, and contain only letters, digits, dots, and hyphens, for example, abc-def.123.456., or 1abc.123-def"
+				want := "a prefix for the edge hostname with the \"edgesuite.net\" suffix must begin with a letter or digit, end with a letter, digit or dot, and contain only letters, digits, dots, and hyphens, for example, abc-def.123.456., or 1abc.123-def"
 				assert.True(t, err != nil && strings.Contains(err.Error(), want), "Expected error containing %q, got %v", want, err)
 			},
 		},
@@ -659,7 +659,7 @@ func TestPapiCreateEdgeHostname(t *testing.T) {
 				},
 			},
 			withError: func(t *testing.T, err error) {
-				want := `The edge hostname prefix must be at least 4 character(s) and no more than 63 characters for "akamaized.net" suffix; you provided 64 character(s)`
+				want := `the edge hostname prefix must be at least 4 character(s) and no more than 63 characters for "akamaized.net" suffix; you provided 64 character(s)`
 				assert.True(t, err != nil && strings.Contains(err.Error(), want), "Expected error containing %q, got %v", want, err)
 			},
 		},
@@ -677,7 +677,7 @@ func TestPapiCreateEdgeHostname(t *testing.T) {
 				},
 			},
 			withError: func(t *testing.T, err error) {
-				want := `The edge hostname prefix must be at least 4 character(s) and no more than 63 characters for "akamaized.net" suffix; you provided 3 character(s)`
+				want := `the edge hostname prefix must be at least 4 character(s) and no more than 63 characters for "akamaized.net" suffix; you provided 3 character(s)`
 				assert.True(t, err != nil && strings.Contains(err.Error(), want), "Expected error containing %q, got %v", want, err)
 			},
 		},

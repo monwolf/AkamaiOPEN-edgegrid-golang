@@ -322,7 +322,7 @@ func validateDomainPrefix(domainPrefix, domainSuffix string) error {
 	}
 
 	if domainPrefixLen < minLen || domainPrefixLen > 63 {
-		return fmt.Errorf(`The edge hostname prefix must be at least %d character(s) and no more than 63 characters for "%s" suffix; you provided %d character(s)`, minLen, domainSuffix, domainPrefixLen)
+		return fmt.Errorf(`the edge hostname prefix must be at least %d character(s) and no more than 63 characters for "%s" suffix; you provided %d character(s)`, minLen, domainSuffix, domainPrefixLen)
 	}
 
 	pattern, exists := domainPrefixPatterns[domainSuffix]
@@ -332,9 +332,9 @@ func validateDomainPrefix(domainPrefix, domainSuffix string) error {
 
 	if !pattern.MatchString(domainPrefix) {
 		if domainSuffix == "akamaized.net" {
-			return fmt.Errorf("A prefix for the edge hostname with the \"akamaized.net\" suffix must begin and end with a letter or digit, and contain only letters, digits, and hyphens, for example, abc-def, or 1abc-123")
+			return fmt.Errorf("a prefix for the edge hostname with the \"akamaized.net\" suffix must begin and end with a letter or digit, and contain only letters, digits, and hyphens, for example, abc-def, or 1abc-123")
 		}
-		return fmt.Errorf("A prefix for the edge hostname with the \"%s\" suffix must begin with a letter or digit, end with a letter, digit or dot, and contain only letters, digits, dots, and hyphens, for example, abc-def.123.456., or 1abc.123-def", domainSuffix)
+		return fmt.Errorf("a prefix for the edge hostname with the \"%s\" suffix must begin with a letter or digit, end with a letter, digit or dot, and contain only letters, digits, dots, and hyphens, for example, abc-def.123.456., or 1abc.123-def", domainSuffix)
 	}
 	return nil
 }

@@ -11,7 +11,6 @@
 // A successful call returns your credentials grouped by `CredentialID`.
 //
 // For more information on the call used in this example, see https://techdocs.akamai.com/iam-api/reference/get-self-credentials.
-
 package main
 
 import (

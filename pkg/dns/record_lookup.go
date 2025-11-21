@@ -99,7 +99,7 @@ func fullIPv6(ip net.IP) string {
 }
 
 func padValue(str string) string {
-	newStr := strings.Replace(str, "m", "", -1)
+	newStr := strings.ReplaceAll(str, "m", "")
 	float, err := strconv.ParseFloat(newStr, 32)
 	if err != nil {
 		return "FAIL"
@@ -196,12 +196,12 @@ func (d *dns) GetRdata(ctx context.Context, params GetRdataRequest) ([]string, e
 		if r.Name == params.Name {
 			for _, i := range r.Rdata {
 				str := i
-
-				if params.RecordType == "AAAA" {
+				switch params.RecordType {
+				case "AAAA":
 					addr := net.ParseIP(str)
 					result := fullIPv6(addr)
 					str = result
-				} else if params.RecordType == "LOC" {
+				case "LOC":
 					str = padCoordinates(str)
 				}
 				rData = append(rData, str)
@@ -218,11 +218,12 @@ func (d *dns) ProcessRdata(ctx context.Context, rData []string, rType string) []
 	var newRData []string
 	for _, i := range rData {
 		str := i
-		if rType == "AAAA" {
+		switch rType {
+		case "AAAA":
 			addr := net.ParseIP(str)
 			result := fullIPv6(addr)
 			str = result
-		} else if rType == "LOC" {
+		case "LOC":
 			str = padCoordinates(str)
 		}
 		newRData = append(newRData, str)
