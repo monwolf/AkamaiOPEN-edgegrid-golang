@@ -17,7 +17,7 @@ type (
 	RecordBody struct {
 		Name       string   `json:"name,omitempty"`
 		RecordType string   `json:"type,omitempty"`
-		TTL        int      `json:"ttl,omitempty"`
+		TTL        *int     `json:"ttl,omitempty"`
 		Active     bool     `json:"active,omitempty"`
 		Target     []string `json:"rdata,omitempty"`
 	}
@@ -83,20 +83,12 @@ func (r DeleteRecordRequest) Validate() error {
 
 // Validate validates RecordBody
 func (rec *RecordBody) Validate() error {
-	if len(rec.Name) < 1 {
-		return fmt.Errorf("RecordBody is missing Name")
-	}
-	if len(rec.RecordType) < 1 {
-		return fmt.Errorf("RecordBody is missing RecordType")
-	}
-	if rec.TTL == 0 {
-		return fmt.Errorf("RecordBody is missing TTL")
-	}
-	if len(rec.Target) < 1 {
-		return fmt.Errorf("RecordBody is missing Target")
-	}
-
-	return nil
+	return edgegriderr.ParseValidationErrors(validation.Errors{
+		"Name":       validation.Validate(rec.Name, validation.Required),
+		"RecordType": validation.Validate(rec.RecordType, validation.Required),
+		"TTL":        validation.Validate(rec.TTL, validation.NotNil, validation.Min(0)),
+		"Target":     validation.Validate(rec.Target, validation.Required),
+	})
 }
 
 // Eval option lock arg passed into writable endpoints. Default is true, e.g. lock

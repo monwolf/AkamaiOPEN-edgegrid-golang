@@ -126,6 +126,25 @@
 
 ## 12.3.0 (Jan 19, 2026)
 
+
+
+### BREAKING CHANGES:
+
+
+
+
+* DNS
+  * Changed type of field `TTL` in struct `RecordBody` from `int` to `*int` to allow explicitly setting TTL to 0.
+
+
+
+
+
+
+
+
+
+
 ### FEATURES/ENHANCEMENTS:
 
 * General
