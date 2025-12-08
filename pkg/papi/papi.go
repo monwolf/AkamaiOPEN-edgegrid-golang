@@ -384,6 +384,13 @@ type (
 		//
 		// See: https://techdocs.akamai.com/property-mgr/reference/patch-property-hostnames
 		PatchPropertyHostnameBucket(context.Context, PatchPropertyHostnameBucketRequest) (*PatchPropertyHostnameBucketResponse, error)
+
+		// Domain ownership validation
+
+		// ValidateDomainsOwnership initiates domains validation if a validation record does not exist.
+		//
+		// See: https://techdocs.akamai.com/property-mgr/reference/post-domain-ownership-challenges
+		ValidateDomainsOwnership(context.Context, ValidateDomainsOwnershipRequest) (*ValidateDomainsOwnershipResponse, error)
 	}
 
 	papi struct {

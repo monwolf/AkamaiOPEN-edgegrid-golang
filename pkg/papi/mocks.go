@@ -793,3 +793,13 @@ func (p *Mock) PatchPropertyHostnameBucket(ctx context.Context, r PatchPropertyH
 
 	return args.Get(0).(*PatchPropertyHostnameBucketResponse), args.Error(1)
 }
+
+func (p *Mock) ValidateDomainsOwnership(ctx context.Context, r ValidateDomainsOwnershipRequest) (*ValidateDomainsOwnershipResponse, error) {
+	args := p.Called(ctx, r)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*ValidateDomainsOwnershipResponse), args.Error(1)
+}

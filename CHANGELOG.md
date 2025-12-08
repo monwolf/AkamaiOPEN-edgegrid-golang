@@ -93,6 +93,25 @@
 
 
 
+* PAPI Domain Ownership Validation (Beta)
+  * Added `DomainOwnershipVerification` field to the `Hostname` struct. Details about the domain ownership are visible in the following methods responses:
+    * GetPropertyVersionHostnames
+    * UpdatePropertyVersionHostnames
+    * PatchPropertyVersionHostnames
+  * Added support for [ValidateDomainsOwnership](https://techdocs.akamai.com/property-mgr/reference/post-domain-ownership-challenges) method
+
+
+
+
+
+* PAPI
+  * Added `PropertyName` field to the following methods responses:
+    * GetPropertyVersionHostnames
+    * UpdatePropertyVersionHostnames
+
+
+
+
 ## 12.2.0 (Nov 10, 2025)
 
 ### FEATURES/ENHANCEMENTS:

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"time"
 
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/internal/request"
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/edgegriderr"
@@ -34,6 +35,7 @@ type (
 		PropertyID      string                `json:"propertyId"`
 		PropertyVersion int                   `json:"propertyVersion"`
 		Etag            string                `json:"etag"`
+		PropertyName    string                `json:"propertyName"`
 		Hostnames       HostnameResponseItems `json:"hostnames"`
 	}
 
@@ -73,6 +75,10 @@ type (
 
 		// TLSConfiguration is optional TLS configuration settings applicable to the Cloud Certificate Manager (CCM) hostnames.
 		TLSConfiguration *TLSConfiguration `json:"tlsConfiguration,omitempty"`
+
+		// DomainOwnershipVerification is optional domain ownership verification details for the hostname.
+		// This field is returned only in responses and should not be populated in requests.
+		DomainOwnershipVerification *DomainOwnershipVerification `json:"domainOwnershipVerification,omitempty"`
 	}
 
 	// CCMCertStatus is status of CCM certificates in each environment.
@@ -158,6 +164,39 @@ type (
 		Status string `json:"status,omitempty"`
 	}
 
+	// DomainOwnershipVerification contains domain ownership verification details for the hostname.
+	DomainOwnershipVerification struct {
+		Status                   string           `json:"status"`
+		ChallengeTokenExpiryDate *time.Time       `json:"challengeTokenExpiryDate"`
+		ValidationCname          *ValidationCname `json:"validationCname"`
+		ValidationHTTP           *ValidationHTTP  `json:"validationHttp"`
+		ValidationTXT            *ValidationTXT   `json:"validationTxt"`
+	}
+
+	// ValidationHTTP contains HTTP validation methods for domain ownership verification.
+	ValidationHTTP struct {
+		FileContentMethod FileContentMethod `json:"fileContentMethod"`
+		RedirectMethod    RedirectMethod    `json:"redirectMethod"`
+	}
+
+	// FileContentMethod contains details for the file content method of validation.
+	FileContentMethod struct {
+		Body string `json:"body"`
+		URL  string `json:"url"`
+	}
+
+	// RedirectMethod contains details for the HTTP redirect method of validation.
+	RedirectMethod struct {
+		HTTPRedirectFrom string `json:"httpRedirectFrom"`
+		HTTPRedirectTo   string `json:"httpRedirectTo"`
+	}
+
+	// ValidationTXT contains TXT record validation details for domain ownership verification.
+	ValidationTXT struct {
+		ChallengeToken string `json:"challengeToken"`
+		Hostname       string `json:"hostname"`
+	}
+
 	// UpdatePropertyVersionHostnamesRequest contains parameters required to update the set of hostname entries for a property version
 	UpdatePropertyVersionHostnamesRequest struct {
 		PropertyID        string
@@ -177,6 +216,7 @@ type (
 		PropertyID      string                `json:"propertyId"`
 		PropertyVersion int                   `json:"propertyVersion"`
 		Etag            string                `json:"etag"`
+		PropertyName    string                `json:"propertyName"`
 		Hostnames       HostnameResponseItems `json:"hostnames"`
 	}
 
@@ -335,9 +375,10 @@ func (r UpdatePropertyVersionHostnamesRequest) Validate() error {
 // Validate validates Hostname
 func (h Hostname) Validate() error {
 	return validation.Errors{
-		"MTLS":                validation.Validate(h.MTLS),
-		"CCMCertificates":     validation.Validate(h.CCMCertificates),
-		"ValidateCCMHostname": validateCCMHostname(h.CertProvisioningType, h.CCMCertificates, h.MTLS, h.TLSConfiguration),
+		"MTLS":                        validation.Validate(h.MTLS),
+		"CCMCertificates":             validation.Validate(h.CCMCertificates),
+		"ValidateCCMHostname":         validateCCMHostname(h.CertProvisioningType, h.CCMCertificates, h.MTLS, h.TLSConfiguration),
+		"DomainOwnershipVerification": validation.Validate(h.DomainOwnershipVerification, validation.Nil.Error("field is returned only in responses and should not be populated in requests")),
 	}.Filter()
 }
 
