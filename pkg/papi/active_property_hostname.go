@@ -34,11 +34,20 @@ type (
 
 	// GetActivePropertyHostnamesDiffRequest contains parameters required to list active property hostnames diff.
 	GetActivePropertyHostnamesDiffRequest struct {
+		// PropertyID is the unique identifier for the property.
 		PropertyID string
-		Offset     int
-		Limit      int
+
+		// Offset specifies the page of results you want to navigate to, starting from 0.
+		Offset int
+
+		// Limit specifies the number of hostnames objects to include on each page.
+		Limit int
+
+		// ContractID is the unique identifier for the contract.
 		ContractID string
-		GroupID    string
+
+		// GroupID is the unique identifier for the group.
+		GroupID string
 	}
 
 	// ListActivePropertyHostnamesResponse contains information about each of the active property hostnames.
@@ -54,13 +63,22 @@ type (
 		Hostnames     HostnamesResponseItems `json:"hostnames"`
 	}
 
-	// GetActivePropertyHostnamesDiffResponse contains information about each of the active property hostnames diff.
+	// GetActivePropertyHostnamesDiffResponse contains information about each of the active property hostnames that differ in staging and production networks.
 	GetActivePropertyHostnamesDiffResponse struct {
-		AccountID  string                     `json:"accountId"`
-		ContractID string                     `json:"contractId"`
-		GroupID    string                     `json:"groupId"`
-		PropertyID string                     `json:"propertyId"`
-		Hostnames  HostnamesDiffResponseItems `json:"hostnames"`
+		// AccountID identifies the prevailing account under which you requested the data.
+		AccountID string `json:"accountId"`
+
+		// ContractID identifies the prevailing contract under which you requested the data.
+		ContractID string `json:"contractId"`
+
+		// GroupID identifies the prevailing group under which you requested the data.
+		GroupID string `json:"groupId"`
+
+		// PropertyID is the unique identifier for a property.
+		PropertyID string `json:"propertyId"`
+
+		// Hostnames is the active property hostnames that differ in staging and production networks.
+		Hostnames HostnamesDiffResponseItems `json:"hostnames"`
 	}
 
 	// HostnamesResponseItems contains the response body for ListActivePropertyHostnamesResponse.
@@ -74,11 +92,20 @@ type (
 
 	// HostnamesDiffResponseItems contains the response body for GetActivePropertyHostnamesDiffResponse.
 	HostnamesDiffResponseItems struct {
-		Items            []HostnameDiffItem `json:"items"`
-		CurrentItemCount int                `json:"currentItemCount"`
-		NextLink         *string            `json:"nextLink"`
-		PreviousLink     *string            `json:"previousLink"`
-		TotalItems       int                `json:"totalItems"`
+		// Items are the details of the active property hostnames that differ in staging and production networks.
+		Items []HostnameDiffItem `json:"items"`
+
+		// CurrentItemCount is the total count of items present in the current response body for requested criteria.
+		CurrentItemCount int `json:"currentItemCount"`
+
+		// NextLink is the link to next set of response items for paginated response.
+		NextLink *string `json:"nextLink"`
+
+		// PreviousLink is the link to previous set of response items for paginated response.
+		PreviousLink *string `json:"previousLink"`
+
+		// TotalItems is the total count of items for requested criteria.
+		TotalItems int `json:"totalItems"`
 	}
 
 	// HostnameItem contains information about each of the HostnamesResponseItems.
@@ -136,15 +163,32 @@ type (
 
 	// HostnameDiffItem contains information about each of the HostnamesDiffResponseItems.
 	HostnameDiffItem struct {
-		CnameFrom                      string            `json:"cnameFrom"`
-		ProductionCertProvisioningType CertType          `json:"productionCertProvisioningType"`
-		ProductionCnameTo              string            `json:"productionCnameTo"`
-		ProductionCnameType            HostnameCnameType `json:"productionCnameType"`
-		ProductionEdgeHostnameID       string            `json:"productionEdgeHostnameId"`
-		StagingCertProvisioningType    CertType          `json:"stagingCertProvisioningType"`
-		StagingCnameTo                 string            `json:"stagingCnameTo"`
-		StagingCnameType               HostnameCnameType `json:"stagingCnameType"`
-		StagingEdgeHostnameID          string            `json:"stagingEdgeHostnameId"`
+		// CnameFrom is the hostname that your end users see, indicated by the Host header in end user requests.
+		CnameFrom string `json:"cnameFrom"`
+
+		// ProductionCertProvisioningType indicates the type of the certificate used in the property hostname.
+		ProductionCertProvisioningType CertType `json:"productionCertProvisioningType"`
+
+		// ProductionCnameTo is the edge hostname you point the property hostname to so that you can start serving traffic through Akamai servers.
+		ProductionCnameTo string `json:"productionCnameTo"`
+
+		// ProductionCnameType indicates the type of CNAME you used in the production network, either `EDGE_HOSTNAME` or `CUSTOM`.
+		ProductionCnameType HostnameCnameType `json:"productionCnameType"`
+
+		// ProductionEdgeHostnameID identifies the edge hostname you mapped your traffic to on the production network.
+		ProductionEdgeHostnameID string `json:"productionEdgeHostnameId"`
+
+		// StagingCertProvisioningType indicates the type of the certificate used in the property hostname.
+		StagingCertProvisioningType CertType `json:"stagingCertProvisioningType"`
+
+		// StagingCnameTo is the edge hostname you point the property hostname to so that you can start serving traffic through Akamai servers.
+		StagingCnameTo string `json:"stagingCnameTo"`
+
+		// StagingCnameType indicates the type of CNAME you used in the staging network, either `EDGE_HOSTNAME` or `CUSTOM`.
+		StagingCnameType HostnameCnameType `json:"stagingCnameType"`
+
+		// StagingEdgeHostnameID identifies the edge hostname you mapped your traffic to on the production network.
+		StagingEdgeHostnameID string `json:"stagingEdgeHostnameId"`
 	}
 )
 
