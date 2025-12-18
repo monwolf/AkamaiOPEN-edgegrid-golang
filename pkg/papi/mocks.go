@@ -329,6 +329,16 @@ func (p *Mock) GetActivePropertyHostnamesDiff(ctx context.Context, r GetActivePr
 	return args.Get(0).(*GetActivePropertyHostnamesDiffResponse), args.Error(1)
 }
 
+func (p *Mock) ListActiveAccountHostnames(ctx context.Context, r ListActiveAccountHostnamesRequest) (*ListActiveAccountHostnamesResponse, error) {
+	args := p.Called(ctx, r)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*ListActiveAccountHostnamesResponse), args.Error(1)
+}
+
 func (p *Mock) UpdatePropertyVersionHostnames(ctx context.Context, r UpdatePropertyVersionHostnamesRequest) (*UpdatePropertyVersionHostnamesResponse, error) {
 	args := p.Called(ctx, r)
 

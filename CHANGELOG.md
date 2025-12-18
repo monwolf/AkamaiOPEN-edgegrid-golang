@@ -17,6 +17,15 @@
 
 
 
+* PAPI
+    * Added support for [ListActivePropertyHostnamesForAccount](https://techdocs.akamai.com/property-mgr/reference/get-hostnames) method.
+
+
+
+
+
+
+
 
 
 

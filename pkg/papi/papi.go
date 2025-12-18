@@ -279,6 +279,11 @@ type (
 		// See: https://techdocs.akamai.com/property-mgr/reference/get-property-hostnames-diff
 		GetActivePropertyHostnamesDiff(context.Context, GetActivePropertyHostnamesDiffRequest) (*GetActivePropertyHostnamesDiffResponse, error)
 
+		// ListActiveAccountHostnames lists active property hostnames for an account.
+		//
+		// See: https://techdocs.akamai.com/property-mgr/reference/get-hostnames
+		ListActiveAccountHostnames(context.Context, ListActiveAccountHostnamesRequest) (*ListActiveAccountHostnamesResponse, error)
+
 		// PropertyVersionHostnames
 
 		// GetPropertyVersionHostnames lists all the hostnames assigned to a property version
