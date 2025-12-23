@@ -1962,3 +1962,237 @@ func TestPapiPatchPropertyVersionHostnames(t *testing.T) {
 		})
 	}
 }
+
+func TestPapiGetAuditHistory(t *testing.T) {
+	tests := map[string]struct {
+		params           GetAuditHistoryRequest
+		responseStatus   int
+		responseBody     string
+		expectedPath     string
+		expectedResponse *GetAuditHistoryResponse
+		withError        func(*testing.T, error)
+	}{
+		"200 OK - one entry in audit history": {
+			params: GetAuditHistoryRequest{
+				Hostname: "example.com",
+			},
+			responseStatus: http.StatusOK,
+			responseBody: `
+			{
+				"hostname": "example.com",
+				"history": {
+					"items": [
+						{
+							"action": "ADD",
+							"certProvisioningType": "CPS_MANAGED",
+							"cnameTo": "example.com.edgekey.net",
+							"contractId": "C-0N7RAC7",
+							"edgeHostnameId": "ehn_123",
+							"groupId": "12345",
+							"network": "PRODUCTION",
+							"propertyId": "prp_123",
+							"timestamp": "2023-10-26T12:00:00Z",
+							"user": "user_123"
+						}
+					]
+				}
+			}`,
+			expectedPath: "/papi/v1/hostnames/example.com/audit-history",
+			expectedResponse: &GetAuditHistoryResponse{
+				Hostname: "example.com",
+				History: HostnameHistory{
+					Items: []HostnameHistoryItem{
+						{
+							Action:               "ADD",
+							CertProvisioningType: "CPS_MANAGED",
+							CnameTo:              "example.com.edgekey.net",
+							ContractID:           "C-0N7RAC7",
+							EdgeHostnameID:       "ehn_123",
+							GroupID:              "12345",
+							Network:              "PRODUCTION",
+							PropertyID:           "prp_123",
+							Timestamp:            "2023-10-26T12:00:00Z",
+							User:                 "user_123",
+						},
+					},
+				},
+			},
+		},
+		"200 OK - multiple entries in audit history": {
+			params: GetAuditHistoryRequest{
+				Hostname: "example.com",
+			},
+			responseStatus: http.StatusOK,
+			responseBody: `
+			{
+				"hostname": "example.com",
+				"history": {
+					"items": [
+						{
+							"action": "ADD",
+							"certProvisioningType": "CPS_MANAGED",
+							"cnameTo": "example.com.edgekey.net",
+							"contractId": "C-0N7RAC7",
+							"edgeHostnameId": "ehn_123",
+							"groupId": "12345",
+							"network": "PRODUCTION",
+							"propertyId": "prp_123",
+							"timestamp": "2023-10-26T12:00:00Z",
+							"user": "user_123"
+						},
+						{
+							"action": "MODIFY",
+							"certProvisioningType": "CPS_MANAGED",
+							"cnameTo": "example.com.edgekey.net",
+							"contractId": "C-0N7RAC7",
+							"edgeHostnameId": "ehn_123",
+							"groupId": "12345",
+							"network": "STAGING",
+							"propertyId": "prp_123",
+							"timestamp": "2023-10-27T14:30:00Z",
+							"user": "user_123"
+						},
+						{
+							"action": "ACTIVATE",
+							"certProvisioningType": "CPS_MANAGED",
+							"cnameTo": "example.com.edgekey.net",
+							"contractId": "C-0N7RAC7",
+							"edgeHostnameId": "ehn_123",
+							"groupId": "12345",
+							"network": "PRODUCTION",
+							"propertyId": "prp_123",
+							"timestamp": "2023-10-28T16:45:00Z",
+							"user": "user_123"
+						}
+					]
+				}
+			}`,
+			expectedPath: "/papi/v1/hostnames/example.com/audit-history",
+			expectedResponse: &GetAuditHistoryResponse{
+				Hostname: "example.com",
+				History: HostnameHistory{
+					Items: []HostnameHistoryItem{
+						{
+							Action:               "ADD",
+							CertProvisioningType: "CPS_MANAGED",
+							CnameTo:              "example.com.edgekey.net",
+							ContractID:           "C-0N7RAC7",
+							EdgeHostnameID:       "ehn_123",
+							GroupID:              "12345",
+							Network:              "PRODUCTION",
+							PropertyID:           "prp_123",
+							Timestamp:            "2023-10-26T12:00:00Z",
+							User:                 "user_123",
+						},
+						{
+							Action:               "MODIFY",
+							CertProvisioningType: "CPS_MANAGED",
+							CnameTo:              "example.com.edgekey.net",
+							ContractID:           "C-0N7RAC7",
+							EdgeHostnameID:       "ehn_123",
+							GroupID:              "12345",
+							Network:              "STAGING",
+							PropertyID:           "prp_123",
+							Timestamp:            "2023-10-27T14:30:00Z",
+							User:                 "user_123",
+						},
+						{
+							Action:               "ACTIVATE",
+							CertProvisioningType: "CPS_MANAGED",
+							CnameTo:              "example.com.edgekey.net",
+							ContractID:           "C-0N7RAC7",
+							EdgeHostnameID:       "ehn_123",
+							GroupID:              "12345",
+							Network:              "PRODUCTION",
+							PropertyID:           "prp_123",
+							Timestamp:            "2023-10-28T16:45:00Z",
+							User:                 "user_123",
+						},
+					},
+				},
+			},
+		},
+		"200 OK - empty audit history": {
+			params: GetAuditHistoryRequest{
+				Hostname: "example.com",
+			},
+			responseStatus: http.StatusOK,
+			responseBody: `
+			{
+				"hostname": "example.com",
+				"history": {
+					"items": []
+				}
+			}`,
+			expectedPath: "/papi/v1/hostnames/example.com/audit-history",
+			expectedResponse: &GetAuditHistoryResponse{
+				Hostname: "example.com",
+				History: HostnameHistory{
+					Items: []HostnameHistoryItem{},
+				},
+			},
+		},
+		"500 Internal Server Error": {
+			params: GetAuditHistoryRequest{
+				Hostname: "example.com",
+			},
+			responseStatus: http.StatusInternalServerError,
+			responseBody: `
+			{
+				"type": "internal_error",
+				"title": "Internal Server Error",
+				"detail": "Error fetching audit history",
+				"status": 500
+			}`,
+			expectedPath: "/papi/v1/hostnames/example.com/audit-history",
+			withError: func(t *testing.T, err error) {
+				want := &Error{
+					Type:       "internal_error",
+					Title:      "Internal Server Error",
+					Detail:     "Error fetching audit history",
+					StatusCode: http.StatusInternalServerError,
+				}
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+				assert.ErrorIs(t, err, ErrGetAuditHistory)
+			},
+		},
+		"validation error - missing hostname": {
+			params: GetAuditHistoryRequest{},
+			withError: func(t *testing.T, err error) {
+				assert.ErrorIs(t, err, ErrStructValidation)
+				assert.ErrorIs(t, err, ErrGetAuditHistory)
+				assert.Contains(t, err.Error(), "Hostname: cannot be blank")
+			},
+		},
+		"validation error - empty hostname string": {
+			params: GetAuditHistoryRequest{
+				Hostname: "",
+			},
+			withError: func(t *testing.T, err error) {
+				assert.ErrorIs(t, err, ErrStructValidation)
+				assert.ErrorIs(t, err, ErrGetAuditHistory)
+				assert.Contains(t, err.Error(), "Hostname: cannot be blank")
+			},
+		},
+	}
+
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				assert.Equal(t, test.expectedPath, r.URL.String())
+				assert.Equal(t, http.MethodGet, r.Method)
+				w.WriteHeader(test.responseStatus)
+				_, err := w.Write([]byte(test.responseBody))
+				assert.NoError(t, err)
+			}))
+			client := mockAPIClient(t, mockServer)
+			result, err := client.GetAuditHistory(context.Background(), test.params)
+			if test.withError != nil {
+				test.withError(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, test.expectedResponse, result)
+		})
+	}
+}

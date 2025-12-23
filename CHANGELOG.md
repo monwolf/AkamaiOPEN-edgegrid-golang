@@ -35,6 +35,14 @@
 
 
 
+* PAPI
+  * Added the [GetAuditHistory](https://techdocs.akamai.com/property-mgr/reference/get-hostname-audit-history) method.
+
+
+
+
+
+
 
 
 

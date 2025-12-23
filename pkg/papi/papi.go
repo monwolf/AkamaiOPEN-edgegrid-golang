@@ -302,6 +302,11 @@ type (
 		// See: https://techdocs.akamai.com/property-mgr/reference/patch-property-version-hostnames
 		PatchPropertyVersionHostnames(context.Context, PatchPropertyVersionHostnamesRequest) (*PatchPropertyVersionHostnamesResponse, error)
 
+		// GetAuditHistory fetches a detailed record of all modifications made to a property hostname.
+		//
+		// See: https://techdocs.akamai.com/property-mgr/reference/get-hostname-audit-history
+		GetAuditHistory(context.Context, GetAuditHistoryRequest) (*GetAuditHistoryResponse, error)
+
 		// PropertyVersions
 
 		// GetPropertyVersions fetches available property versions

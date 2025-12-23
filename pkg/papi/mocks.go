@@ -359,6 +359,16 @@ func (p *Mock) PatchPropertyVersionHostnames(ctx context.Context, r PatchPropert
 	return args.Get(0).(*PatchPropertyVersionHostnamesResponse), args.Error(1)
 }
 
+func (p *Mock) GetAuditHistory(ctx context.Context, r GetAuditHistoryRequest) (*GetAuditHistoryResponse, error) {
+	args := p.Called(ctx, r)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*GetAuditHistoryResponse), args.Error(1)
+}
+
 func (p *Mock) GetClientSettings(ctx context.Context) (*ClientSettingsBody, error) {
 	args := p.Called(ctx)
 
