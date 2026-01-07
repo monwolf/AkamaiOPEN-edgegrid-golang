@@ -62,6 +62,7 @@ const (
 	caSetBoundToHostname                                    = "/mtls-edge-truststore/error-types/ca-set-bound-to-hostname"
 	caSetInUseByHostnames                                   = "/mtls-edge-truststore/error-types/ca-set-in-use-by-hostnames"
 	caSetInUseByEnrollments                                 = "/mtls-edge-truststore/error-types/ca-set-in-use-by-enrollments"
+	caSetInUseByHostnamesAndNotEnrollments                  = "/mtls-edge-truststore/error-types/ca-set-in-use-by-ccm-hostnames-and-not-cps-enrollments"
 	caSetActivationNotFoundType                             = "/mtls-edge-truststore/error-types/activation-or-deactivation-request-not-found"
 	caSetDeleteRequestInProgress                            = "/mtls-edge-truststore/error-types/delete-ca-set-request-in-progress"
 	caSetInUseByBothEnrollmentsAndHostnames                 = "/mtls-edge-truststore/error-types/ca-set-in-use-by-both-enrollments-and-hostnames"
@@ -97,6 +98,7 @@ const (
 	findAssociationsFailed                                  = "/mtls-edge-truststore/error-types/find-associations-failed"
 	findAssociationsFailedForHostnamesWithEnrollmentsLinked = "/mtls-edge-truststore/error-types/find-associations-failed-for-hostnames-with-enrollments-linked"
 	findAssociationsFailedForEnrollmentsWithEmptyHostnames  = "/mtls-edge-truststore/error-types/find-associations-failed-for-enrollments-with-empty-hostnames"
+	findAssociationsFailedForHostnamesEnrollmentsNotLinked  = "/mtls-edge-truststore/error-types/find-associations-failed-for-ccm-hostnames-but-cps-enrollments-not-linked-to-ca-set"
 	fetchAssociationsFailedForHostnames                     = "/mtls-edge-truststore/error-types/fetch-associations-failed-for-hostnames"
 	fetchAssociationsFailedForEnrollments                   = "/mtls-edge-truststore/error-types/fetch-associations-failed-for-enrollments"
 	fetchAssociationsFailed                                 = "/mtls-edge-truststore/error-types/fetch-associations-failed"
@@ -217,6 +219,9 @@ var (
 	// ErrCASetInUseByEnrollments is returned when the CA set is bound to a slot in CPS.
 	ErrCASetInUseByEnrollments = errors.New("ca set bound to slot in CPS")
 
+	// ErrCASetInUseByHostnamesAndNotEnrollments is returned when CA set is linked to hostnames and not to enrollments.
+	ErrCASetInUseByHostnamesAndNotEnrollments = errors.New("ca set linked to hostnames and not to enrollments")
+
 	// ErrCASetInUseByBothEnrollmentsAndHostnames is returned when CA set is linked to both enrollments and hostnames.
 	ErrCASetInUseByBothEnrollmentsAndHostnames = errors.New("ca set is linked to both enrollments and hostnames")
 
@@ -243,6 +248,9 @@ var (
 
 	// ErrFindAssociationsFailedForEnrollmentsWithEmptyHostnames is returned when CA set could be linked to hostnames
 	ErrFindAssociationsFailedForEnrollmentsWithEmptyHostnames = errors.New("ca set could be linked to hostnames")
+
+	// ErrFindAssociationsFailedForHostnamesEnrollmentsNotLinked is returned when CA set is not linked to enrollments and could be linked to hostnames
+	ErrFindAssociationsFailedForHostnamesEnrollmentsNotLinked = errors.New("ca set is not linked to enrollments and could be linked to hostnames")
 
 	// ErrMediaTypeNotSupported is returned when media type not supported.
 	ErrMediaTypeNotSupported = errors.New("media type is not supported")
@@ -322,6 +330,7 @@ func (e *Error) Is(target error) bool {
 		{ErrCASetVersionLimitReached, http.StatusUnprocessableEntity, caSetVersionLimitReached},
 		{ErrCASetVersionIsDuplicate, http.StatusUnprocessableEntity, caSetVersionDuplicate},
 		{ErrCASetInUseByEnrollments, http.StatusConflict, caSetInUseByEnrollments},
+		{ErrCASetInUseByHostnamesAndNotEnrollments, http.StatusConflict, caSetInUseByHostnamesAndNotEnrollments},
 		{ErrCASetBoundToHostname, http.StatusConflict, caSetBoundToHostname},
 		{ErrCASetInUseByHostnames, http.StatusConflict, caSetInUseByHostnames},
 		{ErrCASetInUseByBothEnrollmentsAndHostnames, http.StatusConflict, caSetInUseByBothEnrollmentsAndHostnames},
@@ -350,6 +359,7 @@ func (e *Error) Is(target error) bool {
 		{ErrFetchAssociationsFailedForEnrollments, http.StatusInternalServerError, fetchAssociationsFailedForEnrollments},
 		{ErrFetchAssociationsFailed, http.StatusInternalServerError, fetchAssociationsFailed},
 		{ErrFindAssociationsFailedForEnrollmentsWithEmptyHostnames, http.StatusInternalServerError, findAssociationsFailedForEnrollmentsWithEmptyHostnames},
+		{ErrFindAssociationsFailedForHostnamesEnrollmentsNotLinked, http.StatusInternalServerError, findAssociationsFailedForHostnamesEnrollmentsNotLinked},
 		{ErrMediaTypeNotSupported, http.StatusUnsupportedMediaType, mediaTypeNotSupported},
 		{ErrMediaTypeNotAcceptable, http.StatusNotAcceptable, mediaTypeNotAcceptable},
 		{ErrInvalidJSON, http.StatusBadRequest, invalidJSON},
