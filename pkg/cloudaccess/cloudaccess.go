@@ -153,6 +153,8 @@ const (
 	AuthGOOG AuthType = "GOOG4_HMAC_SHA256"
 	// AuthAOS represents Authentication value of Akamai Object Storage "AOS4_HMAC_SHA256"
 	AuthAOS AuthType = "AOS4_HMAC_SHA256"
+	// AuthAVMCloudinary represents Authentication value of Akamai Video Manager Cloudinary "AVM_CLOUDINARY"
+	AuthAVMCloudinary AuthType = "AVM_CLOUDINARY"
 
 	// ProcessingInProgress represents ProcessingStatus value of 'IN_PROGRESS'
 	ProcessingInProgress ProcessingType = "IN_PROGRESS"

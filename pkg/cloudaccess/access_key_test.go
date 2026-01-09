@@ -118,15 +118,7 @@ func TestGetAccessKeyStatus(t *testing.T) {
 
 func TestCreateAccessKey(t *testing.T) {
 
-	var req CreateAccessKeyRequest
-	reqData, err := loadTestData("AccessKey/CreateAccessKey.req.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := json.NewDecoder(bytes.NewBuffer(reqData)).Decode(&req); err != nil {
-		t.Fatal(err)
-	}
+	req := decodeAccessKeyRequest(t, "AccessKey/CreateAccessKey.req.json")
 
 	tests := map[string]struct {
 		accessKey        CreateAccessKeyRequest
@@ -163,6 +155,12 @@ func TestCreateAccessKey(t *testing.T) {
 			},
 			withError: func(t *testing.T, err error) {
 				assert.Equal(t, "create an access key: struct validation: AccessKeyName: cannot be blank\nAuthenticationMethod: cannot be blank\nCloudAccessKeyID: cannot be blank\nCloudSecretAccessKey: cannot be blank\nContractID: cannot be blank\nGroupID: cannot be blank\nSecurityNetwork: cannot be blank", err.Error())
+			},
+		},
+		"invalid Authentication Method - validation error": {
+			accessKey: decodeAccessKeyRequest(t, "AccessKey/CreateInvalidAccessKey.req.json"),
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "create an access key: struct validation: AuthenticationMethod: must be a valid value", err.Error())
 			},
 		},
 		"500 internal server error": {
@@ -583,4 +581,17 @@ func loadTestData(name string) ([]byte, error) {
 	}
 
 	return data, nil
+}
+
+func decodeAccessKeyRequest(t *testing.T, path string) CreateAccessKeyRequest {
+	var req CreateAccessKeyRequest
+	reqData, err := loadTestData(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := json.NewDecoder(bytes.NewBuffer(reqData)).Decode(&req); err != nil {
+		t.Fatal(err)
+	}
+	return req
 }

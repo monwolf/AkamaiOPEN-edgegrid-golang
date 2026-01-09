@@ -12,7 +12,8 @@
 
 
 
-
+* Cloudaccess
+  * Added support for new Akamai Video Manager Cloudinary authentication method (`AVM_CLOUDINARY`).
 
 
 
