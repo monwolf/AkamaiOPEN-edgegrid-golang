@@ -28,6 +28,11 @@
 
 
 
+* PAPI Domain Ownership Validation (Beta)
+  * Made the `ValidationMethods` field required in the `ValidateDomains` method.
+  * Changed the `ValidationMethods` field from a pointer to a value type in the `ValidateDomain` structure.
+
+
 
 
 

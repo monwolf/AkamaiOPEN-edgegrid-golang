@@ -463,12 +463,9 @@ func scopeValidation(scope ValidationScope) error {
 		Error(fmt.Sprintf("value '%s' is invalid. Must be one of: '%s', '%s' or '%s'", scope, ValidationScopeHost, ValidationScopeDomain, ValidationScopeWildcard)))
 }
 
-func validateValidationMethod(method *ValidationMethod) error {
-	return validation.Validate(method,
-		validation.When(method != nil,
-			validation.In(ValidationMethodDNSCNAME, ValidationMethodDNSTXT, ValidationMethodHTTP).Error(fmt.Sprintf(
-				"value must be one of: '%s', '%s' or '%s'",
-				ValidationMethodDNSCNAME, ValidationMethodDNSTXT, ValidationMethodHTTP))))
+func validateValidationMethod(method ValidationMethod) error {
+	return validation.Validate(method, validation.Required, validation.In(ValidationMethodDNSCNAME, ValidationMethodDNSTXT, ValidationMethodHTTP).
+		Error(fmt.Sprintf("value must be one of: '%s', '%s' or '%s'", ValidationMethodDNSCNAME, ValidationMethodDNSTXT, ValidationMethodHTTP)))
 }
 
 func emptyOrTrue(paginate *bool) validation.RuleFunc {
