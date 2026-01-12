@@ -31,9 +31,17 @@
 
 
 
+* DataStream
 
-
-
+  * Added enhancements for Property Manager decoupling. The enhancements enable you to specify the sampling percentage in the stream's create and update requests, and get both the sampling percentage and integration type in the stream's responses (create, update, and read). The changes include:
+    * Added the `SamplingPercentage` field to these structures:
+        * `DetailedStreamVersion`
+        * `StreamConfiguration`
+        * `StreamDetails`
+    * Added the `IntegrationType` field to these structures:
+        * `DetailedStreamVersion`
+        * `StreamDetails`
+        * `Property`
 
 * PAPI
   * Added the [GetAuditHistory](https://techdocs.akamai.com/property-mgr/reference/get-hostname-audit-history) method.

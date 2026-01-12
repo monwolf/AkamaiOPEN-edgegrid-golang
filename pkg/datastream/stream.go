@@ -33,6 +33,8 @@ type (
 		StreamName            string                `json:"streamName"`
 		StreamVersion         int64                 `json:"streamVersion"`
 		StreamStatus          StreamStatus          `json:"streamStatus"`
+		IntegrationType       string                `json:"integrationType"`
+		SamplingPercentage    int                   `json:"samplingPercentage"`
 	}
 
 	// Destination provides detailed information about the destination’s configuration in the stream
@@ -72,6 +74,7 @@ type (
 		NotificationEmails    []string              `json:"notificationEmails,omitempty"`
 		Properties            []PropertyID          `json:"properties"`
 		StreamName            string                `json:"streamName"`
+		SamplingPercentage    int                   `json:"samplingPercentage,omitempty"`
 	}
 
 	// DeliveryConfiguration of the configuration of log lines, names of the files sent to a destination, and delivery frequency for these files
@@ -109,8 +112,9 @@ type (
 
 	// Property identifies brief info about the properties monitored in the stream.
 	Property struct {
-		PropertyID   int    `json:"propertyId"`
-		PropertyName string `json:"propertyName"`
+		PropertyID      int    `json:"propertyId"`
+		PropertyName    string `json:"propertyName"`
+		IntegrationType string `json:"integrationType"`
 	}
 
 	// PropertyID identifies property details required in the create stream request.
@@ -173,19 +177,21 @@ type (
 
 	// StreamDetails contains information about stream
 	StreamDetails struct {
-		ContractID    string       `json:"contractId"`
-		CreatedBy     string       `json:"createdBy"`
-		CreatedDate   string       `json:"createdDate"`
-		GroupID       int          `json:"groupId"`
-		LatestVersion int64        `json:"latestVersion"`
-		ModifiedBy    string       `json:"modifiedBy"`
-		ModifiedDate  string       `json:"modifiedDate"`
-		Properties    []Property   `json:"properties"`
-		ProductID     string       `json:"productId"`
-		StreamID      int64        `json:"streamId"`
-		StreamName    string       `json:"streamName"`
-		StreamStatus  StreamStatus `json:"streamStatus"`
-		StreamVersion int64        `json:"streamVersion"`
+		ContractID         string       `json:"contractId"`
+		CreatedBy          string       `json:"createdBy"`
+		CreatedDate        string       `json:"createdDate"`
+		GroupID            int          `json:"groupId"`
+		LatestVersion      int64        `json:"latestVersion"`
+		ModifiedBy         string       `json:"modifiedBy"`
+		ModifiedDate       string       `json:"modifiedDate"`
+		Properties         []Property   `json:"properties"`
+		ProductID          string       `json:"productId"`
+		StreamID           int64        `json:"streamId"`
+		StreamName         string       `json:"streamName"`
+		StreamStatus       StreamStatus `json:"streamStatus"`
+		StreamVersion      int64        `json:"streamVersion"`
+		IntegrationType    string       `json:"integrationType"`
+		SamplingPercentage int          `json:"samplingPercentage"`
 	}
 )
 
@@ -229,6 +235,7 @@ func (r CreateStreamRequest) Validate() error {
 		"StreamConfiguration.GroupID":                                           validation.Validate(r.StreamConfiguration.GroupID, validation.Required, validation.Min(1)),
 		"StreamConfiguration.Properties":                                        validation.Validate(r.StreamConfiguration.Properties, validation.Required),
 		"StreamConfiguration.StreamName":                                        validation.Validate(r.StreamConfiguration.StreamName, validation.Required),
+		"StreamConfiguration.SamplingPercentage":                                validation.Validate(r.StreamConfiguration.SamplingPercentage, validation.When(r.StreamConfiguration.SamplingPercentage != 0, validation.Min(1), validation.Max(100))),
 	}.Filter()
 }
 
@@ -253,6 +260,7 @@ func (r UpdateStreamRequest) Validate() error {
 		"StreamConfiguration.GroupID":                                           validation.Validate(r.StreamConfiguration.GroupID, validation.In(0)),
 		"StreamConfiguration.Properties":                                        validation.Validate(r.StreamConfiguration.Properties, validation.Required),
 		"StreamConfiguration.StreamName":                                        validation.Validate(r.StreamConfiguration.StreamName, validation.Required),
+		"StreamConfiguration.SamplingPercentage":                                validation.Validate(r.StreamConfiguration.SamplingPercentage, validation.When(r.StreamConfiguration.SamplingPercentage != 0, validation.Min(1), validation.Max(100))),
 	}.Filter()
 }
 
