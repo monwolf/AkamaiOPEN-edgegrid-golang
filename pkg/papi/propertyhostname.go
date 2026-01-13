@@ -512,6 +512,10 @@ func (p *papi) GetPropertyVersionHostnames(ctx context.Context, params GetProper
 	}
 	defer session.CloseResponseBody(resp)
 
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, fmt.Errorf("%s: %w: %s", ErrGetPropertyVersionHostnames, ErrNotFound, err)
+	}
+
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("%s: %w", ErrGetPropertyVersionHostnames, p.Error(resp))
 	}

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -357,6 +358,28 @@ func TestPapiGetPropertyVersionHostnames(t *testing.T) {
 				want := ErrStructValidation
 				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
 				assert.Contains(t, err.Error(), "PropertyVersion")
+			},
+		},
+		"404 not found error": {
+			params: GetPropertyVersionHostnamesRequest{
+				PropertyID:        "prp_175780",
+				PropertyVersion:   3,
+				GroupID:           "grp_15225",
+				ContractID:        "ctr_1-1TJZH5",
+				IncludeCertStatus: false,
+			},
+			responseStatus: http.StatusNotFound,
+			responseBody: `
+{
+	"type": "not_found",
+    "title": "Not Found",
+    "detail": "The requested resource was not found",
+    "status": 404
+}`,
+			expectedPath: "/papi/v1/properties/prp_175780/versions/3/hostnames?contractId=ctr_1-1TJZH5&groupId=grp_15225&includeCertStatus=false&validateHostnames=false",
+			withError: func(t *testing.T, err error) {
+				want := fmt.Errorf("%s: %w: %s", ErrGetPropertyVersionHostnames, ErrNotFound, "request failed")
+				assert.True(t, errors.Is(err, ErrNotFound), "want: %s; got: %s", want, err)
 			},
 		},
 		"500 internal server status error": {
