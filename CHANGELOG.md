@@ -9,6 +9,8 @@
     * Updated various dependencies.
     * Adopted toolchain Go `1.24.10`.
 
+* ClientLists
+  * Added support for `DOMAIN` type client lists. 
 
 
 

@@ -527,6 +527,8 @@ const (
 	FileHash ClientListType = "FILE_HASH"
 	// USER for user list type
 	USER ClientListType = "USER_ID"
+	// DOMAIN for domain list type
+	DOMAIN ClientListType = "DOMAIN"
 )
 
 func getValidListTypesAsInterface() []interface{} {
@@ -537,5 +539,6 @@ func getValidListTypesAsInterface() []interface{} {
 		TLSFingerprint,
 		FileHash,
 		USER,
+		DOMAIN,
 	}
 }
