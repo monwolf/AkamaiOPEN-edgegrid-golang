@@ -1,6 +1,6 @@
 # RELEASE NOTES
 
-## X.X.X (X X, X)
+## 12.3.0 (Jan 19, 2026)
 
 ### FEATURES/ENHANCEMENTS:
 
@@ -10,36 +10,28 @@
     * Adopted toolchain Go `1.24.10`.
 
 * ClientLists
-  * Added support for `DOMAIN` type client lists. 
+  * Added support for the `DOMAIN` client list type.
 
-
-
-* Cloudaccess
-  * Added support for new Akamai Video Manager Cloudinary authentication method (`AVM_CLOUDINARY`).
-
-
-
-* PAPI
-    * Added support for [ListActivePropertyHostnamesForAccount](https://techdocs.akamai.com/property-mgr/reference/get-hostnames) method.
-
-
-
-
-
-
+* Cloud Access
+  * Added support for a new Akamai Video Manager Cloudinary authentication method (`AVM_CLOUDINARY`).
 
 * PAPI Domain Ownership Validation (Beta)
-  * Made the `ValidationMethods` field required in the `ValidateDomains` method.
-  * Changed the `ValidationMethods` field from a pointer to a value type in the `ValidateDomain` structure.
+  * Made the `ValidationMethod` field required in the `ValidateDomain` method. 
+  * Changed the `ValidationMethod` field from a pointer to a value type in the `ValidateDomain` structure.
+  * Added the `DomainOwnershipVerification` field to the `Hostname` structure. Details about the domain ownership are visible in the following method responses:
+    * `GetPropertyVersionHostnames`
+    * `UpdatePropertyVersionHostnames`
+    * `PatchPropertyVersionHostnames`
+  * Added support for the [ValidateDomainsOwnership](https://techdocs.akamai.com/property-mgr/reference/post-domain-ownership-challenges) method.
 
-
-
-
-
-
+* PAPI
+  * Added support for the [ListActiveAccountHostnames](https://techdocs.akamai.com/property-mgr/reference/get-hostnames) method.
+  * Added support for the [GetAuditHistory](https://techdocs.akamai.com/property-mgr/reference/get-hostname-audit-history) method.
+  * Added the `PropertyName` field to the following method responses:
+    * `GetPropertyVersionHostnames`
+    * `UpdatePropertyVersionHostnames`
 
 * DataStream
-
   * Added enhancements for Property Manager decoupling. The enhancements enable you to specify the sampling percentage in the stream's create and update requests, and get both the sampling percentage and integration type in the stream's responses (create, update, and read). The changes include:
     * Added the `SamplingPercentage` field to these structures:
         * `DetailedStreamVersion`
@@ -50,72 +42,10 @@
         * `StreamDetails`
         * `Property`
 
-* PAPI
-  * Added the [GetAuditHistory](https://techdocs.akamai.com/property-mgr/reference/get-hostname-audit-history) method.
-
-
-
-
-
-
-
-
-
-
-
-
-
 ### BUG FIXES:
 
 * PAPI
     * Relaxed validation of edge hostname domain prefixes to allow beginning those prefixes with a digit in the `akamai_edge_hostname` resource ([I#668](https://github.com/akamai/terraform-provider-akamai/issues/668)).
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-* PAPI Domain Ownership Validation (Beta)
-  * Added `DomainOwnershipVerification` field to the `Hostname` struct. Details about the domain ownership are visible in the following methods responses:
-    * GetPropertyVersionHostnames
-    * UpdatePropertyVersionHostnames
-    * PatchPropertyVersionHostnames
-  * Added support for [ValidateDomainsOwnership](https://techdocs.akamai.com/property-mgr/reference/post-domain-ownership-challenges) method
-
-
-
-
-
-* PAPI
-  * Added `PropertyName` field to the following methods responses:
-    * GetPropertyVersionHostnames
-    * UpdatePropertyVersionHostnames
-
-
-
 
 ## 12.2.0 (Nov 10, 2025)
 
