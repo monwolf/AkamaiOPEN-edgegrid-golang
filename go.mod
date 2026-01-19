@@ -1,8 +1,8 @@
 module github.com/akamai/AkamaiOPEN-edgegrid-golang/v12
 
-go 1.23.0
+go 1.24.0
 
-toolchain go1.23.6
+toolchain go1.24.10
 
 require (
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
@@ -12,7 +12,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/wk8/go-ordered-map/v2 v2.1.8
 	go.uber.org/ratelimit v0.3.1
-	golang.org/x/net v0.38.0
+	golang.org/x/net v0.49.0
 	gopkg.in/ini.v1 v1.67.0
 )
 

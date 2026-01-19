@@ -739,3 +739,319 @@ func TestPapiGetActivePropertyHostnamesDiff(t *testing.T) {
 		})
 	}
 }
+
+func TestPapiListActivePropertyHostnamesForAccount(t *testing.T) {
+	tests := map[string]struct {
+		params           ListActiveAccountHostnamesRequest
+		responseStatus   int
+		responseBody     string
+		expectedPath     string
+		expectedResponse *ListActiveAccountHostnamesResponse
+		withError        func(*testing.T, error)
+	}{
+		"200 OK - no params": {
+			params:         ListActiveAccountHostnamesRequest{},
+			responseStatus: http.StatusOK,
+			responseBody: `
+{
+    "accountId": "act_123",
+    "currentSort": "hostname:a",
+    "defaultSort": "hostname:a",
+	"availableSort": [
+			"hostname:a",
+			"hostname:d"
+		],
+    "hostnames": {
+		"currentItemCount": 2,
+		"nextLink": "/papi/v1/hostnames?offset=2",
+		"totalItems": 23321,
+        "items": [
+            {
+                "cnameFrom": "example-test-prod.com",
+                "productionEdgeHostnameId": "ehn_1",
+                "productionCertType": "DEFAULT",
+                "productionCnameTo": "example-test-prod.com.edgesuite.net",
+                "productionCnameType": "EDGE_HOSTNAME",
+                "contractId": "ctr_G-1",
+                "groupId": "grp_1",
+                "propertyId": "prp_1",
+                "propertyName": "test_1",
+                "propertyType": "TRADITIONAL",
+                "productionProductId": "prd_SPM",
+                "latestVersion": 1
+            },
+            {
+                "cnameFrom": "example-test-staging.com",
+                "stagingEdgeHostnameId": "ehn_2",
+                "stagingCertType": "CPS_MANAGED",
+                "stagingCnameTo": "example-test-staging.com.edgesuite.net",
+                "stagingCnameType": "EDGE_HOSTNAME",
+                "contractId": "ctr_G-2",
+                "groupId": "grp_2",
+                "propertyId": "prp_2",
+                "propertyName": "test-2",
+                "propertyType": "HOSTNAME_BUCKET",
+                "stagingProductId": "prd_Site_Accel",
+                "latestVersion": 1
+            }
+        ]
+    }
+}
+`,
+			expectedPath: "/papi/v1/hostnames",
+			expectedResponse: &ListActiveAccountHostnamesResponse{
+				AccountID:   "act_123",
+				CurrentSort: string(SortAscending),
+				DefaultSort: string(SortAscending),
+				AvailableSort: []string{
+					string(SortAscending),
+					string(SortDescending),
+				},
+				Hostnames: ActiveAccountHostnames{
+					CurrentItemCount: 2,
+					TotalItems:       23321,
+					NextLink:         ptr.To("/papi/v1/hostnames?offset=2"),
+					Items: []ActiveAccountHostnameItem{
+						{
+							CnameFrom:                "example-test-prod.com",
+							ContractID:               "ctr_G-1",
+							GroupID:                  "grp_1",
+							LatestVersion:            1,
+							ProductionCertType:       ptr.To(string(CertTypeDefault)),
+							ProductionCnameTo:        ptr.To("example-test-prod.com.edgesuite.net"),
+							ProductionCnameType:      ptr.To("EDGE_HOSTNAME"),
+							ProductionEdgeHostnameID: ptr.To("ehn_1"),
+							ProductionProductID:      ptr.To("prd_SPM"),
+							PropertyID:               "prp_1",
+							PropertyName:             "test_1",
+							PropertyType:             "TRADITIONAL",
+						},
+						{
+							CnameFrom:             "example-test-staging.com",
+							ContractID:            "ctr_G-2",
+							GroupID:               "grp_2",
+							LatestVersion:         1,
+							StagingCertType:       ptr.To(string(CertTypeCPSManaged)),
+							StagingCnameTo:        ptr.To("example-test-staging.com.edgesuite.net"),
+							StagingCnameType:      ptr.To("EDGE_HOSTNAME"),
+							StagingEdgeHostnameID: ptr.To("ehn_2"),
+							StagingProductID:      ptr.To("prd_Site_Accel"),
+							PropertyID:            "prp_2",
+							PropertyName:          "test-2",
+							PropertyType:          "HOSTNAME_BUCKET",
+						},
+					},
+				},
+			},
+		},
+		"200 OK - empty list": {
+			params:         ListActiveAccountHostnamesRequest{},
+			responseStatus: http.StatusOK,
+			responseBody: `
+{
+    "accountId": "act_123",
+    "currentSort": "hostname:a",
+    "defaultSort": "hostname:a",
+    "hostnames": {
+		"currentItemCount": 0,
+		"totalItems": 0,
+        "items": []
+    }
+}
+`,
+			expectedPath: "/papi/v1/hostnames",
+			expectedResponse: &ListActiveAccountHostnamesResponse{
+				AccountID:   "act_123",
+				CurrentSort: string(SortAscending),
+				DefaultSort: string(SortAscending),
+				Hostnames: ActiveAccountHostnames{
+					CurrentItemCount: 0,
+					TotalItems:       0,
+					Items:            []ActiveAccountHostnameItem{},
+				},
+			},
+		},
+		"200 OK - all params": {
+			params: ListActiveAccountHostnamesRequest{
+				Offset:     0,
+				Limit:      2,
+				Sort:       SortAscending,
+				Hostname:   "example.com",
+				CnameTo:    "example.com.edgekey.net",
+				Network:    ActivationNetworkProduction,
+				ContractID: "ctr_3",
+				GroupID:    "grp_3",
+			},
+			responseStatus: http.StatusOK,
+			responseBody: `
+{
+    "accountId": "act_123",
+    "currentSort": "hostname:a",
+    "defaultSort": "hostname:a",
+    "hostnames": {
+		"currentItemCount": 2,
+        "items": [
+            {
+                "cnameFrom": "example.com",
+                "productionEdgeHostnameId": "ehn_1",
+                "productionCertType": "DEFAULT",
+                "productionCnameTo": "example.com.edgekey.net",
+                "productionCnameType": "EDGE_HOSTNAME",
+                "contractId": "ctr_3",
+                "groupId": "grp_3",
+                "propertyId": "prp_3",
+                "propertyName": "test-3",
+                "propertyType": "TRADITIONAL",
+                "productionProductId": "prd_SPM",
+                "latestVersion": 2
+            },
+            {
+                "cnameFrom": "example.com",
+                "stagingEdgeHostnameId": "ehn_2",
+                "stagingCertType": "CPS_MANAGED",
+                "stagingCnameTo": "example.com.edgekey.net",
+                "stagingCnameType": "EDGE_HOSTNAME",
+                "contractId": "ctr_3",
+                "groupId": "grp_3",
+                "propertyId": "prp_3",
+                "propertyName": "test-3",
+                "propertyType": "HOSTNAME_BUCKET",
+                "stagingProductId": "prd_Site_Accel",
+                "latestVersion": 2
+            }
+        ],
+		"previousLink": "/papi/v1/hostnames?offset=2&limit=2",
+		"totalItems": 2323
+    }
+}
+`,
+			expectedPath: "/papi/v1/hostnames?cnameTo=example.com.edgekey.net&contractId=ctr_3&groupId=grp_3&hostname=example.com&limit=2&network=PRODUCTION&sort=hostname%3Aa",
+			expectedResponse: &ListActiveAccountHostnamesResponse{
+				AccountID:   "act_123",
+				CurrentSort: string(SortAscending),
+				DefaultSort: string(SortAscending),
+				Hostnames: ActiveAccountHostnames{
+					CurrentItemCount: 2,
+					TotalItems:       2323,
+					PreviousLink:     ptr.To("/papi/v1/hostnames?offset=2&limit=2"),
+					Items: []ActiveAccountHostnameItem{
+						{
+							CnameFrom:                "example.com",
+							ContractID:               "ctr_3",
+							GroupID:                  "grp_3",
+							LatestVersion:            2,
+							ProductionCertType:       ptr.To(string(CertTypeDefault)),
+							ProductionCnameTo:        ptr.To("example.com.edgekey.net"),
+							ProductionCnameType:      ptr.To("EDGE_HOSTNAME"),
+							ProductionEdgeHostnameID: ptr.To("ehn_1"),
+							ProductionProductID:      ptr.To("prd_SPM"),
+							PropertyID:               "prp_3",
+							PropertyName:             "test-3",
+							PropertyType:             "TRADITIONAL",
+						},
+						{
+							CnameFrom:             "example.com",
+							ContractID:            "ctr_3",
+							GroupID:               "grp_3",
+							LatestVersion:         2,
+							StagingCertType:       ptr.To(string(CertTypeCPSManaged)),
+							StagingCnameTo:        ptr.To("example.com.edgekey.net"),
+							StagingCnameType:      ptr.To("EDGE_HOSTNAME"),
+							StagingEdgeHostnameID: ptr.To("ehn_2"),
+							StagingProductID:      ptr.To("prd_Site_Accel"),
+							PropertyID:            "prp_3",
+							PropertyName:          "test-3",
+							PropertyType:          "HOSTNAME_BUCKET",
+						},
+					},
+				},
+			},
+		},
+		"validation error - Offset negative": {
+			params: ListActiveAccountHostnamesRequest{
+				Offset: -1,
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), "Offset")
+			},
+		},
+		"validation error - Limit negative": {
+			params: ListActiveAccountHostnamesRequest{
+				Limit: -1,
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), "Limit")
+			},
+		},
+		"validation error - Limit exceeds max": {
+			params: ListActiveAccountHostnamesRequest{
+				Limit: 1000,
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), "Limit")
+			},
+		},
+		"validation error - invalid Network": {
+			params: ListActiveAccountHostnamesRequest{
+				Network: "INVALID",
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), "Network")
+			},
+		},
+		"validation error - invalid Sort": {
+			params: ListActiveAccountHostnamesRequest{
+				Sort: "invalid",
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), "Sort")
+			},
+		},
+		"500 internal server error": {
+			params:         ListActiveAccountHostnamesRequest{},
+			responseStatus: http.StatusInternalServerError,
+			responseBody: `
+{
+	"type": "internal_error",
+    "title": "Internal Server Error",
+    "detail": "Error fetching hostnames for account",
+    "status": 500
+}`,
+			expectedPath: "/papi/v1/hostnames",
+			withError: func(t *testing.T, err error) {
+				want := &Error{
+					Type:       "internal_error",
+					Title:      "Internal Server Error",
+					Detail:     "Error fetching hostnames for account",
+					StatusCode: http.StatusInternalServerError,
+				}
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+			},
+		},
+	}
+
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				assert.Equal(t, test.expectedPath, r.URL.String())
+				assert.Equal(t, http.MethodGet, r.Method)
+				w.WriteHeader(test.responseStatus)
+				_, err := w.Write([]byte(test.responseBody))
+				assert.NoError(t, err)
+			}))
+			client := mockAPIClient(t, mockServer)
+			result, err := client.ListActiveAccountHostnames(context.Background(), test.params)
+			if test.withError != nil {
+				test.withError(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, test.expectedResponse, result)
+		})
+	}
+}

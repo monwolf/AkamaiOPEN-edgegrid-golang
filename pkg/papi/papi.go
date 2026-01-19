@@ -279,6 +279,11 @@ type (
 		// See: https://techdocs.akamai.com/property-mgr/reference/get-property-hostnames-diff
 		GetActivePropertyHostnamesDiff(context.Context, GetActivePropertyHostnamesDiffRequest) (*GetActivePropertyHostnamesDiffResponse, error)
 
+		// ListActiveAccountHostnames lists active property hostnames for an account.
+		//
+		// See: https://techdocs.akamai.com/property-mgr/reference/get-hostnames
+		ListActiveAccountHostnames(context.Context, ListActiveAccountHostnamesRequest) (*ListActiveAccountHostnamesResponse, error)
+
 		// PropertyVersionHostnames
 
 		// GetPropertyVersionHostnames lists all the hostnames assigned to a property version
@@ -296,6 +301,11 @@ type (
 		//
 		// See: https://techdocs.akamai.com/property-mgr/reference/patch-property-version-hostnames
 		PatchPropertyVersionHostnames(context.Context, PatchPropertyVersionHostnamesRequest) (*PatchPropertyVersionHostnamesResponse, error)
+
+		// GetAuditHistory fetches a detailed record of all modifications made to a property hostname.
+		//
+		// See: https://techdocs.akamai.com/property-mgr/reference/get-hostname-audit-history
+		GetAuditHistory(context.Context, GetAuditHistoryRequest) (*GetAuditHistoryResponse, error)
 
 		// PropertyVersions
 
@@ -374,6 +384,13 @@ type (
 		//
 		// See: https://techdocs.akamai.com/property-mgr/reference/patch-property-hostnames
 		PatchPropertyHostnameBucket(context.Context, PatchPropertyHostnameBucketRequest) (*PatchPropertyHostnameBucketResponse, error)
+
+		// Domain ownership validation
+
+		// ValidateDomainsOwnership initiates domains validation if a validation record does not exist.
+		//
+		// See: https://techdocs.akamai.com/property-mgr/reference/post-domain-ownership-challenges
+		ValidateDomainsOwnership(context.Context, ValidateDomainsOwnershipRequest) (*ValidateDomainsOwnershipResponse, error)
 	}
 
 	papi struct {

@@ -11,7 +11,6 @@
 // A successful call returns a new API client with its `CredentialID`. Use this ID in both the update and delete examples.
 //
 // For more information on the call used in this example, see https://techdocs.akamai.com/iam-api/reference/post-self-credentials.
-
 package main
 
 import (

@@ -16,13 +16,14 @@ import (
 type (
 	// GetAccessKeyStatusResponse contains response from GetAccessKeyStatus
 	GetAccessKeyStatusResponse struct {
-		AccessKey        *KeyLink            `json:"accessKey"`
-		AccessKeyVersion *KeyVersion         `json:"accessKeyVersion"`
-		ProcessingStatus ProcessingType      `json:"processingStatus"`
-		Request          *RequestInformation `json:"request"`
-		RequestDate      time.Time           `json:"requestDate"`
-		RequestID        int64               `json:"requestId"`
-		RequestedBy      string              `json:"requestedBy"`
+		AccessKey            *KeyLink            `json:"accessKey"`
+		AccessKeyVersion     *KeyVersion         `json:"accessKeyVersion"`
+		AuthenticationMethod string              `json:"authenticationMethod"`
+		ProcessingStatus     ProcessingType      `json:"processingStatus"`
+		Request              *RequestInformation `json:"request"`
+		RequestDate          time.Time           `json:"requestDate"`
+		RequestID            int64               `json:"requestId"`
+		RequestedBy          string              `json:"requestedBy"`
 	}
 
 	// GetAccessKeyStatusRequest holds parameters for GetAccessKeyStatus
@@ -113,7 +114,7 @@ func (r GetAccessKeyStatusRequest) Validate() error {
 func (r CreateAccessKeyRequest) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
 		"AccessKeyName":        validation.Validate(r.AccessKeyName, validation.Required),
-		"AuthenticationMethod": validation.Validate(r.AuthenticationMethod, validation.Required, validation.In(string(AuthAWS), string(AuthGOOG), string(AuthAOS))),
+		"AuthenticationMethod": validation.Validate(r.AuthenticationMethod, validation.Required, validation.In(string(AuthAWS), string(AuthGOOG), string(AuthAOS), string(AuthAVMCloudinary))),
 		"ContractID":           validation.Validate(r.ContractID, validation.Required),
 		"CloudAccessKeyID":     validation.Validate(r.Credentials.CloudAccessKeyID, validation.Required),
 		"CloudSecretAccessKey": validation.Validate(r.Credentials.CloudSecretAccessKey, validation.Required),

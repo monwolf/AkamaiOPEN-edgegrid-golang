@@ -7,7 +7,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/ptr"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -28,15 +27,17 @@ func TestValidateDomains(t *testing.T) {
 					{
 						DomainName:       "sample1.com",
 						ValidationScope:  ValidationScopeHost,
-						ValidationMethod: ptr.To(ValidationMethodHTTP),
+						ValidationMethod: ValidationMethodHTTP,
 					},
 					{
-						DomainName:      "sample2.com",
-						ValidationScope: ValidationScopeWildcard,
+						DomainName:       "sample2.com",
+						ValidationScope:  ValidationScopeWildcard,
+						ValidationMethod: ValidationMethodDNSCNAME,
 					},
 					{
-						DomainName:      "sample3.com",
-						ValidationScope: ValidationScopeDomain,
+						DomainName:       "sample3.com",
+						ValidationScope:  ValidationScopeDomain,
+						ValidationMethod: ValidationMethodDNSTXT,
 					},
 				},
 			},
@@ -63,7 +64,7 @@ func TestValidateDomains(t *testing.T) {
 }
 `,
 			expectedPath:        "/domain-validation/v1/domains/validate-now",
-			expectedRequestBody: `{"domains":[{"domainName":"sample1.com","validationMethod":"HTTP","validationScope":"HOST"},{"domainName":"sample2.com","validationScope":"WILDCARD"},{"domainName":"sample3.com","validationScope":"DOMAIN"}]}`,
+			expectedRequestBody: `{"domains":[{"domainName":"sample1.com","validationMethod":"HTTP","validationScope":"HOST"},{"domainName":"sample2.com","validationMethod":"DNS_CNAME","validationScope":"WILDCARD"},{"domainName":"sample3.com","validationMethod":"DNS_TXT","validationScope":"DOMAIN"}]}`,
 			expectedResponse: &ValidateDomainsResponse{
 				Domains: []ValidateDomainResponse{
 					{
@@ -96,11 +97,13 @@ func TestValidateDomains(t *testing.T) {
 			request: ValidateDomainsRequest{
 				Domains: []ValidateDomain{
 					{
-						DomainName:      "sample1.com",
-						ValidationScope: ValidationScopeHost,
+						DomainName:       "sample1.com",
+						ValidationScope:  ValidationScopeHost,
+						ValidationMethod: ValidationMethodHTTP,
 					},
 					{
-						ValidationScope: ValidationScopeHost,
+						ValidationScope:  ValidationScopeHost,
+						ValidationMethod: ValidationMethodHTTP,
 					},
 				},
 			},
@@ -112,7 +115,8 @@ func TestValidateDomains(t *testing.T) {
 			request: ValidateDomainsRequest{
 				Domains: []ValidateDomain{
 					{
-						DomainName: "sample1.com",
+						DomainName:       "sample1.com",
+						ValidationMethod: ValidationMethodHTTP,
 					},
 				},
 			},
@@ -120,16 +124,31 @@ func TestValidateDomains(t *testing.T) {
 				assert.Equal(t, "validate domains: struct validation:\nDomains[0]: {\n\tValidationScope: cannot be blank\n}", err.Error())
 			},
 		},
-		"validation - incorrect ValidationScope": {
+		"validation - validation method not supplied": {
 			request: ValidateDomainsRequest{
 				Domains: []ValidateDomain{
 					{
 						DomainName:      "sample1.com",
-						ValidationScope: ValidationScope("incorrect"),
+						ValidationScope: ValidationScopeHost,
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "validate domains: struct validation:\nDomains[0]: {\n\tValidationMethod: cannot be blank\n}", err.Error())
+			},
+		},
+		"validation - incorrect ValidationScope": {
+			request: ValidateDomainsRequest{
+				Domains: []ValidateDomain{
+					{
+						DomainName:       "sample1.com",
+						ValidationScope:  ValidationScope("incorrect"),
+						ValidationMethod: ValidationMethodHTTP,
 					},
 					{
-						DomainName:      "sample2.com",
-						ValidationScope: ValidationScopeHost,
+						DomainName:       "sample2.com",
+						ValidationScope:  ValidationScopeHost,
+						ValidationMethod: ValidationMethodHTTP,
 					},
 				},
 			},
@@ -142,13 +161,13 @@ func TestValidateDomains(t *testing.T) {
 				Domains: []ValidateDomain{
 					{
 						DomainName:       "sample1.com",
-						ValidationMethod: ptr.To(ValidationMethod("incorrect")),
+						ValidationMethod: ValidationMethod("incorrect"),
 						ValidationScope:  ValidationScopeHost,
 					},
 					{
 						DomainName:       "sample2.com",
 						ValidationScope:  ValidationScopeHost,
-						ValidationMethod: ptr.To(ValidationMethodHTTP),
+						ValidationMethod: ValidationMethodHTTP,
 					},
 				},
 			},
@@ -160,8 +179,9 @@ func TestValidateDomains(t *testing.T) {
 			request: ValidateDomainsRequest{
 				Domains: []ValidateDomain{
 					{
-						DomainName:      "sample1.com",
-						ValidationScope: ValidationScopeDomain,
+						DomainName:       "sample1.com",
+						ValidationScope:  ValidationScopeDomain,
+						ValidationMethod: ValidationMethodHTTP,
 					},
 				},
 			},

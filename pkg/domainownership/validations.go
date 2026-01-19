@@ -18,8 +18,8 @@ type (
 		// DomainName is the name of the domain to search for.
 		DomainName string `json:"domainName"`
 
-		// ValidationMethod (Optional) for instant validation of a domain, either DNS_CNAME, DNS_TXT, or HTTP.
-		ValidationMethod *ValidationMethod `json:"validationMethod,omitempty"`
+		// ValidationMethod for instant validation of a domain, either DNS_CNAME, DNS_TXT, or HTTP.
+		ValidationMethod ValidationMethod `json:"validationMethod"`
 
 		// ValidationScope indicates the scope of the validation, either HOST, DOMAIN, or WILDCARD.
 		ValidationScope ValidationScope `json:"validationScope"`

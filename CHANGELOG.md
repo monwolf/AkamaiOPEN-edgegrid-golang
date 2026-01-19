@@ -1,5 +1,52 @@
 # RELEASE NOTES
 
+## 12.3.0 (Jan 19, 2026)
+
+### FEATURES/ENHANCEMENTS:
+
+* General
+    * Migrated to Go `1.24`.
+    * Updated various dependencies.
+    * Adopted toolchain Go `1.24.10`.
+
+* ClientLists
+  * Added support for the `DOMAIN` client list type.
+
+* Cloud Access
+  * Added support for a new Akamai Video Manager Cloudinary authentication method (`AVM_CLOUDINARY`).
+
+* PAPI Domain Ownership Validation (Beta)
+  * Made the `ValidationMethod` field required in the `ValidateDomain` method. 
+  * Changed the `ValidationMethod` field from a pointer to a value type in the `ValidateDomain` structure.
+  * Added the `DomainOwnershipVerification` field to the `Hostname` structure. Details about the domain ownership are visible in the following method responses:
+    * `GetPropertyVersionHostnames`
+    * `UpdatePropertyVersionHostnames`
+    * `PatchPropertyVersionHostnames`
+  * Added support for the [ValidateDomainsOwnership](https://techdocs.akamai.com/property-mgr/reference/post-domain-ownership-challenges) method.
+
+* PAPI
+  * Added support for the [ListActiveAccountHostnames](https://techdocs.akamai.com/property-mgr/reference/get-hostnames) method.
+  * Added support for the [GetAuditHistory](https://techdocs.akamai.com/property-mgr/reference/get-hostname-audit-history) method.
+  * Added the `PropertyName` field to the following method responses:
+    * `GetPropertyVersionHostnames`
+    * `UpdatePropertyVersionHostnames`
+
+* DataStream
+  * Added enhancements for Property Manager decoupling. The enhancements enable you to specify the sampling percentage in the stream's create and update requests, and get both the sampling percentage and integration type in the stream's responses (create, update, and read). The changes include:
+    * Added the `SamplingPercentage` field to these structures:
+        * `DetailedStreamVersion`
+        * `StreamConfiguration`
+        * `StreamDetails`
+    * Added the `IntegrationType` field to these structures:
+        * `DetailedStreamVersion`
+        * `StreamDetails`
+        * `Property`
+
+### BUG FIXES:
+
+* PAPI
+    * Relaxed validation of edge hostname domain prefixes to allow beginning those prefixes with a digit in the `akamai_edge_hostname` resource ([I#668](https://github.com/akamai/terraform-provider-akamai/issues/668)).
+
 ## 12.2.0 (Nov 10, 2025)
 
 ### FEATURES/ENHANCEMENTS:

@@ -23,7 +23,7 @@ func TestDs_GetStream(t *testing.T) {
 		expectedResponse *DetailedStreamVersion
 		withError        func(*testing.T, error)
 	}{
-		"200 OK Without midgress field": {
+		"200 OK Without midgress, integrationType, and samplingPercentage": {
 			request: GetStreamRequest{
 				StreamID: 1,
 			},
@@ -49,41 +49,39 @@ func TestDs_GetStream(t *testing.T) {
             "datasetFieldName":"dataset_field_name_3",
             "datasetFieldJsonKey":"dataset_field_json_key_3"
         }
-    ], 
+    ],
     "deliveryConfiguration": {
-        "fieldDelimiter": "SPACE", 
-        "format": "STRUCTURED", 
-        "frequency": {
-            "intervalInSeconds": 30
-        }, 
-        "uploadFilePrefix": "ak", 
+        "fieldDelimiter": "SPACE",
+        "format": "STRUCTURED",
+        "frequency": { "intervalInSeconds": 30 },
+        "uploadFilePrefix": "ak",
         "uploadFileSuffix": "ds"
-    }, 
+    },
     "destination": {
-        "bucket": "sample_bucket", 
-        "compressLogs": true, 
-        "destinationType": "S3", 
-        "displayName": "sample_display_name", 
-        "path": "/sample_path", 
+        "bucket": "sample_bucket",
+        "compressLogs": true,
+        "destinationType": "S3",
+        "displayName": "sample_display_name",
+        "path": "/sample_path",
         "region": "us-east-1"
     },
-    "groupId": 1234, 
-    "latestVersion": 2, 
-    "modifiedBy": "sample_username2", 
-    "modifiedDate": "2022-11-04T02:14:29Z", 
+    "groupId": 1234,
+    "latestVersion": 2,
+    "modifiedBy": "sample_username2",
+    "modifiedDate": "2022-11-04T02:14:29Z",
     "notificationEmails": [
         "sample_username@akamai.com"
-    ], 
-    "productId": "Adaptive_Media_Delivery", 
+    ],
+    "productId": "Adaptive_Media_Delivery",
     "properties": [
         {
-            "propertyId": 12345, 
+            "propertyId": 12345,
             "propertyName": "example.com"
         }
-    ], 
-    "streamId": 1, 
-    "streamName": "ds2-sample-name", 
-    "streamStatus": "ACTIVATED", 
+    ],
+    "streamId": 1,
+    "streamName": "ds2-sample-name",
+    "streamStatus": "ACTIVATED",
     "streamVersion": 2
 }
 `,
@@ -91,11 +89,9 @@ func TestDs_GetStream(t *testing.T) {
 			expectedResponse: &DetailedStreamVersion{
 				StreamStatus: StreamStatusActivated,
 				DeliveryConfiguration: DeliveryConfiguration{
-					Delimiter: DelimiterTypePtr(DelimiterTypeSpace),
-					Format:    FormatTypeStructured,
-					Frequency: Frequency{
-						IntervalInSeconds: IntervalInSeconds30,
-					},
+					Delimiter:        DelimiterTypePtr(DelimiterTypeSpace),
+					Format:           FormatTypeStructured,
+					Frequency:        Frequency{IntervalInSeconds: IntervalInSeconds30},
 					UploadFilePrefix: "ak",
 					UploadFileSuffix: "ds",
 				},
@@ -111,21 +107,9 @@ func TestDs_GetStream(t *testing.T) {
 				CreatedBy:   "sample_username",
 				CreatedDate: "2022-11-04T00:49:45Z",
 				DatasetFields: []DataSetField{
-					{
-						DatasetFieldID:      1000,
-						DatasetFieldName:    "dataset_field_name_1",
-						DatasetFieldJsonKey: "dataset_field_json_key_1",
-					},
-					{
-						DatasetFieldID:      1002,
-						DatasetFieldName:    "dataset_field_name_2",
-						DatasetFieldJsonKey: "dataset_field_json_key_2",
-					},
-					{
-						DatasetFieldID:      1082,
-						DatasetFieldName:    "dataset_field_name_3",
-						DatasetFieldJsonKey: "dataset_field_json_key_3",
-					},
+					{DatasetFieldID: 1000, DatasetFieldName: "dataset_field_name_1", DatasetFieldJsonKey: "dataset_field_json_key_1"},
+					{DatasetFieldID: 1002, DatasetFieldName: "dataset_field_name_2", DatasetFieldJsonKey: "dataset_field_json_key_2"},
+					{DatasetFieldID: 1082, DatasetFieldName: "dataset_field_name_3", DatasetFieldJsonKey: "dataset_field_json_key_3"},
 				},
 				NotificationEmails: []string{"sample_username@akamai.com"},
 				GroupID:            1234,
@@ -133,10 +117,7 @@ func TestDs_GetStream(t *testing.T) {
 				ModifiedDate:       "2022-11-04T02:14:29Z",
 				ProductID:          "Adaptive_Media_Delivery",
 				Properties: []Property{
-					{
-						PropertyID:   12345,
-						PropertyName: "example.com",
-					},
+					{PropertyID: 12345, PropertyName: "example.com"},
 				},
 				StreamID:      1,
 				StreamName:    "ds2-sample-name",
@@ -144,131 +125,241 @@ func TestDs_GetStream(t *testing.T) {
 				LatestVersion: 2,
 			},
 		},
-
-		"200 OK With midgress field": {
+		"200 OK With midgress field, integrationType DS_MANAGED and samplingPercentage 33": {
 			request: GetStreamRequest{
-				StreamID: 1,
+				StreamID: 2,
 			},
 			responseStatus: http.StatusOK,
 			responseBody: `
 {
-    "contractId": "P-1324", 
-    "createdBy": "sample_username", 
-    "createdDate": "2022-11-04T00:49:45Z", 
+    "contractId": "X-DS-123",
+    "createdBy": "admin",
+    "createdDate": "2023-12-01T11:22:33Z",
     "collectMidgress": true,
-    "datasetFields": [
-        {
-            "datasetFieldId":1000,
-            "datasetFieldName":"dataset_field_name_1",
-            "datasetFieldJsonKey":"dataset_field_json_key_1"
-        },
-        {
-            "datasetFieldId":1002,
-            "datasetFieldName":"dataset_field_name_2",
-            "datasetFieldJsonKey":"dataset_field_json_key_2"
-        },
-        {
-            "datasetFieldId":1082,
-            "datasetFieldName":"dataset_field_name_3",
-            "datasetFieldJsonKey":"dataset_field_json_key_3"
-        }
-    ], 
+    "integrationType": "DS_MANAGED",
+    "samplingPercentage": 33,
+    "datasetFields": [],
     "deliveryConfiguration": {
-        "fieldDelimiter": "SPACE", 
-        "format": "STRUCTURED", 
-        "frequency": {
-            "intervalInSeconds": 30
-        }, 
-        "uploadFilePrefix": "ak", 
-        "uploadFileSuffix": "ds"
-    }, 
-    "destination": {
-        "bucket": "sample_bucket", 
-        "compressLogs": true, 
-        "destinationType": "S3", 
-        "displayName": "sample_display_name", 
-        "path": "/sample_path", 
-        "region": "us-east-1"
+        "fieldDelimiter": "SPACE",
+        "format": "STRUCTURED",
+        "frequency": { "intervalInSeconds": 22 },
+        "uploadFilePrefix": "prefix",
+        "uploadFileSuffix": "suffix"
     },
-    "groupId": 1234, 
-    "latestVersion": 2, 
-    "modifiedBy": "sample_username2", 
-    "modifiedDate": "2022-11-04T02:14:29Z", 
+    "destination": {
+        "bucket": "dsbucket",
+        "compressLogs": false,
+        "destinationType": "S3",
+        "displayName": "adminBucket",
+        "path": "/archive",
+        "region": "us-east-2"
+    },
+    "groupId": 4567,
+    "latestVersion": 5,
+    "modifiedBy": "admin2",
+    "modifiedDate": "2023-12-01T14:00:00Z",
     "notificationEmails": [
-        "sample_username@akamai.com"
-    ], 
-    "productId": "Adaptive_Media_Delivery", 
-    "properties": [
-        {
-            "propertyId": 1234, 
-            "propertyName": "sample.com"
-        }
-    ], 
-    "streamId": 1, 
-    "streamName": "ds2-sample-name", 
-    "streamStatus": "ACTIVATED", 
-    "streamVersion": 2
+        "admin@akamai.com"
+    ],
+    "productId": "DSProd",
+    "properties": [],
+    "streamId": 2,
+    "streamName": "stream-ds",
+    "streamStatus": "ACTIVATED",
+    "streamVersion": 5
 }
 `,
-			expectedPath: "/datastream-config-api/v3/log/cdn/streams/1",
+			expectedPath: "/datastream-config-api/v3/log/cdn/streams/2",
 			expectedResponse: &DetailedStreamVersion{
 				CollectMidgress: true,
 				StreamStatus:    StreamStatusActivated,
 				DeliveryConfiguration: DeliveryConfiguration{
-					Delimiter: DelimiterTypePtr(DelimiterTypeSpace),
-					Format:    FormatTypeStructured,
-					Frequency: Frequency{
-						IntervalInSeconds: IntervalInSeconds30,
-					},
-					UploadFilePrefix: "ak",
-					UploadFileSuffix: "ds",
+					Delimiter:        DelimiterTypePtr(DelimiterTypeSpace),
+					Format:           FormatTypeStructured,
+					Frequency:        Frequency{IntervalInSeconds: 22},
+					UploadFilePrefix: "prefix",
+					UploadFileSuffix: "suffix",
+				},
+				Destination: Destination{
+					CompressLogs:    false,
+					DisplayName:     "adminBucket",
+					DestinationType: DestinationTypeS3,
+					Path:            "/archive",
+					Bucket:          "dsbucket",
+					Region:          "us-east-2",
+				},
+				ContractID:         "X-DS-123",
+				CreatedBy:          "admin",
+				CreatedDate:        "2023-12-01T11:22:33Z",
+				DatasetFields:      []DataSetField{},
+				NotificationEmails: []string{"admin@akamai.com"},
+				GroupID:            4567,
+				ModifiedBy:         "admin2",
+				ModifiedDate:       "2023-12-01T14:00:00Z",
+				ProductID:          "DSProd",
+				Properties:         []Property{},
+				StreamID:           2,
+				StreamName:         "stream-ds",
+				StreamVersion:      5,
+				LatestVersion:      5,
+				IntegrationType:    "DS_MANAGED",
+				SamplingPercentage: 33,
+			},
+		},
+		"200 OK With integrationType PM_DEPENDENT and samplingPercentage 50": {
+			request: GetStreamRequest{
+				StreamID: 3,
+			},
+			responseStatus: http.StatusOK,
+			responseBody: `
+{
+    "contractId": "PM-DEP-001",
+    "createdBy": "userpm",
+    "createdDate": "2024-02-01T07:00:00Z",
+    "integrationType": "PM_DEPENDENT",
+    "samplingPercentage": 50,
+    "datasetFields": [],
+    "deliveryConfiguration": {
+        "fieldDelimiter": "SPACE",
+        "format": "STRUCTURED",
+        "frequency": { "intervalInSeconds": 90 },
+        "uploadFilePrefix": "pm",
+        "uploadFileSuffix": "pmx"
+    },
+    "destination": {
+        "bucket": "pmbucket",
+        "compressLogs": true,
+        "destinationType": "S3",
+        "displayName": "pmBucket",
+        "path": "/pmdata",
+        "region": "eu-west-2"
+    },
+    "groupId": 2222,
+    "latestVersion": 3,
+    "modifiedBy": "pmadmin",
+    "modifiedDate": "2024-02-01T09:00:00Z",
+    "notificationEmails": ["userpm@akamai.com"],
+    "productId": "PMProdX",
+    "properties": [],
+    "streamId": 3,
+    "streamName": "pm_stream",
+    "streamStatus": "INACTIVE",
+    "streamVersion": 3
+}
+`,
+			expectedPath: "/datastream-config-api/v3/log/cdn/streams/3",
+			expectedResponse: &DetailedStreamVersion{
+				StreamStatus: StreamStatusInactive,
+				DeliveryConfiguration: DeliveryConfiguration{
+					Delimiter:        DelimiterTypePtr(DelimiterTypeSpace),
+					Format:           FormatTypeStructured,
+					Frequency:        Frequency{IntervalInSeconds: 90},
+					UploadFilePrefix: "pm",
+					UploadFileSuffix: "pmx",
 				},
 				Destination: Destination{
 					CompressLogs:    true,
-					DisplayName:     "sample_display_name",
+					DisplayName:     "pmBucket",
 					DestinationType: DestinationTypeS3,
-					Path:            "/sample_path",
-					Bucket:          "sample_bucket",
-					Region:          "us-east-1",
+					Path:            "/pmdata",
+					Bucket:          "pmbucket",
+					Region:          "eu-west-2",
 				},
-				ContractID:  "P-1324",
-				CreatedBy:   "sample_username",
-				CreatedDate: "2022-11-04T00:49:45Z",
-				DatasetFields: []DataSetField{
-					{
-						DatasetFieldID:      1000,
-						DatasetFieldName:    "dataset_field_name_1",
-						DatasetFieldJsonKey: "dataset_field_json_key_1",
-					},
-					{
-						DatasetFieldID:      1002,
-						DatasetFieldName:    "dataset_field_name_2",
-						DatasetFieldJsonKey: "dataset_field_json_key_2",
-					},
-					{
-						DatasetFieldID:      1082,
-						DatasetFieldName:    "dataset_field_name_3",
-						DatasetFieldJsonKey: "dataset_field_json_key_3",
-					},
-				},
-				NotificationEmails: []string{"sample_username@akamai.com"},
-				GroupID:            1234,
-				ModifiedBy:         "sample_username2",
-				ModifiedDate:       "2022-11-04T02:14:29Z",
-				ProductID:          "Adaptive_Media_Delivery",
-				Properties: []Property{
-					{
-						PropertyID:   1234,
-						PropertyName: "sample.com",
-					},
-				},
-				StreamID:      1,
-				StreamName:    "ds2-sample-name",
-				StreamVersion: 2,
-				LatestVersion: 2,
+				ContractID:         "PM-DEP-001",
+				CreatedBy:          "userpm",
+				CreatedDate:        "2024-02-01T07:00:00Z",
+				DatasetFields:      []DataSetField{},
+				NotificationEmails: []string{"userpm@akamai.com"},
+				GroupID:            2222,
+				ModifiedBy:         "pmadmin",
+				ModifiedDate:       "2024-02-01T09:00:00Z",
+				ProductID:          "PMProdX",
+				Properties:         []Property{},
+				StreamID:           3,
+				StreamName:         "pm_stream",
+				StreamVersion:      3,
+				LatestVersion:      3,
+				IntegrationType:    "PM_DEPENDENT",
+				SamplingPercentage: 50,
 			},
 		},
-
+		"200 OK With integrationType HYBRID and samplingPercentage 88": {
+			request: GetStreamRequest{
+				StreamID: 4,
+			},
+			responseStatus: http.StatusOK,
+			responseBody: `
+{
+    "contractId": "HYB-777",
+    "createdBy": "hybriduser",
+    "createdDate": "2025-01-01T12:00:00Z",
+    "integrationType": "HYBRID",
+    "samplingPercentage": 88,
+    "datasetFields": [],
+    "deliveryConfiguration": {
+        "fieldDelimiter": "SPACE",
+        "format": "STRUCTURED",
+        "frequency": { "intervalInSeconds": 60 },
+        "uploadFilePrefix": "hybrid",
+        "uploadFileSuffix": "hyx"
+    },
+    "destination": {
+        "bucket": "hybucket",
+        "compressLogs": false,
+        "destinationType": "S3",
+        "displayName": "hyBucket",
+        "path": "/hy_archive",
+        "region": "ap-south-2"
+    },
+    "groupId": 9876,
+    "latestVersion": 6,
+    "modifiedBy": "hyadmin",
+    "modifiedDate": "2025-01-01T16:00:00Z",
+    "notificationEmails": ["hybriduser@akamai.com"],
+    "productId": "HYProd",
+    "properties": [],
+    "streamId": 4,
+    "streamName": "hy_stream",
+    "streamStatus": "INACTIVE",
+    "streamVersion": 6
+}
+`,
+			expectedPath: "/datastream-config-api/v3/log/cdn/streams/4",
+			expectedResponse: &DetailedStreamVersion{
+				StreamStatus: StreamStatusInactive,
+				DeliveryConfiguration: DeliveryConfiguration{
+					Delimiter:        DelimiterTypePtr(DelimiterTypeSpace),
+					Format:           FormatTypeStructured,
+					Frequency:        Frequency{IntervalInSeconds: 60},
+					UploadFilePrefix: "hybrid",
+					UploadFileSuffix: "hyx",
+				},
+				Destination: Destination{
+					CompressLogs:    false,
+					DisplayName:     "hyBucket",
+					DestinationType: DestinationTypeS3,
+					Path:            "/hy_archive",
+					Bucket:          "hybucket",
+					Region:          "ap-south-2",
+				},
+				ContractID:         "HYB-777",
+				CreatedBy:          "hybriduser",
+				CreatedDate:        "2025-01-01T12:00:00Z",
+				DatasetFields:      []DataSetField{},
+				NotificationEmails: []string{"hybriduser@akamai.com"},
+				GroupID:            9876,
+				ModifiedBy:         "hyadmin",
+				ModifiedDate:       "2025-01-01T16:00:00Z",
+				ProductID:          "HYProd",
+				Properties:         []Property{},
+				StreamID:           4,
+				StreamName:         "hy_stream",
+				StreamVersion:      6,
+				LatestVersion:      6,
+				IntegrationType:    "HYBRID",
+				SamplingPercentage: 88,
+			},
+		},
 		"validation error": {
 			request: GetStreamRequest{},
 			withError: func(t *testing.T, err error) {
@@ -348,7 +439,6 @@ func TestDs_CreateStream(t *testing.T) {
 				UploadFilePrefix: "logs",
 				UploadFileSuffix: "ak",
 			},
-
 			Destination: AbstractConnector(
 				&S3Connector{
 					Path:            "sample-path/{%Y/%m/%d}",
@@ -361,22 +451,18 @@ func TestDs_CreateStream(t *testing.T) {
 			),
 			ContractID: "2-AB1234",
 			DatasetFields: []DatasetFieldID{
-				{
-					DatasetFieldID: 2020,
-				},
+				{DatasetFieldID: 2020},
 			},
 			NotificationEmails: []string{"useremail1@akamai.com", "useremail2@akamai.com"},
 			GroupID:            1234,
 			Properties: []PropertyID{
-				{
-					PropertyID: 1234,
-				},
-				{
-					PropertyID: 1234,
-				},
+				{PropertyID: 1234},
+				{PropertyID: 1234},
 			},
-			StreamName:      "TestStream",
-			CollectMidgress: true,
+			StreamName:         "TestStream",
+			CollectMidgress:    true,
+			SamplingPercentage: 0,
+			// DO NOT set IntegrationType in request
 		},
 	}
 
@@ -394,6 +480,125 @@ func TestDs_CreateStream(t *testing.T) {
 		expectedResponse *DetailedStreamVersion
 		withError        error
 	}{
+		"201 Created with IntegrationType PM_DEPENDENT and SamplingPercentage 75 (output only)": {
+			request: modifyRequest(createStreamRequest, func(r *CreateStreamRequest) {
+				r.StreamConfiguration.SamplingPercentage = 75
+			}),
+			responseStatus: http.StatusCreated,
+			responseBody: `
+{
+    "contractId": "2-AB1234",
+    "createdBy": "pmuser",
+    "createdDate": "2023-01-20T10:00:00Z",
+    "integrationType": "PM_DEPENDENT",
+    "samplingPercentage": 75,
+    "collectMidgress": true,
+    "datasetFields": [
+        {"datasetFieldId":2020, "datasetFieldName":"pm_field", "datasetFieldJsonKey":"pm_key"}
+    ],
+    "deliveryConfiguration": {
+        "fieldDelimiter": "SPACE",
+        "format": "STRUCTURED",
+        "frequency": {"intervalInSeconds": 15},
+        "uploadFilePrefix": "pm_logs",
+        "uploadFileSuffix": "pmx"
+    },
+    "destination": {
+        "bucket": "pmbucket.com",
+        "compressLogs": false,
+        "destinationType": "S3",
+        "displayName": "pm display-name",
+        "path": "pm-path/{%Y/%m/%d}",
+        "region": "eu-central-1"
+    },
+    "groupId": 1234,
+    "latestVersion": 2,
+    "modifiedBy": "pmuser2",
+    "modifiedDate": "2023-01-21T12:00:00Z",
+    "notificationEmails": ["pmuser@akamai.com"],
+    "productId": "PMDelivery",
+    "properties": [{"propertyId": 4321, "propertyName": "pmprop"}],
+    "streamId": 9500,
+    "streamName": "PMStream",
+    "streamStatus": "ACTIVATED",
+    "streamVersion": 2
+}
+`,
+			expectedPath: "/datastream-config-api/v3/log/cdn/streams?activate=true",
+			expectedBody: `
+{
+   "streamName":"TestStream",
+   "groupId":1234,
+   "contractId":"2-AB1234",
+   "samplingPercentage":75,
+   "collectMidgress":true,
+   "notificationEmails":[
+      "useremail1@akamai.com",
+      "useremail2@akamai.com"
+   ],
+   "properties":[
+      {"propertyId":1234},
+      {"propertyId":1234}
+   ],
+   "datasetFields":[
+      {"datasetFieldId":2020}
+   ],
+   "deliveryConfiguration":{
+      "uploadFilePrefix":"logs",
+      "uploadFileSuffix":"ak",
+      "fieldDelimiter":"SPACE",
+      "format":"STRUCTURED",
+      "frequency":{"intervalInSeconds":30}
+   },
+   "destination":{
+      "path":"sample-path/{%Y/%m/%d}",
+      "displayName":"sample-display-name",
+      "bucket":"datastream.com",
+      "region":"ap-south-1",
+      "accessKey":"1234ABCD",
+      "secretAccessKey":"1234ABCD",
+      "destinationType":"S3"
+   }
+}
+`,
+			expectedResponse: &DetailedStreamVersion{
+				ContractID:         "2-AB1234",
+				CreatedBy:          "pmuser",
+				CreatedDate:        "2023-01-20T10:00:00Z",
+				IntegrationType:    "PM_DEPENDENT",
+				SamplingPercentage: 75,
+				CollectMidgress:    true,
+				DatasetFields: []DataSetField{
+					{DatasetFieldID: 2020, DatasetFieldName: "pm_field", DatasetFieldJsonKey: "pm_key"},
+				},
+				DeliveryConfiguration: DeliveryConfiguration{
+					Delimiter:        DelimiterTypePtr(DelimiterTypeSpace),
+					Format:           FormatTypeStructured,
+					Frequency:        Frequency{IntervalInSeconds: 15},
+					UploadFilePrefix: "pm_logs",
+					UploadFileSuffix: "pmx",
+				},
+				Destination: Destination{
+					CompressLogs:    false,
+					DisplayName:     "pm display-name",
+					DestinationType: DestinationTypeS3,
+					Path:            "pm-path/{%Y/%m/%d}",
+					Bucket:          "pmbucket.com",
+					Region:          "eu-central-1",
+				},
+				GroupID:            1234,
+				LatestVersion:      2,
+				StreamID:           9500,
+				StreamVersion:      2,
+				StreamName:         "PMStream",
+				StreamStatus:       StreamStatusActivated,
+				ModifiedBy:         "pmuser2",
+				ModifiedDate:       "2023-01-21T12:00:00Z",
+				NotificationEmails: []string{"pmuser@akamai.com"},
+				ProductID:          "PMDelivery",
+				Properties:         []Property{{PropertyID: 4321, PropertyName: "pmprop"}},
+			},
+		},
 		"201 Created ActivateNow:true": {
 			request:        createStreamRequest,
 			responseStatus: http.StatusCreated,
@@ -451,8 +656,6 @@ func TestDs_CreateStream(t *testing.T) {
     "streamStatus": "ACTIVATED", 
     "streamVersion": 1
 }
-
-
 `,
 			expectedPath: "/datastream-config-api/v3/log/cdn/streams?activate=true",
 			expectedResponse: &DetailedStreamVersion{
@@ -505,7 +708,6 @@ func TestDs_CreateStream(t *testing.T) {
 					},
 				},
 			},
-
 			expectedBody: `
 {
    "streamName":"TestStream",
@@ -517,40 +719,28 @@ func TestDs_CreateStream(t *testing.T) {
       "useremail2@akamai.com"
    ],
    "properties":[
-      {
-         "propertyId":1234
-      },
-      {
-         "propertyId":1234
-      }
+      {"propertyId":1234},{"propertyId":1234}
    ],
-   "datasetFields":[
-      {
-         "datasetFieldId":2020
-      }
-   ],
+   "datasetFields":[{"datasetFieldId":2020}],
    "deliveryConfiguration":{
       "uploadFilePrefix":"logs",
       "uploadFileSuffix":"ak",
       "fieldDelimiter":"SPACE",
       "format":"STRUCTURED",
-      "frequency":{
-         "intervalInSeconds":30
-      }
+      "frequency": {"intervalInSeconds":30}
    },
    "destination":{
-         "path":"sample-path/{%Y/%m/%d}",
-         "displayName":"sample-display-name",
-         "bucket":"datastream.com",
-         "region":"ap-south-1",
-         "accessKey":"1234ABCD",
-         "secretAccessKey":"1234ABCD",
-         "destinationType":"S3"
+      "path":"sample-path/{%Y/%m/%d}",
+      "displayName":"sample-display-name",
+      "bucket":"datastream.com",
+      "region":"ap-south-1",
+      "accessKey":"1234ABCD",
+      "secretAccessKey":"1234ABCD",
+      "destinationType":"S3"
    }
 }
 `,
 		},
-
 		"validation error - empty destination": {
 			request: modifyRequest(createStreamRequest, func(r *CreateStreamRequest) {
 				r.StreamConfiguration.Destination = AbstractConnector(&S3Connector{})
@@ -590,6 +780,18 @@ func TestDs_CreateStream(t *testing.T) {
 						Region:      "ap-south-1",
 					},
 				)
+			}),
+			withError: ErrStructValidation,
+		},
+		"validation error - SamplingPercentage less than 1": {
+			request: modifyRequest(createStreamRequest, func(r *CreateStreamRequest) {
+				r.StreamConfiguration.SamplingPercentage = -1
+			}),
+			withError: ErrStructValidation,
+		},
+		"validation error - SamplingPercentage greater than 100": {
+			request: modifyRequest(createStreamRequest, func(r *CreateStreamRequest) {
+				r.StreamConfiguration.SamplingPercentage = 101
 			}),
 			withError: ErrStructValidation,
 		},
@@ -673,17 +875,13 @@ func TestDs_CreateStream(t *testing.T) {
 				w.WriteHeader(test.responseStatus)
 				_, err := w.Write([]byte(test.responseBody))
 				assert.NoError(t, err)
-
-				//check request body only if we aren't testing errors
-				if test.withError == nil {
+				if test.withError == nil && test.expectedBody != "" {
 					var reqBody interface{}
 					err = json.NewDecoder(r.Body).Decode(&reqBody)
 					require.NoError(t, err, "Error while decoding request body")
-
 					var expectedBody interface{}
 					err = json.Unmarshal([]byte(test.expectedBody), &expectedBody)
 					require.NoError(t, err, "Error while parsing expected body to JSON")
-
 					assert.Equal(t, expectedBody, reqBody)
 				}
 			}))
@@ -706,7 +904,7 @@ func TestDs_UpdateStream(t *testing.T) {
 		StreamConfiguration: StreamConfiguration{
 			DeliveryConfiguration: DeliveryConfiguration{
 				Delimiter:        DelimiterTypePtr(DelimiterTypeSpace),
-				Format:           "STRUCTURED",
+				Format:           FormatTypeStructured,
 				Frequency:        Frequency{IntervalInSeconds: IntervalInSeconds30},
 				UploadFilePrefix: "logs",
 				UploadFileSuffix: "ak",
@@ -722,27 +920,15 @@ func TestDs_UpdateStream(t *testing.T) {
 			}),
 			ContractID: "P-1324",
 			DatasetFields: []DatasetFieldID{
-				{
-					DatasetFieldID: 1,
-				},
-				{
-					DatasetFieldID: 2,
-				},
-				{
-					DatasetFieldID: 3,
-				},
+				{DatasetFieldID: 1},
+				{DatasetFieldID: 2},
+				{DatasetFieldID: 3},
 			},
 			NotificationEmails: []string{"test@aka.mai", "useremail2@akamai.com"},
-
 			Properties: []PropertyID{
-				{
-					PropertyID: 123123,
-				},
-				{
-					PropertyID: 123123,
-				},
+				{PropertyID: 123123},
+				{PropertyID: 123123},
 			},
-
 			StreamName: "TestStream",
 		},
 	}
@@ -760,15 +946,17 @@ func TestDs_UpdateStream(t *testing.T) {
 		expectedResponse *DetailedStreamVersion
 		withError        error
 	}{
-		"200 OK activate:true": {
+		"200 OK activate:true with IntegrationType and SamplingPercentage": {
 			request:        updateRequest,
 			responseStatus: http.StatusOK,
 			responseBody: `
 {
-    "contractId": "2-AB1234", 
-    "createdBy": "sample_username", 
-    "createdDate": "2022-11-04T00:49:45Z", 
+    "contractId": "2-AB1234",
+    "createdBy": "sample_username",
+    "createdDate": "2022-11-04T00:49:45Z",
     "collectMidgress": true,
+    "integrationType": "PM_DEPENDENT",
+    "samplingPercentage": 55,
     "datasetFields": [
         {
             "datasetFieldId":2020,
@@ -777,52 +965,54 @@ func TestDs_UpdateStream(t *testing.T) {
         }
     ],
     "deliveryConfiguration": {
-        "fieldDelimiter": "SPACE", 
-        "format": "STRUCTURED", 
+        "fieldDelimiter": "SPACE",
+        "format": "STRUCTURED",
         "frequency": {
             "intervalInSeconds": 30
-        }, 
-        "uploadFilePrefix": "logs", 
+        },
+        "uploadFilePrefix": "logs",
         "uploadFileSuffix": "ak"
     },
     "destination": {
-        "bucket": "datastream.com", 
-        "compressLogs": true, 
-        "destinationType": "S3", 
-        "displayName": "sample-display-name", 
-        "path": "sample-path/{%Y/%m/%d}", 
+        "bucket": "datastream.com",
+        "compressLogs": true,
+        "destinationType": "S3",
+        "displayName": "sample-display-name",
+        "path": "sample-path/{%Y/%m/%d}",
         "region": "ap-south-1"
     },
-    "groupId": 1234, 
-    "latestVersion": 2, 
-    "modifiedBy": "modified_by_user", 
-    "modifiedDate": "2022-11-04T02:14:29Z", 
+    "groupId": 1234,
+    "latestVersion": 2,
+    "modifiedBy": "modified_by_user",
+    "modifiedDate": "2022-11-04T02:14:29Z",
     "notificationEmails": [
         "useremail1@akamai.com", "useremail2@akamai.com"
-    ], 
-    "productId": "Adaptive_Media_Delivery", 
+    ],
+    "productId": "Adaptive_Media_Delivery",
     "properties": [
         {
-            "propertyId": 1234, 
+            "propertyId": 1234,
             "propertyName": "sample1.com"
         },
         {
-            "propertyId": 1234, 
+            "propertyId": 1234,
             "propertyName": "sample2.com"
         }
-    ], 
-    "streamId": 7050, 
-    "streamName": "TestStream", 
-    "streamStatus": "ACTIVATED", 
+    ],
+    "streamId": 7050,
+    "streamName": "TestStream",
+    "streamStatus": "ACTIVATED",
     "streamVersion": 2
 }
 `,
 			expectedPath: "/datastream-config-api/v3/log/cdn/streams/7050?activate=true",
 			expectedResponse: &DetailedStreamVersion{
-				CollectMidgress: true,
-				ContractID:      "2-AB1234",
-				CreatedBy:       "sample_username",
-				CreatedDate:     "2022-11-04T00:49:45Z",
+				CollectMidgress:    true,
+				ContractID:         "2-AB1234",
+				CreatedBy:          "sample_username",
+				CreatedDate:        "2022-11-04T00:49:45Z",
+				IntegrationType:    "PM_DEPENDENT",
+				SamplingPercentage: 55,
 				DatasetFields: []DataSetField{
 					{
 						DatasetFieldName:    "field_name_1",
@@ -902,6 +1092,18 @@ func TestDs_UpdateStream(t *testing.T) {
 		"validation error - missing contractId": {
 			request: modifyRequest(updateRequest, func(r *UpdateStreamRequest) {
 				r.StreamConfiguration.ContractID = ""
+			}),
+			withError: ErrStructValidation,
+		},
+		"validation error - SamplingPercentage less than 1": {
+			request: modifyRequest(updateRequest, func(r *UpdateStreamRequest) {
+				r.StreamConfiguration.SamplingPercentage = -1
+			}),
+			withError: ErrStructValidation,
+		},
+		"validation error - SamplingPercentage greater than 100": {
+			request: modifyRequest(updateRequest, func(r *UpdateStreamRequest) {
+				r.StreamConfiguration.SamplingPercentage = 101
 			}),
 			withError: ErrStructValidation,
 		},
@@ -1664,6 +1866,105 @@ func TestDs_ListStreams(t *testing.T) {
 					StreamID:      123,
 					StreamName:    "test-stream",
 					StreamVersion: 2,
+				},
+			},
+		},
+		"200 OK - with IntegrationType and SamplingPercentage": {
+			request:        ListStreamsRequest{},
+			responseStatus: http.StatusOK,
+			responseBody: `
+[
+   {
+      "contractId":"PM-123",
+      "createdBy":"pmuser",
+      "createdDate":"2024-01-15T10:30:00Z",
+      "groupId":456,
+      "latestVersion":3,
+      "modifiedBy":"pmuser",
+      "modifiedDate":"2024-01-16T14:20:00Z",
+      "productId":"Premium_Delivery",
+      "properties":[
+         {
+            "propertyId":789,
+            "propertyName":"premium.example.com"
+         }
+      ],
+      "streamId":555,
+      "streamName":"premium-stream",
+      "streamStatus":"ACTIVATED",
+      "streamVersion":3,
+      "integrationType":"PM_DEPENDENT",
+      "samplingPercentage":75
+   },
+   {
+      "contractId":"DS-456",
+      "createdBy":"dsuser",
+      "createdDate":"2024-02-01T08:00:00Z",
+      "groupId":789,
+      "latestVersion":1,
+      "modifiedBy":"dsuser",
+      "modifiedDate":"2024-02-01T08:00:00Z",
+      "productId":"Data_Stream",
+      "properties":[
+         {
+            "propertyId":999,
+            "propertyName":"datastream.example.com"
+         }
+      ],
+      "streamId":777,
+      "streamName":"ds-managed-stream",
+      "streamStatus":"INACTIVE",
+      "streamVersion":1,
+      "integrationType":"DS_MANAGED",
+      "samplingPercentage":100
+   }
+]
+`,
+			expectedPath: "/datastream-config-api/v3/log/cdn/streams",
+			expectedResponse: []StreamDetails{
+				{
+					StreamStatus:  StreamStatusActivated,
+					ProductID:     "Premium_Delivery",
+					ModifiedBy:    "pmuser",
+					ModifiedDate:  "2024-01-16T14:20:00Z",
+					ContractID:    "PM-123",
+					CreatedBy:     "pmuser",
+					CreatedDate:   "2024-01-15T10:30:00Z",
+					LatestVersion: 3,
+					GroupID:       456,
+					Properties: []Property{
+						{
+							PropertyID:   789,
+							PropertyName: "premium.example.com",
+						},
+					},
+					StreamID:           555,
+					StreamName:         "premium-stream",
+					StreamVersion:      3,
+					IntegrationType:    "PM_DEPENDENT",
+					SamplingPercentage: 75,
+				},
+				{
+					StreamStatus:  StreamStatusInactive,
+					ProductID:     "Data_Stream",
+					ModifiedBy:    "dsuser",
+					ModifiedDate:  "2024-02-01T08:00:00Z",
+					ContractID:    "DS-456",
+					CreatedBy:     "dsuser",
+					CreatedDate:   "2024-02-01T08:00:00Z",
+					LatestVersion: 1,
+					GroupID:       789,
+					Properties: []Property{
+						{
+							PropertyID:   999,
+							PropertyName: "datastream.example.com",
+						},
+					},
+					StreamID:           777,
+					StreamName:         "ds-managed-stream",
+					StreamVersion:      1,
+					IntegrationType:    "DS_MANAGED",
+					SamplingPercentage: 100,
 				},
 			},
 		},

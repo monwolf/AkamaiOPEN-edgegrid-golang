@@ -329,6 +329,16 @@ func (p *Mock) GetActivePropertyHostnamesDiff(ctx context.Context, r GetActivePr
 	return args.Get(0).(*GetActivePropertyHostnamesDiffResponse), args.Error(1)
 }
 
+func (p *Mock) ListActiveAccountHostnames(ctx context.Context, r ListActiveAccountHostnamesRequest) (*ListActiveAccountHostnamesResponse, error) {
+	args := p.Called(ctx, r)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*ListActiveAccountHostnamesResponse), args.Error(1)
+}
+
 func (p *Mock) UpdatePropertyVersionHostnames(ctx context.Context, r UpdatePropertyVersionHostnamesRequest) (*UpdatePropertyVersionHostnamesResponse, error) {
 	args := p.Called(ctx, r)
 
@@ -347,6 +357,16 @@ func (p *Mock) PatchPropertyVersionHostnames(ctx context.Context, r PatchPropert
 	}
 
 	return args.Get(0).(*PatchPropertyVersionHostnamesResponse), args.Error(1)
+}
+
+func (p *Mock) GetAuditHistory(ctx context.Context, r GetAuditHistoryRequest) (*GetAuditHistoryResponse, error) {
+	args := p.Called(ctx, r)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*GetAuditHistoryResponse), args.Error(1)
 }
 
 func (p *Mock) GetClientSettings(ctx context.Context) (*ClientSettingsBody, error) {
@@ -772,4 +792,14 @@ func (p *Mock) PatchPropertyHostnameBucket(ctx context.Context, r PatchPropertyH
 	}
 
 	return args.Get(0).(*PatchPropertyHostnameBucketResponse), args.Error(1)
+}
+
+func (p *Mock) ValidateDomainsOwnership(ctx context.Context, r ValidateDomainsOwnershipRequest) (*ValidateDomainsOwnershipResponse, error) {
+	args := p.Called(ctx, r)
+
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+
+	return args.Get(0).(*ValidateDomainsOwnershipResponse), args.Error(1)
 }

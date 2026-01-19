@@ -11,7 +11,6 @@
 // A successful call returns a new API client with its `credentialId`. Use this ID in both the update and delete examples.
 //
 // For more information on the call used in this example, see https://techdocs.akamai.com/iam-api/reference/post-self-credentials.
-
 package main
 
 import (
@@ -27,6 +26,10 @@ func main() {
 		edgegrid.WithFile("~/.edgerc"),
 		edgegrid.WithSection("default"),
 	)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	client := http.Client{}
 
@@ -44,7 +47,9 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	defer res.Body.Close()
+	defer func() {
+		_ = res.Body.Close()
+	}()
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {

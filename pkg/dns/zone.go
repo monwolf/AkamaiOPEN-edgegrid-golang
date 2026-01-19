@@ -469,7 +469,7 @@ func (d *dns) PostMasterZoneFile(ctx context.Context, params PostMasterZoneFileR
 
 	resp, err := d.Exec(req, &mtResp)
 	if err != nil {
-		return fmt.Errorf("Create PostMasterZoneFile failed: %w", err)
+		return fmt.Errorf("create PostMasterZoneFile failed: %w", err)
 	}
 	defer session.CloseResponseBody(resp)
 
@@ -717,36 +717,36 @@ func filterZoneCreate(zone *ZoneCreate) map[string]interface{} {
 // ValidateZone validates ZoneCreate Object
 func ValidateZone(zone *ZoneCreate) error {
 	if len(zone.Zone) == 0 {
-		return fmt.Errorf("Zone name is required")
+		return fmt.Errorf("field Zone name is required")
 	}
 	zType := strings.ToUpper(zone.Type)
 	if zType != "PRIMARY" && zType != "SECONDARY" && zType != "ALIAS" {
-		return fmt.Errorf("Invalid zone type")
+		return fmt.Errorf("invalid zone type")
 	}
 	if zType != "SECONDARY" && zone.TSIGKey != nil {
 		return fmt.Errorf("TsigKey is invalid for %s zone type", zType)
 	}
 	if zType == "ALIAS" {
 		if len(zone.Target) == 0 {
-			return fmt.Errorf("Target is required for Alias zone type")
+			return fmt.Errorf("field Target is required for Alias zone type")
 		}
 		if len(zone.Masters) > 0 {
-			return fmt.Errorf("Masters is invalid for Alias zone type")
+			return fmt.Errorf("field Masters is invalid for Alias zone type")
 		}
 		if zone.SignAndServe {
-			return fmt.Errorf("SignAndServe is invalid for Alias zone type")
+			return fmt.Errorf("field SignAndServe is invalid for Alias zone type")
 		}
 		if len(zone.SignAndServeAlgorithm) > 0 {
-			return fmt.Errorf("SignAndServeAlgorithm is invalid for Alias zone type")
+			return fmt.Errorf("filed SignAndServeAlgorithm is invalid for Alias zone type")
 		}
 		return nil
 	}
 	// Primary or Secondary
 	if len(zone.Target) > 0 {
-		return fmt.Errorf("Target is invalid for %s zone type", zType)
+		return fmt.Errorf("field Target is invalid for %s zone type", zType)
 	}
 	if len(zone.Masters) > 0 && zType == "PRIMARY" {
-		return fmt.Errorf("Masters is invalid for Primary zone type")
+		return fmt.Errorf("field Masters is invalid for Primary zone type")
 	}
 
 	return nil

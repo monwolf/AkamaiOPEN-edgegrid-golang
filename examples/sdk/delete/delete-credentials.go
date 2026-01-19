@@ -15,7 +15,6 @@
 // A successful call returns an empty response body.
 //
 // For more information on the call used in this example, see https://techdocs.akamai.com/iam-api/reference/delete-self-credential.
-
 package main
 
 import (

@@ -324,7 +324,7 @@ func TestDataCenterValidate(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			err := test.DataCenter.Validate()
+			err := test.Validate()
 			if test.withError != nil {
 				require.Error(t, err)
 				assert.Equal(t, test.withError.Error(), err.Error(), "want: %s; got %s", test.withError, err)

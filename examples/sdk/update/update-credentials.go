@@ -17,7 +17,6 @@
 // A successful call returns an object with modified credentials.
 //
 // For more information on the call used in this example, see https://techdocs.akamai.com/iam-api/reference/put-self-credential.
-
 package main
 
 import (

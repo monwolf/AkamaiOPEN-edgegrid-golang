@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/ptr"
 	"github.com/stretchr/testify/assert"
@@ -23,7 +25,7 @@ func TestPapiGetPropertyVersionHostnames(t *testing.T) {
 		expectedResponse *GetPropertyVersionHostnamesResponse
 		withError        func(*testing.T, error)
 	}{
-		"200 OK": {
+		"200 OK with validation in progress": {
 			params: GetPropertyVersionHostnamesRequest{
 				PropertyID:        "prp_175780",
 				PropertyVersion:   3,
@@ -39,6 +41,7 @@ func TestPapiGetPropertyVersionHostnames(t *testing.T) {
     "groupId": "grp_15225",
     "propertyId": "prp_175780",
     "propertyVersion": 3,
+	"propertyName": "mytestproperty.com",
     "etag": "6aed418629b4e5c0",
     "hostnames": {
         "items": [
@@ -52,7 +55,29 @@ func TestPapiGetPropertyVersionHostnames(t *testing.T) {
                 "cnameType": "EDGE_HOSTNAME",
                 "edgeHostnameId": "ehn_895833",
                 "cnameFrom": "m.example.com",
-                "cnameTo": "m.example.com.edgesuite.net"
+                "cnameTo": "m.example.com.edgesuite.net",
+                "domainOwnershipVerification": {
+                    "challengeTokenExpiryDate": "2024-05-14T05:25:56Z",
+                    "status": "VALIDATION_IN_PROGRESS",
+                    "validationCname": {
+                        "hostname": "validation.hostname.example.com",
+                        "target": "validation.target.example.com"
+                    },
+                    "validationHttp": {
+                        "redirectMethod": {
+                            "httpRedirectFrom": "http.validation.redirect.from.example.com",
+                            "httpRedirectTo": "http.validation.redirect.to.example.com"
+                        },
+                        "fileContentMethod": {
+                            "url": "http://validation.file.content.example.com/validation.txt",
+                            "body": "HTTP validation body"
+                        }
+                    },
+                    "validationTxt": {
+                        "hostname": "txt.validation.hostname.example.com",
+                        "challengeToken": "token"
+                    }
+                }
             }
         ]
     }
@@ -67,6 +92,7 @@ func TestPapiGetPropertyVersionHostnames(t *testing.T) {
 				PropertyID:      "prp_175780",
 				PropertyVersion: 3,
 				Etag:            "6aed418629b4e5c0",
+				PropertyName:    "mytestproperty.com",
 				Hostnames: HostnameResponseItems{
 					Items: []Hostname{
 						{
@@ -80,6 +106,98 @@ func TestPapiGetPropertyVersionHostnames(t *testing.T) {
 							EdgeHostnameID: "ehn_895833",
 							CnameFrom:      "m.example.com",
 							CnameTo:        "m.example.com.edgesuite.net",
+							DomainOwnershipVerification: &DomainOwnershipVerification{
+								ChallengeTokenExpiryDate: ptr.To(time.Date(2024, 5, 14, 5, 25, 56, 0, time.UTC)),
+								Status:                   "VALIDATION_IN_PROGRESS",
+								ValidationCname: &ValidationCname{
+									Hostname: "validation.hostname.example.com",
+									Target:   "validation.target.example.com",
+								},
+								ValidationHTTP: &ValidationHTTP{
+									RedirectMethod: RedirectMethod{
+										HTTPRedirectFrom: "http.validation.redirect.from.example.com",
+										HTTPRedirectTo:   "http.validation.redirect.to.example.com",
+									},
+									FileContentMethod: FileContentMethod{
+										URL:  "http://validation.file.content.example.com/validation.txt",
+										Body: "HTTP validation body",
+									},
+								},
+								ValidationTXT: &ValidationTXT{
+									Hostname:       "txt.validation.hostname.example.com",
+									ChallengeToken: "token",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		"200 OK validated": {
+			params: GetPropertyVersionHostnamesRequest{
+				PropertyID:        "prp_175780",
+				PropertyVersion:   3,
+				GroupID:           "grp_15225",
+				ContractID:        "ctr_1-1TJZH5",
+				IncludeCertStatus: false,
+			},
+			responseStatus: http.StatusOK,
+			responseBody: `
+{
+    "accountId": "act_1-1TJZFB",
+    "contractId": "ctr_1-1TJZH5",
+    "groupId": "grp_15225",
+    "propertyId": "prp_175780",
+    "propertyVersion": 3,
+	"propertyName": "mytestproperty.com",
+    "etag": "6aed418629b4e5c0",
+    "hostnames": {
+        "items": [
+            {
+                "cnameType": "EDGE_HOSTNAME",
+                "edgeHostnameId": "ehn_895822",
+                "cnameFrom": "example.com",
+                "cnameTo": "example.com.edgesuite.net"
+            },
+            {
+                "cnameType": "EDGE_HOSTNAME",
+                "edgeHostnameId": "ehn_895833",
+                "cnameFrom": "m.example.com",
+                "cnameTo": "m.example.com.edgesuite.net",
+                "domainOwnershipVerification": {
+                    "status": "VALIDATED"
+                }
+            }
+        ]
+    }
+}
+
+`,
+			expectedPath: "/papi/v1/properties/prp_175780/versions/3/hostnames?contractId=ctr_1-1TJZH5&groupId=grp_15225&includeCertStatus=false&validateHostnames=false",
+			expectedResponse: &GetPropertyVersionHostnamesResponse{
+				AccountID:       "act_1-1TJZFB",
+				ContractID:      "ctr_1-1TJZH5",
+				GroupID:         "grp_15225",
+				PropertyID:      "prp_175780",
+				PropertyVersion: 3,
+				Etag:            "6aed418629b4e5c0",
+				PropertyName:    "mytestproperty.com",
+				Hostnames: HostnameResponseItems{
+					Items: []Hostname{
+						{
+							CnameType:      "EDGE_HOSTNAME",
+							EdgeHostnameID: "ehn_895822",
+							CnameFrom:      "example.com",
+							CnameTo:        "example.com.edgesuite.net",
+						},
+						{
+							CnameType:      "EDGE_HOSTNAME",
+							EdgeHostnameID: "ehn_895833",
+							CnameFrom:      "m.example.com",
+							CnameTo:        "m.example.com.edgesuite.net",
+							DomainOwnershipVerification: &DomainOwnershipVerification{
+								Status: "VALIDATED",
+							},
 						},
 					},
 				},
@@ -157,6 +275,7 @@ func TestPapiGetPropertyVersionHostnames(t *testing.T) {
 				PropertyID:      "prp_123456",
 				PropertyVersion: 1,
 				Etag:            "6aed418629b4e5c0",
+				PropertyName:    "mytestproperty.com",
 				Hostnames: HostnameResponseItems{
 					Items: []Hostname{
 						{
@@ -241,6 +360,28 @@ func TestPapiGetPropertyVersionHostnames(t *testing.T) {
 				assert.Contains(t, err.Error(), "PropertyVersion")
 			},
 		},
+		"404 not found error": {
+			params: GetPropertyVersionHostnamesRequest{
+				PropertyID:        "prp_175780",
+				PropertyVersion:   3,
+				GroupID:           "grp_15225",
+				ContractID:        "ctr_1-1TJZH5",
+				IncludeCertStatus: false,
+			},
+			responseStatus: http.StatusNotFound,
+			responseBody: `
+{
+	"type": "not_found",
+    "title": "Not Found",
+    "detail": "The requested resource was not found",
+    "status": 404
+}`,
+			expectedPath: "/papi/v1/properties/prp_175780/versions/3/hostnames?contractId=ctr_1-1TJZH5&groupId=grp_15225&includeCertStatus=false&validateHostnames=false",
+			withError: func(t *testing.T, err error) {
+				want := fmt.Errorf("%s: %w: %s", ErrGetPropertyVersionHostnames, ErrNotFound, "request failed")
+				assert.True(t, errors.Is(err, ErrNotFound), "want: %s; got: %s", want, err)
+			},
+		},
 		"500 internal server status error": {
 			params: GetPropertyVersionHostnamesRequest{
 				PropertyID:      "prp_175780",
@@ -298,7 +439,7 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 		expectedResponse *UpdatePropertyVersionHostnamesResponse
 		withError        func(*testing.T, error)
 	}{
-		"200 OK": {
+		"200 OK with validation in progress": {
 			params: UpdatePropertyVersionHostnamesRequest{
 				PropertyID:        "prp_175780",
 				PropertyVersion:   3,
@@ -328,6 +469,7 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
     "groupId": "grp_15225",
     "propertyId": "prp_175780",
     "propertyVersion": 3,
+	"propertyName": "mytestproperty.com",
     "etag": "6aed418629b4e5c0",
     "hostnames": {
         "items": [
@@ -359,7 +501,29 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
                 "edgeHostnameId": "ehn_895833",
                 "cnameFrom": "example3.com",
                 "cnameTo": "m.example.com.edgesuite.net",
- 				"certProvisioningType": "CPS_MANAGED"
+ 				"certProvisioningType": "CPS_MANAGED",
+				"domainOwnershipVerification": {
+					"challengeTokenExpiryDate": "2024-05-14T05:25:56Z",
+					"status": "VALIDATION_IN_PROGRESS",
+					"validationCname": {
+						"hostname": "validation.hostname.example.com",
+						"target": "validation.target.example.com"
+					},
+					"validationHttp": {
+						"redirectMethod": {
+							"httpRedirectFrom": "http.validation.redirect.from.example.com",
+							"httpRedirectTo": "http.validation.redirect.to.example.com"
+						},
+						"fileContentMethod": {
+							"url": "http://validation.file.content.example.com/validation.txt",
+							"body": "HTTP validation body"
+						}
+					},
+					"validationTxt": {
+						"hostname": "txt.validation.hostname.example.com",
+						"challengeToken": "token"
+					}
+				}	
             }
         ]
     }
@@ -372,6 +536,7 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 				GroupID:         "grp_15225",
 				PropertyID:      "prp_175780",
 				PropertyVersion: 3,
+				PropertyName:    "mytestproperty.com",
 				Etag:            "6aed418629b4e5c0",
 				Hostnames: HostnameResponseItems{
 					Items: []Hostname{
@@ -396,6 +561,95 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 							CnameFrom:            "example3.com",
 							CnameTo:              "m.example.com.edgesuite.net",
 							CertProvisioningType: "CPS_MANAGED",
+							DomainOwnershipVerification: &DomainOwnershipVerification{
+								ChallengeTokenExpiryDate: ptr.To(time.Date(2024, 5, 14, 5, 25, 56, 0, time.UTC)),
+								Status:                   "VALIDATION_IN_PROGRESS",
+								ValidationCname: &ValidationCname{
+									Hostname: "validation.hostname.example.com",
+									Target:   "validation.target.example.com",
+								},
+								ValidationHTTP: &ValidationHTTP{
+									RedirectMethod: RedirectMethod{
+										HTTPRedirectFrom: "http.validation.redirect.from.example.com",
+										HTTPRedirectTo:   "http.validation.redirect.to.example.com",
+									},
+									FileContentMethod: FileContentMethod{
+										URL:  "http://validation.file.content.example.com/validation.txt",
+										Body: "HTTP validation body",
+									},
+								},
+								ValidationTXT: &ValidationTXT{
+									Hostname:       "txt.validation.hostname.example.com",
+									ChallengeToken: "token",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		"200 OK validated": {
+			params: UpdatePropertyVersionHostnamesRequest{
+				PropertyID:        "prp_175780",
+				PropertyVersion:   3,
+				GroupID:           "grp_15225",
+				ContractID:        "ctr_1-1TJZH5",
+				IncludeCertStatus: true,
+				Hostnames: []Hostname{
+					{
+						CnameType:            "EDGE_HOSTNAME",
+						EdgeHostnameID:       "ehn_895824",
+						CnameFrom:            "example3.com",
+						CertProvisioningType: "CPS_MANAGED",
+					},
+				},
+			},
+			responseStatus: http.StatusOK,
+			responseBody: `
+{
+    "accountId": "act_1-1TJZFB",
+    "contractId": "ctr_1-1TJZH5",
+    "groupId": "grp_15225",
+    "propertyId": "prp_175780",
+    "propertyVersion": 3,
+	"propertyName": "mytestproperty.com",
+    "etag": "6aed418629b4e5c0",
+    "hostnames": {
+        "items": [
+            {
+                "cnameType": "EDGE_HOSTNAME",
+                "edgeHostnameId": "ehn_895833",
+                "cnameFrom": "example3.com",
+                "cnameTo": "m.example.com.edgesuite.net",
+ 				"certProvisioningType": "CPS_MANAGED",
+				"domainOwnershipVerification": {
+					"status": "VALIDATED"
+				}	
+            }
+        ]
+    }
+}
+`,
+			expectedPath: "/papi/v1/properties/prp_175780/versions/3/hostnames?contractId=ctr_1-1TJZH5&groupId=grp_15225&includeCertStatus=true&validateHostnames=false",
+			expectedResponse: &UpdatePropertyVersionHostnamesResponse{
+				AccountID:       "act_1-1TJZFB",
+				ContractID:      "ctr_1-1TJZH5",
+				GroupID:         "grp_15225",
+				PropertyID:      "prp_175780",
+				PropertyVersion: 3,
+				PropertyName:    "mytestproperty.com",
+				Etag:            "6aed418629b4e5c0",
+				Hostnames: HostnameResponseItems{
+					Items: []Hostname{
+						{
+							CnameType:            "EDGE_HOSTNAME",
+							EdgeHostnameID:       "ehn_895833",
+							CnameFrom:            "example3.com",
+							CnameTo:              "m.example.com.edgesuite.net",
+							CertProvisioningType: "CPS_MANAGED",
+							DomainOwnershipVerification: &DomainOwnershipVerification{
+								Status: "VALIDATED",
+							},
 						},
 					},
 				},
@@ -510,6 +764,7 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 				PropertyID:      "prp_123456",
 				PropertyVersion: 1,
 				Etag:            "6aed418629b4e5c0",
+				PropertyName:    "mytestproperty.com",
 				Hostnames: HostnameResponseItems{
 					Items: []Hostname{
 						{
@@ -572,6 +827,7 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
     "propertyId": "prp_175780",
     "propertyVersion": 3,
     "etag": "6aed418629b4e5c0",
+	"propertyName": "mytestproperty.com",
     "hostnames": {
         "items": []
     }
@@ -585,6 +841,7 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 				PropertyID:      "prp_175780",
 				PropertyVersion: 3,
 				Etag:            "6aed418629b4e5c0",
+				PropertyName:    "mytestproperty.com",
 				Hostnames: HostnameResponseItems{
 					Items: []Hostname{},
 				},
@@ -609,6 +866,7 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
     "propertyId": "prp_175780",
     "propertyVersion": 3,
     "etag": "6aed418629b4e5c0",
+	"propertyName": "mytestproperty.com",
 	"validateHostnames": true,
     "hostnames": {
         "items": []
@@ -623,6 +881,7 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 				PropertyID:      "prp_175780",
 				PropertyVersion: 3,
 				Etag:            "6aed418629b4e5c0",
+				PropertyName:    "mytestproperty.com",
 				Hostnames: HostnameResponseItems{
 					Items: []Hostname{},
 				},
@@ -809,6 +1068,31 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 				assert.Contains(t, err.Error(), "the mTLS configuration is provided without `certProvisioningType` set to `CCM`")
 			},
 		},
+		"validation error - DomainOwnershipVerification should not be populated in requests": {
+			params: UpdatePropertyVersionHostnamesRequest{
+				PropertyID:        "prp_123456",
+				PropertyVersion:   3,
+				GroupID:           "grp_54321",
+				ContractID:        "ctr_1-2ABCD3",
+				IncludeCertStatus: true,
+				Hostnames: []Hostname{
+					{
+						CertProvisioningType: "CPS_MANAGED",
+						CnameFrom:            "www.example.com",
+						CnameTo:              "example.com.edgesuite.net",
+						CnameType:            "EDGE_HOSTNAME",
+						DomainOwnershipVerification: &DomainOwnershipVerification{
+							Status: "PENDING",
+						},
+					},
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				want := ErrStructValidation
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+				assert.Contains(t, err.Error(), "DomainOwnershipVerification: field is returned only in responses and should not be populated in requests")
+			},
+		},
 		"validation error - TLSConfiguration is only valid for CCM": {
 			params: UpdatePropertyVersionHostnamesRequest{
 				PropertyID:        "prp_123456",
@@ -940,6 +1224,7 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 	"propertyId": "prp_175780",
 	"propertyVersion": 3,
 	"etag": "6aed418629b4e5c0",
+	"propertyName": "mytestproperty.com",
 	"validateHostnames": false,
 	"hostnames": {
 		"items": []
@@ -953,6 +1238,7 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 				PropertyID:      "prp_175780",
 				PropertyVersion: 3,
 				Etag:            "6aed418629b4e5c0",
+				PropertyName:    "mytestproperty.com",
 				Hostnames: HostnameResponseItems{
 					Items: []Hostname{},
 				},
@@ -976,6 +1262,7 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 	"propertyId": "prp_175780",
 	"propertyVersion": 3,
 	"etag": "6aed418629b4e5c0",
+	"propertyName": "mytestproperty.com",
 	"validateHostnames": false,
 	"hostnames": {
 		"items": []
@@ -989,6 +1276,7 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 				PropertyID:      "prp_175780",
 				PropertyVersion: 3,
 				Etag:            "6aed418629b4e5c0",
+				PropertyName:    "mytestproperty.com",
 				Hostnames: HostnameResponseItems{
 					Items: []Hostname{},
 				},
@@ -1012,6 +1300,7 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 	"propertyId": "prp_175780",
 	"propertyVersion": 3,
 	"etag": "6aed418629b4e5c0",
+	"propertyName": "mytestproperty.com",
 	"validateHostnames": false,
 	"hostnames": {
 		"items": []
@@ -1025,6 +1314,7 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 				PropertyID:      "prp_175780",
 				PropertyVersion: 3,
 				Etag:            "6aed418629b4e5c0",
+				PropertyName:    "mytestproperty.com",
 				Hostnames: HostnameResponseItems{
 					Items: []Hostname{},
 				},
@@ -1161,6 +1451,7 @@ func TestPapiPatchPropertyVersionHostnames(t *testing.T) {
 				"propertyName": "test-property",
 				"propertyVersion": 1,
 				"etag": "123abc456def7890",
+				"propertyName": "test-property",
 				"hostnames": {
 					"items": [
 						{
@@ -1491,7 +1782,7 @@ func TestPapiPatchPropertyVersionHostnames(t *testing.T) {
 				},
 			},
 		},
-		"200 OK - with optional fields": {
+		"200 OK - with optional fields and validation in progress": {
 			params: PatchPropertyVersionHostnamesRequest{
 				PropertyID:        "prp_123",
 				PropertyVersion:   1,
@@ -1555,6 +1846,28 @@ func TestPapiPatchPropertyVersionHostnames(t *testing.T) {
 									"hostname": "_acme-challenge.example3.com",
 									"target": "ac.ee03f141752f0e52808f6669ad50ad43.example3.com.validate-akdv.net"
 								}
+							},
+							"domainOwnershipVerification": {
+								"challengeTokenExpiryDate": "2024-05-14T05:25:56Z",
+								"status": "VALIDATION_IN_PROGRESS",
+								"validationCname": {
+									"hostname": "validation.hostname.example.com",
+									"target": "validation.target.example.com"
+								},
+								"validationHttp": {
+									"redirectMethod": {
+										"httpRedirectFrom": "http.validation.redirect.from.example.com",
+										"httpRedirectTo": "http.validation.redirect.to.example.com"
+									},
+									"fileContentMethod": {
+										"url": "http://validation.file.content.example.com/validation.txt",
+										"body": "HTTP validation body"
+									}
+								},
+								"validationTxt": {
+									"hostname": "txt.validation.hostname.example.com",
+									"challengeToken": "token"
+								}
 							}
 						}
 					]
@@ -1600,6 +1913,130 @@ func TestPapiPatchPropertyVersionHostnames(t *testing.T) {
 									Hostname: "_acme-challenge.example3.com",
 									Target:   "ac.ee03f141752f0e52808f6669ad50ad43.example3.com.validate-akdv.net",
 								},
+							},
+							DomainOwnershipVerification: &DomainOwnershipVerification{
+								ChallengeTokenExpiryDate: ptr.To(time.Date(2024, 5, 14, 5, 25, 56, 0, time.UTC)),
+								Status:                   "VALIDATION_IN_PROGRESS",
+								ValidationCname: &ValidationCname{
+									Hostname: "validation.hostname.example.com",
+									Target:   "validation.target.example.com",
+								},
+								ValidationHTTP: &ValidationHTTP{
+									RedirectMethod: RedirectMethod{
+										HTTPRedirectFrom: "http.validation.redirect.from.example.com",
+										HTTPRedirectTo:   "http.validation.redirect.to.example.com",
+									},
+									FileContentMethod: FileContentMethod{
+										URL:  "http://validation.file.content.example.com/validation.txt",
+										Body: "HTTP validation body",
+									},
+								},
+								ValidationTXT: &ValidationTXT{
+									Hostname:       "txt.validation.hostname.example.com",
+									ChallengeToken: "token",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		"200 OK validated": {
+			params: PatchPropertyVersionHostnamesRequest{
+				PropertyID:        "prp_123",
+				PropertyVersion:   1,
+				ContractID:        "ctr_456",
+				GroupID:           "grp_321",
+				IncludeCertStatus: true,
+				ValidateHostnames: true,
+				Body: PatchPropertyVersionHostnamesRequestBody{
+					Add: []HostnameAdd{
+						{
+							CnameType:            HostnameCnameTypeEdgeHostname,
+							EdgeHostnameID:       "ehn_666",
+							CnameFrom:            "example3.com",
+							CertProvisioningType: CertTypeDefault,
+						},
+					},
+				},
+			},
+			responseStatus: http.StatusOK,
+			responseBody: `
+			{
+				"accountId": "act_789",
+				"contractId": "ctr_456",
+				"groupId": "grp_321",
+				"propertyId": "prp_123",
+				"propertyName": "test-property",
+				"propertyVersion": 1,
+				"etag": "123abc456def7890",
+				"hostnames": {
+					"items": [
+						{
+							"cnameType": "EDGE_HOSTNAME",
+							"edgeHostnameId": "ehn_666",
+							"cnameFrom": "example3.com",
+							"cnameTo": "m.example.com.edgesuite.net",
+							"certProvisioningType": "DEFAULT",
+							"certStatus": {
+								"production": [
+									{
+										"status": "PENDING"
+									}
+								],
+								"staging": [
+									{
+										"status": "PENDING"
+									}
+								],
+								"validationCname": {
+									"hostname": "_acme-challenge.example3.com",
+									"target": "ac.ee03f141752f0e52808f6669ad50ad43.example3.com.validate-akdv.net"
+								}
+							},
+							"domainOwnershipVerification": {
+								"status": "VALIDATED"
+							}
+						}
+					]
+				}
+			}`,
+			expectedPath:        "/papi/v1/properties/prp_123/versions/1/hostnames?contractId=ctr_456&groupId=grp_321&includeCertStatus=true&validateHostnames=true",
+			expectedRequestBody: `{"add":[{"cnameFrom":"example3.com","cnameType":"EDGE_HOSTNAME","certProvisioningType":"DEFAULT","edgeHostnameId":"ehn_666"}]}`,
+			expectedResponse: &PatchPropertyVersionHostnamesResponse{
+				AccountID:       "act_789",
+				ContractID:      "ctr_456",
+				GroupID:         "grp_321",
+				PropertyID:      "prp_123",
+				PropertyVersion: 1,
+				PropertyName:    "test-property",
+				Etag:            "123abc456def7890",
+				Hostnames: HostnameResponseItems{
+					Items: []Hostname{
+						{
+							CnameType:            HostnameCnameTypeEdgeHostname,
+							EdgeHostnameID:       "ehn_666",
+							CnameFrom:            "example3.com",
+							CertProvisioningType: "DEFAULT",
+							CnameTo:              "m.example.com.edgesuite.net",
+							CertStatus: CertStatusItem{
+								Production: []StatusItem{
+									{
+										Status: "PENDING",
+									},
+								},
+								Staging: []StatusItem{
+									{
+										Status: "PENDING",
+									},
+								},
+								ValidationCname: ValidationCname{
+									Hostname: "_acme-challenge.example3.com",
+									Target:   "ac.ee03f141752f0e52808f6669ad50ad43.example3.com.validate-akdv.net",
+								},
+							},
+							DomainOwnershipVerification: &DomainOwnershipVerification{
+								Status: "VALIDATED",
 							},
 						},
 					},
@@ -1953,6 +2390,240 @@ func TestPapiPatchPropertyVersionHostnames(t *testing.T) {
 			}))
 			client := mockAPIClient(t, mockServer)
 			result, err := client.PatchPropertyVersionHostnames(context.Background(), test.params)
+			if test.withError != nil {
+				test.withError(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, test.expectedResponse, result)
+		})
+	}
+}
+
+func TestPapiGetAuditHistory(t *testing.T) {
+	tests := map[string]struct {
+		params           GetAuditHistoryRequest
+		responseStatus   int
+		responseBody     string
+		expectedPath     string
+		expectedResponse *GetAuditHistoryResponse
+		withError        func(*testing.T, error)
+	}{
+		"200 OK - one entry in audit history": {
+			params: GetAuditHistoryRequest{
+				Hostname: "example.com",
+			},
+			responseStatus: http.StatusOK,
+			responseBody: `
+			{
+				"hostname": "example.com",
+				"history": {
+					"items": [
+						{
+							"action": "ADD",
+							"certProvisioningType": "CPS_MANAGED",
+							"cnameTo": "example.com.edgekey.net",
+							"contractId": "C-0N7RAC7",
+							"edgeHostnameId": "ehn_123",
+							"groupId": "12345",
+							"network": "PRODUCTION",
+							"propertyId": "prp_123",
+							"timestamp": "2023-10-26T12:00:00Z",
+							"user": "user_123"
+						}
+					]
+				}
+			}`,
+			expectedPath: "/papi/v1/hostnames/example.com/audit-history",
+			expectedResponse: &GetAuditHistoryResponse{
+				Hostname: "example.com",
+				History: HostnameHistory{
+					Items: []HostnameHistoryItem{
+						{
+							Action:               "ADD",
+							CertProvisioningType: "CPS_MANAGED",
+							CnameTo:              "example.com.edgekey.net",
+							ContractID:           "C-0N7RAC7",
+							EdgeHostnameID:       "ehn_123",
+							GroupID:              "12345",
+							Network:              "PRODUCTION",
+							PropertyID:           "prp_123",
+							Timestamp:            "2023-10-26T12:00:00Z",
+							User:                 "user_123",
+						},
+					},
+				},
+			},
+		},
+		"200 OK - multiple entries in audit history": {
+			params: GetAuditHistoryRequest{
+				Hostname: "example.com",
+			},
+			responseStatus: http.StatusOK,
+			responseBody: `
+			{
+				"hostname": "example.com",
+				"history": {
+					"items": [
+						{
+							"action": "ADD",
+							"certProvisioningType": "CPS_MANAGED",
+							"cnameTo": "example.com.edgekey.net",
+							"contractId": "C-0N7RAC7",
+							"edgeHostnameId": "ehn_123",
+							"groupId": "12345",
+							"network": "PRODUCTION",
+							"propertyId": "prp_123",
+							"timestamp": "2023-10-26T12:00:00Z",
+							"user": "user_123"
+						},
+						{
+							"action": "MODIFY",
+							"certProvisioningType": "CPS_MANAGED",
+							"cnameTo": "example.com.edgekey.net",
+							"contractId": "C-0N7RAC7",
+							"edgeHostnameId": "ehn_123",
+							"groupId": "12345",
+							"network": "STAGING",
+							"propertyId": "prp_123",
+							"timestamp": "2023-10-27T14:30:00Z",
+							"user": "user_123"
+						},
+						{
+							"action": "ACTIVATE",
+							"certProvisioningType": "CPS_MANAGED",
+							"cnameTo": "example.com.edgekey.net",
+							"contractId": "C-0N7RAC7",
+							"edgeHostnameId": "ehn_123",
+							"groupId": "12345",
+							"network": "PRODUCTION",
+							"propertyId": "prp_123",
+							"timestamp": "2023-10-28T16:45:00Z",
+							"user": "user_123"
+						}
+					]
+				}
+			}`,
+			expectedPath: "/papi/v1/hostnames/example.com/audit-history",
+			expectedResponse: &GetAuditHistoryResponse{
+				Hostname: "example.com",
+				History: HostnameHistory{
+					Items: []HostnameHistoryItem{
+						{
+							Action:               "ADD",
+							CertProvisioningType: "CPS_MANAGED",
+							CnameTo:              "example.com.edgekey.net",
+							ContractID:           "C-0N7RAC7",
+							EdgeHostnameID:       "ehn_123",
+							GroupID:              "12345",
+							Network:              "PRODUCTION",
+							PropertyID:           "prp_123",
+							Timestamp:            "2023-10-26T12:00:00Z",
+							User:                 "user_123",
+						},
+						{
+							Action:               "MODIFY",
+							CertProvisioningType: "CPS_MANAGED",
+							CnameTo:              "example.com.edgekey.net",
+							ContractID:           "C-0N7RAC7",
+							EdgeHostnameID:       "ehn_123",
+							GroupID:              "12345",
+							Network:              "STAGING",
+							PropertyID:           "prp_123",
+							Timestamp:            "2023-10-27T14:30:00Z",
+							User:                 "user_123",
+						},
+						{
+							Action:               "ACTIVATE",
+							CertProvisioningType: "CPS_MANAGED",
+							CnameTo:              "example.com.edgekey.net",
+							ContractID:           "C-0N7RAC7",
+							EdgeHostnameID:       "ehn_123",
+							GroupID:              "12345",
+							Network:              "PRODUCTION",
+							PropertyID:           "prp_123",
+							Timestamp:            "2023-10-28T16:45:00Z",
+							User:                 "user_123",
+						},
+					},
+				},
+			},
+		},
+		"200 OK - empty audit history": {
+			params: GetAuditHistoryRequest{
+				Hostname: "example.com",
+			},
+			responseStatus: http.StatusOK,
+			responseBody: `
+			{
+				"hostname": "example.com",
+				"history": {
+					"items": []
+				}
+			}`,
+			expectedPath: "/papi/v1/hostnames/example.com/audit-history",
+			expectedResponse: &GetAuditHistoryResponse{
+				Hostname: "example.com",
+				History: HostnameHistory{
+					Items: []HostnameHistoryItem{},
+				},
+			},
+		},
+		"500 Internal Server Error": {
+			params: GetAuditHistoryRequest{
+				Hostname: "example.com",
+			},
+			responseStatus: http.StatusInternalServerError,
+			responseBody: `
+			{
+				"type": "internal_error",
+				"title": "Internal Server Error",
+				"detail": "Error fetching audit history",
+				"status": 500
+			}`,
+			expectedPath: "/papi/v1/hostnames/example.com/audit-history",
+			withError: func(t *testing.T, err error) {
+				want := &Error{
+					Type:       "internal_error",
+					Title:      "Internal Server Error",
+					Detail:     "Error fetching audit history",
+					StatusCode: http.StatusInternalServerError,
+				}
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+				assert.ErrorIs(t, err, ErrGetAuditHistory)
+			},
+		},
+		"validation error - missing hostname": {
+			params: GetAuditHistoryRequest{},
+			withError: func(t *testing.T, err error) {
+				assert.ErrorIs(t, err, ErrStructValidation)
+				assert.ErrorIs(t, err, ErrGetAuditHistory)
+				assert.Contains(t, err.Error(), "Hostname: cannot be blank")
+			},
+		},
+		"validation error - empty hostname string": {
+			params: GetAuditHistoryRequest{
+				Hostname: "",
+			},
+			withError: func(t *testing.T, err error) {
+				assert.ErrorIs(t, err, ErrStructValidation)
+				assert.ErrorIs(t, err, ErrGetAuditHistory)
+				assert.Contains(t, err.Error(), "Hostname: cannot be blank")
+			},
+		},
+	}
+
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				assert.Equal(t, test.expectedPath, r.URL.String())
+				assert.Equal(t, http.MethodGet, r.Method)
+				w.WriteHeader(test.responseStatus)
+				_, err := w.Write([]byte(test.responseBody))
+				assert.NoError(t, err)
+			}))
+			client := mockAPIClient(t, mockServer)
+			result, err := client.GetAuditHistory(context.Background(), test.params)
 			if test.withError != nil {
 				test.withError(t, err)
 				return

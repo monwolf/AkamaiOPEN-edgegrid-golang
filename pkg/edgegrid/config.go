@@ -185,14 +185,14 @@ func (c *Config) FromEnv(section string) error {
 		if !ok {
 			return fmt.Errorf("%w: %q", ErrRequiredOptionEnv, optKey)
 		}
-		switch {
-		case opt == "HOST":
+		switch opt {
+		case "HOST":
 			c.Host = val
-		case opt == "CLIENT_TOKEN":
+		case "CLIENT_TOKEN":
 			c.ClientToken = val
-		case opt == "CLIENT_SECRET":
+		case "CLIENT_SECRET":
 			c.ClientSecret = val
-		case opt == "ACCESS_TOKEN":
+		case "ACCESS_TOKEN":
 			c.AccessToken = val
 		}
 	}

@@ -7,7 +7,9 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"time"
 
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/internal/request"
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/edgegriderr"
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/session"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -33,6 +35,7 @@ type (
 		PropertyID      string                `json:"propertyId"`
 		PropertyVersion int                   `json:"propertyVersion"`
 		Etag            string                `json:"etag"`
+		PropertyName    string                `json:"propertyName"`
 		Hostnames       HostnameResponseItems `json:"hostnames"`
 	}
 
@@ -72,6 +75,10 @@ type (
 
 		// TLSConfiguration is optional TLS configuration settings applicable to the Cloud Certificate Manager (CCM) hostnames.
 		TLSConfiguration *TLSConfiguration `json:"tlsConfiguration,omitempty"`
+
+		// DomainOwnershipVerification is optional domain ownership verification details for the hostname.
+		// This field is returned only in responses and should not be populated in requests.
+		DomainOwnershipVerification *DomainOwnershipVerification `json:"domainOwnershipVerification,omitempty"`
 	}
 
 	// CCMCertStatus is status of CCM certificates in each environment.
@@ -157,6 +164,39 @@ type (
 		Status string `json:"status,omitempty"`
 	}
 
+	// DomainOwnershipVerification contains domain ownership verification details for the hostname.
+	DomainOwnershipVerification struct {
+		Status                   string           `json:"status"`
+		ChallengeTokenExpiryDate *time.Time       `json:"challengeTokenExpiryDate"`
+		ValidationCname          *ValidationCname `json:"validationCname"`
+		ValidationHTTP           *ValidationHTTP  `json:"validationHttp"`
+		ValidationTXT            *ValidationTXT   `json:"validationTxt"`
+	}
+
+	// ValidationHTTP contains HTTP validation methods for domain ownership verification.
+	ValidationHTTP struct {
+		FileContentMethod FileContentMethod `json:"fileContentMethod"`
+		RedirectMethod    RedirectMethod    `json:"redirectMethod"`
+	}
+
+	// FileContentMethod contains details for the file content method of validation.
+	FileContentMethod struct {
+		Body string `json:"body"`
+		URL  string `json:"url"`
+	}
+
+	// RedirectMethod contains details for the HTTP redirect method of validation.
+	RedirectMethod struct {
+		HTTPRedirectFrom string `json:"httpRedirectFrom"`
+		HTTPRedirectTo   string `json:"httpRedirectTo"`
+	}
+
+	// ValidationTXT contains TXT record validation details for domain ownership verification.
+	ValidationTXT struct {
+		ChallengeToken string `json:"challengeToken"`
+		Hostname       string `json:"hostname"`
+	}
+
 	// UpdatePropertyVersionHostnamesRequest contains parameters required to update the set of hostname entries for a property version
 	UpdatePropertyVersionHostnamesRequest struct {
 		PropertyID        string
@@ -176,6 +216,7 @@ type (
 		PropertyID      string                `json:"propertyId"`
 		PropertyVersion int                   `json:"propertyVersion"`
 		Etag            string                `json:"etag"`
+		PropertyName    string                `json:"propertyName"`
 		Hostnames       HostnameResponseItems `json:"hostnames"`
 	}
 
@@ -235,6 +276,69 @@ type (
 		Hostnames       HostnameResponseItems `json:"hostnames"`
 	}
 
+	// GetAuditHistoryRequest contains parameters for getting audit history of property hostname
+	GetAuditHistoryRequest struct {
+		// The cnameFrom for the hostname your end users see, indicated by the Host header in end user requests.
+		Hostname string
+	}
+
+	// GetAuditHistoryResponse contains the audit history for property hostname
+	GetAuditHistoryResponse struct {
+		Hostname string          `json:"hostname"`
+		History  HostnameHistory `json:"history"`
+	}
+
+	// HostnameHistory contains the entries of changes made to the property hostname
+	HostnameHistory struct {
+		Items []HostnameHistoryItem `json:"items"`
+	}
+
+	// HostnameHistoryItem contains information about each of the entry in the hostname history
+	HostnameHistoryItem struct {
+		// Action is the type of action performed to the property hostname, either:
+		// `ACTIVATE` if the hostname is currently serving traffic,
+		// `DEACTIVATE` if the hostname isn't serving traffic,
+		// `ADD` if the user requested to add the hostname to a property,
+		// `REMOVE` if the user requested to remove the hostname from a property,
+		// `MOVE` if the hostname was moved from one property to another,
+		// `MODIFY` if the user changed the `edgeHostnameId` or `certProvisioningType` values for an already-activated hostname,
+		// `ABORTED` when the user request to cancel the hostname activation,
+		// `ERROR` if the hostname activation failed.
+		Action string `json:"action"`
+
+		// CertProvisioningType indicates the type of the certificate used in the property hostname.
+		// Either `CPS_MANAGED` for the certificates you create with the Certificate Provisioning System API (CPS),
+		// `DEFAULT` for Default Domain Validation (DV) certificates deployed automatically,
+		// or `CCM` for the third party certificates you create with the Cloud Certificate Manager.
+		// Note that you can't specify the `DEFAULT` value if your account hostname uses the `akamaized.net` domain suffix.
+		CertProvisioningType string `json:"certProvisioningType"`
+
+		// CnameTo is the edge hostname you point the property hostname to so that you can start serving traffic through Akamai servers.
+		// This member corresponds to the edge hostname object's `edgeHostnameDomain` member.
+		CnameTo string `json:"cnameTo"`
+
+		// ContractID identifies the prevailing contract under which you requested the data.
+		ContractID string `json:"contractId"`
+
+		// EdgeHostnameID identifies the edge hostname you mapped your traffic to.
+		EdgeHostnameID string `json:"edgeHostnameId"`
+
+		// GroupID identifies the group under which the property activated.
+		GroupID string `json:"groupId"`
+
+		// Network is the network of activated hostnames, either `STAGING` or `PRODUCTION`.
+		Network string `json:"network"`
+
+		// PropertyID is the unique identifier for the property.
+		PropertyID string `json:"propertyId"`
+
+		// Timestamp indicates when the action occurred.
+		Timestamp string `json:"timestamp"`
+
+		// User is the user who initiated the action.
+		User string `json:"user"`
+	}
+
 	// HostnameCnameType represents HostnameCnameType enum
 	HostnameCnameType string
 )
@@ -271,9 +375,10 @@ func (r UpdatePropertyVersionHostnamesRequest) Validate() error {
 // Validate validates Hostname
 func (h Hostname) Validate() error {
 	return validation.Errors{
-		"MTLS":                validation.Validate(h.MTLS),
-		"CCMCertificates":     validation.Validate(h.CCMCertificates),
-		"ValidateCCMHostname": validateCCMHostname(h.CertProvisioningType, h.CCMCertificates, h.MTLS, h.TLSConfiguration),
+		"MTLS":                        validation.Validate(h.MTLS),
+		"CCMCertificates":             validation.Validate(h.CCMCertificates),
+		"ValidateCCMHostname":         validateCCMHostname(h.CertProvisioningType, h.CCMCertificates, h.MTLS, h.TLSConfiguration),
+		"DomainOwnershipVerification": validation.Validate(h.DomainOwnershipVerification, validation.Nil.Error("field is returned only in responses and should not be populated in requests")),
 	}.Filter()
 }
 
@@ -333,6 +438,13 @@ func (b PatchPropertyVersionHostnamesRequestBody) Validate() error {
 	}.Filter()
 }
 
+// Validate validates GetAuditHistoryRequest
+func (r GetAuditHistoryRequest) Validate() error {
+	return edgegriderr.ParseValidationErrors(validation.Errors{
+		"Hostname": validation.Validate(r.Hostname, validation.Required),
+	})
+}
+
 // Validate validates HostnameAdd
 func (h HostnameAdd) Validate() error {
 	return validation.Errors{
@@ -361,6 +473,8 @@ var (
 	ErrUpdatePropertyVersionHostnames = errors.New("updating hostnames")
 	// ErrPatchPropertyVersionHostnames represents error when patching hostnames fails
 	ErrPatchPropertyVersionHostnames = errors.New("patching hostnames")
+	// ErrGetAuditHistory represents error when getting audit history fails
+	ErrGetAuditHistory = errors.New("getting audit history")
 )
 
 func (p *papi) GetPropertyVersionHostnames(ctx context.Context, params GetPropertyVersionHostnamesRequest) (*GetPropertyVersionHostnamesResponse, error) {
@@ -397,6 +511,10 @@ func (p *papi) GetPropertyVersionHostnames(ctx context.Context, params GetProper
 		return nil, fmt.Errorf("%w: request failed: %s", ErrGetPropertyVersionHostnames, err)
 	}
 	defer session.CloseResponseBody(resp)
+
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, fmt.Errorf("%s: %w: %s", ErrGetPropertyVersionHostnames, ErrNotFound, err)
+	}
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("%s: %w", ErrGetPropertyVersionHostnames, p.Error(resp))
@@ -501,4 +619,31 @@ func (p *papi) PatchPropertyVersionHostnames(ctx context.Context, params PatchPr
 	}
 
 	return &result, nil
+}
+
+func (p *papi) GetAuditHistory(ctx context.Context, params GetAuditHistoryRequest) (*GetAuditHistoryResponse, error) {
+	logger := p.Log(ctx)
+	logger.Debug("GetAuditHistory")
+
+	if err := params.Validate(); err != nil {
+		return nil, fmt.Errorf("%w: %w: %w", ErrGetAuditHistory, ErrStructValidation, err)
+	}
+
+	req, err := request.NewGet(ctx, "/papi/v1/hostnames/%s/audit-history", params.Hostname).Build()
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to create request: %w", ErrGetAuditHistory, err)
+	}
+
+	var history GetAuditHistoryResponse
+	resp, err := p.Exec(req, &history)
+	if err != nil {
+		return nil, fmt.Errorf("%w: request failed: %w", ErrGetAuditHistory, err)
+	}
+	defer session.CloseResponseBody(resp)
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("%w: %w", ErrGetAuditHistory, p.Error(resp))
+	}
+
+	return &history, nil
 }

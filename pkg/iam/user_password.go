@@ -84,7 +84,8 @@ func (i *iam) ResetUserPassword(ctx context.Context, params ResetUserPasswordReq
 	}
 	defer session.CloseResponseBody(resp)
 
-	if !((!params.SendEmail && resp.StatusCode == http.StatusOK) || (params.SendEmail && resp.StatusCode == http.StatusNoContent)) {
+	if (params.SendEmail || resp.StatusCode != http.StatusOK) &&
+		(!params.SendEmail || resp.StatusCode != http.StatusNoContent) {
 		return nil, fmt.Errorf("%s: %w", ErrResetUserPassword, i.Error(resp))
 	}
 
