@@ -34,7 +34,7 @@ func TestDNS_ListTSIGKeys(t *testing.T) {
 					{
 						"name": "a.test.key.",
 						"algorithm": "hmac-sha256",
-						"secret": "DjY16JfIi3JnSDosQWE7Xkx60MbCLo1K7hUCqng8ccg=",
+						"secret": "C113nt53KR3TN6N90yVuAgICxIRwsObLi0E67/N8eRN==",
 						"zonesCount": 3
 					}
 				]
@@ -49,7 +49,7 @@ func TestDNS_ListTSIGKeys(t *testing.T) {
 						TSIGKey: TSIGKey{
 							Name:      "a.test.key.",
 							Algorithm: "hmac-sha256",
-							Secret:    "DjY16JfIi3JnSDosQWE7Xkx60MbCLo1K7hUCqng8ccg=",
+							Secret:    "C113nt53KR3TN6N90yVuAgICxIRwsObLi0E67/N8eRN==",
 						},
 						ZoneCount: 3,
 					},
@@ -342,7 +342,7 @@ func TestDNS_GetTSIGKey(t *testing.T) {
 			{
 				"name": "example.com.akamai.com.",
 				"algorithm": "hmac-sha512",
-				"secret": "fakeR5IW1ajVka5cHPEJQIXfLyx5V3PSkFBROAzOn21JumDq6nIpoj6H8rfj5Uo+Ok55ZWQ0Wgrf302fDscHLw==",
+				"secret": "C113nt53KR3TN6N90yVuAgICxIRwsObLi0E67/N8eRN=",
 				"zonesCount": 7
 			}`,
 			expectedPath: "/config-dns/v2/zones/example.com/key",
@@ -350,7 +350,7 @@ func TestDNS_GetTSIGKey(t *testing.T) {
 				TSIGKey: TSIGKey{
 					Name:      "example.com.akamai.com.",
 					Algorithm: "hmac-sha512",
-					Secret:    "fakeR5IW1ajVka5cHPEJQIXfLyx5V3PSkFBROAzOn21JumDq6nIpoj6H8rfj5Uo+Ok55ZWQ0Wgrf302fDscHLw==",
+					Secret:    "C113nt53KR3TN6N90yVuAgICxIRwsObLi0E67/N8eRN=",
 				},
 				ZoneCount: 7,
 			},
