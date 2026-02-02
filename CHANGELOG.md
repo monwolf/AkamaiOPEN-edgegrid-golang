@@ -4,7 +4,8 @@
 
 ### BREAKING CHANGES:
 
-
+* Appsec 
+  * Refactored `GetConfigurationVersionsResponse.VersionList` struct to use named `EnvironmentStatus` type for `Production` and `Staging` fields instead of inline anonymous structs.
 
 
 
