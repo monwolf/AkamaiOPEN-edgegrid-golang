@@ -49,7 +49,7 @@ func TestPapiPatchPropertyHostnameBucket(t *testing.T) {
 					CnameTo:              "cname.to",
 					CnameType:            HostnameCnameTypeEdgeHostname,
 					EdgeHostnameID:       "edge_hostname_id",
-					CertStatus: CertStatusItem{
+					CertStatus: CertStatusPatchBucketItem{
 						ValidationCname: ValidationCname{
 							Hostname: "validation_cname_hostname",
 							Target:   "validation_cname_target",
@@ -129,7 +129,7 @@ func TestPapiPatchPropertyHostnameBucket(t *testing.T) {
 					CnameTo:              "cname.to",
 					CnameType:            HostnameCnameTypeEdgeHostname,
 					EdgeHostnameID:       "edge_hostname_id",
-					CertStatus: CertStatusItem{
+					CertStatus: CertStatusPatchBucketItem{
 						ValidationCname: ValidationCname{
 							Hostname: "validation_cname_hostname",
 							Target:   "validation_cname_target",
@@ -197,7 +197,7 @@ func TestPapiPatchPropertyHostnameBucket(t *testing.T) {
 					CnameTo:              "cname.to",
 					CnameType:            HostnameCnameTypeEdgeHostname,
 					EdgeHostnameID:       "edge_hostname_id",
-					CertStatus: CertStatusItem{
+					CertStatus: CertStatusPatchBucketItem{
 						ValidationCname: ValidationCname{
 							Hostname: "validation_cname_hostname",
 							Target:   "validation_cname_target",

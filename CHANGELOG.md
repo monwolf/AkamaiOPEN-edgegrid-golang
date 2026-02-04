@@ -8,6 +8,8 @@
 
 
 
+* DNS
+  * Changed type of field `TTL` in struct `RecordBody` from `int` to `*int` to allow explicitly setting TTL to 0.
 
 
 
@@ -22,9 +24,13 @@
 
 
 
-
-
-
+* PAPI
+  * Changed type of the `CCMCertificates` field into `*CCMCertificatesResp` and the `MTLS` field into `*MTLSResp` in the `HostnameItem` struct
+  * Changed type of the `CertStatus` field into `CertStatusPatchBucketItem` in the `PatchHostnameItem` struct
+  * Changed type of the `Items` field into the slice of `HostnameResponseItem` in the `HostnameResponseItems` struct
+  * Dropped the `CertStatus`, `DomainOwnershipVerification` and `CCMCertStatus` fields from the `Hostname` struct
+  * Dropped the `ECDSACertLink` and `RSACertLink` fields from the `CCMCertificates` struct
+  * Dropped the `CASetLink` field from the `MTLS` struct
 
 
 
@@ -56,7 +62,8 @@
 
 
 
-
+* PAPI
+  * Added the `Authorization` field to the `CertStatusItem` structure
 
 
 
@@ -125,25 +132,6 @@
 
 
 ## 12.3.0 (Jan 19, 2026)
-
-
-
-### BREAKING CHANGES:
-
-
-
-
-* DNS
-  * Changed type of field `TTL` in struct `RecordBody` from `int` to `*int` to allow explicitly setting TTL to 0.
-
-
-
-
-
-
-
-
-
 
 ### FEATURES/ENHANCEMENTS:
 

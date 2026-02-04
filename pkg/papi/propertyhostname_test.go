@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/internal/test"
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/ptr"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -94,7 +95,7 @@ func TestPapiGetPropertyVersionHostnames(t *testing.T) {
 				Etag:            "6aed418629b4e5c0",
 				PropertyName:    "mytestproperty.com",
 				Hostnames: HostnameResponseItems{
-					Items: []Hostname{
+					Items: []HostnameResponseItem{
 						{
 							CnameType:      "EDGE_HOSTNAME",
 							EdgeHostnameID: "ehn_895822",
@@ -126,6 +127,137 @@ func TestPapiGetPropertyVersionHostnames(t *testing.T) {
 								ValidationTXT: &ValidationTXT{
 									Hostname:       "txt.validation.hostname.example.com",
 									ChallengeToken: "token",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		"200 OK with authorization": {
+			params: GetPropertyVersionHostnamesRequest{
+				PropertyID:        "prp_175780",
+				PropertyVersion:   3,
+				GroupID:           "grp_12345",
+				ContractID:        "ctr_C-0N7RAC7",
+				IncludeCertStatus: true,
+			},
+			responseStatus: http.StatusOK,
+			responseBody: `
+{
+    "accountId": "act_A-CCT5678",
+    "contractId": "ctr_C-0N7RAC7",
+    "groupId": "grp_12345",
+    "propertyId": "prp_175780",
+    "propertyVersion": 3,
+	"propertyName": "mytestproperty.com",
+    "etag": "6aed418629b4e5c0",
+    "hostnames": {
+        "items": [
+            {
+                "cnameType": "EDGE_HOSTNAME",
+                "edgeHostnameId": "ehn_895822",
+                "cnameFrom": "example.com",
+                "cnameTo": "example.com.edgesuite.net"
+            },
+            {
+                "cnameType": "EDGE_HOSTNAME",
+                "edgeHostnameId": "ehn_895833",
+                "cnameFrom": "m.example.com",
+                "cnameTo": "m.example.com.edgesuite.net",
+                "certStatus": {
+                    "production": [
+                        {
+                            "status": "PENDING"
+                        }
+                    ],
+                    "staging": [
+                        {
+                            "status": "PENDING"
+                        }
+                    ],
+                    "validationCname": {
+                        "hostname": "_acme-challenge.m.example.com",
+                        "target": "ac.secret.m.example.com.validate-akdv.net"
+                    },
+                    "authorization": {
+                        "certDomain": "m.example.com",
+                        "status": "ATTEMPTING_VALIDATION",
+                        "validUntil": "2026-01-22T03:21:43Z",
+                        "http01": {
+                            "url": "http://m.example.com/.well-known/acme-challenge/anothersecret",
+                            "body": "anothersecret.secretsecret",
+                            "result": {
+                                "message": "Got NXDomain error while getting A records for m.example.com/.well-known/acme-challenge/anothersecret",
+                                "timestamp": "2026-01-21T13:42:12Z",
+                                "source": "DNS"
+                            }
+                        },
+                        "dns01": {
+                            "value": "secret2",
+                            "result": {
+                                "message": "Got NXDomain error while getting TXT for _acme-challenge.m.example.com",
+                                "timestamp": "2026-01-21T13:42:12Z",
+                                "source": "DNS"
+                            }
+                        }
+                    }
+                }
+            }
+        ]
+    }
+}
+
+`,
+			expectedPath: "/papi/v1/properties/prp_175780/versions/3/hostnames?contractId=ctr_C-0N7RAC7&groupId=grp_12345&includeCertStatus=true&validateHostnames=false",
+			expectedResponse: &GetPropertyVersionHostnamesResponse{
+				AccountID:       "act_A-CCT5678",
+				ContractID:      "ctr_C-0N7RAC7",
+				GroupID:         "grp_12345",
+				PropertyID:      "prp_175780",
+				PropertyVersion: 3,
+				Etag:            "6aed418629b4e5c0",
+				PropertyName:    "mytestproperty.com",
+				Hostnames: HostnameResponseItems{
+					Items: []HostnameResponseItem{
+						{
+							CnameType:      "EDGE_HOSTNAME",
+							EdgeHostnameID: "ehn_895822",
+							CnameFrom:      "example.com",
+							CnameTo:        "example.com.edgesuite.net",
+						},
+						{
+							CnameType:      "EDGE_HOSTNAME",
+							EdgeHostnameID: "ehn_895833",
+							CnameFrom:      "m.example.com",
+							CnameTo:        "m.example.com.edgesuite.net",
+							CertStatus: CertStatusItem{
+								Production: []StatusItem{{Status: "PENDING"}},
+								Staging:    []StatusItem{{Status: "PENDING"}},
+								ValidationCname: ValidationCname{
+									Hostname: "_acme-challenge.m.example.com",
+									Target:   "ac.secret.m.example.com.validate-akdv.net",
+								},
+								Authorization: &Authorization{
+									DNS01: &DNSAuthorization{
+										Result: AuthorizationResult{
+											Message:   "Got NXDomain error while getting TXT for _acme-challenge.m.example.com",
+											Timestamp: test.NewTimeFromString(t, "2026-01-21T13:42:12Z"),
+											Source:    "DNS",
+										},
+										Value: "secret2",
+									},
+									HTTP01: &HTTPAuthorization{
+										Body: "anothersecret.secretsecret",
+										Result: AuthorizationResult{
+											Message:   "Got NXDomain error while getting A records for m.example.com/.well-known/acme-challenge/anothersecret",
+											Timestamp: test.NewTimeFromString(t, "2026-01-21T13:42:12Z"),
+											Source:    "DNS",
+										},
+										URL: "http://m.example.com/.well-known/acme-challenge/anothersecret",
+									},
+									Status:     "ATTEMPTING_VALIDATION",
+									ValidUntil: ptr.To(test.NewTimeFromString(t, "2026-01-22T03:21:43Z")),
 								},
 							},
 						},
@@ -183,7 +315,7 @@ func TestPapiGetPropertyVersionHostnames(t *testing.T) {
 				Etag:            "6aed418629b4e5c0",
 				PropertyName:    "mytestproperty.com",
 				Hostnames: HostnameResponseItems{
-					Items: []Hostname{
+					Items: []HostnameResponseItem{
 						{
 							CnameType:      "EDGE_HOSTNAME",
 							EdgeHostnameID: "ehn_895822",
@@ -277,7 +409,7 @@ func TestPapiGetPropertyVersionHostnames(t *testing.T) {
 				Etag:            "6aed418629b4e5c0",
 				PropertyName:    "mytestproperty.com",
 				Hostnames: HostnameResponseItems{
-					Items: []Hostname{
+					Items: []HostnameResponseItem{
 						{
 							CertProvisioningType: "CPS_MANAGED",
 							CnameFrom:            "example.com",
@@ -297,17 +429,21 @@ func TestPapiGetPropertyVersionHostnames(t *testing.T) {
 								RSAProductionStatus:   "DEPLOYED",
 								RSAStagingStatus:      "DEPLOYED",
 							},
-							CCMCertificates: &CCMCertificates{
-								ECDSACertID:   "98765",
+							CCMCertificates: &CCMCertificatesResp{
+								CCMCertificates: CCMCertificates{
+									ECDSACertID: "98765",
+									RSACertID:   "12345",
+								},
 								ECDSACertLink: "/ccm/v1/certificates/98765",
-								RSACertID:     "12345",
 								RSACertLink:   "/ccm/v1/certificates/12345",
 							},
-							MTLS: &MTLS{
-								CASetID:         "524125",
-								CASetLink:       "/mtls-edge-truststore/v2/ca-sets/524125",
-								CheckClientOCSP: false,
-								SendCASetClient: false,
+							MTLS: &MTLSResp{
+								CASetLink: "/mtls-edge-truststore/v2/ca-sets/524125",
+								MTLS: MTLS{
+									CASetID:         "524125",
+									CheckClientOCSP: false,
+									SendCASetClient: false,
+								},
 							},
 							TLSConfiguration: &TLSConfiguration{
 								CipherProfile:            "ak-akamai-2020q1",
@@ -539,7 +675,7 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 				PropertyName:    "mytestproperty.com",
 				Etag:            "6aed418629b4e5c0",
 				Hostnames: HostnameResponseItems{
-					Items: []Hostname{
+					Items: []HostnameResponseItem{
 						{
 							CnameType:            "EDGE_HOSTNAME",
 							EdgeHostnameID:       "ehn_895822",
@@ -581,6 +717,134 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 								ValidationTXT: &ValidationTXT{
 									Hostname:       "txt.validation.hostname.example.com",
 									ChallengeToken: "token",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		"200 OK with authorization data": {
+			params: UpdatePropertyVersionHostnamesRequest{
+				PropertyID:        "prp_175780",
+				PropertyVersion:   3,
+				GroupID:           "grp_12345",
+				ContractID:        "ctr_C-0N7RAC7",
+				IncludeCertStatus: true,
+				Hostnames: []Hostname{
+					{
+						CnameType:            "EDGE_HOSTNAME",
+						CnameFrom:            "m.example.com",
+						CnameTo:              "example.com.edgekey.net",
+						CertProvisioningType: "DEFAULT",
+					},
+				},
+			},
+			responseStatus: http.StatusOK,
+			responseBody: `
+{
+    "accountId": "act_A-CCT5678",
+    "contractId": "ctr_C-0N7RAC7",
+    "groupId": "grp_12345",
+    "propertyId": "prp_175780",
+    "propertyVersion": 3,
+	"propertyName": "mytestproperty.com",
+    "etag": "6aed418629b4e5c0",
+    "hostnames": {
+        "items": [
+            {
+                "cnameType": "EDGE_HOSTNAME",
+                "edgeHostnameId": "ehn_895822",
+                "cnameFrom": "m.example.com",
+                "cnameTo": "example.com.edgekey.net",
+                "certProvisioningType": "DEFAULT",
+                "certStatus": {
+                    "validationCname": {
+                        "hostname": "_acme-challenge.www.example.com",
+                        "target": "{token}.www.example.com.akamai-domain.com"
+                    },
+                    "staging": [
+                        {
+                            "status": "NEEDS_VALIDATION"
+                        }
+                    ],
+                    "production": [
+                        {
+                            "status": "NEEDS_VALIDATION"
+                        }
+                    ],
+                    "authorization": {
+                        "certDomain": "m.example.com",
+                        "status": "ATTEMPTING_VALIDATION",
+                        "validUntil": "2026-01-22T03:21:43Z",
+                        "http01": {
+                            "url": "http://m.example.com/.well-known/acme-challenge/anothersecret",
+                            "body": "anothersecret.secretsecret",
+                            "result": {
+                                "message": "Got NXDomain error while getting A records for m.example.com/.well-known/acme-challenge/anothersecret",
+                                "timestamp": "2026-01-21T13:42:12Z",
+                                "source": "DNS"
+                            }
+                        },
+                        "dns01": {
+                            "value": "secret2",
+                            "result": {
+                                "message": "Got NXDomain error while getting TXT for _acme-challenge.m.example.com",
+                                "timestamp": "2026-01-21T13:42:12Z",
+                                "source": "DNS"
+                            }
+                        }
+                    }
+                }
+            }
+        ]
+    }
+}
+`,
+			expectedPath: "/papi/v1/properties/prp_175780/versions/3/hostnames?contractId=ctr_C-0N7RAC7&groupId=grp_12345&includeCertStatus=true&validateHostnames=false",
+			expectedResponse: &UpdatePropertyVersionHostnamesResponse{
+				AccountID:       "act_A-CCT5678",
+				ContractID:      "ctr_C-0N7RAC7",
+				GroupID:         "grp_12345",
+				PropertyID:      "prp_175780",
+				PropertyVersion: 3,
+				PropertyName:    "mytestproperty.com",
+				Etag:            "6aed418629b4e5c0",
+				Hostnames: HostnameResponseItems{
+					Items: []HostnameResponseItem{
+						{
+							CnameType:            "EDGE_HOSTNAME",
+							EdgeHostnameID:       "ehn_895822",
+							CnameFrom:            "m.example.com",
+							CnameTo:              "example.com.edgekey.net",
+							CertProvisioningType: "DEFAULT",
+							CertStatus: CertStatusItem{
+								ValidationCname: ValidationCname{
+									Hostname: "_acme-challenge.www.example.com",
+									Target:   "{token}.www.example.com.akamai-domain.com",
+								},
+								Staging:    []StatusItem{{Status: "NEEDS_VALIDATION"}},
+								Production: []StatusItem{{Status: "NEEDS_VALIDATION"}},
+								Authorization: &Authorization{
+									DNS01: &DNSAuthorization{
+										Result: AuthorizationResult{
+											Message:   "Got NXDomain error while getting TXT for _acme-challenge.m.example.com",
+											Timestamp: test.NewTimeFromString(t, "2026-01-21T13:42:12Z"),
+											Source:    "DNS",
+										},
+										Value: "secret2",
+									},
+									HTTP01: &HTTPAuthorization{
+										Body: "anothersecret.secretsecret",
+										Result: AuthorizationResult{
+											Message:   "Got NXDomain error while getting A records for m.example.com/.well-known/acme-challenge/anothersecret",
+											Timestamp: test.NewTimeFromString(t, "2026-01-21T13:42:12Z"),
+											Source:    "DNS",
+										},
+										URL: "http://m.example.com/.well-known/acme-challenge/anothersecret",
+									},
+									Status:     "ATTEMPTING_VALIDATION",
+									ValidUntil: ptr.To(test.NewTimeFromString(t, "2026-01-22T03:21:43Z")),
 								},
 							},
 						},
@@ -640,7 +904,7 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 				PropertyName:    "mytestproperty.com",
 				Etag:            "6aed418629b4e5c0",
 				Hostnames: HostnameResponseItems{
-					Items: []Hostname{
+					Items: []HostnameResponseItem{
 						{
 							CnameType:            "EDGE_HOSTNAME",
 							EdgeHostnameID:       "ehn_895833",
@@ -699,7 +963,7 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 				},
 			},
 			responseStatus: http.StatusOK,
-			requestBody:    `[{"cnameType":"EDGE_HOSTNAME","edgeHostnameId":"ehn_895824","cnameFrom":"example.com","certProvisioningType":"CPS_MANAGED","certStatus":{"validationCname":{}}},{"cnameType":"EDGE_HOSTNAME","cnameFrom":"example-tst.com","cnameTo":"example-tst.com.edgekey.net","certProvisioningType":"DEFAULT","certStatus":{"validationCname":{}}},{"cnameType":"EDGE_HOSTNAME","cnameFrom":"www.example-ccm.com","cnameTo":"example.com.edgesuite.net","certProvisioningType":"CCM","certStatus":{"validationCname":{}},"ccmCertificates":{"ecdsaCertId":"98765","rsaCertId":"12345"},"mtls":{"caSetId":"524125"},"tlsConfiguration":{"cipherProfile":"ak-akamai-2020q1","disallowedTlsVersions":["TLSv1_1","TLSv1"],"stapleServerOcspResponse":true}}]`,
+			requestBody:    `[{"cnameType":"EDGE_HOSTNAME","edgeHostnameId":"ehn_895824","cnameFrom":"example.com","certProvisioningType":"CPS_MANAGED"},{"cnameType":"EDGE_HOSTNAME","cnameFrom":"example-tst.com","cnameTo":"example-tst.com.edgekey.net","certProvisioningType":"DEFAULT"},{"cnameType":"EDGE_HOSTNAME","cnameFrom":"www.example-ccm.com","cnameTo":"example.com.edgesuite.net","certProvisioningType":"CCM","ccmCertificates":{"ecdsaCertId":"98765","rsaCertId":"12345"},"mtls":{"caSetId":"524125"},"tlsConfiguration":{"cipherProfile":"ak-akamai-2020q1","disallowedTlsVersions":["TLSv1_1","TLSv1"],"stapleServerOcspResponse":true}}]`,
 			responseBody: `
 {
   "accountId": "act_B-G-12RS3M4",
@@ -766,7 +1030,7 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 				Etag:            "6aed418629b4e5c0",
 				PropertyName:    "mytestproperty.com",
 				Hostnames: HostnameResponseItems{
-					Items: []Hostname{
+					Items: []HostnameResponseItem{
 						{
 							CertProvisioningType: "CPS_MANAGED",
 							CnameFrom:            "example.com",
@@ -786,17 +1050,21 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 								RSAProductionStatus:   "PENDING",
 								RSAStagingStatus:      "PENDING",
 							},
-							CCMCertificates: &CCMCertificates{
-								ECDSACertID:   "98765",
+							CCMCertificates: &CCMCertificatesResp{
+								CCMCertificates: CCMCertificates{
+									ECDSACertID: "98765",
+									RSACertID:   "12345",
+								},
 								ECDSACertLink: "/ccm/v1/certificates/98765",
-								RSACertID:     "12345",
 								RSACertLink:   "/ccm/v1/certificates/12345",
 							},
-							MTLS: &MTLS{
-								CASetID:         "524125",
-								CASetLink:       "/mtls-edge-truststore/v2/ca-sets/524125",
-								CheckClientOCSP: false,
-								SendCASetClient: false,
+							MTLS: &MTLSResp{
+								CASetLink: "/mtls-edge-truststore/v2/ca-sets/524125",
+								MTLS: MTLS{
+									CASetID:         "524125",
+									CheckClientOCSP: false,
+									SendCASetClient: false,
+								},
 							},
 							TLSConfiguration: &TLSConfiguration{
 								CipherProfile:            "ak-akamai-2020q1",
@@ -843,7 +1111,7 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 				Etag:            "6aed418629b4e5c0",
 				PropertyName:    "mytestproperty.com",
 				Hostnames: HostnameResponseItems{
-					Items: []Hostname{},
+					Items: []HostnameResponseItem{},
 				},
 			},
 		},
@@ -883,7 +1151,7 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 				Etag:            "6aed418629b4e5c0",
 				PropertyName:    "mytestproperty.com",
 				Hostnames: HostnameResponseItems{
-					Items: []Hostname{},
+					Items: []HostnameResponseItem{},
 				},
 			},
 		},
@@ -1068,31 +1336,6 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 				assert.Contains(t, err.Error(), "the mTLS configuration is provided without `certProvisioningType` set to `CCM`")
 			},
 		},
-		"validation error - DomainOwnershipVerification should not be populated in requests": {
-			params: UpdatePropertyVersionHostnamesRequest{
-				PropertyID:        "prp_123456",
-				PropertyVersion:   3,
-				GroupID:           "grp_54321",
-				ContractID:        "ctr_1-2ABCD3",
-				IncludeCertStatus: true,
-				Hostnames: []Hostname{
-					{
-						CertProvisioningType: "CPS_MANAGED",
-						CnameFrom:            "www.example.com",
-						CnameTo:              "example.com.edgesuite.net",
-						CnameType:            "EDGE_HOSTNAME",
-						DomainOwnershipVerification: &DomainOwnershipVerification{
-							Status: "PENDING",
-						},
-					},
-				},
-			},
-			withError: func(t *testing.T, err error) {
-				want := ErrStructValidation
-				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
-				assert.Contains(t, err.Error(), "DomainOwnershipVerification: field is returned only in responses and should not be populated in requests")
-			},
-		},
 		"validation error - TLSConfiguration is only valid for CCM": {
 			params: UpdatePropertyVersionHostnamesRequest{
 				PropertyID:        "prp_123456",
@@ -1240,7 +1483,7 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 				Etag:            "6aed418629b4e5c0",
 				PropertyName:    "mytestproperty.com",
 				Hostnames: HostnameResponseItems{
-					Items: []Hostname{},
+					Items: []HostnameResponseItem{},
 				},
 			},
 		},
@@ -1278,7 +1521,7 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 				Etag:            "6aed418629b4e5c0",
 				PropertyName:    "mytestproperty.com",
 				Hostnames: HostnameResponseItems{
-					Items: []Hostname{},
+					Items: []HostnameResponseItem{},
 				},
 			},
 		},
@@ -1316,7 +1559,7 @@ func TestPapiUpdatePropertyVersionHostnames(t *testing.T) {
 				Etag:            "6aed418629b4e5c0",
 				PropertyName:    "mytestproperty.com",
 				Hostnames: HostnameResponseItems{
-					Items: []Hostname{},
+					Items: []HostnameResponseItem{},
 				},
 			},
 		},
@@ -1482,16 +1725,16 @@ func TestPapiPatchPropertyVersionHostnames(t *testing.T) {
 				PropertyName:    "test-property",
 				Etag:            "123abc456def7890",
 				Hostnames: HostnameResponseItems{
-					Items: []Hostname{
+					Items: []HostnameResponseItem{
 						{
-							CnameType:            HostnameCnameTypeEdgeHostname,
+							CnameType:            "EDGE_HOSTNAME",
 							CnameFrom:            "m.example.com",
 							CnameTo:              "example.com.edgekey.net",
 							EdgeHostnameID:       "ehn_555",
 							CertProvisioningType: "CPS_MANAGED",
 						},
 						{
-							CnameType:            HostnameCnameTypeEdgeHostname,
+							CnameType:            "EDGE_HOSTNAME",
 							EdgeHostnameID:       "ehn_666",
 							CnameFrom:            "example3.com",
 							CertProvisioningType: "DEFAULT",
@@ -1610,7 +1853,7 @@ func TestPapiPatchPropertyVersionHostnames(t *testing.T) {
 				PropertyName:    "mytestproperty.com",
 				PropertyVersion: 1,
 				Hostnames: HostnameResponseItems{
-					Items: []Hostname{
+					Items: []HostnameResponseItem{
 						{
 							CnameType:            "EDGE_HOSTNAME",
 							EdgeHostnameID:       "ehn_895824",
@@ -1636,17 +1879,21 @@ func TestPapiPatchPropertyVersionHostnames(t *testing.T) {
 								RSAProductionStatus:   "PENDING",
 								RSAStagingStatus:      "PENDING",
 							},
-							CCMCertificates: &CCMCertificates{
-								ECDSACertID:   "98765",
+							CCMCertificates: &CCMCertificatesResp{
+								CCMCertificates: CCMCertificates{
+									ECDSACertID: "98765",
+									RSACertID:   "12345",
+								},
 								ECDSACertLink: "/ccm/v1/certificates/98765",
-								RSACertID:     "12345",
 								RSACertLink:   "/ccm/v1/certificates/12345",
 							},
-							MTLS: &MTLS{
-								CASetID:         "524125",
-								CASetLink:       "/mtls-edge-truststore/v2/ca-sets/524125",
-								CheckClientOCSP: false,
-								SendCASetClient: false,
+							MTLS: &MTLSResp{
+								CASetLink: "/mtls-edge-truststore/v2/ca-sets/524125",
+								MTLS: MTLS{
+									CASetID:         "524125",
+									CheckClientOCSP: false,
+									SendCASetClient: false,
+								},
 							},
 							TLSConfiguration: &TLSConfiguration{
 								CipherProfile:            "ak-akamai-2020q1",
@@ -1695,7 +1942,7 @@ func TestPapiPatchPropertyVersionHostnames(t *testing.T) {
 				PropertyName:    "test-property",
 				Etag:            "123abc456def7890",
 				Hostnames: HostnameResponseItems{
-					Items: []Hostname{},
+					Items: []HostnameResponseItem{},
 				},
 			},
 		},
@@ -1763,16 +2010,16 @@ func TestPapiPatchPropertyVersionHostnames(t *testing.T) {
 				PropertyName:    "test-property",
 				Etag:            "123abc456def7890",
 				Hostnames: HostnameResponseItems{
-					Items: []Hostname{
+					Items: []HostnameResponseItem{
 						{
-							CnameType:            HostnameCnameTypeEdgeHostname,
+							CnameType:            "EDGE_HOSTNAME",
 							CnameFrom:            "m.example.com",
 							CnameTo:              "example.com.edgekey.net",
 							EdgeHostnameID:       "ehn_777",
 							CertProvisioningType: "CPS_MANAGED",
 						},
 						{
-							CnameType:            HostnameCnameTypeEdgeHostname,
+							CnameType:            "EDGE_HOSTNAME",
 							EdgeHostnameID:       "ehn_888",
 							CnameFrom:            "example3.com",
 							CertProvisioningType: "DEFAULT",
@@ -1884,16 +2131,16 @@ func TestPapiPatchPropertyVersionHostnames(t *testing.T) {
 				PropertyName:    "test-property",
 				Etag:            "123abc456def7890",
 				Hostnames: HostnameResponseItems{
-					Items: []Hostname{
+					Items: []HostnameResponseItem{
 						{
-							CnameType:            HostnameCnameTypeEdgeHostname,
+							CnameType:            "EDGE_HOSTNAME",
 							CnameFrom:            "m.example.com",
 							CnameTo:              "example.com.edgekey.net",
 							EdgeHostnameID:       "ehn_555",
 							CertProvisioningType: "CPS_MANAGED",
 						},
 						{
-							CnameType:            HostnameCnameTypeEdgeHostname,
+							CnameType:            "EDGE_HOSTNAME",
 							EdgeHostnameID:       "ehn_666",
 							CnameFrom:            "example3.com",
 							CertProvisioningType: "DEFAULT",
@@ -1934,6 +2181,135 @@ func TestPapiPatchPropertyVersionHostnames(t *testing.T) {
 								ValidationTXT: &ValidationTXT{
 									Hostname:       "txt.validation.hostname.example.com",
 									ChallengeToken: "token",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		"200 OK - with authorization object returned": {
+			params: PatchPropertyVersionHostnamesRequest{
+				PropertyID:        "prp_123",
+				PropertyVersion:   1,
+				ContractID:        "ctr_456",
+				GroupID:           "grp_321",
+				IncludeCertStatus: true,
+				Body: PatchPropertyVersionHostnamesRequestBody{
+					Add: []HostnameAdd{
+						{
+							CnameType: HostnameCnameTypeEdgeHostname,
+							CnameFrom: "m.example.com",
+							CnameTo:   "example.com.edgekey.net",
+						},
+					},
+				},
+			},
+			responseStatus: http.StatusOK,
+			responseBody: `
+			{
+				"accountId": "act_789",
+				"contractId": "ctr_456",
+				"groupId": "grp_321",
+				"propertyId": "prp_123",
+				"propertyName": "test-property",
+				"propertyVersion": 1,
+				"etag": "123abc456def7890",
+				"hostnames": {
+					"items": [
+						{
+							"cnameType": "EDGE_HOSTNAME",
+							"edgeHostnameId": "ehn_555",
+							"cnameFrom": "m.example.com",
+							"cnameTo": "example.com.edgekey.net",
+							"certProvisioningType": "CPS_MANAGED",
+							"certStatus": {
+								"production": [
+									{
+										"status": "PENDING"
+									}
+								],
+								"staging": [
+									{
+										"status": "PENDING"
+									}
+								],
+								"validationCname": {
+									"hostname": "_acme-challenge.m.example.com",
+									"target": "ac.secret.m.example.com.validate-akdv.net"
+								},
+								"authorization": {
+									"certDomain": "m.example.com",
+									"status": "ATTEMPTING_VALIDATION",
+									"validUntil": "2026-01-22T03:21:43Z",
+									"http01": {
+										"url": "http://m.example.com/.well-known/acme-challenge/anothersecret",
+										"body": "anothersecret.secretsecret",
+										"result": {
+											"message": "Got NXDomain error while getting A records for m.example.com/.well-known/acme-challenge/anothersecret",
+											"timestamp": "2026-01-21T13:42:12Z",
+											"source": "DNS"
+										}
+									},
+									"dns01": {
+										"value": "secret2",
+										"result": {
+											"message": "Got NXDomain error while getting TXT for _acme-challenge.m.example.com",
+											"timestamp": "2026-01-21T13:42:12Z",
+											"source": "DNS"
+										}
+									}
+								}
+							}
+						}
+					]
+				}
+			}`,
+			expectedPath:        "/papi/v1/properties/prp_123/versions/1/hostnames?contractId=ctr_456&groupId=grp_321&includeCertStatus=true",
+			expectedRequestBody: `{"add":[{"cnameFrom":"m.example.com","cnameType":"EDGE_HOSTNAME","cnameTo":"example.com.edgekey.net"}]}`,
+			expectedResponse: &PatchPropertyVersionHostnamesResponse{
+				AccountID:       "act_789",
+				ContractID:      "ctr_456",
+				GroupID:         "grp_321",
+				PropertyID:      "prp_123",
+				PropertyVersion: 1,
+				PropertyName:    "test-property",
+				Etag:            "123abc456def7890",
+				Hostnames: HostnameResponseItems{
+					Items: []HostnameResponseItem{
+						{
+							CnameType:            "EDGE_HOSTNAME",
+							CnameFrom:            "m.example.com",
+							CnameTo:              "example.com.edgekey.net",
+							EdgeHostnameID:       "ehn_555",
+							CertProvisioningType: "CPS_MANAGED",
+							CertStatus: CertStatusItem{
+								Production: []StatusItem{{Status: "PENDING"}},
+								Staging:    []StatusItem{{Status: "PENDING"}},
+								ValidationCname: ValidationCname{
+									Hostname: "_acme-challenge.m.example.com",
+									Target:   "ac.secret.m.example.com.validate-akdv.net",
+								},
+								Authorization: &Authorization{
+									DNS01: &DNSAuthorization{
+										Result: AuthorizationResult{
+											Message:   "Got NXDomain error while getting TXT for _acme-challenge.m.example.com",
+											Timestamp: test.NewTimeFromString(t, "2026-01-21T13:42:12Z"),
+											Source:    "DNS",
+										},
+										Value: "secret2",
+									},
+									HTTP01: &HTTPAuthorization{
+										Body: "anothersecret.secretsecret",
+										Result: AuthorizationResult{
+											Message:   "Got NXDomain error while getting A records for m.example.com/.well-known/acme-challenge/anothersecret",
+											Timestamp: test.NewTimeFromString(t, "2026-01-21T13:42:12Z"),
+											Source:    "DNS",
+										},
+										URL: "http://m.example.com/.well-known/acme-challenge/anothersecret",
+									},
+									Status:     "ATTEMPTING_VALIDATION",
+									ValidUntil: ptr.To(test.NewTimeFromString(t, "2026-01-22T03:21:43Z")),
 								},
 							},
 						},
@@ -2012,9 +2388,9 @@ func TestPapiPatchPropertyVersionHostnames(t *testing.T) {
 				PropertyName:    "test-property",
 				Etag:            "123abc456def7890",
 				Hostnames: HostnameResponseItems{
-					Items: []Hostname{
+					Items: []HostnameResponseItem{
 						{
-							CnameType:            HostnameCnameTypeEdgeHostname,
+							CnameType:            "EDGE_HOSTNAME",
 							EdgeHostnameID:       "ehn_666",
 							CnameFrom:            "example3.com",
 							CertProvisioningType: "DEFAULT",
