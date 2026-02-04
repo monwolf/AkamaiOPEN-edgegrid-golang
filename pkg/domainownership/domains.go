@@ -367,6 +367,12 @@ const (
 
 	// ValidationMethodHTTP represents the HTTP validation method.
 	ValidationMethodHTTP ValidationMethod = "HTTP"
+
+	// ValidationMethodSYSTEM represents the SYSTEM validation method.
+	ValidationMethodSYSTEM ValidationMethod = "SYSTEM"
+
+	// ValidationMethodMANUAL represents the MANUAL validation method.
+	ValidationMethodMANUAL ValidationMethod = "MANUAL"
 )
 
 // Validate validates the AddDomainsRequest parameters.

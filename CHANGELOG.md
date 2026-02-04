@@ -87,6 +87,14 @@
 
 
 
+* PAPI Domain Ownership Validation (Beta)
+  * Defined constants for `SYSTEM` and `MANUAL` validation methods.
+
+
+
+
+
+
 
 
 
