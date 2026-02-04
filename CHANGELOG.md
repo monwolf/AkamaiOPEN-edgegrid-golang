@@ -33,7 +33,10 @@
 
 
 ### FEATURES/ENHANCEMENTS:
-
+* Appsec
+  * Added WAF Ruleset APIs:
+    * [GetWAFPolicyRuleSet](https://techdocs.akamai.com/application-security/reference/get-waf-policy-ruleset-composite)
+    * [UpdateWAFPolicyRuleSet](https://techdocs.akamai.com/application-security/reference/patch-waf-policy-ruleset-composite)
 
 * General
     * Migrated to Go `1.25`.

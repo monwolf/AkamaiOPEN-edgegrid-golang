@@ -86,6 +86,7 @@ type (
 		ThreatIntel
 		TuningRecommendations
 		VersionNotes
+		WAFCompositeRuleset
 		WAFMode
 		WAFProtection
 		WAPBypassNetworkLists

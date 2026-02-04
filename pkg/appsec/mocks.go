@@ -592,6 +592,22 @@ func (m *Mock) GetWAFProtection(ctx context.Context, req GetWAFProtectionRequest
 	return args.Get(0).(*GetWAFProtectionResponse), args.Error(1)
 }
 
+func (m *Mock) GetWAFCompositeRuleset(ctx context.Context, req GetWAFCompositeRulesetRequest) (*CompositeRulesetResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*CompositeRulesetResponse), args.Error(1)
+}
+
+func (m *Mock) UpdateWAFCompositeRuleset(ctx context.Context, req UpdateWAFCompositeRulesetRequest) (*CompositeRulesetResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*CompositeRulesetResponse), args.Error(1)
+}
+
 func (m *Mock) GetWAFMode(ctx context.Context, req GetWAFModeRequest) (*GetWAFModeResponse, error) {
 
 	args := m.Called(ctx, req)
