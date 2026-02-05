@@ -38,6 +38,19 @@
     * [GetWAFPolicyRuleSet](https://techdocs.akamai.com/application-security/reference/get-waf-policy-ruleset-composite)
     * [UpdateWAFPolicyRuleSet](https://techdocs.akamai.com/application-security/reference/patch-waf-policy-ruleset-composite)
 
+* Appsec
+  * Added URL Protection APIs:
+    * [CreateURLProtectionRule](https://techdocs.akamai.com/application-security/reference/post-url-protection-policies)
+    * [ListURLProtectionRules](https://techdocs.akamai.com/application-security/reference/get-url-protection-policies)
+    * [GetURLProtectionRule](https://techdocs.akamai.com/application-security/reference/get-url-protection-policy)
+    * [UpdateURLProtectionRule](https://techdocs.akamai.com/application-security/reference/put-url-protection-policy)
+    * [RemoveURLProtectionRule](https://techdocs.akamai.com/application-security/reference/delete-url-protection-policy)
+    
+  * Added URL Protection Action APIs:
+    * [ListURLProtectionRulesActions](https://techdocs.akamai.com/application-security/reference/get-url-protection-policies-actions)
+    * [GetURLProtectionRuleActions](https://techdocs.akamai.com/application-security/reference/get-url-protection-policies-actions)
+    * [UpdateURLProtectionRuleActions](https://techdocs.akamai.com/application-security/reference/put-url-protection-policy-action)
+
 * General
     * Migrated to Go `1.25`.
     * Adopted toolchain Go `1.25.7`.

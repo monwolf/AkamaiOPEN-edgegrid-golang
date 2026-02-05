@@ -1614,3 +1614,64 @@ func (m *Mock) CreateActivationsWithHostMove(ctx context.Context, req CreateActi
 	}
 	return args.Get(0).(*CreateActivationsWithHostMoveResponse), args.Error(1)
 }
+
+func (m *Mock) ListURLProtectionRules(ctx context.Context, req ListURLProtectionRulesRequest) (*ListURLProtectionRulesResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*ListURLProtectionRulesResponse), args.Error(1)
+}
+
+func (m *Mock) GetURLProtectionRule(ctx context.Context, req GetURLProtectionRuleRequest) (*GetURLProtectionRuleResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*GetURLProtectionRuleResponse), args.Error(1)
+}
+
+func (m *Mock) CreateURLProtectionRule(ctx context.Context, req CreateURLProtectionRuleRequest) (*CreateURLProtectionRuleResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*CreateURLProtectionRuleResponse), args.Error(1)
+}
+
+func (m *Mock) UpdateURLProtectionRule(ctx context.Context, req UpdateURLProtectionRuleRequest) (*UpdateURLProtectionRuleResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*UpdateURLProtectionRuleResponse), args.Error(1)
+}
+
+func (m *Mock) RemoveURLProtectionRule(ctx context.Context, req RemoveURLProtectionRuleRequest) error {
+	args := m.Called(ctx, req)
+	return args.Error(0)
+}
+
+func (m *Mock) ListURLProtectionRulesActions(ctx context.Context, req ListURLProtectionRulesActionsRequest) (*ListURLProtectionRulesActionsResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*ListURLProtectionRulesActionsResponse), args.Error(1)
+}
+
+func (m *Mock) GetURLProtectionRuleActions(ctx context.Context, req GetURLProtectionRuleActionsRequest) (*GetURLProtectionRuleActionsResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*GetURLProtectionRuleActionsResponse), args.Error(1)
+}
+
+func (m *Mock) UpdateURLProtectionRuleActions(ctx context.Context, req UpdateURLProtectionRuleActionsRequest) (*UpdateURLProtectionRuleActionsResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*UpdateURLProtectionRuleActionsResponse), args.Error(1)
+}

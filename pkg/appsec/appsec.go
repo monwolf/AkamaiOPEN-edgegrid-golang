@@ -85,6 +85,8 @@ type (
 		SlowPostProtectionSetting
 		ThreatIntel
 		TuningRecommendations
+		URLProtection
+		URLProtectionRuleAction
 		VersionNotes
 		WAFCompositeRuleset
 		WAFMode
