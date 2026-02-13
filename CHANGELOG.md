@@ -18,6 +18,10 @@
 
 
 
+* CPS
+  * Renamed `ErrEnrollmentNotFound` error to `ErrNotFound`.
+
+
 
 
 
