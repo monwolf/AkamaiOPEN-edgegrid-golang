@@ -8,9 +8,9 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/internal/request"
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/edgegriderr"
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/session"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v13/internal/request"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v13/pkg/edgegriderr"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v13/pkg/session"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 

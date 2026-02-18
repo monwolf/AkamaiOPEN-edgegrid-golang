@@ -1,140 +1,33 @@
 # RELEASE NOTES
 
-## X.X.X (X X, X)
+## 13.0.0 (Feb 23, 2026)
 
 ### BREAKING CHANGES:
 
 * Appsec 
-  * Refactored `GetConfigurationVersionsResponse.VersionList` struct to use named `EnvironmentStatus` type for `Production` and `Staging` fields instead of inline anonymous structs.
-
-
+  * Refactored the `GetConfigurationVersionsResponse.VersionList` structure to use the named `EnvironmentStatus` type for the `Production` and `Staging` fields instead of inline anonymous structures.
 
 * DNS
-  * Changed type of field `TTL` in struct `RecordBody` from `int` to `*int` to allow explicitly setting TTL to 0.
-
-
-
-
-
-
-
+  * Changed the type of the `TTL` field in the `RecordBody` structure from `int` to `*int` to allow explicitly setting TTL to `0`.
 
 * CPS
-  * Renamed `ErrEnrollmentNotFound` error to `ErrNotFound`.
-
-
-
-
-
-
-
+  * Renamed the `ErrEnrollmentNotFound` error to `ErrNotFound`.
 
 * PAPI
-  * Changed type of the `CCMCertificates` field into `*CCMCertificatesResp` and the `MTLS` field into `*MTLSResp` in the `HostnameItem` struct
-  * Changed type of the `CertStatus` field into `CertStatusPatchBucketItem` in the `PatchHostnameItem` struct
-  * Changed type of the `Items` field into the slice of `HostnameResponseItem` in the `HostnameResponseItems` struct
-  * Dropped the `CertStatus`, `DomainOwnershipVerification` and `CCMCertStatus` fields from the `Hostname` struct
-  * Dropped the `ECDSACertLink` and `RSACertLink` fields from the `CCMCertificates` struct
-  * Dropped the `CASetLink` field from the `MTLS` struct
-
-
-
-
-
-
+  * Changed the type of the `CCMCertificates` field into `*CCMCertificatesResp` and the `MTLS` field into `*MTLSResp` in the `HostnameItem` structure.
+  * Changed the type of the `CertStatus` field into `CertStatusPatchBucketItem` in the `PatchHostnameItem` structure.
+  * Changed the type of the `Items` field into the slice of `HostnameResponseItem` in the `HostnameResponseItems` structure.
+  * Removed the `CertStatus`, `DomainOwnershipVerification` and `CCMCertStatus` fields from the `Hostname` structure.
+  * Removed the `ECDSACertLink` and `RSACertLink` fields from the `CCMCertificates` structure.
+  * Removed the `CASetLink` field from the `MTLS` structure.
 
 ### FEATURES/ENHANCEMENTS:
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 * PAPI
-  * Added the `Authorization` field to the `CertStatusItem` structure
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### BUG FIXES:
-
-
-
-
-
-
-
+  * Added the `Authorization` field to the `CertStatusItem` structure.
+  
 * PAPI Domain Ownership Validation (Beta)
-  * Defined constants for `SYSTEM` and `MANUAL` validation methods.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  * Defined constants for the `SYSTEM` and `MANUAL` validation methods.
 
 ## 12.3.0 (Jan 19, 2026)
 

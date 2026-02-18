@@ -7,7 +7,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/errs"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v13/pkg/errs"
 )
 
 // Error is a cloudlets error interface.
