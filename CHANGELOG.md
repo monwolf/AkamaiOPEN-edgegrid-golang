@@ -51,6 +51,7 @@
     * [GetURLProtectionRuleActions](https://techdocs.akamai.com/application-security/reference/get-url-protection-policies-actions)
     * [UpdateURLProtectionRuleActions](https://techdocs.akamai.com/application-security/reference/put-url-protection-policy-action)
 
+  * Updated [ExportConfiguration]( https://techdocs.akamai.com/application-security/reference/get-export-config-version) to include URLProtectionRules and URLProtectionRulesActions.
 * General
     * Migrated to Go `1.25`.
     * Adopted toolchain Go `1.25.7`.

@@ -1942,6 +1942,18 @@
 							"innerKey": "innerValueA"
 						}
 					}
+				],
+				 "urlProtectionPolicyActions": [
+					{
+					"action": "alert",
+					"loadSheddingAction": "deny",
+					"policyId": 50411
+					},
+					{
+					"action": "alert",
+					"loadSheddingAction": "none",
+					"policyId": 49285
+					}
 				]
 			},
 			"RequestBody": {
@@ -2267,5 +2279,72 @@
 				}
 			}
 		]
-	}
+	},
+	"urlProtectionPolicies": [
+    {
+      "categories": [
+        {
+          "type": "BOTS"
+        },
+        {
+          "type": "CLIENT_REPUTATIONS"
+        },
+        {
+          "type": "CLOUD_PROVIDERS"
+        },
+        {
+          "type": "PLATFORM_DDOS_INTELLIGENCE"
+        },
+        {
+          "type": "PROXIES"
+        },
+        {
+          "type": "TOR_EXIT_NODES"
+        }
+      ],
+      "configId": 43253,
+      "configVersion": 15,
+      "createDate": "2026-02-16T09:42:58Z",
+      "createdBy": "tf-user",
+      "hostnamePaths": [
+        {
+          "hostname": "www.example.net",
+          "paths": [
+            "/"
+          ]
+        }
+      ],
+      "intelligentLoadShedding": true,
+      "name": "test",
+      "policyId": 50411,
+      "protectionType": "SINGLE",
+      "rateThreshold": 10,
+      "sheddingThresholdHitsPerSec": 9,
+      "updateDate": "2026-02-16T10:15:02Z",
+      "updatedBy": "tf-user",
+      "used": true
+    },
+    {
+      "configId": 43253,
+      "configVersion": 15,
+      "createDate": "2026-02-09T07:23:01Z",
+      "createdBy": "tf-user",
+      "hostnamePaths": [
+        {
+          "hostname": "www.example.net",
+          "paths": [
+            "/"
+          ]
+        }
+      ],
+      "intelligentLoadShedding": false,
+      "name": "test2",
+      "policyId": 49285,
+      "protectionType": "SINGLE",
+      "rateThreshold": 10,
+      "updateDate": "2026-02-16T10:06:49Z",
+      "updatedBy": "tf-user",
+      "used": true
+    }
+  ]
 }
