@@ -8,9 +8,9 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/internal/request"
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/edgegriderr"
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/session"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v13/internal/request"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v13/pkg/edgegriderr"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v13/pkg/session"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
@@ -181,7 +181,7 @@ type (
 		CCMCertStatus *CCMCertStatus `json:"ccmCertStatus,omitempty"`
 
 		// CCMCertificates is certificate identifiers and links for the CCM-managed certificates.
-		CCMCertificates *CCMCertificates `json:"ccmCertificates,omitempty"`
+		CCMCertificates *CCMCertificatesResp `json:"ccmCertificates,omitempty"`
 
 		// CertStatus with the `includeCertStatus` parameter set to `true`,
 		// determines whether a hostname is capable of serving secure content over the staging or production network.
@@ -194,7 +194,7 @@ type (
 		CnameType HostnameCnameType `json:"cnameType"`
 
 		// MTLS is mutual TLS configuration settings applicable to the Cloud Certificate Manager (CCM) hostnames.
-		MTLS *MTLS `json:"mtls,omitempty"`
+		MTLS *MTLSResp `json:"mtls,omitempty"`
 
 		// ProductionCertProvisioningType indicates the certificate's provisioning type.
 		// Either `CPS_MANAGED` type for the certificates you create with the Certificate Provisioning System API (CPS),

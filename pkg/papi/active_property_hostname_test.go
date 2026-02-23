@@ -7,7 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/ptr"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v13/internal/test"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v13/pkg/ptr"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -200,7 +201,7 @@ func TestPapiListActivePropertyHostnames(t *testing.T) {
 							"dns01": {
 							  "result": {
 								"message": "dns01 cps dry run cname/TXT incomplete",
-								"src": "CPS",
+								"source": "CPS",
 								"timestamp": "2024-07-25T16:17:37Z"
 							  },
 							  "value": "dummy-unique-value-for-DNS-TXT-record"
@@ -209,7 +210,7 @@ func TestPapiListActivePropertyHostnames(t *testing.T) {
 							  "body": "unique http body content",
 							  "result": {
 								"message": "http01 cps dry run fail reason",
-								"src": "CPS",
+								"source": "CPS",
 								"timestamp": "2024-07-25T16:17:37Z"
 							  },
 							  "url": "/.well-known/acme-challenge/"
@@ -360,6 +361,27 @@ func TestPapiListActivePropertyHostnames(t *testing.T) {
 									Hostname: "_acme-challenge.www.example.com",
 									Target:   "{token}.www.example.com.akamai-domain.com",
 								},
+								Authorization: &Authorization{
+									DNS01: &DNSAuthorization{
+										Result: AuthorizationResult{
+											Message:   "dns01 cps dry run cname/TXT incomplete",
+											Source:    "CPS",
+											Timestamp: test.NewTimeFromString(t, "2024-07-25T16:17:37Z"),
+										},
+										Value: "dummy-unique-value-for-DNS-TXT-record",
+									},
+									HTTP01: &HTTPAuthorization{
+										Body: "unique http body content",
+										Result: AuthorizationResult{
+											Message:   "http01 cps dry run fail reason",
+											Source:    "CPS",
+											Timestamp: test.NewTimeFromString(t, "2024-07-25T16:17:37Z"),
+										},
+										URL: "/.well-known/acme-challenge/",
+									},
+									Status:     "ATTEMPTING_VALIDATION",
+									ValidUntil: ptr.To(test.NewTimeFromString(t, "2024-07-25T16:17:37Z")),
+								},
 							},
 						},
 						{
@@ -367,11 +389,13 @@ func TestPapiListActivePropertyHostnames(t *testing.T) {
 							CnameType:             HostnameCnameTypeEdgeHostname,
 							StagingCertType:       CertTypeCCM,
 							StagingEdgeHostnameID: "ehn_7123",
-							MTLS: &MTLS{
-								CASetID:         "524125",
-								CASetLink:       "/mtls-edge-truststore/v2/ca-sets/524125",
-								CheckClientOCSP: false,
-								SendCASetClient: false,
+							MTLS: &MTLSResp{
+								CASetLink: "/mtls-edge-truststore/v2/ca-sets/524125",
+								MTLS: MTLS{
+									CASetID:         "524125",
+									CheckClientOCSP: false,
+									SendCASetClient: false,
+								},
 							},
 							TLSConfiguration: &TLSConfiguration{
 								CipherProfile:            "ak-akamai-2020q1",
@@ -379,10 +403,12 @@ func TestPapiListActivePropertyHostnames(t *testing.T) {
 								FIPSMode:                 false,
 								StapleServerOcspResponse: true, //TODO OCSP
 							},
-							CCMCertificates: &CCMCertificates{
-								ECDSACertID:   "98765",
+							CCMCertificates: &CCMCertificatesResp{
+								CCMCertificates: CCMCertificates{
+									ECDSACertID: "98765",
+									RSACertID:   "12345",
+								},
 								ECDSACertLink: "/ccm/v1/certificates/98765",
-								RSACertID:     "12345",
 								RSACertLink:   "/ccm/v1/certificates/12345",
 							},
 							CCMCertStatus: &CCMCertStatus{
@@ -395,11 +421,13 @@ func TestPapiListActivePropertyHostnames(t *testing.T) {
 							CnameType:                HostnameCnameTypeEdgeHostname,
 							ProductionCertType:       CertTypeCCM,
 							ProductionEdgeHostnameID: "ehn_7123",
-							MTLS: &MTLS{
-								CASetID:         "524125",
-								CASetLink:       "/mtls-edge-truststore/v2/ca-sets/524125",
-								CheckClientOCSP: false,
-								SendCASetClient: false,
+							MTLS: &MTLSResp{
+								CASetLink: "/mtls-edge-truststore/v2/ca-sets/524125",
+								MTLS: MTLS{
+									CASetID:         "524125",
+									CheckClientOCSP: false,
+									SendCASetClient: false,
+								},
 							},
 							TLSConfiguration: &TLSConfiguration{
 								CipherProfile:            "ak-akamai-2020q1",
@@ -407,10 +435,12 @@ func TestPapiListActivePropertyHostnames(t *testing.T) {
 								FIPSMode:                 false,
 								StapleServerOcspResponse: true,
 							},
-							CCMCertificates: &CCMCertificates{
-								ECDSACertID:   "98765",
+							CCMCertificates: &CCMCertificatesResp{
+								CCMCertificates: CCMCertificates{
+									ECDSACertID: "98765",
+									RSACertID:   "12345",
+								},
 								ECDSACertLink: "/ccm/v1/certificates/98765",
-								RSACertID:     "12345",
 								RSACertLink:   "/ccm/v1/certificates/12345",
 							},
 							CCMCertStatus: &CCMCertStatus{

@@ -9,8 +9,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/internal/test"
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/session"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v13/internal/test"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v13/pkg/session"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -74,7 +74,7 @@ func TestDNS_ListZones(t *testing.T) {
 							"tsigKey": {
 								"algorithm": "hmac-sha1",
 								"name": "other.com.akamai.com3",
-								"secret": "fakeR5IW1ajVka5cHPEJQIXfLyx5V3PSkFBROAzOn21JumDq6nIpoj6H8rfj5Uo+Ok55ZWQ0Wgrf302fDscHLw=="
+								"secret": "C113nt53KR3TN6N90yVuAgICxIRwsObLi0E67/N8eRN="
 							}
 						}
 					}
@@ -109,7 +109,7 @@ func TestDNS_ListZones(t *testing.T) {
 							TSIGKey: &TSIGKey{
 								Name:      "other.com.akamai.com3",
 								Algorithm: "hmac-sha1",
-								Secret:    "fakeR5IW1ajVka5cHPEJQIXfLyx5V3PSkFBROAzOn21JumDq6nIpoj6H8rfj5Uo+Ok55ZWQ0Wgrf302fDscHLw==",
+								Secret:    "C113nt53KR3TN6N90yVuAgICxIRwsObLi0E67/N8eRN=",
 							},
 						},
 					},
@@ -364,7 +364,7 @@ func TestDNS_GetZone(t *testing.T) {
 					"tsigKey": {
 						"algorithm": "hmac-sha1",
 						"name": "other.com.akamai.com3",
-						"secret": "fakeR5IW1ajVka5cHPEJQIXfLyx5V3PSkFBROAzOn21JumDq6nIpoj6H8rfj5Uo+Ok55ZWQ0Wgrf302fDscHLw=="
+						"secret": "C113nt53KR3TN6N90yVuAgICxIRwsObLi0E67/N8eRN="
 					}
 				}
 			}`,
@@ -389,7 +389,7 @@ func TestDNS_GetZone(t *testing.T) {
 					TSIGKey: &TSIGKey{
 						Name:      "other.com.akamai.com3",
 						Algorithm: "hmac-sha1",
-						Secret:    "fakeR5IW1ajVka5cHPEJQIXfLyx5V3PSkFBROAzOn21JumDq6nIpoj6H8rfj5Uo+Ok55ZWQ0Wgrf302fDscHLw==",
+						Secret:    "C113nt53KR3TN6N90yVuAgICxIRwsObLi0E67/N8eRN=",
 					},
 				},
 			},
@@ -786,7 +786,7 @@ func TestDNS_CreateZone(t *testing.T) {
 					TSIGKey: &TSIGKey{
 						Name:      "other.com.akamai.com.",
 						Algorithm: "hmac-sha512",
-						Secret:    "fakeSecretajVka5cHPEJQIXfLyx5V3PSkFBROAzOn21JumDq6nIpoj6H8rfj5Uo",
+						Secret:    "C113nt53KR3TN6N90yVuAgICxIRwsObLi0E67/N8eRN=",
 					},
 				},
 				ZoneQueryString: ZoneQueryString{
@@ -794,7 +794,7 @@ func TestDNS_CreateZone(t *testing.T) {
 				},
 			},
 			responseStatus: http.StatusCreated,
-			requestBody:    `{"comment":"","contractId":"1-2ABCDE","endCustomerId":"","masters":null,"signAndServe":false,"signAndServeAlgorithm":"","tsigKey":{"name":"other.com.akamai.com.","algorithm":"hmac-sha512","secret":"fakeSecretajVka5cHPEJQIXfLyx5V3PSkFBROAzOn21JumDq6nIpoj6H8rfj5Uo"},"type":"secondary","zone":"example.com"}`,
+			requestBody:    `{"comment":"","contractId":"1-2ABCDE","endCustomerId":"","masters":null,"signAndServe":false,"signAndServeAlgorithm":"","tsigKey":{"name":"other.com.akamai.com.","algorithm":"hmac-sha512","secret":"C113nt53KR3TN6N90yVuAgICxIRwsObLi0E67/N8eRN="},"type":"secondary","zone":"example.com"}`,
 			responseBody: `
 			{
 				"contractId": "1-2ABCDE",
@@ -815,7 +815,7 @@ func TestDNS_CreateZone(t *testing.T) {
 				"tsigKey": {
 					"name": "other.com.akamai.com.",
 					"algorithm": "hmac-sha512",
-					"secret": "fakeSecretajVka5cHPEJQIXfLyx5V3PSkFBROAzOn21JumDq6nIpoj6H8rfj5Uo"
+					"secret": "C113nt53KR3TN6N90yVuAgICxIRwsObLi0E67/N8eRN="
 				}
 			}`,
 			expectedPath: "/config-dns/v2/zones?contractId=1-2ABCDE",
@@ -1030,12 +1030,12 @@ func TestDNS_UpdateZone(t *testing.T) {
 						TSIGKey: &TSIGKey{
 							Name:      "other.com.akamai.com",
 							Algorithm: "hmac-sha1",
-							Secret:    "fakeW1ajVka5cHPEJQIXfLyx5V3PSkFBROAzOn21JumDq6nIpoj6H8rfj5Uo+Ok55ZWQ0Wgrf302fDscHLw==",
+							Secret:    "C113nt53KR3TN6N90yVuAgICxIRwsObLi0E67/N8eRN=",
 						},
 					},
 				},
 			},
-			requestBody:    `{"comment":"","contractId":"1-2ABCDE","endCustomerId":"","outboundZoneTransfer":{"ACL":["192.0.2.156/24"],"enabled":true,"notifyTargets":["192.0.2.192"],"tsigKey":{"name":"other.com.akamai.com","algorithm":"hmac-sha1","secret":"fakeW1ajVka5cHPEJQIXfLyx5V3PSkFBROAzOn21JumDq6nIpoj6H8rfj5Uo+Ok55ZWQ0Wgrf302fDscHLw=="}},"signAndServe":false,"signAndServeAlgorithm":"","type":"primary","zone":"example.com"}`,
+			requestBody:    `{"comment":"","contractId":"1-2ABCDE","endCustomerId":"","outboundZoneTransfer":{"ACL":["192.0.2.156/24"],"enabled":true,"notifyTargets":["192.0.2.192"],"tsigKey":{"name":"other.com.akamai.com","algorithm":"hmac-sha1","secret":"C113nt53KR3TN6N90yVuAgICxIRwsObLi0E67/N8eRN="}},"signAndServe":false,"signAndServeAlgorithm":"","type":"primary","zone":"example.com"}`,
 			responseStatus: http.StatusOK,
 			responseBody: `
 			{
@@ -1065,7 +1065,7 @@ func TestDNS_UpdateZone(t *testing.T) {
 					"tsigKey": {
 						"algorithm": "hmac-sha1",
 						"name": "other.com.akamai.com3",
-						"secret": "fakeR5IW1ajVka5cHPEJQIXfLyx5V3PSkFBROAzOn21JumDq6nIpoj6H8rfj5Uo+Ok55ZWQ0Wgrf302fDscHLw=="
+						"secret": "C113nt53KR3TN6N90yVuAgICxIRwsObLi0E67/N8eRN="
 					}
 				}
 			}`,
@@ -1080,7 +1080,7 @@ func TestDNS_UpdateZone(t *testing.T) {
 					TSIGKey: &TSIGKey{
 						Name:      "other.com.akamai.com.",
 						Algorithm: "hmac-sha512",
-						Secret:    "fakeSecretajVka5cHPEJQIXfLyx5V3PSkFBROAzOn21JumDq6nIpoj6H8rfj5Uo",
+						Secret:    "C113nt53KR3TN6N90yVuAgICxIRwsObLi0E67/N8eRN=",
 					},
 					Masters: []string{"1.2.3.4", "1.2.3.5"},
 					OutboundZoneTransfer: &OutboundZoneTransfer{
@@ -1090,12 +1090,12 @@ func TestDNS_UpdateZone(t *testing.T) {
 						TSIGKey: &TSIGKey{
 							Name:      "other.com.akamai.com",
 							Algorithm: "hmac-sha1",
-							Secret:    "fakeW1ajVka5cHPEJQIXfLyx5V3PSkFBROAzOn21JumDq6nIpoj6H8rfj5Uo+Ok55ZWQ0Wgrf302fDscHLw==",
+							Secret:    "C113nt53KR3TN6N90yVuAgICxIRwsObLi0E67/N8eRN=",
 						},
 					},
 				},
 			},
-			requestBody:    `{"comment":"","contractId":"1-2ABCDE","endCustomerId":"","masters":["1.2.3.4","1.2.3.5"],"outboundZoneTransfer":{"ACL":["192.0.2.156/24"],"enabled":true,"notifyTargets":["192.0.2.192"],"tsigKey":{"name":"other.com.akamai.com","algorithm":"hmac-sha1","secret":"fakeW1ajVka5cHPEJQIXfLyx5V3PSkFBROAzOn21JumDq6nIpoj6H8rfj5Uo+Ok55ZWQ0Wgrf302fDscHLw=="}},"signAndServe":false,"signAndServeAlgorithm":"","tsigKey":{"name":"other.com.akamai.com.","algorithm":"hmac-sha512","secret":"fakeSecretajVka5cHPEJQIXfLyx5V3PSkFBROAzOn21JumDq6nIpoj6H8rfj5Uo"},"type":"secondary","zone":"example.com"}`,
+			requestBody:    `{"comment":"","contractId":"1-2ABCDE","endCustomerId":"","masters":["1.2.3.4","1.2.3.5"],"outboundZoneTransfer":{"ACL":["192.0.2.156/24"],"enabled":true,"notifyTargets":["192.0.2.192"],"tsigKey":{"name":"other.com.akamai.com","algorithm":"hmac-sha1","secret":"C113nt53KR3TN6N90yVuAgICxIRwsObLi0E67/N8eRN="}},"signAndServe":false,"signAndServeAlgorithm":"","tsigKey":{"name":"other.com.akamai.com.","algorithm":"hmac-sha512","secret":"C113nt53KR3TN6N90yVuAgICxIRwsObLi0E67/N8eRN="},"type":"secondary","zone":"example.com"}`,
 			responseStatus: http.StatusOK,
 			responseBody: `
 			{
@@ -1117,7 +1117,7 @@ func TestDNS_UpdateZone(t *testing.T) {
 				"tsigKey": {
 					"name": "other.com.akamai.com.",
 					"algorithm": "hmac-sha512",
-					"secret": "fakeSecretajVka5cHPEJQIXfLyx5V3PSkFBROAzOn21JumDq6nIpoj6H8rfj5Uo"
+					"secret": "C113nt53KR3TN6N90yVuAgICxIRwsObLi0E67/N8eRN="
 				},
 				"outboundZoneTransfer": {
 					"ACL": [
@@ -1130,7 +1130,7 @@ func TestDNS_UpdateZone(t *testing.T) {
 					"tsigKey": {
 						"algorithm": "hmac-sha1",
 						"name": "other.com.akamai.com3",
-						"secret": "fakeR5IW1ajVka5cHPEJQIXfLyx5V3PSkFBROAzOn21JumDq6nIpoj6H8rfj5Uo+Ok55ZWQ0Wgrf302fDscHLw=="
+						"secret": "C113nt53KR3TN6N90yVuAgICxIRwsObLi0E67/N8eRN="
 					}
 				}
 			}`,

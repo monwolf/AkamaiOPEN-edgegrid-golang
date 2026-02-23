@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v13/pkg/ptr"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -17,14 +18,14 @@ func TestDNS_CreateRecord(t *testing.T) {
 		responseStatus int
 		responseBody   string
 		expectedPath   string
-		withError      error
+		withError      func(*testing.T, error)
 	}{
 		"200 OK": {
 			params: CreateRecordRequest{
 				Record: &RecordBody{
 					Name:       "www.example.com",
 					RecordType: "A",
-					TTL:        300,
+					TTL:        ptr.To(300),
 					Target:     []string{"10.0.0.2", "10.0.0.3"},
 				},
 				Zone: "example.com",
@@ -42,12 +43,125 @@ func TestDNS_CreateRecord(t *testing.T) {
 				]
 			}`,
 		},
+		"200 OK - ttl set to 0": {
+			params: CreateRecordRequest{
+				Record: &RecordBody{
+					Name:       "www.example.com",
+					RecordType: "A",
+					TTL:        ptr.To(0),
+					Target:     []string{"10.0.0.2", "10.0.0.3"},
+				},
+				Zone: "example.com",
+			},
+			responseStatus: http.StatusCreated,
+			expectedPath:   "/config-dns/v2/zones/example.com/names/www.example.com/types/A",
+			responseBody: `
+			{
+				"name": "www.example.com",
+				"type": "A",
+				"ttl": 0,
+				"rdata": [
+					"10.0.0.2",
+					"10.0.0.3"
+				]
+			}`,
+		},
+		"validation error - missing zone": {
+			params: CreateRecordRequest{
+				Record: &RecordBody{
+					Name:       "www.example.com",
+					RecordType: "A",
+					TTL:        ptr.To(300),
+					Target:     []string{"10.0.0.2", "10.0.0.3"},
+				},
+				Zone: "",
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "create record: struct validation: Zone: cannot be blank",
+					err.Error())
+			},
+		},
+		"validation error - missing name": {
+			params: CreateRecordRequest{
+				Record: &RecordBody{
+					Name:       "",
+					RecordType: "A",
+					TTL:        ptr.To(300),
+					Target:     []string{"10.0.0.2", "10.0.0.3"},
+				},
+				Zone: "example.com",
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "create record: struct validation: Record: Name: cannot be blank",
+					err.Error())
+			},
+		},
+		"validation error - missing record type": {
+			params: CreateRecordRequest{
+				Record: &RecordBody{
+					Name:       "www.example.com",
+					RecordType: "",
+					TTL:        ptr.To(300),
+					Target:     []string{"10.0.0.2", "10.0.0.3"},
+				},
+				Zone: "example.com",
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "create record: struct validation: Record: RecordType: cannot be blank",
+					err.Error())
+			},
+		},
+		"validation error - empty target": {
+			params: CreateRecordRequest{
+				Record: &RecordBody{
+					Name:       "www.example.com",
+					RecordType: "A",
+					TTL:        ptr.To(300),
+					Target:     []string{},
+				},
+				Zone: "example.com",
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "create record: struct validation: Record: Target: cannot be blank",
+					err.Error())
+			},
+		},
+		"validation error - negative ttl": {
+			params: CreateRecordRequest{
+				Record: &RecordBody{
+					Name:       "www.example.com",
+					RecordType: "A",
+					TTL:        ptr.To(-1),
+					Target:     []string{"10.0.0.2", "10.0.0.3"},
+				},
+				Zone: "example.com",
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "create record: struct validation: Record: TTL: must be no less than 0",
+					err.Error())
+			},
+		},
+		"validation error - nil ttl": {
+			params: CreateRecordRequest{
+				Record: &RecordBody{
+					Name:       "www.example.com",
+					RecordType: "A",
+					TTL:        nil,
+					Target:     []string{"10.0.0.2", "10.0.0.3"},
+				},
+				Zone: "example.com",
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "create record: struct validation: Record: TTL: is required",
+					err.Error())
+			},
+		},
 		"500 internal server error": {
 			params: CreateRecordRequest{
 				Record: &RecordBody{
 					Name:       "www.example.com",
 					RecordType: "A",
-					TTL:        300,
+					TTL:        ptr.To(300),
 					Target:     []string{"10.0.0.2", "10.0.0.3"},
 				},
 				Zone: "example.com",
@@ -61,11 +175,14 @@ func TestDNS_CreateRecord(t *testing.T) {
     "status": 500
 }`,
 			expectedPath: "/config-dns/v2/zones/example.com/names/www.example.com/types/A",
-			withError: &Error{
-				Type:       "internal_error",
-				Title:      "Internal Server Error",
-				Detail:     "Error fetching authorities",
-				StatusCode: http.StatusInternalServerError,
+			withError: func(t *testing.T, err error) {
+				want := &Error{
+					Type:       "internal_error",
+					Title:      "Internal Server Error",
+					Detail:     "Error fetching authorities",
+					StatusCode: http.StatusInternalServerError,
+				}
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
 			},
 		},
 	}
@@ -82,7 +199,7 @@ func TestDNS_CreateRecord(t *testing.T) {
 			client := mockAPIClient(t, mockServer)
 			err := client.CreateRecord(context.Background(), test.params)
 			if test.withError != nil {
-				assert.True(t, errors.Is(err, test.withError), "want: %s; got: %s", test.withError, err)
+				test.withError(t, err)
 				return
 			}
 			require.NoError(t, err)
@@ -97,14 +214,14 @@ func TestDNS_UpdateRecord(t *testing.T) {
 		responseStatus int
 		responseBody   string
 		expectedPath   string
-		withError      error
+		withError      func(*testing.T, error)
 	}{
 		"204 No Content": {
 			params: UpdateRecordRequest{
 				Record: &RecordBody{
 					Name:       "www.example.com",
 					RecordType: "A",
-					TTL:        300,
+					TTL:        ptr.To(300),
 					Target:     []string{"10.0.0.2", "10.0.0.3"},
 				},
 				Zone: "example.com",
@@ -127,7 +244,7 @@ func TestDNS_UpdateRecord(t *testing.T) {
 				Record: &RecordBody{
 					Name:       "www.example.com",
 					RecordType: "A",
-					TTL:        300,
+					TTL:        ptr.To(300),
 					Target:     []string{"10.0.0.2", "10.0.0.3"},
 				},
 				Zone: "example.com",
@@ -141,11 +258,14 @@ func TestDNS_UpdateRecord(t *testing.T) {
     "status": 500
 }`,
 			expectedPath: "/config-dns/v2/zones/example.com/names/www.example.com/types/A",
-			withError: &Error{
-				Type:       "internal_error",
-				Title:      "Internal Server Error",
-				Detail:     "Error fetching authorities",
-				StatusCode: http.StatusInternalServerError,
+			withError: func(t *testing.T, err error) {
+				want := &Error{
+					Type:       "internal_error",
+					Title:      "Internal Server Error",
+					Detail:     "Error fetching authorities",
+					StatusCode: http.StatusInternalServerError,
+				}
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
 			},
 		},
 	}
@@ -162,7 +282,7 @@ func TestDNS_UpdateRecord(t *testing.T) {
 			client := mockAPIClient(t, mockServer)
 			err := client.UpdateRecord(context.Background(), test.params)
 			if test.withError != nil {
-				assert.True(t, errors.Is(err, test.withError), "want: %s; got: %s", test.withError, err)
+				test.withError(t, err)
 				return
 			}
 			require.NoError(t, err)
@@ -177,7 +297,7 @@ func TestDNS_DeleteRecord(t *testing.T) {
 		responseStatus int
 		responseBody   string
 		expectedPath   string
-		withError      error
+		withError      func(*testing.T, error)
 	}{
 		"204 No Content": {
 			params: DeleteRecordRequest{
@@ -204,11 +324,14 @@ func TestDNS_DeleteRecord(t *testing.T) {
     "status": 500
 }`,
 			expectedPath: "/config-dns/v2/zones/example.com/names/www.example.com/types/A",
-			withError: &Error{
-				Type:       "internal_error",
-				Title:      "Internal Server Error",
-				Detail:     "Error fetching authorities",
-				StatusCode: http.StatusInternalServerError,
+			withError: func(t *testing.T, err error) {
+				want := &Error{
+					Type:       "internal_error",
+					Title:      "Internal Server Error",
+					Detail:     "Error fetching authorities",
+					StatusCode: http.StatusInternalServerError,
+				}
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
 			},
 		},
 	}
@@ -225,7 +348,7 @@ func TestDNS_DeleteRecord(t *testing.T) {
 			client := mockAPIClient(t, mockServer)
 			err := client.DeleteRecord(context.Background(), test.params)
 			if test.withError != nil {
-				assert.True(t, errors.Is(err, test.withError), "want: %s; got: %s", test.withError, err)
+				test.withError(t, err)
 				return
 			}
 			require.NoError(t, err)

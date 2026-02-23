@@ -16,6 +16,7 @@ on:
       - v9
       - v10
       - v11
+      - v12
       - master
 jobs:
   test:

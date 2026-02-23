@@ -7,8 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/internal/test"
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/ptr"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v13/internal/test"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v13/pkg/ptr"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -160,6 +160,254 @@ func TestPapiGetPropertyHostnameActivation(t *testing.T) {
 											"validationCname": {
 												"hostname": "hostname.com.net",
 												"target": "hostname.com.net"
+											}
+										},
+										"action": "ADD"
+									}
+									]
+								}
+							}
+						]
+					}
+				}`,
+			expectedPath: "/papi/v1/properties/property_id/hostname-activations/hostname_activation_id?contractId=contract_id&groupId=group_id&includeHostnames=true",
+			withError:    nil,
+		},
+		"200 OK - include hostnames with authorization data": {
+			params: GetPropertyHostnameActivationRequest{
+				PropertyID:           "property_id",
+				HostnameActivationID: "hostname_activation_id",
+				ContractID:           "contract_id",
+				GroupID:              "group_id",
+				IncludeHostnames:     true,
+			},
+			expected: &GetPropertyHostnameActivationResponse{
+				AccountID:  "account_id",
+				ContractID: "contract_id",
+				GroupID:    "group_id",
+				HostnameActivation: HostnameActivationGetItem{
+					ActivationType:       "ACTIVATE",
+					HostnameActivationID: "hostname_activation_id",
+					PropertyName:         "property_name",
+					PropertyID:           "property_id",
+					Network:              ActivationNetworkStaging,
+					Status:               "ACTIVE",
+					SubmitDate:           test.NewTimeFromString(t, "2025-01-13T11:22:33Z"),
+					UpdateDate:           test.NewTimeFromString(t, "2025-01-13T11:22:33Z"),
+					Note:                 "",
+					NotifyEmails:         []string{"nomail@akamai.com"},
+					Hostnames: []PropertyHostnameItem{{
+						Action:               "ADD",
+						EdgeHostnameID:       "edge_hostname_id",
+						CnameFrom:            "hostname.com",
+						CnameTo:              "hostname.com.net",
+						CertProvisioningType: CertTypeCPSManaged,
+						CertStatus: CertStatusItem{
+							ValidationCname: ValidationCname{
+								Hostname: "hostname.com.net",
+								Target:   "hostname.com.net",
+							},
+							Staging: []StatusItem{{
+								Status: "PENDING",
+							}},
+							Production: []StatusItem{{
+								Status: "PENDING",
+							}},
+							Authorization: &Authorization{
+								DNS01: &DNSAuthorization{
+									Result: AuthorizationResult{
+										Message:   "Got NXDomain error while getting TXT for _acme-challenge.hostname.com",
+										Timestamp: test.NewTimeFromString(t, "2026-01-21T13:41:19Z"),
+										Source:    "DNS",
+									},
+									Value: "secretvalue",
+								},
+								HTTP01: &HTTPAuthorization{
+									Body: "secretvalue.anothersecretvalue",
+									Result: AuthorizationResult{
+										Message:   "Got NXDomain error while getting A records for hostname.com/.well-known/acme-challenge/secretvalue",
+										Timestamp: test.NewTimeFromString(t, "2026-01-21T13:41:19Z"),
+										Source:    "DNS",
+									},
+									URL: "http://hostname.com/.well-known/acme-challenge/secretvalue",
+								},
+								Status:     "ATTEMPTING_VALIDATION",
+								ValidUntil: ptr.To(test.NewTimeFromString(t, "2026-01-22T06:17:57Z")),
+							},
+						},
+					}},
+				}},
+			responseStatus: http.StatusOK,
+			responseBody: `
+			{
+				"accountId": "account_id",
+				"contractId": "contract_id",
+				"groupId": "group_id",
+				"hostnameActivations": {
+					"items": [
+						{
+							"propertyName": "property_name",
+							"propertyId": "property_id",
+							"network": "STAGING",
+							"activationType": "ACTIVATE",
+							"status": "ACTIVE",
+							"submitDate": "2025-01-13T11:22:33Z",
+							"updateDate": "2025-01-13T11:22:33Z",
+							"note": "",
+							"notifyEmails": [
+								"nomail@akamai.com"
+							],
+							
+							"hostnameActivationId": "hostname_activation_id",
+							"hostnames": {
+								"items": [
+									{
+										"edgeHostnameId": "edge_hostname_id",
+										"cnameFrom": "hostname.com",
+										"cnameTo": "hostname.com.net",
+										"certProvisioningType": "CPS_MANAGED",
+										"certStatus": {
+											"production": [
+												{
+													"status": "PENDING"
+												}
+											],
+											"staging": [
+												{
+													"status": "PENDING"
+												}
+											],
+											"validationCname": {
+												"hostname": "hostname.com.net",
+												"target": "hostname.com.net"
+											},
+											"authorization": {
+												"status": "ATTEMPTING_VALIDATION",
+												"validUntil": "2026-01-22T06:17:57Z",
+												"http01": {
+													"url": "http://hostname.com/.well-known/acme-challenge/secretvalue",
+													"body": "secretvalue.anothersecretvalue",
+													"result": {
+														"message": "Got NXDomain error while getting A records for hostname.com/.well-known/acme-challenge/secretvalue",
+														"timestamp": "2026-01-21T13:41:19Z",
+														"source": "DNS"
+													}
+												},
+												"dns01": {
+													"value": "secretvalue",
+													"result": {
+														"message": "Got NXDomain error while getting TXT for _acme-challenge.hostname.com",
+														"timestamp": "2026-01-21T13:41:19Z",
+														"source": "DNS"
+													}
+												}
+											}
+										},
+										"action": "ADD"
+									}
+									]
+								}
+							}
+						]
+					}
+				}`,
+			expectedPath: "/papi/v1/properties/property_id/hostname-activations/hostname_activation_id?contractId=contract_id&groupId=group_id&includeHostnames=true",
+			withError:    nil,
+		},
+		"200 OK - include hostnames with authorization data without challenges": {
+			params: GetPropertyHostnameActivationRequest{
+				PropertyID:           "property_id",
+				HostnameActivationID: "hostname_activation_id",
+				ContractID:           "contract_id",
+				GroupID:              "group_id",
+				IncludeHostnames:     true,
+			},
+			expected: &GetPropertyHostnameActivationResponse{
+				AccountID:  "account_id",
+				ContractID: "contract_id",
+				GroupID:    "group_id",
+				HostnameActivation: HostnameActivationGetItem{
+					ActivationType:       "ACTIVATE",
+					HostnameActivationID: "hostname_activation_id",
+					PropertyName:         "property_name",
+					PropertyID:           "property_id",
+					Network:              ActivationNetworkStaging,
+					Status:               "ACTIVE",
+					SubmitDate:           test.NewTimeFromString(t, "2025-01-13T11:22:33Z"),
+					UpdateDate:           test.NewTimeFromString(t, "2025-01-13T11:22:33Z"),
+					Note:                 "",
+					NotifyEmails:         []string{"nomail@akamai.com"},
+					Hostnames: []PropertyHostnameItem{{
+						Action:               "ADD",
+						EdgeHostnameID:       "edge_hostname_id",
+						CnameFrom:            "hostname.com",
+						CnameTo:              "hostname.com.net",
+						CertProvisioningType: CertTypeCPSManaged,
+						CertStatus: CertStatusItem{
+							ValidationCname: ValidationCname{
+								Hostname: "hostname.com.net",
+								Target:   "hostname.com.net",
+							},
+							Staging: []StatusItem{{
+								Status: "PENDING",
+							}},
+							Production: []StatusItem{{
+								Status: "PENDING",
+							}},
+							Authorization: &Authorization{
+								Status:     "AWAITING_CHALLENGES",
+								ValidUntil: ptr.To(test.NewTimeFromString(t, "2026-01-22T06:17:57Z")),
+							},
+						},
+					}},
+				}},
+			responseStatus: http.StatusOK,
+			responseBody: `
+			{
+				"accountId": "account_id",
+				"contractId": "contract_id",
+				"groupId": "group_id",
+				"hostnameActivations": {
+					"items": [
+						{
+							"propertyName": "property_name",
+							"propertyId": "property_id",
+							"network": "STAGING",
+							"activationType": "ACTIVATE",
+							"status": "ACTIVE",
+							"submitDate": "2025-01-13T11:22:33Z",
+							"updateDate": "2025-01-13T11:22:33Z",
+							"note": "",
+							"notifyEmails": [
+								"nomail@akamai.com"
+							],
+							
+							"hostnameActivationId": "hostname_activation_id",
+							"hostnames": {
+								"items": [
+									{
+										"edgeHostnameId": "edge_hostname_id",
+										"cnameFrom": "hostname.com",
+										"cnameTo": "hostname.com.net",
+										"certProvisioningType": "CPS_MANAGED",
+										"certStatus": {
+											"production": [
+												{
+													"status": "PENDING"
+												}
+											],
+											"staging": [
+												{
+													"status": "PENDING"
+												}
+											],
+											"validationCname": {
+												"hostname": "hostname.com.net",
+												"target": "hostname.com.net"
+											},
+											"authorization": {
+												"status": "AWAITING_CHALLENGES",
+												"validUntil": "2026-01-22T06:17:57Z"
 											}
 										},
 										"action": "ADD"

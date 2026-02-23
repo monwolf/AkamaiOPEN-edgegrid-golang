@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/edgegriderr"
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/session"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v13/pkg/edgegriderr"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v13/pkg/session"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
@@ -47,13 +47,13 @@ type (
 
 	// PatchHostnameItem contains hostname details returned after PATCH operation.
 	PatchHostnameItem struct {
-		CertProvisioningType CertType          `json:"certProvisioningType"`
-		CnameFrom            string            `json:"cnameFrom"`
-		CnameTo              string            `json:"cnameTo"`
-		CnameType            HostnameCnameType `json:"cnameType"`
-		EdgeHostnameID       string            `json:"edgeHostnameId"`
-		CertStatus           CertStatusItem    `json:"certStatus"`
-		Action               string            `json:"action"`
+		CertProvisioningType CertType                  `json:"certProvisioningType"`
+		CnameFrom            string                    `json:"cnameFrom"`
+		CnameTo              string                    `json:"cnameTo"`
+		CnameType            HostnameCnameType         `json:"cnameType"`
+		EdgeHostnameID       string                    `json:"edgeHostnameId"`
+		CertStatus           CertStatusPatchBucketItem `json:"certStatus"`
+		Action               string                    `json:"action"`
 	}
 )
 

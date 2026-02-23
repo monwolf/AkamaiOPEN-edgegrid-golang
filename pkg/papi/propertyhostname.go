@@ -9,9 +9,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/internal/request"
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/edgegriderr"
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/session"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v13/internal/request"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v13/pkg/edgegriderr"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v13/pkg/session"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 )
@@ -41,10 +41,10 @@ type (
 
 	// HostnameResponseItems contains the response body for GetPropertyVersionHostnamesResponse
 	HostnameResponseItems struct {
-		Items []Hostname `json:"items"`
+		Items []HostnameResponseItem `json:"items"`
 	}
 
-	// Hostname contains information about each of the HostnameResponseItems
+	// Hostname contains information about each of the hostname that will be used in UpdatePropertyVersionHostnames
 	Hostname struct {
 		// CnameType is only one supported `EDGE_HOSTNAME` value.
 		CnameType HostnameCnameType `json:"cnameType"`
@@ -61,12 +61,6 @@ type (
 		// CertProvisioningType indicates the certificate's provisioning type. Either `CPS_MANAGED` type for the certificates you create with the Certificate Provisioning System API (CPS), `DEFAULT` for the Default Domain Validation (DV) certificates created automatically, or `CCM` type for the third party certificates you create with the Cloud Certificate Manager.
 		CertProvisioningType string `json:"certProvisioningType"`
 
-		// CertStatus determines whether a hostname is capable of serving secure content over the staging or production network.
-		CertStatus CertStatusItem `json:"certStatus,omitempty"`
-
-		// CCMCertStatus is deployment status for the RSA and ECDSA certificates created with Cloud Certificate Manager (CCM).
-		CCMCertStatus *CCMCertStatus `json:"ccmCertStatus,omitempty"`
-
 		// CCMCertificates is certificate identifiers and links for the CCM-managed certificates.
 		CCMCertificates *CCMCertificates `json:"ccmCertificates,omitempty"`
 
@@ -75,10 +69,43 @@ type (
 
 		// TLSConfiguration is optional TLS configuration settings applicable to the Cloud Certificate Manager (CCM) hostnames.
 		TLSConfiguration *TLSConfiguration `json:"tlsConfiguration,omitempty"`
+	}
+
+	// HostnameResponseItem contains information about each of the HostnameResponseItems
+	HostnameResponseItem struct {
+		// CnameType is only one supported `EDGE_HOSTNAME` value.
+		CnameType string `json:"cnameType"`
+
+		// EdgeHostnameID identifies each edge hostname.
+		EdgeHostnameID string `json:"edgeHostnameId"`
+
+		// CnameFrom is the hostname that your end users see, indicated by the `Host` header in end user requests.
+		CnameFrom string `json:"cnameFrom"`
+
+		// CnameTo is the edge hostname you point the property hostname to so that you can start serving traffic through Akamai servers. This member corresponds to the edge hostname object's `edgeHostnameDomain` member.
+		CnameTo string `json:"cnameTo"`
+
+		// CertProvisioningType indicates the certificate's provisioning type. Either `CPS_MANAGED` type for the certificates you create with the Certificate Provisioning System API (CPS), `DEFAULT` for the Default Domain Validation (DV) certificates created automatically, or `CCM` type for the third party certificates you create with the Cloud Certificate Manager.
+		CertProvisioningType string `json:"certProvisioningType"`
+
+		// CertStatus determines whether a hostname is capable of serving secure content over the staging or production network.
+		CertStatus CertStatusItem `json:"certStatus"`
+
+		// CCMCertStatus is deployment status for the RSA and ECDSA certificates created with Cloud Certificate Manager (CCM).
+		CCMCertStatus *CCMCertStatus `json:"ccmCertStatus"`
+
+		// CCMCertificates is certificate identifiers and links for the CCM-managed certificates.
+		CCMCertificates *CCMCertificatesResp `json:"ccmCertificates"`
+
+		// MTLS is mutual TLS configuration settings applicable to the Cloud Certificate Manager (CCM) hostnames.
+		MTLS *MTLSResp `json:"mtls"`
+
+		// TLSConfiguration is optional TLS configuration settings applicable to the Cloud Certificate Manager (CCM) hostnames.
+		TLSConfiguration *TLSConfiguration `json:"tlsConfiguration"`
 
 		// DomainOwnershipVerification is optional domain ownership verification details for the hostname.
 		// This field is returned only in responses and should not be populated in requests.
-		DomainOwnershipVerification *DomainOwnershipVerification `json:"domainOwnershipVerification,omitempty"`
+		DomainOwnershipVerification *DomainOwnershipVerification `json:"domainOwnershipVerification"`
 	}
 
 	// CCMCertStatus is status of CCM certificates in each environment.
@@ -106,6 +133,69 @@ type (
 
 		// Production contains certificate status for the hostname on the production network.
 		Production []StatusItem `json:"production,omitempty"`
+
+		// Authorization contains details domain validation methods available for your certificate.
+		Authorization *Authorization `json:"authorization"`
+	}
+
+	// Authorization contains details domain validation methods available for your certificate.
+	Authorization struct {
+		// DNS01 contains details on the manual DNS validation method.
+		DNS01 *DNSAuthorization `json:"dns01"`
+
+		// HTTP01 contains details on the manual HTTP validation method.
+		HTTP01 *HTTPAuthorization `json:"http01"`
+
+		// Status of the validation that proves you control the domains listed in the certificate request.
+		Status string `json:"status"`
+
+		// ValidUntil is an ISO 8601 timestamp indicating when the domain validation challenge expires.
+		ValidUntil *time.Time `json:"validUntil"`
+	}
+
+	// DNSAuthorization contains details on the manual DNS validation method.
+	DNSAuthorization struct {
+		// Result provides details on the validation challenge generation.
+		Result AuthorizationResult `json:"result"`
+
+		// Value is the token you need to copy to the DNS TXT record.
+		Value string `json:"value"`
+	}
+
+	// AuthorizationResult provides details on the validation challenge generation.
+	AuthorizationResult struct {
+		// Message is a descriptive message on the challenge generation process.
+		Message string `json:"message"`
+
+		// Source is the system that sent the result details, either the Certificate Authority (CA) server or Certificate Management System (CPS).
+		Source string `json:"source"`
+
+		// Timestamp is the ISO 8601 timestamp indicating when the result was generated.
+		Timestamp time.Time `json:"timestamp"`
+	}
+
+	// HTTPAuthorization contains details on the manual DNS validation method.
+	HTTPAuthorization struct {
+		// Body is the token you need to copy to the file on your origin server.
+		Body string `json:"body"`
+
+		// Result provides details on the validation challenge generation.
+		Result AuthorizationResult `json:"result"`
+
+		// URL is the location on your origin server where you save the file with the token.
+		URL string `json:"url"`
+	}
+
+	// CertStatusPatchBucketItem contains information about certificate status for specific Hostname that is returned for hostname buckets
+	CertStatusPatchBucketItem struct {
+		// ValidationCname is the CNAME record used to validate the certificate’s domain.
+		ValidationCname ValidationCname `json:"validationCname"`
+
+		// Staging contains certificate status for the hostname on the staging network.
+		Staging []StatusItem `json:"staging"`
+
+		// Production contains certificate status for the hostname on the production network.
+		Production []StatusItem `json:"production"`
 	}
 
 	// CCMCertificates contains identifiers for the RSA and ECDSA certificates.
@@ -113,14 +203,19 @@ type (
 		// ECDSACertID is certificate ID for ECDSA.
 		ECDSACertID string `json:"ecdsaCertId,omitempty"`
 
-		// ECDSACertLink is link to the ECSDA certificate.
-		ECDSACertLink string `json:"ecdsaCertLink,omitempty"`
-
 		// RSACertID is certificate ID for RSA.
 		RSACertID string `json:"rsaCertId,omitempty"`
+	}
+
+	// CCMCertificatesResp contains identifiers for the RSA and ECDSA certificates.
+	CCMCertificatesResp struct {
+		CCMCertificates
+
+		// ECDSACertLink is link to the ECSDA certificate.
+		ECDSACertLink string `json:"ecdsaCertLink"`
 
 		// RSACertLink is link to the RSA certificate.
-		RSACertLink string `json:"rsaCertLink,omitempty"`
+		RSACertLink string `json:"rsaCertLink"`
 	}
 
 	// MTLS is mutual TLS configuration used only for the `CCM` provisioning.
@@ -128,14 +223,19 @@ type (
 		// CASetID is ID of the Client CA set used for mutual TLS.
 		CASetID string `json:"caSetId,omitempty"`
 
-		// CASetLink is link of the Client CA set used for mutual TLS.
-		CASetLink string `json:"caSetLink,omitempty"`
-
 		// CheckClientOCSP specifies whether to check the OCSP status of the client certificate.
 		CheckClientOCSP bool `json:"checkClientOcsp,omitempty"`
 
 		// SendCASetClient specifies whether to send the CA set to the client during the TLS handshake.
 		SendCASetClient bool `json:"sendCaSetClient,omitempty"`
+	}
+
+	// MTLSResp is mutual TLS configuration used only for the `CCM` provisioning.
+	MTLSResp struct {
+		MTLS
+
+		// CASetLink is link of the Client CA set used for mutual TLS.
+		CASetLink string `json:"caSetLink"`
 	}
 
 	// TLSConfiguration is optional TLS configuration settings applicable to the Cloud Certificate Manager (CCM) hostnames.
@@ -375,10 +475,9 @@ func (r UpdatePropertyVersionHostnamesRequest) Validate() error {
 // Validate validates Hostname
 func (h Hostname) Validate() error {
 	return validation.Errors{
-		"MTLS":                        validation.Validate(h.MTLS),
-		"CCMCertificates":             validation.Validate(h.CCMCertificates),
-		"ValidateCCMHostname":         validateCCMHostname(h.CertProvisioningType, h.CCMCertificates, h.MTLS, h.TLSConfiguration),
-		"DomainOwnershipVerification": validation.Validate(h.DomainOwnershipVerification, validation.Nil.Error("field is returned only in responses and should not be populated in requests")),
+		"MTLS":                validation.Validate(h.MTLS),
+		"CCMCertificates":     validation.Validate(h.CCMCertificates),
+		"ValidateCCMHostname": validateCCMHostname(h.CertProvisioningType, h.CCMCertificates, h.MTLS, h.TLSConfiguration),
 	}.Filter()
 }
 

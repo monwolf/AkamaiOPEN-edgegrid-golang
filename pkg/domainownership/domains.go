@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/edgegriderr"
-	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v12/pkg/session"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v13/pkg/edgegriderr"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v13/pkg/session"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
@@ -367,6 +367,12 @@ const (
 
 	// ValidationMethodHTTP represents the HTTP validation method.
 	ValidationMethodHTTP ValidationMethod = "HTTP"
+
+	// ValidationMethodSYSTEM represents the SYSTEM validation method.
+	ValidationMethodSYSTEM ValidationMethod = "SYSTEM"
+
+	// ValidationMethodMANUAL represents the MANUAL validation method.
+	ValidationMethodMANUAL ValidationMethod = "MANUAL"
 )
 
 // Validate validates the AddDomainsRequest parameters.
