@@ -58,7 +58,7 @@
 
 * Cloud Certificates
   * Added support for the `STANDARD_TLS` secure network type.
-
+  * Updated [PolicyProtections]( https://techdocs.akamai.com/application-security/reference/get-policy-protections) to support new attribute applyUrlProtectionControls.
 
 
 

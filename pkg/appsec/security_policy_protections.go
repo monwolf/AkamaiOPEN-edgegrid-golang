@@ -42,6 +42,7 @@ type (
 		ApplyRateControls             bool   `json:"applyRateControls"`
 		ApplyReputationControls       bool   `json:"applyReputationControls"`
 		ApplySlowPostControls         bool   `json:"applySlowPostControls"`
+		ApplyURLProtectionControls    bool   `json:"applyUrlProtectionControls"`
 		ApplyMalwareControls          bool   `json:"applyMalwareControls"`
 	}
 
@@ -56,6 +57,7 @@ type (
 		ApplyRateControls              bool `json:"applyRateControls"`
 		ApplyReputationControls        bool `json:"applyReputationControls"`
 		ApplySlowPostControls          bool `json:"applySlowPostControls"`
+		ApplyURLProtectionControls     bool `json:"applyUrlProtectionControls"`
 	}
 )
 
