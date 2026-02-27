@@ -448,6 +448,102 @@ func TestCreateCertificate(t *testing.T) {
 				"trustChainPem": null
 			}`,
 		},
+		"201 Created - create certificate with STANDARD_TLS secure network": {
+			params: CreateCertificateRequest{
+				ContractID: "111",
+				GroupID:    "222",
+				Body: CreateCertificateRequestBody{
+					CertificateName: "test-cert",
+					SANs:            []string{"example.com", "www.example.com"},
+					SecureNetwork:   "STANDARD_TLS",
+					KeyType:         "RSA",
+					KeySize:         "2048",
+					Subject: &Subject{
+						CommonName:   "example.com",
+						Country:      "US",
+						State:        "Massachusetts",
+						Locality:     "Cambridge",
+						Organization: "ExampleOrg",
+					},
+				},
+			},
+			expectedPath:        "/ccm/v1/certificates?contractId=111&groupId=222",
+			expectedRequestBody: `{"certificateName":"test-cert","keyType":"RSA","keySize":"2048","secureNetwork":"STANDARD_TLS","sans":["example.com","www.example.com"],"subject":{"commonName":"example.com","organization":"ExampleOrg","country":"US","state":"Massachusetts","locality":"Cambridge"}}`,
+			returnedHeaders: map[string]string{
+				"Akamai-Limit-Certificates":           "50",
+				"Akamai-Limit-Certificates-Remaining": "27",
+				"Akamai-RateLimit-Limit":              "60",
+				"Akamai-RateLimit-Remaining":          "59",
+			},
+			expectedResponse: &CreateCertificateResponse{
+				Certificate: Certificate{
+					AccountID:         "A-CCT7890",
+					CertificateID:     "123",
+					CertificateName:   "test-cert",
+					CertificateStatus: "CSR_READY",
+					CertificateType:   "THIRD_PARTY",
+					ContractID:        "C-0N7RAC7",
+					CreatedBy:         "jsmith",
+					CreatedDate:       test.NewTimeFromString(t, "2025-09-01T06:16:05.952613Z"),
+					CSRExpirationDate: test.NewTimeFromString(t, "2026-11-03T06:16:07Z"),
+					CSRPEM:            "-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n",
+					KeySize:           "2048",
+					KeyType:           "RSA",
+					ModifiedBy:        "jsmith",
+					ModifiedDate:      test.NewTimeFromString(t, "2025-09-02T06:16:05.952613Z"),
+					SANs:              []string{"example.com", "www.example.com"},
+					SecureNetwork:     "STANDARD_TLS",
+					Subject: &Subject{
+						Country:      "US",
+						Organization: "ExampleOrg",
+						State:        "Massachusetts",
+						Locality:     "Cambridge",
+						CommonName:   "example.com",
+					},
+				},
+				ResourceLimits: ResourceLimitsMetadata{
+					CertificateLimitTotal:     ptr.To(int64(50)),
+					CertificateLimitRemaining: ptr.To(int64(27)),
+				},
+				RateLimits: RateLimitsMetadata{
+					Limit:     ptr.To(int64(60)),
+					Remaining: ptr.To(int64(59)),
+				},
+			},
+			responseStatus: 201,
+			responseBody: `{
+				"accountId": "A-CCT7890",
+				"certificateId": "123",
+				"certificateName": "test-cert",
+				"certificateStatus": "CSR_READY",
+				"certificateType": "THIRD_PARTY",
+				"contractId": "C-0N7RAC7",
+				"createdBy": "jsmith",
+				"createdDate": "2025-09-01T06:16:05.952613Z",
+				"csrExpirationDate": "2026-11-03T06:16:07Z",
+				"csrPem": "-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n",
+				"keySize": "2048",
+				"keyType": "RSA",
+				"modifiedBy": "jsmith",
+				"modifiedDate": "2025-09-02T06:16:05.952613Z",
+				"sans": ["example.com", "www.example.com"],
+				"secureNetwork": "STANDARD_TLS",
+				"signedCertificateIssuer": null,
+				"signedCertificateNotValidAfterDate": null,
+				"signedCertificateNotValidBeforeDate": null,
+				"signedCertificatePem": null,
+				"signedCertificateSHA256Fingerprint": null,
+				"signedCertificateSerialNumber": null,
+				"subject": {
+					"commonName": "example.com",
+					"country": "US",
+					"locality": "Cambridge",
+					"organization": "ExampleOrg",
+					"state": "Massachusetts"
+				},
+				"trustChainPem": null
+			}`,
+		},
 		"validation error - missing required ContractID": {
 			params: CreateCertificateRequest{
 				GroupID: "123",
@@ -596,7 +692,7 @@ func TestCreateCertificate(t *testing.T) {
 				},
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "creating certificate: struct validation: SecureNetwork: value 'WRONG_NETWORK' is invalid. Must be: 'ENHANCED_TLS'",
+				assert.Equal(t, "creating certificate: struct validation: SecureNetwork: value 'WRONG_NETWORK' is invalid. Must be either 'ENHANCED_TLS' or 'STANDARD_TLS'",
 					err.Error())
 				assert.ErrorIs(t, err, ErrCreateCertificate)
 				assert.ErrorIs(t, err, ErrStructValidation)

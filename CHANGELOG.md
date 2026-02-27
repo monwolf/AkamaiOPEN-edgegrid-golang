@@ -37,6 +37,10 @@
 
 
 
+* Cloud Certificates
+  * Added support for the `STANDARD_TLS` secure network type.
+
+
 
 
 

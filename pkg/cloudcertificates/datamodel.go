@@ -47,6 +47,9 @@ const (
 	// SecureNetworkEnhancedTLS represents the `ENHANCED_TLS` secure network type.
 	SecureNetworkEnhancedTLS SecureNetwork = "ENHANCED_TLS"
 
+	// SecureNetworkStandardTLS represents the `STANDARD_TLS` secure network type.
+	SecureNetworkStandardTLS SecureNetwork = "STANDARD_TLS"
+
 	// KeySize2048 represents a key size of 2048 bits.
 	KeySize2048 KeySize = "2048"
 
@@ -293,7 +296,7 @@ type (
 		// The key size for a certificate. Valid values for key type RSA: `2048`. Valid values for key type ECDSA: `P-256`.
 		KeySize KeySize `json:"keySize"`
 
-		// Secure network type to use for the certificate. The only valid value is `ENHANCED_TLS`.
+		// Secure network type to use for the certificate. Valid values are `ENHANCED_TLS` and `STANDARD_TLS`.
 		SecureNetwork SecureNetwork `json:"secureNetwork"`
 
 		// The list of Subject Alternative Names (SANs) for the certificate.
@@ -623,9 +626,9 @@ func (k KeySize) Validate() error {
 
 // Validate validates SecureNetwork.
 func (s SecureNetwork) Validate() error {
-	return validation.In(SecureNetworkEnhancedTLS).
-		Error(fmt.Sprintf("value '%s' is invalid. Must be: '%s'",
-			s, SecureNetworkEnhancedTLS)).
+	return validation.In(SecureNetworkEnhancedTLS, SecureNetworkStandardTLS).
+		Error(fmt.Sprintf("value '%s' is invalid. Must be either '%s' or '%s'",
+			s, SecureNetworkEnhancedTLS, SecureNetworkStandardTLS)).
 		Validate(s)
 }
 
