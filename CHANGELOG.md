@@ -35,7 +35,9 @@
 ### FEATURES/ENHANCEMENTS:
 
 
-
+* General
+    * Migrated to Go `1.25`.
+    * Adopted toolchain Go `1.25.7`.
 
 * Cloud Certificates
   * Added support for the `STANDARD_TLS` secure network type.
