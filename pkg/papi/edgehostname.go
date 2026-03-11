@@ -46,15 +46,16 @@ type (
 
 	// EdgeHostnameGetItem contains GET details for edge hostname
 	EdgeHostnameGetItem struct {
-		ID                string    `json:"edgeHostnameId"`
-		Domain            string    `json:"edgeHostnameDomain"`
-		ProductID         string    `json:"productId"`
-		DomainPrefix      string    `json:"domainPrefix"`
-		DomainSuffix      string    `json:"domainSuffix"`
-		Status            string    `json:"status,omitempty"`
-		Secure            bool      `json:"secure"`
-		IPVersionBehavior string    `json:"ipVersionBehavior"`
-		UseCases          []UseCase `json:"useCases,omitempty"`
+		ID                  string    `json:"edgeHostnameId"`
+		Domain              string    `json:"edgeHostnameDomain"`
+		ProductID           string    `json:"productId"`
+		DomainPrefix        string    `json:"domainPrefix"`
+		DomainSuffix        string    `json:"domainSuffix"`
+		Status              string    `json:"status,omitempty"`
+		Secure              bool      `json:"secure"`
+		IPVersionBehavior   string    `json:"ipVersionBehavior"`
+		UseCases            []UseCase `json:"useCases,omitempty"`
+		HTTPSServiceBinding *string   `json:"httpsServiceBinding"`
 	}
 
 	// UseCase contains UseCase data
@@ -74,15 +75,16 @@ type (
 
 	// EdgeHostnameCreate contains body of edge hostname POST request
 	EdgeHostnameCreate struct {
-		ProductID         string    `json:"productId"`
-		DomainPrefix      string    `json:"domainPrefix"`
-		DomainSuffix      string    `json:"domainSuffix"`
-		Secure            bool      `json:"secure,omitempty"`
-		SecureNetwork     string    `json:"secureNetwork,omitempty"`
-		SlotNumber        int       `json:"slotNumber,omitempty"`
-		IPVersionBehavior string    `json:"ipVersionBehavior"`
-		CertEnrollmentID  int       `json:"certEnrollmentId,omitempty"`
-		UseCases          []UseCase `json:"useCases,omitempty"`
+		ProductID           string    `json:"productId"`
+		DomainPrefix        string    `json:"domainPrefix"`
+		DomainSuffix        string    `json:"domainSuffix"`
+		Secure              bool      `json:"secure,omitempty"`
+		SecureNetwork       string    `json:"secureNetwork,omitempty"`
+		SlotNumber          int       `json:"slotNumber,omitempty"`
+		IPVersionBehavior   string    `json:"ipVersionBehavior"`
+		CertEnrollmentID    int       `json:"certEnrollmentId,omitempty"`
+		UseCases            []UseCase `json:"useCases,omitempty"`
+		HTTPSServiceBinding string    `json:"httpsServiceBinding,omitempty"`
 	}
 
 	// CreateEdgeHostnameResponse contains a link returned after creating new edge hostname and DI of this hostname
@@ -146,11 +148,12 @@ func (eh EdgeHostnameCreate) Validate() error {
 			validation.When(eh.SecureNetwork == EHSecureNetworkSharedCert, validation.In("akamaized.net")),
 			validation.When(eh.SecureNetwork == EHSecureNetworkEnhancedTLS, validation.In("edgekey.net")),
 		),
-		"ProductID":         validation.Validate(eh.ProductID, validation.Required),
-		"CertEnrollmentID":  validation.Validate(eh.CertEnrollmentID, validation.Required.When(eh.SecureNetwork == EHSecureNetworkEnhancedTLS)),
-		"IPVersionBehavior": validation.Validate(eh.IPVersionBehavior, validation.Required, validation.In(EHIPVersionV4, EHIPVersionV6Performance, EHIPVersionV6Compliance)),
-		"SecureNetwork":     validation.Validate(eh.SecureNetwork, validation.In(EHSecureNetworkStandardTLS, EHSecureNetworkSharedCert, EHSecureNetworkEnhancedTLS)),
-		"UseCases":          validation.Validate(eh.UseCases),
+		"ProductID":           validation.Validate(eh.ProductID, validation.Required),
+		"CertEnrollmentID":    validation.Validate(eh.CertEnrollmentID, validation.Required.When(eh.SecureNetwork == EHSecureNetworkEnhancedTLS)),
+		"IPVersionBehavior":   validation.Validate(eh.IPVersionBehavior, validation.Required, validation.In(EHIPVersionV4, EHIPVersionV6Performance, EHIPVersionV6Compliance)),
+		"SecureNetwork":       validation.Validate(eh.SecureNetwork, validation.In(EHSecureNetworkStandardTLS, EHSecureNetworkSharedCert, EHSecureNetworkEnhancedTLS)),
+		"UseCases":            validation.Validate(eh.UseCases),
+		"HTTPSServiceBinding": validation.Validate(eh.HTTPSServiceBinding, validation.In("H2", "H3", "H2_AND_H3")),
 	}.Filter()
 }
 

@@ -79,7 +79,14 @@
 
 
 
+* HAPI
+  * Added support for the `HTTPSServiceBinding`:
+    * Added the `HTTPSServiceBinding` field into the `EdgeHostname` and `GetEdgeHostnameResponse` structures.
+    * Enabled using `/httpsServiceBinding` as the `Path` field with one of the values `H2`, `H3` or `H2_AND_H3` in the `UpdateEdgeHostnameRequestBody` structure with the `replace` and `add` as the `Op` field.
+    * Enabled using `remove` as the `Op` field with the `/httpsServiceBinding` in the `Path` in the `UpdateEdgeHostnameRequestBody` structure.
 
+* PAPI
+  * Added the `HTTPSServiceBinding` field into the `EdgeHostnameGetItem` and `EdgeHostnameCreate` structures.
 
 
 

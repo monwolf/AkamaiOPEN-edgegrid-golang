@@ -41,7 +41,7 @@ type (
 		// See: https://techdocs.akamai.com/edge-hostnames/reference/get-edgehostnameid
 		GetEdgeHostname(context.Context, int) (*GetEdgeHostnameResponse, error)
 
-		// UpdateEdgeHostname allows update ttl (path = "/ttl") or IpVersionBehaviour (path = "/ipVersionBehavior")
+		// UpdateEdgeHostname allows update ttl (path = "/ttl"), IpVersionBehavior (path = "/ipVersionBehavior") or HTTPSServiceBinding (path = "/httpsServiceBinding") of a specific edge hostname.
 		//
 		// See: https://techdocs.akamai.com/edge-hostnames/reference/patch-edgehostnames
 		UpdateEdgeHostname(context.Context, UpdateEdgeHostnameRequest) (*UpdateEdgeHostnameResponse, error)

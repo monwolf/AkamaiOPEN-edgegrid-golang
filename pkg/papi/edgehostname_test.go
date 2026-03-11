@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v13/pkg/ptr"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -64,6 +65,54 @@ func TestPapiGetEdgeHostnames(t *testing.T) {
 						Secure:            true,
 						IPVersionBehavior: "IPV4",
 						UseCases:          nil,
+					},
+				}},
+			},
+		},
+		"200 OK with HTTPSServiceBinding": {
+			params: GetEdgeHostnamesRequest{
+				ContractID: "contract",
+				GroupID:    "group",
+			},
+			responseStatus: http.StatusOK,
+			responseBody: `
+{
+    "accountId": "acc",
+    "contractId": "contract",
+    "groupId": "group",
+    "edgeHostnames": {
+        "items": [
+            {
+                "edgeHostnameId": "ehID",
+                "edgeHostnameDomain": "example.com.edgekey.net",
+                "productId": "prdID",
+                "domainPrefix": "example.com",
+                "domainSuffix": "edgekey.net",
+                "status": "PENDING",
+                "secure": true,
+                "ipVersionBehavior": "IPV4",
+                "httpsServiceBinding": "H2"
+            }
+        ]
+    }
+}`,
+			expectedPath: "/papi/v1/edgehostnames?contractId=contract&groupId=group",
+			expectedResponse: &GetEdgeHostnamesResponse{
+				AccountID:  "acc",
+				ContractID: "contract",
+				GroupID:    "group",
+				EdgeHostnames: EdgeHostnameItems{Items: []EdgeHostnameGetItem{
+					{
+						ID:                  "ehID",
+						Domain:              "example.com.edgekey.net",
+						ProductID:           "prdID",
+						DomainPrefix:        "example.com",
+						DomainSuffix:        "edgekey.net",
+						Status:              "PENDING",
+						Secure:              true,
+						IPVersionBehavior:   "IPV4",
+						UseCases:            nil,
+						HTTPSServiceBinding: ptr.To("H2"),
 					},
 				}},
 			},
@@ -210,6 +259,67 @@ func TestPapiGetEdgeHostname(t *testing.T) {
 					Secure:            true,
 					IPVersionBehavior: "IPV4",
 					UseCases:          nil,
+				},
+			},
+		},
+		"200 OK with HTTPSServiceBinding": {
+			params: GetEdgeHostnameRequest{
+				EdgeHostnameID: "ehID",
+				ContractID:     "contract",
+				GroupID:        "group",
+			},
+			responseStatus: http.StatusOK,
+			responseBody: `
+{
+    "accountId": "acc",
+    "contractId": "contract",
+    "groupId": "group",
+    "edgeHostnames": {
+        "items": [
+            {
+                "edgeHostnameId": "ehID",
+                "edgeHostnameDomain": "example.com.edgekey.net",
+                "productId": "prdID",
+                "domainPrefix": "example.com",
+                "domainSuffix": "edgekey.net",
+                "status": "PENDING",
+                "secure": true,
+                "ipVersionBehavior": "IPV4",
+                "httpsServiceBinding": "H2_AND_H3"
+            }
+        ]
+    }
+}`,
+			expectedPath: "/papi/v1/edgehostnames/ehID?contractId=contract&groupId=group",
+			expectedResponse: &GetEdgeHostnamesResponse{
+				AccountID:  "acc",
+				ContractID: "contract",
+				GroupID:    "group",
+				EdgeHostnames: EdgeHostnameItems{Items: []EdgeHostnameGetItem{
+					{
+						ID:                  "ehID",
+						Domain:              "example.com.edgekey.net",
+						ProductID:           "prdID",
+						DomainPrefix:        "example.com",
+						DomainSuffix:        "edgekey.net",
+						Status:              "PENDING",
+						Secure:              true,
+						IPVersionBehavior:   "IPV4",
+						UseCases:            nil,
+						HTTPSServiceBinding: ptr.To("H2_AND_H3"),
+					},
+				}},
+				EdgeHostname: EdgeHostnameGetItem{
+					ID:                  "ehID",
+					Domain:              "example.com.edgekey.net",
+					ProductID:           "prdID",
+					DomainPrefix:        "example.com",
+					DomainSuffix:        "edgekey.net",
+					Status:              "PENDING",
+					Secure:              true,
+					IPVersionBehavior:   "IPV4",
+					UseCases:            nil,
+					HTTPSServiceBinding: ptr.To("H2_AND_H3"),
 				},
 			},
 		},
@@ -434,6 +544,33 @@ func TestPapiCreateEdgeHostname(t *testing.T) {
 					SecureNetwork:     "ENHANCED_TLS",
 					IPVersionBehavior: "IPV4",
 					UseCases:          nil,
+				},
+			},
+			responseStatus: http.StatusCreated,
+			responseBody: `
+{
+    "edgeHostnameLink": "/papi/v1/edgehostnames/ehID?contractId=contract&group=group"
+}`,
+			expectedPath: "/papi/v1/edgehostnames?contractId=contract&groupId=group&options=opt1%2Copt2",
+			expectedResponse: &CreateEdgeHostnameResponse{
+				EdgeHostnameLink: "/papi/v1/edgehostnames/ehID?contractId=contract&group=group",
+				EdgeHostnameID:   "ehID",
+			},
+		},
+		"200 OK - with HTTPSServiceBinding": {
+			params: CreateEdgeHostnameRequest{
+				ContractID: "contract",
+				GroupID:    "group",
+				Options:    []string{"opt1", "opt2"},
+				EdgeHostname: EdgeHostnameCreate{
+					ProductID:           "product",
+					DomainPrefix:        "example.com",
+					DomainSuffix:        "edgekey.net",
+					CertEnrollmentID:    5,
+					Secure:              true,
+					SecureNetwork:       "ENHANCED_TLS",
+					IPVersionBehavior:   "IPV4",
+					HTTPSServiceBinding: "H3",
 				},
 			},
 			responseStatus: http.StatusCreated,
@@ -928,6 +1065,27 @@ func TestPapiCreateEdgeHostname(t *testing.T) {
 				want := ErrStructValidation
 				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
 				assert.Contains(t, err.Error(), "Type")
+			},
+		},
+		"HTTPSServiceBinding has invalid value": {
+			params: CreateEdgeHostnameRequest{
+				ContractID: "contract",
+				GroupID:    "group",
+				EdgeHostname: EdgeHostnameCreate{
+					ProductID:           "product",
+					DomainPrefix:        "example.com",
+					DomainSuffix:        "edgekey.net",
+					CertEnrollmentID:    5,
+					Secure:              true,
+					SecureNetwork:       "ENHANCED_TLS",
+					IPVersionBehavior:   "IPV4",
+					HTTPSServiceBinding: "INVALID",
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				want := ErrStructValidation
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+				assert.Contains(t, err.Error(), "HTTPSServiceBinding")
 			},
 		},
 		"invalid location": {
