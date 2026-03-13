@@ -14,15 +14,15 @@ import (
 )
 
 var (
-	_ validation.Validatable = &CreateCertificateRequest{}
-	_ validation.Validatable = &GetCertificateRequest{}
-	_ validation.Validatable = &UpdateCertificateRequest{}
-	_ validation.Validatable = &PatchCertificateRequest{}
-	_ validation.Validatable = &ListCertificatesRequest{}
-	_ validation.Validatable = &DeleteCertificateRequest{}
-	_ validation.Validatable = &ListCertificateBindingsRequest{}
-	_ validation.Validatable = &ListBindingsRequest{}
-	_ validation.Validatable = &Subject{}
+	_ validation.Validatable = CreateCertificateRequest{}
+	_ validation.Validatable = GetCertificateRequest{}
+	_ validation.Validatable = UpdateCertificateRequest{}
+	_ validation.Validatable = PatchCertificateRequest{}
+	_ validation.Validatable = ListCertificatesRequest{}
+	_ validation.Validatable = DeleteCertificateRequest{}
+	_ validation.Validatable = ListCertificateBindingsRequest{}
+	_ validation.Validatable = ListBindingsRequest{}
+	_ validation.Validatable = Subject{}
 	_ validation.Validatable = CryptographicAlgorithm("")
 	_ validation.Validatable = KeySize("")
 	_ validation.Validatable = SecureNetwork("")

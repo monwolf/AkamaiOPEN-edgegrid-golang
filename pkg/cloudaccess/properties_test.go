@@ -25,10 +25,9 @@ func TestLookupProperties(t *testing.T) {
 			request:        LookupPropertiesRequest{AccessKeyUID: 1234, Version: 1},
 			responseStatus: http.StatusOK,
 			responseBody: `
-{
-    "properties": []
-}
-`,
+			{
+				"properties": []
+			}`,
 			expectedPath: "/cam/v1/access-keys/1234/versions/1/properties",
 			expectedResponse: &LookupPropertiesResponse{
 				Properties: []Property{},
@@ -38,27 +37,26 @@ func TestLookupProperties(t *testing.T) {
 			request:        LookupPropertiesRequest{AccessKeyUID: 1234, Version: 1},
 			responseStatus: http.StatusOK,
 			responseBody: `
-{
-    "properties": [
-        {
-            "accessKeyUid": 1234,
-            "version": 1,
-            "propertyId": "prp_5678",
-            "propertyName": "test-property",
-            "productionVersion": null,
-            "stagingVersion": 1
-        },
-        {
-            "accessKeyUid": 1234,
-            "version": 1,
-            "propertyId": "prp_6789",
-            "propertyName": "test-property2",
-            "productionVersion": 1,
-            "stagingVersion": null
-        }
-    ]
-}
-`,
+			{
+				"properties": [
+					{
+						"accessKeyUid": 1234,
+						"version": 1,
+						"propertyId": "prp_5678",
+						"propertyName": "test-property",
+						"productionVersion": null,
+						"stagingVersion": 1
+					},
+					{
+						"accessKeyUid": 1234,
+						"version": 1,
+						"propertyId": "prp_6789",
+						"propertyName": "test-property2",
+						"productionVersion": 1,
+						"stagingVersion": null
+					}
+				]
+			}`,
 			expectedPath: "/cam/v1/access-keys/1234/versions/1/properties",
 			expectedResponse: &LookupPropertiesResponse{
 				Properties: []Property{
@@ -85,17 +83,16 @@ func TestLookupProperties(t *testing.T) {
 			request:        LookupPropertiesRequest{AccessKeyUID: 1234, Version: 10},
 			responseStatus: http.StatusNotFound,
 			responseBody: `
-{
-    "type": "/cam/error-types/access-key-version-does-not-exist",
-    "title": "Domain Error",
-    "instance": "60126c0d-67f5-473c-bea0-16daa836dc44",
-    "status": 404,
-    "detail": "Version '10' for access key '1234' does not exist.",
-    "problemId": "60126c0d-67f5-473c-bea0-16daa836dc44",
-    "version": 10,
-    "accessKeyUID": 1234
-}
-`,
+			{
+				"type": "/cam/error-types/access-key-version-does-not-exist",
+				"title": "Domain Error",
+				"instance": "60126c0d-67f5-473c-bea0-16daa836dc44",
+				"status": 404,
+				"detail": "Version '10' for access key '1234' does not exist.",
+				"problemId": "60126c0d-67f5-473c-bea0-16daa836dc44",
+				"version": 10,
+				"accessKeyUID": 1234
+			}`,
 			expectedPath: "/cam/v1/access-keys/1234/versions/10/properties",
 			withError: func(t *testing.T, err error) {
 				want := &Error{
@@ -115,14 +112,13 @@ func TestLookupProperties(t *testing.T) {
 			request:        LookupPropertiesRequest{AccessKeyUID: 1234, Version: 1},
 			responseStatus: http.StatusInternalServerError,
 			responseBody: `
-{
-    "type": "internal-server-error",
-    "title": "Internal Server Error",
-    "detail": "Error processing request",
-    "instance": "TestInstances",
-    "status": 500
-}
-`,
+			{
+				"type": "internal-server-error",
+				"title": "Internal Server Error",
+				"detail": "Error processing request",
+				"instance": "TestInstances",
+				"status": 500
+			}`,
 			expectedPath: "/cam/v1/access-keys/1234/versions/1/properties",
 			withError: func(t *testing.T, err error) {
 				want := &Error{
@@ -176,11 +172,10 @@ func TestGetAsyncPropertiesLookupID(t *testing.T) {
 			request:        GetAsyncPropertiesLookupIDRequest{AccessKeyUID: 1234, Version: 1},
 			responseStatus: http.StatusAccepted,
 			responseBody: `
-{
-    "lookupId": 4321,
-    "retryAfter": 10
-}
-`,
+			{
+				"lookupId": 4321,
+				"retryAfter": 10
+			}`,
 			expectedPath:     "/cam/v1/access-keys/1234/versions/1/property-lookup-id",
 			expectedResponse: &GetAsyncPropertiesLookupIDResponse{LookupID: 4321, RetryAfter: 10},
 		},
@@ -188,17 +183,16 @@ func TestGetAsyncPropertiesLookupID(t *testing.T) {
 			request:        GetAsyncPropertiesLookupIDRequest{AccessKeyUID: 1234, Version: 10},
 			responseStatus: http.StatusNotFound,
 			responseBody: `
-{
-    "type": "/cam/error-types/access-key-version-does-not-exist",
-    "title": "Domain Error",
-    "instance": "60126c0d-67f5-473c-bea0-16daa836dc44",
-    "status": 404,
-    "detail": "Version '10' for access key '1234' does not exist.",
-    "problemId": "60126c0d-67f5-473c-bea0-16daa836dc44",
-    "version": 10,
-    "accessKeyUID": 1234
-}
-`,
+			{
+				"type": "/cam/error-types/access-key-version-does-not-exist",
+				"title": "Domain Error",
+				"instance": "60126c0d-67f5-473c-bea0-16daa836dc44",
+				"status": 404,
+				"detail": "Version '10' for access key '1234' does not exist.",
+				"problemId": "60126c0d-67f5-473c-bea0-16daa836dc44",
+				"version": 10,
+				"accessKeyUID": 1234
+			}`,
 			expectedPath: "/cam/v1/access-keys/1234/versions/10/property-lookup-id",
 			withError: func(t *testing.T, err error) {
 				want := &Error{
@@ -218,14 +212,13 @@ func TestGetAsyncPropertiesLookupID(t *testing.T) {
 			request:        GetAsyncPropertiesLookupIDRequest{AccessKeyUID: 1234, Version: 1},
 			responseStatus: http.StatusInternalServerError,
 			responseBody: `
-{
-    "type": "internal-server-error",
-    "title": "Internal Server Error",
-    "detail": "Error processing request",
-    "instance": "TestInstances",
-    "status": 500
-}
-`,
+			{
+				"type": "internal-server-error",
+				"title": "Internal Server Error",
+				"detail": "Error processing request",
+				"instance": "TestInstances",
+				"status": 500
+			}`,
 			expectedPath: "/cam/v1/access-keys/1234/versions/1/property-lookup-id",
 			withError: func(t *testing.T, err error) {
 				want := &Error{
@@ -279,12 +272,11 @@ func TestPerformAsyncPropertiesLookup(t *testing.T) {
 			request:        PerformAsyncPropertiesLookupRequest{LookupID: 4321},
 			responseStatus: http.StatusOK,
 			responseBody: `
-{
-    "lookupId": 4321,
-    "lookupStatus": "COMPLETE",
-    "properties": []
-}
-`,
+			{
+				"lookupId": 4321,
+				"lookupStatus": "COMPLETE",
+				"properties": []
+			}`,
 			expectedPath: "/cam/v1/property-lookups/4321",
 			expectedResponse: &PerformAsyncPropertiesLookupResponse{
 				LookupID:     4321,
@@ -296,29 +288,28 @@ func TestPerformAsyncPropertiesLookup(t *testing.T) {
 			request:        PerformAsyncPropertiesLookupRequest{LookupID: 4321},
 			responseStatus: http.StatusOK,
 			responseBody: `
-{
-    "lookupId": 4321,
-    "lookupStatus": "COMPLETE",
-    "properties": [
-        {
-            "accessKeyUid": 1234,
-            "version": 1,
-            "propertyId": "prp_5678",
-            "propertyName": "test-property",
-            "productionVersion": null,
-            "stagingVersion": 1
-        },
-        {
-            "accessKeyUid": 1234,
-            "version": 1,
-            "propertyId": "prp_6789",
-            "propertyName": "test-property2",
-            "productionVersion": 1,
-            "stagingVersion": null
-        }
-    ]
-}
-`,
+			{
+				"lookupId": 4321,
+				"lookupStatus": "COMPLETE",
+				"properties": [
+					{
+						"accessKeyUid": 1234,
+						"version": 1,
+						"propertyId": "prp_5678",
+						"propertyName": "test-property",
+						"productionVersion": null,
+						"stagingVersion": 1
+					},
+					{
+						"accessKeyUid": 1234,
+						"version": 1,
+						"propertyId": "prp_6789",
+						"propertyName": "test-property2",
+						"productionVersion": 1,
+						"stagingVersion": null
+					}
+				]
+			}`,
 			expectedPath: "/cam/v1/property-lookups/4321",
 			expectedResponse: &PerformAsyncPropertiesLookupResponse{
 				LookupID:     4321,
@@ -347,14 +338,13 @@ func TestPerformAsyncPropertiesLookup(t *testing.T) {
 			request:        PerformAsyncPropertiesLookupRequest{LookupID: 4321},
 			responseStatus: http.StatusInternalServerError,
 			responseBody: `
-		{
-		   "type": "internal-server-error",
-		   "title": "Internal Server Error",
-		   "detail": "Error processing request",
-		   "instance": "TestInstances",
-		   "status": 500
-		}
-		`,
+			{
+				"type": "internal-server-error",
+				"title": "Internal Server Error",
+				"detail": "Error processing request",
+				"instance": "TestInstances",
+				"status": 500
+			}`,
 			expectedPath: "/cam/v1/property-lookups/4321",
 			withError: func(t *testing.T, err error) {
 				want := &Error{

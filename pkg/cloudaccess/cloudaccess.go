@@ -155,6 +155,8 @@ const (
 	AuthAOS AuthType = "AOS4_HMAC_SHA256"
 	// AuthAVMCloudinary represents Authentication value of Akamai Video Manager Cloudinary "AVM_CLOUDINARY"
 	AuthAVMCloudinary AuthType = "AVM_CLOUDINARY"
+	// AuthVPQueueIt represents Authentication value of Akamai Visitor Prioritization powered by Queue-it "VP_QUEUE_IT"
+	AuthVPQueueIt AuthType = "VP_QUEUE_IT"
 
 	// ProcessingInProgress represents ProcessingStatus value of 'IN_PROGRESS'
 	ProcessingInProgress ProcessingType = "IN_PROGRESS"

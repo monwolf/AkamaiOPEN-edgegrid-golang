@@ -16,14 +16,13 @@ import (
 type (
 	// GetAccessKeyStatusResponse contains response from GetAccessKeyStatus
 	GetAccessKeyStatusResponse struct {
-		AccessKey            *KeyLink            `json:"accessKey"`
-		AccessKeyVersion     *KeyVersion         `json:"accessKeyVersion"`
-		AuthenticationMethod string              `json:"authenticationMethod"`
-		ProcessingStatus     ProcessingType      `json:"processingStatus"`
-		Request              *RequestInformation `json:"request"`
-		RequestDate          time.Time           `json:"requestDate"`
-		RequestID            int64               `json:"requestId"`
-		RequestedBy          string              `json:"requestedBy"`
+		AccessKey        *KeyLink            `json:"accessKey"`
+		AccessKeyVersion *KeyVersion         `json:"accessKeyVersion"`
+		ProcessingStatus ProcessingType      `json:"processingStatus"`
+		Request          *RequestInformation `json:"request"`
+		RequestDate      time.Time           `json:"requestDate"`
+		RequestID        int64               `json:"requestId"`
+		RequestedBy      string              `json:"requestedBy"`
 	}
 
 	// GetAccessKeyStatusRequest holds parameters for GetAccessKeyStatus
@@ -43,7 +42,7 @@ type (
 
 	// Credentials holds information used to sign API requests
 	Credentials struct {
-		CloudAccessKeyID     string `json:"cloudAccessKeyId"`
+		CloudAccessKeyID     string `json:"cloudAccessKeyId,omitempty"`
 		CloudSecretAccessKey string `json:"cloudSecretAccessKey"`
 	}
 
@@ -69,6 +68,7 @@ type (
 		Groups               []Group        `json:"groups"`
 		CreatedBy            string         `json:"createdBy"`
 		CreatedTime          time.Time      `json:"createdTime"`
+		Note                 *string        `json:"note"`
 	}
 
 	// GetAccessKeyResponse contains response from GetAccessKey
@@ -114,12 +114,13 @@ func (r GetAccessKeyStatusRequest) Validate() error {
 func (r CreateAccessKeyRequest) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
 		"AccessKeyName":        validation.Validate(r.AccessKeyName, validation.Required),
-		"AuthenticationMethod": validation.Validate(r.AuthenticationMethod, validation.Required, validation.In(string(AuthAWS), string(AuthGOOG), string(AuthAOS), string(AuthAVMCloudinary))),
+		"AuthenticationMethod": validation.Validate(r.AuthenticationMethod, validation.Required, validation.In(string(AuthAWS), string(AuthGOOG), string(AuthAOS), string(AuthAVMCloudinary), string(AuthVPQueueIt))),
 		"ContractID":           validation.Validate(r.ContractID, validation.Required),
-		"CloudAccessKeyID":     validation.Validate(r.Credentials.CloudAccessKeyID, validation.Required),
+		"CloudAccessKeyID":     validation.Validate(r.Credentials.CloudAccessKeyID, validation.When(r.AuthenticationMethod != string(AuthVPQueueIt) && r.AuthenticationMethod != string(AuthAVMCloudinary), validation.Required)),
 		"CloudSecretAccessKey": validation.Validate(r.Credentials.CloudSecretAccessKey, validation.Required),
 		"GroupID":              validation.Validate(r.GroupID, validation.Required),
 		"SecurityNetwork":      validation.Validate(r.NetworkConfiguration.SecurityNetwork, validation.Required),
+		"AdditionalCDN":        validation.Validate(r.NetworkConfiguration.AdditionalCDN, validation.When(r.AuthenticationMethod == string(AuthVPQueueIt) || r.AuthenticationMethod == string(AuthAVMCloudinary), validation.Nil)),
 	})
 }
 
@@ -144,6 +145,14 @@ func (r UpdateAccessKeyRequest) Validate() error {
 		"AccessKeyName": validation.Validate(r.AccessKeyName, validation.Required, validation.Length(1, 50)),
 	})
 }
+
+var (
+	_ validation.Validatable = GetAccessKeyStatusRequest{}
+	_ validation.Validatable = CreateAccessKeyRequest{}
+	_ validation.Validatable = SecureNetwork{}
+	_ validation.Validatable = AccessKeyRequest{}
+	_ validation.Validatable = UpdateAccessKeyRequest{}
+)
 
 var (
 	// ErrGetAccessKeyStatus is returned when GetAccessKeyStatus fails

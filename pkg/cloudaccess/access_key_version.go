@@ -34,7 +34,7 @@ type (
 
 	// CreateAccessKeyVersionRequestBody holds body parameters for CreateAccessKeyVersion
 	CreateAccessKeyVersionRequestBody struct {
-		CloudAccessKeyID     string `json:"cloudAccessKeyId"`
+		CloudAccessKeyID     string `json:"cloudAccessKeyId,omitempty"`
 		CloudSecretAccessKey string `json:"cloudSecretAccessKey"`
 	}
 
@@ -114,7 +114,6 @@ func (r CreateAccessKeyVersionRequest) Validate() error {
 // Validate validates CreateAccessKeyVersionRequestBody
 func (r CreateAccessKeyVersionRequestBody) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
-		"CloudAccessKeyID":     validation.Validate(r.CloudAccessKeyID, validation.Required),
 		"CloudSecretAccessKey": validation.Validate(r.CloudSecretAccessKey, validation.Required),
 	})
 }
@@ -141,6 +140,15 @@ func (r DeleteAccessKeyVersionRequest) Validate() error {
 		"Version":      validation.Validate(r.Version, validation.Required),
 	})
 }
+
+var (
+	_ validation.Validatable = GetAccessKeyVersionStatusRequest{}
+	_ validation.Validatable = CreateAccessKeyVersionRequest{}
+	_ validation.Validatable = CreateAccessKeyVersionRequestBody{}
+	_ validation.Validatable = GetAccessKeyVersionRequest{}
+	_ validation.Validatable = ListAccessKeyVersionsRequest{}
+	_ validation.Validatable = DeleteAccessKeyVersionRequest{}
+)
 
 var (
 	// ErrGetAccessKeyVersionStatus is returned when GetAccessKeyVersionStatus fails

@@ -29,13 +29,13 @@ func TestNewError(t *testing.T) {
 			response: &http.Response{
 				Status:     "Internal Server Error",
 				StatusCode: http.StatusBadRequest,
-				Body: io.NopCloser(strings.NewReader(
-					`{
-	"type": "bad-request",
-	"title": "Bad Request",
-	"instance": "test-instance-123",
-	"status": 400
-}`),
+				Body: io.NopCloser(strings.NewReader(`
+				{
+					"type": "bad-request",
+					"title": "Bad Request",
+					"instance": "test-instance-123",
+					"status": 400
+				}`),
 				),
 				Request: req,
 			},
@@ -50,25 +50,25 @@ func TestNewError(t *testing.T) {
 			response: &http.Response{
 				Status:     "Internal Server Error",
 				StatusCode: http.StatusBadRequest,
-				Body: io.NopCloser(strings.NewReader(
-					`{
-	"type": "invalid-request",
-	"title": "Invalid Request",
-	"instance": "test-instance-123",
-	"status": 400,
-	"errors": [
-		{
-		  "detail": "Constraint violation: accessKeyName must not be blank.",
-		  "title": "Constraint Violation",
-		  "type": "/cam/error-types/constraint-violation"
-		},
-		{
-		  "detail": "Constraint violation: accessKeyName length must be between 1 and 50.",
-		  "title": "Constraint Violation",
-		  "type": "/cam/error-types/constraint-violation"
-		}
-	]
-}`),
+				Body: io.NopCloser(strings.NewReader(`
+				{
+					"type": "invalid-request",
+					"title": "Invalid Request",
+					"instance": "test-instance-123",
+					"status": 400,
+					"errors": [
+						{
+							"detail": "Constraint violation: accessKeyName must not be blank.",
+							"title": "Constraint Violation",
+							"type": "/cam/error-types/constraint-violation"
+						},
+						{
+							"detail": "Constraint violation: accessKeyName length must be between 1 and 50.",
+							"title": "Constraint Violation",
+							"type": "/cam/error-types/constraint-violation"
+						}
+					]
+				}`),
 				),
 				Request: req,
 			},
@@ -95,15 +95,15 @@ func TestNewError(t *testing.T) {
 			response: &http.Response{
 				Status:     "Internal Server Error",
 				StatusCode: http.StatusNotFound,
-				Body: io.NopCloser(strings.NewReader(
-					`{
-	"type": "/cam/error-types/access-key-does-not-exist",
-	"title": "Domain Error",
-	"detail": "Access key with accessKeyUID '1' does not exist.",
-	"instance": "test-instance-123",
-	"status": 404,
-	"accessKeyUid": 1
-}`),
+				Body: io.NopCloser(strings.NewReader(`
+				{
+					"type": "/cam/error-types/access-key-does-not-exist",
+					"title": "Domain Error",
+					"detail": "Access key with accessKeyUID '1' does not exist.",
+					"instance": "test-instance-123",
+					"status": 404,
+					"accessKeyUid": 1
+				}`),
 				),
 				Request: req,
 			},

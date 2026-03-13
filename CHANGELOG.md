@@ -52,6 +52,15 @@
 
 
 
+* Cloud Access
+  * Added support for a new authentication method `VP_QUEUE_IT`.
+  * Added `note` field to the `GetAccessKeyResponse` structure.
+  * Removed incorrect `AuthenticationMethod` field from the `GetAccessKeyStatusResponse` structure.
+
+
+
+
+
 
 
 
