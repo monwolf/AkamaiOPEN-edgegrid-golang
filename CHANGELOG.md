@@ -40,18 +40,18 @@
 
 * Appsec
   * Added URL Protection APIs:
-    * [CreateURLProtectionRule](https://techdocs.akamai.com/application-security/reference/post-url-protection-policies)
-    * [ListURLProtectionRules](https://techdocs.akamai.com/application-security/reference/get-url-protection-policies)
-    * [GetURLProtectionRule](https://techdocs.akamai.com/application-security/reference/get-url-protection-policy)
-    * [UpdateURLProtectionRule](https://techdocs.akamai.com/application-security/reference/put-url-protection-policy)
-    * [RemoveURLProtectionRule](https://techdocs.akamai.com/application-security/reference/delete-url-protection-policy)
+    * [CreateURLProtectionPolicy](https://techdocs.akamai.com/application-security/reference/post-url-protection-policies)
+    * [ListURLProtectionPolicies](https://techdocs.akamai.com/application-security/reference/get-url-protection-policies)
+    * [GetURLProtectionPolicy](https://techdocs.akamai.com/application-security/reference/get-url-protection-policy)
+    * [UpdateURLProtectionPolicy](https://techdocs.akamai.com/application-security/reference/put-url-protection-policy)
+    * [RemoveURLProtectionPolicy](https://techdocs.akamai.com/application-security/reference/delete-url-protection-policy)
     
   * Added URL Protection Action APIs:
-    * [ListURLProtectionRulesActions](https://techdocs.akamai.com/application-security/reference/get-url-protection-policies-actions)
-    * [GetURLProtectionRuleActions](https://techdocs.akamai.com/application-security/reference/get-url-protection-policies-actions)
-    * [UpdateURLProtectionRuleActions](https://techdocs.akamai.com/application-security/reference/put-url-protection-policy-action)
+    * [ListURLProtectionPoliciesActions](https://techdocs.akamai.com/application-security/reference/get-url-protection-policies-actions)
+    * [GetURLProtectionPolicyActions](https://techdocs.akamai.com/application-security/reference/get-url-protection-policies-actions)
+    * [UpdateURLProtectionPolicyActions](https://techdocs.akamai.com/application-security/reference/put-url-protection-policy-action)
 
-  * Updated [ExportConfiguration]( https://techdocs.akamai.com/application-security/reference/get-export-config-version) to include URLProtectionRules and URLProtectionRulesActions.
+  * Updated [ExportConfiguration]( https://techdocs.akamai.com/application-security/reference/get-export-config-version) to include URLProtectionPolicies and URLProtectionPoliciesActions.
 * General
     * Migrated to Go `1.25`.
     * Adopted toolchain Go `1.25.7`.

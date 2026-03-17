@@ -13,14 +13,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// Test ListURLProtectionRulesActionsRequest Validate
-func TestListURLProtectionRulesActionsRequest_Validate(t *testing.T) {
+// Test ListURLProtectionPoliciesActionsRequest Validate
+func TestListURLProtectionPoliciesActionsRequest_Validate(t *testing.T) {
 	tests := map[string]struct {
-		req           ListURLProtectionRulesActionsRequest
+		req           ListURLProtectionPoliciesActionsRequest
 		errorExpected bool
 	}{
 		"valid request - all fields populated": {
-			req: ListURLProtectionRulesActionsRequest{
+			req: ListURLProtectionPoliciesActionsRequest{
 				ConfigID:      43253,
 				ConfigVersion: 15,
 				PolicyID:      "AAAA_81230",
@@ -28,44 +28,44 @@ func TestListURLProtectionRulesActionsRequest_Validate(t *testing.T) {
 			errorExpected: false,
 		},
 		"missing ConfigID": {
-			req: ListURLProtectionRulesActionsRequest{
+			req: ListURLProtectionPoliciesActionsRequest{
 				ConfigVersion: 15,
 				PolicyID:      "AAAA_81230",
 			},
 			errorExpected: true,
 		},
 		"missing Version": {
-			req: ListURLProtectionRulesActionsRequest{
+			req: ListURLProtectionPoliciesActionsRequest{
 				ConfigID: 43253,
 				PolicyID: "AAAA_81230",
 			},
 			errorExpected: true,
 		},
 		"missing PolicyID": {
-			req: ListURLProtectionRulesActionsRequest{
+			req: ListURLProtectionPoliciesActionsRequest{
 				ConfigID:      43253,
 				ConfigVersion: 15,
 			},
 			errorExpected: true,
 		},
 		"missing all required fields": {
-			req:           ListURLProtectionRulesActionsRequest{},
+			req:           ListURLProtectionPoliciesActionsRequest{},
 			errorExpected: true,
 		},
 		"missing ConfigID and Version": {
-			req: ListURLProtectionRulesActionsRequest{
+			req: ListURLProtectionPoliciesActionsRequest{
 				PolicyID: "AAAA_81230",
 			},
 			errorExpected: true,
 		},
 		"missing ConfigID and PolicyID": {
-			req: ListURLProtectionRulesActionsRequest{
+			req: ListURLProtectionPoliciesActionsRequest{
 				ConfigVersion: 15,
 			},
 			errorExpected: true,
 		},
 		"missing Version and PolicyID": {
-			req: ListURLProtectionRulesActionsRequest{
+			req: ListURLProtectionPoliciesActionsRequest{
 				ConfigID: 43253,
 			},
 			errorExpected: true,
@@ -84,47 +84,47 @@ func TestListURLProtectionRulesActionsRequest_Validate(t *testing.T) {
 	}
 }
 
-// Test GetURLProtectionRuleActionsRequest Validate
-func TestGetURLProtectionRuleActionsRequest_Validate(t *testing.T) {
+// Test GetURLProtectionPolicyActionsRequest Validate
+func TestGetURLProtectionPolicyActionsRequest_Validate(t *testing.T) {
 	tests := map[string]struct {
-		req           GetURLProtectionRuleActionsRequest
+		req           GetURLProtectionPolicyActionsRequest
 		errorExpected bool
 	}{
 		"valid request - all fields populated": {
-			req: GetURLProtectionRuleActionsRequest{
-				ConfigID:            43253,
-				ConfigVersion:       15,
-				PolicyID:            "AAAA_81230",
-				URLProtectionRuleID: 134644,
+			req: GetURLProtectionPolicyActionsRequest{
+				ConfigID:              43253,
+				ConfigVersion:         15,
+				PolicyID:              "AAAA_81230",
+				URLProtectionPolicyID: 134644,
 			},
 			errorExpected: false,
 		},
 		"missing ConfigID": {
-			req: GetURLProtectionRuleActionsRequest{
-				ConfigVersion:       15,
-				PolicyID:            "AAAA_81230",
-				URLProtectionRuleID: 134644,
+			req: GetURLProtectionPolicyActionsRequest{
+				ConfigVersion:         15,
+				PolicyID:              "AAAA_81230",
+				URLProtectionPolicyID: 134644,
 			},
 			errorExpected: true,
 		},
 		"missing Version": {
-			req: GetURLProtectionRuleActionsRequest{
-				ConfigID:            43253,
-				PolicyID:            "AAAA_81230",
-				URLProtectionRuleID: 134644,
+			req: GetURLProtectionPolicyActionsRequest{
+				ConfigID:              43253,
+				PolicyID:              "AAAA_81230",
+				URLProtectionPolicyID: 134644,
 			},
 			errorExpected: true,
 		},
 		"missing PolicyID": {
-			req: GetURLProtectionRuleActionsRequest{
-				ConfigID:            43253,
-				ConfigVersion:       15,
-				URLProtectionRuleID: 134644,
+			req: GetURLProtectionPolicyActionsRequest{
+				ConfigID:              43253,
+				ConfigVersion:         15,
+				URLProtectionPolicyID: 134644,
 			},
 			errorExpected: true,
 		},
-		"missing URLProtectionRuleID": {
-			req: GetURLProtectionRuleActionsRequest{
+		"missing URLProtectionPolicyID": {
+			req: GetURLProtectionPolicyActionsRequest{
 				ConfigID:      43253,
 				ConfigVersion: 15,
 				PolicyID:      "AAAA_81230",
@@ -132,46 +132,46 @@ func TestGetURLProtectionRuleActionsRequest_Validate(t *testing.T) {
 			errorExpected: true,
 		},
 		"missing all required fields": {
-			req:           GetURLProtectionRuleActionsRequest{},
+			req:           GetURLProtectionPolicyActionsRequest{},
 			errorExpected: true,
 		},
 		"missing ConfigID and Version": {
-			req: GetURLProtectionRuleActionsRequest{
-				PolicyID:            "AAAA_81230",
-				URLProtectionRuleID: 134644,
+			req: GetURLProtectionPolicyActionsRequest{
+				PolicyID:              "AAAA_81230",
+				URLProtectionPolicyID: 134644,
 			},
 			errorExpected: true,
 		},
 		"missing ConfigID and PolicyID": {
-			req: GetURLProtectionRuleActionsRequest{
-				ConfigVersion:       15,
-				URLProtectionRuleID: 134644,
+			req: GetURLProtectionPolicyActionsRequest{
+				ConfigVersion:         15,
+				URLProtectionPolicyID: 134644,
 			},
 			errorExpected: true,
 		},
-		"missing ConfigID and URLProtectionRuleID": {
-			req: GetURLProtectionRuleActionsRequest{
+		"missing ConfigID and URLProtectionPolicyID": {
+			req: GetURLProtectionPolicyActionsRequest{
 				ConfigVersion: 15,
 				PolicyID:      "AAAA_81230",
 			},
 			errorExpected: true,
 		},
 		"missing Version and PolicyID": {
-			req: GetURLProtectionRuleActionsRequest{
-				ConfigID:            43253,
-				URLProtectionRuleID: 134644,
+			req: GetURLProtectionPolicyActionsRequest{
+				ConfigID:              43253,
+				URLProtectionPolicyID: 134644,
 			},
 			errorExpected: true,
 		},
-		"missing Version and URLProtectionRuleID": {
-			req: GetURLProtectionRuleActionsRequest{
+		"missing Version and URLProtectionPolicyID": {
+			req: GetURLProtectionPolicyActionsRequest{
 				ConfigID: 43253,
 				PolicyID: "AAAA_81230",
 			},
 			errorExpected: true,
 		},
-		"missing PolicyID and URLProtectionRuleID": {
-			req: GetURLProtectionRuleActionsRequest{
+		"missing PolicyID and URLProtectionPolicyID": {
+			req: GetURLProtectionPolicyActionsRequest{
 				ConfigID:      43253,
 				ConfigVersion: 15,
 			},
@@ -191,19 +191,19 @@ func TestGetURLProtectionRuleActionsRequest_Validate(t *testing.T) {
 	}
 }
 
-// Test UpdateURLProtectionRuleActionsRequest Validate
-func TestUpdateURLProtectionRuleActionsRequest_Validate(t *testing.T) {
+// Test UpdateURLProtectionPolicyActionsRequest Validate
+func TestUpdateURLProtectionPolicyActionsRequest_Validate(t *testing.T) {
 	tests := map[string]struct {
-		req           UpdateURLProtectionRuleActionsRequest
+		req           UpdateURLProtectionPolicyActionsRequest
 		errorExpected bool
 	}{
 		"valid request - all fields populated": {
-			req: UpdateURLProtectionRuleActionsRequest{
-				ConfigID:            43253,
-				ConfigVersion:       15,
-				PolicyID:            "AAAA_81230",
-				URLProtectionRuleID: 134644,
-				Body: URLProtectionRuleActions{
+			req: UpdateURLProtectionPolicyActionsRequest{
+				ConfigID:              43253,
+				ConfigVersion:         15,
+				PolicyID:              "AAAA_81230",
+				URLProtectionPolicyID: 134644,
+				Body: URLProtectionPolicyActions{
 					MaxRateThresholdAction: "alert",
 					LoadSheddingAction:     "deny",
 				},
@@ -211,43 +211,43 @@ func TestUpdateURLProtectionRuleActionsRequest_Validate(t *testing.T) {
 			errorExpected: false,
 		},
 		"valid request - missing MaxRateThresholdAction": {
-			req: UpdateURLProtectionRuleActionsRequest{
-				ConfigID:            43253,
-				ConfigVersion:       15,
-				PolicyID:            "AAAA_81230",
-				URLProtectionRuleID: 134644,
-				Body: URLProtectionRuleActions{
+			req: UpdateURLProtectionPolicyActionsRequest{
+				ConfigID:              43253,
+				ConfigVersion:         15,
+				PolicyID:              "AAAA_81230",
+				URLProtectionPolicyID: 134644,
+				Body: URLProtectionPolicyActions{
 					LoadSheddingAction: "deny",
 				},
 			},
 			errorExpected: true,
 		},
 		"missing ConfigID": {
-			req: UpdateURLProtectionRuleActionsRequest{
-				ConfigVersion:       15,
-				PolicyID:            "AAAA_81230",
-				URLProtectionRuleID: 134644,
+			req: UpdateURLProtectionPolicyActionsRequest{
+				ConfigVersion:         15,
+				PolicyID:              "AAAA_81230",
+				URLProtectionPolicyID: 134644,
 			},
 			errorExpected: true,
 		},
 		"missing Version": {
-			req: UpdateURLProtectionRuleActionsRequest{
-				ConfigID:            43253,
-				PolicyID:            "AAAA_81230",
-				URLProtectionRuleID: 134644,
+			req: UpdateURLProtectionPolicyActionsRequest{
+				ConfigID:              43253,
+				PolicyID:              "AAAA_81230",
+				URLProtectionPolicyID: 134644,
 			},
 			errorExpected: true,
 		},
 		"missing PolicyID": {
-			req: UpdateURLProtectionRuleActionsRequest{
-				ConfigID:            43253,
-				ConfigVersion:       15,
-				URLProtectionRuleID: 134644,
+			req: UpdateURLProtectionPolicyActionsRequest{
+				ConfigID:              43253,
+				ConfigVersion:         15,
+				URLProtectionPolicyID: 134644,
 			},
 			errorExpected: true,
 		},
-		"missing URLProtectionRuleID": {
-			req: UpdateURLProtectionRuleActionsRequest{
+		"missing URLProtectionPolicyID": {
+			req: UpdateURLProtectionPolicyActionsRequest{
 				ConfigID:      43253,
 				ConfigVersion: 15,
 				PolicyID:      "AAAA_81230",
@@ -255,46 +255,46 @@ func TestUpdateURLProtectionRuleActionsRequest_Validate(t *testing.T) {
 			errorExpected: true,
 		},
 		"missing all required fields": {
-			req:           UpdateURLProtectionRuleActionsRequest{},
+			req:           UpdateURLProtectionPolicyActionsRequest{},
 			errorExpected: true,
 		},
 		"missing ConfigID and Version": {
-			req: UpdateURLProtectionRuleActionsRequest{
-				PolicyID:            "AAAA_81230",
-				URLProtectionRuleID: 134644,
+			req: UpdateURLProtectionPolicyActionsRequest{
+				PolicyID:              "AAAA_81230",
+				URLProtectionPolicyID: 134644,
 			},
 			errorExpected: true,
 		},
 		"missing ConfigID and PolicyID": {
-			req: UpdateURLProtectionRuleActionsRequest{
-				ConfigVersion:       15,
-				URLProtectionRuleID: 134644,
+			req: UpdateURLProtectionPolicyActionsRequest{
+				ConfigVersion:         15,
+				URLProtectionPolicyID: 134644,
 			},
 			errorExpected: true,
 		},
-		"missing ConfigID and URLProtectionRuleID": {
-			req: UpdateURLProtectionRuleActionsRequest{
+		"missing ConfigID and URLProtectionPolicyID": {
+			req: UpdateURLProtectionPolicyActionsRequest{
 				ConfigVersion: 15,
 				PolicyID:      "AAAA_81230",
 			},
 			errorExpected: true,
 		},
 		"missing Version and PolicyID": {
-			req: UpdateURLProtectionRuleActionsRequest{
-				ConfigID:            43253,
-				URLProtectionRuleID: 134644,
+			req: UpdateURLProtectionPolicyActionsRequest{
+				ConfigID:              43253,
+				URLProtectionPolicyID: 134644,
 			},
 			errorExpected: true,
 		},
-		"missing Version and URLProtectionRuleID": {
-			req: UpdateURLProtectionRuleActionsRequest{
+		"missing Version and URLProtectionPolicyID": {
+			req: UpdateURLProtectionPolicyActionsRequest{
 				ConfigID: 43253,
 				PolicyID: "AAAA_81230",
 			},
 			errorExpected: true,
 		},
-		"missing PolicyID and URLProtectionRuleID": {
-			req: UpdateURLProtectionRuleActionsRequest{
+		"missing PolicyID and URLProtectionPolicyID": {
+			req: UpdateURLProtectionPolicyActionsRequest{
 				ConfigID:      43253,
 				ConfigVersion: 15,
 			},
@@ -314,25 +314,25 @@ func TestUpdateURLProtectionRuleActionsRequest_Validate(t *testing.T) {
 	}
 }
 
-// Test ListURLProtectionRulesActions.
-func TestAppSec_ListURLProtectionRulesActions(t *testing.T) {
-	result := ListURLProtectionRulesActionsResponse{}
+// Test ListURLProtectionPoliciesActions.
+func TestAppSec_ListURLProtectionPoliciesActions(t *testing.T) {
+	result := ListURLProtectionPoliciesActionsResponse{}
 
-	respData := compactJSON(loadFixtureBytes("testdata/TestURLProtectionActions/URLProtectionRulesActions.json"))
+	respData := compactJSON(loadFixtureBytes("testdata/TestURLProtectionActions/URLProtectionPoliciesActions.json"))
 	err := json.Unmarshal([]byte(respData), &result)
 	require.NoError(t, err)
 
 	tests := map[string]struct {
-		params           ListURLProtectionRulesActionsRequest
+		params           ListURLProtectionPoliciesActionsRequest
 		responseStatus   int
 		responseBody     string
 		expectedPath     string
-		expectedResponse *ListURLProtectionRulesActionsResponse
+		expectedResponse *ListURLProtectionPoliciesActionsResponse
 		withError        error
 		headers          http.Header
 	}{
 		"200 Success": {
-			params: ListURLProtectionRulesActionsRequest{
+			params: ListURLProtectionPoliciesActionsRequest{
 				ConfigID:      43253,
 				ConfigVersion: 15,
 				PolicyID:      "AAAA_81230",
@@ -346,7 +346,7 @@ func TestAppSec_ListURLProtectionRulesActions(t *testing.T) {
 			expectedPath:     "/appsec/v1/configs/43253/versions/15/security-policies/AAAA_81230/url-protections",
 		},
 		"400 bad request": {
-			params: ListURLProtectionRulesActionsRequest{
+			params: ListURLProtectionPoliciesActionsRequest{
 				ConfigID:      43253,
 				ConfigVersion: 15,
 				PolicyID:      "AAAA_81230",
@@ -362,7 +362,7 @@ func TestAppSec_ListURLProtectionRulesActions(t *testing.T) {
 			},
 		},
 		"403 Forbidden": {
-			params: ListURLProtectionRulesActionsRequest{
+			params: ListURLProtectionPoliciesActionsRequest{
 				ConfigID:      43253,
 				ConfigVersion: 15,
 				PolicyID:      "AAAA_81230",
@@ -378,7 +378,7 @@ func TestAppSec_ListURLProtectionRulesActions(t *testing.T) {
 			},
 		},
 		"404 Not Found": {
-			params: ListURLProtectionRulesActionsRequest{
+			params: ListURLProtectionPoliciesActionsRequest{
 				ConfigID:      43253,
 				ConfigVersion: 15,
 				PolicyID:      "AAAA_81230",
@@ -394,7 +394,7 @@ func TestAppSec_ListURLProtectionRulesActions(t *testing.T) {
 			},
 		},
 		"500 internal server error": {
-			params: ListURLProtectionRulesActionsRequest{
+			params: ListURLProtectionPoliciesActionsRequest{
 				ConfigID:      43253,
 				ConfigVersion: 15,
 				PolicyID:      "AAAA_81230",
@@ -427,7 +427,7 @@ func TestAppSec_ListURLProtectionRulesActions(t *testing.T) {
 				}
 			}))
 			client := mockAPIClient(t, mockServer)
-			result, err := client.ListURLProtectionRulesActions(
+			result, err := client.ListURLProtectionPoliciesActions(
 				session.ContextWithOptions(
 					context.Background(),
 					session.WithContextHeaders(test.headers)), test.params)
@@ -441,44 +441,44 @@ func TestAppSec_ListURLProtectionRulesActions(t *testing.T) {
 	}
 }
 
-// Test GetURLProtectionRuleActions.
-func TestAppSec_GetURLProtectionRuleActions(t *testing.T) {
-	result := GetURLProtectionRuleActionsResponse{}
+// Test GetURLProtectionPolicyActions.
+func TestAppSec_GetURLProtectionPolicyActions(t *testing.T) {
+	result := GetURLProtectionPolicyActionsResponse{}
 
-	respData := compactJSON(loadFixtureBytes("testdata/TestURLProtectionActions/URLProtectionRuleActions.json"))
+	respData := compactJSON(loadFixtureBytes("testdata/TestURLProtectionActions/URLProtectionPolicyActions.json"))
 	err := json.Unmarshal([]byte(respData), &result)
 	require.NoError(t, err)
 
 	tests := map[string]struct {
-		params           GetURLProtectionRuleActionsRequest
+		params           GetURLProtectionPolicyActionsRequest
 		responseStatus   int
 		responseBody     string
 		expectedPath     string
-		expectedResponse *GetURLProtectionRuleActionsResponse
+		expectedResponse *GetURLProtectionPolicyActionsResponse
 		withError        error
 		headers          http.Header
 	}{
 		"200 Success": {
-			params: GetURLProtectionRuleActionsRequest{
-				ConfigID:            43253,
-				ConfigVersion:       15,
-				PolicyID:            "AAAA_81230",
-				URLProtectionRuleID: 134644,
+			params: GetURLProtectionPolicyActionsRequest{
+				ConfigID:              43253,
+				ConfigVersion:         15,
+				PolicyID:              "AAAA_81230",
+				URLProtectionPolicyID: 134644,
 			},
 			headers: http.Header{
 				"Content-Type": []string{"application/json;charset=UTF-8"},
 			},
 			responseStatus:   http.StatusOK,
-			responseBody:     compactJSON(loadFixtureBytes("testdata/TestURLProtectionActions/URLProtectionRulesActions.json")),
+			responseBody:     compactJSON(loadFixtureBytes("testdata/TestURLProtectionActions/URLProtectionPoliciesActions.json")),
 			expectedResponse: &result,
 			expectedPath:     "/appsec/v1/configs/43253/versions/15/security-policies/AAAA_81230/url-protections",
 		},
 		"400 bad request": {
-			params: GetURLProtectionRuleActionsRequest{
-				ConfigID:            43253,
-				ConfigVersion:       15,
-				PolicyID:            "AAAA_81230",
-				URLProtectionRuleID: 123,
+			params: GetURLProtectionPolicyActionsRequest{
+				ConfigID:              43253,
+				ConfigVersion:         15,
+				PolicyID:              "AAAA_81230",
+				URLProtectionPolicyID: 123,
 			},
 			responseStatus: http.StatusBadRequest,
 			responseBody:   badRequestResp,
@@ -491,11 +491,11 @@ func TestAppSec_GetURLProtectionRuleActions(t *testing.T) {
 			},
 		},
 		"403 Forbidden": {
-			params: GetURLProtectionRuleActionsRequest{
-				ConfigID:            43253,
-				ConfigVersion:       15,
-				PolicyID:            "AAAA_81230",
-				URLProtectionRuleID: 234,
+			params: GetURLProtectionPolicyActionsRequest{
+				ConfigID:              43253,
+				ConfigVersion:         15,
+				PolicyID:              "AAAA_81230",
+				URLProtectionPolicyID: 234,
 			},
 			responseStatus: http.StatusForbidden,
 			responseBody:   forbiddenResp,
@@ -508,11 +508,11 @@ func TestAppSec_GetURLProtectionRuleActions(t *testing.T) {
 			},
 		},
 		"404 Not Found": {
-			params: GetURLProtectionRuleActionsRequest{
-				ConfigID:            43253,
-				ConfigVersion:       15,
-				PolicyID:            "AAAA_81230",
-				URLProtectionRuleID: 234,
+			params: GetURLProtectionPolicyActionsRequest{
+				ConfigID:              43253,
+				ConfigVersion:         15,
+				PolicyID:              "AAAA_81230",
+				URLProtectionPolicyID: 234,
 			},
 			responseStatus: http.StatusNotFound,
 			responseBody:   notFoundResp,
@@ -525,11 +525,11 @@ func TestAppSec_GetURLProtectionRuleActions(t *testing.T) {
 			},
 		},
 		"500 internal server error": {
-			params: GetURLProtectionRuleActionsRequest{
-				ConfigID:            43253,
-				ConfigVersion:       15,
-				PolicyID:            "AAAA_81230",
-				URLProtectionRuleID: 234,
+			params: GetURLProtectionPolicyActionsRequest{
+				ConfigID:              43253,
+				ConfigVersion:         15,
+				PolicyID:              "AAAA_81230",
+				URLProtectionPolicyID: 234,
 			},
 			responseStatus: http.StatusInternalServerError,
 			responseBody: `
@@ -559,7 +559,7 @@ func TestAppSec_GetURLProtectionRuleActions(t *testing.T) {
 				}
 			}))
 			client := mockAPIClient(t, mockServer)
-			result, err := client.GetURLProtectionRuleActions(
+			result, err := client.GetURLProtectionPolicyActions(
 				session.ContextWithOptions(
 					context.Background(),
 					session.WithContextHeaders(test.headers)), test.params)
@@ -573,30 +573,30 @@ func TestAppSec_GetURLProtectionRuleActions(t *testing.T) {
 	}
 }
 
-// Test UpdateURLProtectionRulesAction.
-func TestAppSec_UpdateURLProtectionRulesActions(t *testing.T) {
-	result := UpdateURLProtectionRuleActionsResponse{}
+// Test UpdateURLProtectionPoliciesAction.
+func TestAppSec_UpdateURLProtectionPoliciesActions(t *testing.T) {
+	result := UpdateURLProtectionPolicyActionsResponse{}
 
-	respData := compactJSON(loadFixtureBytes("testdata/TestURLProtectionActions/URLProtectionRuleActions.json"))
+	respData := compactJSON(loadFixtureBytes("testdata/TestURLProtectionActions/URLProtectionPolicyActions.json"))
 	err := json.Unmarshal([]byte(respData), &result)
 	require.NoError(t, err)
 
 	tests := map[string]struct {
-		params           UpdateURLProtectionRuleActionsRequest
+		params           UpdateURLProtectionPolicyActionsRequest
 		responseStatus   int
 		responseBody     string
 		expectedPath     string
-		expectedResponse *UpdateURLProtectionRuleActionsResponse
+		expectedResponse *UpdateURLProtectionPolicyActionsResponse
 		withError        error
 		headers          http.Header
 	}{
 		"200 Success": {
-			params: UpdateURLProtectionRuleActionsRequest{
-				ConfigID:            43253,
-				ConfigVersion:       15,
-				PolicyID:            "AAAA_81230",
-				URLProtectionRuleID: 134644,
-				Body: URLProtectionRuleActions{
+			params: UpdateURLProtectionPolicyActionsRequest{
+				ConfigID:              43253,
+				ConfigVersion:         15,
+				PolicyID:              "AAAA_81230",
+				URLProtectionPolicyID: 134644,
+				Body: URLProtectionPolicyActions{
 					MaxRateThresholdAction: "alert",
 					LoadSheddingAction:     "deny",
 				},
@@ -610,12 +610,12 @@ func TestAppSec_UpdateURLProtectionRulesActions(t *testing.T) {
 			expectedPath:     "/appsec/v1/configs/43253/versions/15/security-policies/AAAA_81230/url-protections/134644",
 		},
 		"400 bad request": {
-			params: UpdateURLProtectionRuleActionsRequest{
-				ConfigID:            43253,
-				ConfigVersion:       15,
-				PolicyID:            "AAAA_81230",
-				URLProtectionRuleID: 134644,
-				Body: URLProtectionRuleActions{
+			params: UpdateURLProtectionPolicyActionsRequest{
+				ConfigID:              43253,
+				ConfigVersion:         15,
+				PolicyID:              "AAAA_81230",
+				URLProtectionPolicyID: 134644,
+				Body: URLProtectionPolicyActions{
 					MaxRateThresholdAction: "alert",
 					LoadSheddingAction:     "deny",
 				},
@@ -631,12 +631,12 @@ func TestAppSec_UpdateURLProtectionRulesActions(t *testing.T) {
 			},
 		},
 		"403 Forbidden": {
-			params: UpdateURLProtectionRuleActionsRequest{
-				ConfigID:            43253,
-				ConfigVersion:       15,
-				PolicyID:            "AAAA_81230",
-				URLProtectionRuleID: 134644,
-				Body: URLProtectionRuleActions{
+			params: UpdateURLProtectionPolicyActionsRequest{
+				ConfigID:              43253,
+				ConfigVersion:         15,
+				PolicyID:              "AAAA_81230",
+				URLProtectionPolicyID: 134644,
+				Body: URLProtectionPolicyActions{
 					MaxRateThresholdAction: "alert",
 					LoadSheddingAction:     "deny",
 				},
@@ -652,12 +652,12 @@ func TestAppSec_UpdateURLProtectionRulesActions(t *testing.T) {
 			},
 		},
 		"404 Not Found": {
-			params: UpdateURLProtectionRuleActionsRequest{
-				ConfigID:            43253,
-				ConfigVersion:       15,
-				PolicyID:            "AAAA_81230",
-				URLProtectionRuleID: 134644,
-				Body: URLProtectionRuleActions{
+			params: UpdateURLProtectionPolicyActionsRequest{
+				ConfigID:              43253,
+				ConfigVersion:         15,
+				PolicyID:              "AAAA_81230",
+				URLProtectionPolicyID: 134644,
+				Body: URLProtectionPolicyActions{
 					MaxRateThresholdAction: "alert",
 					LoadSheddingAction:     "deny",
 				},
@@ -673,12 +673,12 @@ func TestAppSec_UpdateURLProtectionRulesActions(t *testing.T) {
 			},
 		},
 		"500 internal server error": {
-			params: UpdateURLProtectionRuleActionsRequest{
-				ConfigID:            43253,
-				ConfigVersion:       15,
-				PolicyID:            "AAAA_81230",
-				URLProtectionRuleID: 134644,
-				Body: URLProtectionRuleActions{
+			params: UpdateURLProtectionPolicyActionsRequest{
+				ConfigID:              43253,
+				ConfigVersion:         15,
+				PolicyID:              "AAAA_81230",
+				URLProtectionPolicyID: 134644,
+				Body: URLProtectionPolicyActions{
 					MaxRateThresholdAction: "alert",
 					LoadSheddingAction:     "deny",
 				},
@@ -711,7 +711,7 @@ func TestAppSec_UpdateURLProtectionRulesActions(t *testing.T) {
 				}
 			}))
 			client := mockAPIClient(t, mockServer)
-			result, err := client.UpdateURLProtectionRuleActions(
+			result, err := client.UpdateURLProtectionPolicyActions(
 				session.ContextWithOptions(
 					context.Background(),
 					session.WithContextHeaders(test.headers)), test.params)

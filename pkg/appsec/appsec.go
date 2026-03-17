@@ -86,7 +86,7 @@ type (
 		ThreatIntel
 		TuningRecommendations
 		URLProtection
-		URLProtectionRuleAction
+		URLProtectionAction
 		VersionNotes
 		WAFCompositeRuleset
 		WAFMode
