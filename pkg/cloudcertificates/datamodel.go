@@ -56,6 +56,9 @@ const (
 	// KeySizeP256 represents a key size of 256 bits.
 	KeySizeP256 KeySize = "P-256"
 
+	// KeySizeP384 represents a key size of 384 bits.
+	KeySizeP384 KeySize = "P-384"
+
 	// NetworkStaging represents staging network.
 	NetworkStaging Network = "STAGING"
 
@@ -293,7 +296,7 @@ type (
 		// The key type for a certificate. Valid values are `RSA` or `ECDSA`.
 		KeyType CryptographicAlgorithm `json:"keyType"`
 
-		// The key size for a certificate. Valid values for key type RSA: `2048`. Valid values for key type ECDSA: `P-256`.
+		// The key size for a certificate. Valid values for key type RSA: `2048`. Valid values for key type ECDSA: `P-256`, `P-384`.
 		KeySize KeySize `json:"keySize"`
 
 		// Secure network type to use for the certificate. Valid values are `ENHANCED_TLS` and `STANDARD_TLS`.
@@ -618,9 +621,9 @@ func (s Subject) Validate() error {
 
 // Validate validates KeySize.
 func (k KeySize) Validate() error {
-	return validation.In(KeySize2048, KeySizeP256).
-		Error(fmt.Sprintf("value '%s' is invalid. Must be one of: '%s', or '%s'",
-			k, KeySize2048, KeySizeP256)).
+	return validation.In(KeySize2048, KeySizeP256, KeySizeP384).
+		Error(fmt.Sprintf("value '%s' is invalid. Must be one of: '%s', '%s', or '%s'",
+			k, KeySize2048, KeySizeP256, KeySizeP384)).
 		Validate(k)
 }
 

@@ -46,6 +46,13 @@
 
 
 
+* Cloud Certificates
+  * Added support for the `P-384` key size in the ECDSA certificates.
+
+
+
+
+
 
 
 
