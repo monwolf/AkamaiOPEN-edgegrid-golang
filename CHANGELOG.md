@@ -34,24 +34,24 @@
 
 ### FEATURES/ENHANCEMENTS:
 * Appsec
-  * Added WAF Ruleset APIs:
+  * (Beta) Added WAF Ruleset APIs:
     * [GetWAFPolicyRuleSet](https://techdocs.akamai.com/application-security/reference/get-waf-policy-ruleset-composite)
     * [UpdateWAFPolicyRuleSet](https://techdocs.akamai.com/application-security/reference/patch-waf-policy-ruleset-composite)
 
 * Appsec
-  * Added URL Protection APIs:
+  * (Beta) Added URL Protection APIs to manage URL Protection policies:
     * [CreateURLProtectionPolicy](https://techdocs.akamai.com/application-security/reference/post-url-protection-policies)
     * [ListURLProtectionPolicies](https://techdocs.akamai.com/application-security/reference/get-url-protection-policies)
     * [GetURLProtectionPolicy](https://techdocs.akamai.com/application-security/reference/get-url-protection-policy)
     * [UpdateURLProtectionPolicy](https://techdocs.akamai.com/application-security/reference/put-url-protection-policy)
     * [RemoveURLProtectionPolicy](https://techdocs.akamai.com/application-security/reference/delete-url-protection-policy)
     
-  * Added URL Protection Action APIs:
+  * (Beta) Added URL Protection Action APIs to manage actions for URL Protection policies:
     * [ListURLProtectionPoliciesActions](https://techdocs.akamai.com/application-security/reference/get-url-protection-policies-actions)
     * [GetURLProtectionPolicyActions](https://techdocs.akamai.com/application-security/reference/get-url-protection-policies-actions)
     * [UpdateURLProtectionPolicyActions](https://techdocs.akamai.com/application-security/reference/put-url-protection-policy-action)
 
-  * Updated [ExportConfiguration]( https://techdocs.akamai.com/application-security/reference/get-export-config-version) to include URLProtectionPolicies and URLProtectionPoliciesActions.
+  * (Beta) Updated [ExportConfiguration](https://techdocs.akamai.com/application-security/reference/get-export-config-version) to include URLProtectionPolicies and URLProtectionPoliciesActions.
 * General
     * Migrated to Go `1.25`.
     * Adopted toolchain Go `1.25.7`.

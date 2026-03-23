@@ -200,6 +200,7 @@ type (
 				ApplyReputationControls        bool `json:"applyReputationControls"`
 				ApplySlowPostControls          bool `json:"applySlowPostControls"`
 				ApplyMalwareControls           bool `json:"applyMalwareControls"`
+				ApplyURLProtectionControls     bool `json:"applyUrlProtectionControls"`
 			} `json:"securityControls"`
 			WebApplicationFirewall struct {
 				RuleActions []struct {
