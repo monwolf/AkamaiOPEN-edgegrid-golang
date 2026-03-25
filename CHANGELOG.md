@@ -28,7 +28,7 @@
 * Cloud Access
   * Added support for a new authentication method `VP_QUEUE_IT`.
   * Added a `note` field to the `GetAccessKeyResponse` structure.
-  * Removed an incorrect `AuthenticationMethod` field from the `GetAccessKeyStatusResponse` structure.
+  * Deprecated the `AuthenticationMethod` field in the `GetAccessKeyStatusResponse` structure. It is no longer populated by the API and will always be empty. It will be removed in the nearest breaking release.
 
 * Cloud Certificates (Beta)
   * Added support for the `STANDARD_TLS` secure network type.

@@ -23,6 +23,9 @@ type (
 		RequestDate      time.Time           `json:"requestDate"`
 		RequestID        int64               `json:"requestId"`
 		RequestedBy      string              `json:"requestedBy"`
+		// Deprecated: AuthenticationMethod is no longer returned by the API and will always be empty.
+		// It will be removed in the nearest breaking release.
+		AuthenticationMethod string `json:"-"`
 	}
 
 	// GetAccessKeyStatusRequest holds parameters for GetAccessKeyStatus
