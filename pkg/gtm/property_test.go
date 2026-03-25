@@ -16,43 +16,38 @@ import (
 )
 
 func TestGTM_ListProperties(t *testing.T) {
-	var result PropertyList
-
-	respData, err := loadTestData("TestGTM_ListProperties.resp.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := json.NewDecoder(bytes.NewBuffer(respData)).Decode(&result); err != nil {
-		t.Fatal(err)
-	}
-
 	tests := map[string]struct {
-		params           ListPropertiesRequest
-		responseStatus   int
-		responseBody     string
-		expectedPath     string
-		expectedResponse []Property
-		withError        error
-		headers          http.Header
+		params         ListPropertiesRequest
+		responseStatus int
+		responseBody   string
+		responseFile   string
+		expectedPath   string
+		withError      error
+		headers        http.Header
 	}{
 		"200 OK": {
 			params: ListPropertiesRequest{
 				DomainName: "example.akadns.net",
 			},
+			responseFile: "TestGTM_ListProperties.resp.json",
 			headers: http.Header{
 				"Content-Type": []string{"application/vnd.config-gtm.v1.4+json;charset=UTF-8"},
 			},
-			responseStatus:   http.StatusOK,
-			responseBody:     string(respData),
-			expectedPath:     "/config-gtm/v1/domains/example.akadns.net/properties",
-			expectedResponse: result.PropertyItems,
+			responseStatus: http.StatusOK,
+			expectedPath:   "/config-gtm/v1/domains/example.akadns.net/properties",
+		},
+		"200 OK - the latest API version": {
+			params: ListPropertiesRequest{
+				DomainName: "example.akadns.net",
+			},
+			responseFile:   "TestGTM_ListProperties_latest.resp.json",
+			responseStatus: http.StatusOK,
+			expectedPath:   "/config-gtm/v1/domains/example.akadns.net/properties",
 		},
 		"500 internal server error": {
 			params: ListPropertiesRequest{
 				DomainName: "example.akadns.net",
 			},
-			headers:        http.Header{},
 			responseStatus: http.StatusInternalServerError,
 			responseBody: `
 {
@@ -73,6 +68,19 @@ func TestGTM_ListProperties(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
+			var expectedResponse []Property
+
+			if test.responseFile != "" {
+				respData, err := loadTestData(test.responseFile)
+				require.NoError(t, err)
+
+				test.responseBody = string(respData)
+
+				var parsed PropertyList
+				require.NoError(t, json.Unmarshal(respData, &parsed))
+				expectedResponse = parsed.PropertyItems
+			}
+
 			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				assert.Equal(t, test.expectedPath, r.URL.String())
 				assert.Equal(t, http.MethodGet, r.Method)
@@ -90,40 +98,37 @@ func TestGTM_ListProperties(t *testing.T) {
 				return
 			}
 			require.NoError(t, err)
-			assert.Equal(t, test.expectedResponse, result)
+			assert.Equal(t, expectedResponse, result)
 		})
 	}
 }
 
 func TestGTM_GetProperty(t *testing.T) {
-	var result GetPropertyResponse
-
-	respData, err := loadTestData("TestGTM_GetProperty.resp.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := json.NewDecoder(bytes.NewBuffer(respData)).Decode(&result); err != nil {
-		t.Fatal(err)
-	}
-
 	tests := map[string]struct {
-		params           GetPropertyRequest
-		responseStatus   int
-		responseBody     []byte
-		expectedPath     string
-		expectedResponse *GetPropertyResponse
-		withError        error
+		params         GetPropertyRequest
+		responseStatus int
+		responseFile   string
+		responseBody   []byte
+		expectedPath   string
+		withError      error
 	}{
 		"200 OK": {
 			params: GetPropertyRequest{
 				PropertyName: "www",
 				DomainName:   "example.akadns.net",
 			},
-			responseStatus:   http.StatusOK,
-			responseBody:     respData,
-			expectedPath:     "/config-gtm/v1/domains/example.akadns.net/properties/www",
-			expectedResponse: &result,
+			responseFile:   "TestGTM_GetProperty.resp.json",
+			responseStatus: http.StatusOK,
+			expectedPath:   "/config-gtm/v1/domains/example.akadns.net/properties/www",
+		},
+		"200 OK - the latest API version": {
+			params: GetPropertyRequest{
+				PropertyName: "first",
+				DomainName:   "example.akadns.net",
+			},
+			responseFile:   "TestGTM_GetProperty_latest.resp.json",
+			responseStatus: http.StatusOK,
+			expectedPath:   "/config-gtm/v1/domains/example.akadns.net/properties/first",
 		},
 		"500 internal server error": {
 			params: GetPropertyRequest{
@@ -149,6 +154,19 @@ func TestGTM_GetProperty(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
+			var expected *GetPropertyResponse
+
+			if test.responseFile != "" {
+				respData, err := loadTestData(test.responseFile)
+				require.NoError(t, err)
+
+				test.responseBody = respData
+
+				var parsed GetPropertyResponse
+				require.NoError(t, json.Unmarshal(respData, &parsed))
+				expected = &parsed
+			}
+
 			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				assert.Equal(t, test.expectedPath, r.URL.String())
 				assert.Equal(t, http.MethodGet, r.Method)
@@ -163,7 +181,7 @@ func TestGTM_GetProperty(t *testing.T) {
 				return
 			}
 			require.NoError(t, err)
-			assert.Equal(t, test.expectedResponse, result)
+			assert.Equal(t, expected, result)
 		})
 	}
 }
@@ -604,6 +622,166 @@ func TestGTM_CreateProperty(t *testing.T) {
 			},
 			expectedPath: "/config-gtm/v1/domains/example.akadns.net/properties/origin",
 		},
+		"201 Created - API version 1.7": {
+			params: CreatePropertyRequest{
+				Property: &Property{
+					BalanceByDownloadScore: false,
+					HandoutMode:            "normal",
+					IPv6:                   false,
+					Name:                   "first",
+					ScoreAggregationType:   "mean",
+					StaticTTL:              0,
+					Type:                   "performance",
+					UseComputedTargets:     false,
+
+					LivenessTests: []LivenessTest{},
+
+					TrafficTargets: []TrafficTarget{
+						{
+							DatacenterID: 1,
+							Enabled:      true,
+							Weight:       1.0,
+							Servers:      []string{"1.2.3.4", "5.6.7.8"},
+							Precedence:   nil,
+						},
+					},
+					StateChangeNotificationWebhook: &StateChangeNotificationWebhook{
+						URL:    ptr.To("https://example.com/gtm-webhook"),
+						Format: JSONCompact,
+					},
+				},
+				DomainName: "example.akadns.net",
+			},
+			responseStatus: http.StatusCreated,
+			responseBody: `{
+    "resource": {
+        "backupCName": null,
+        "backupIp": null,
+        "balanceByDownloadScore": false,
+        "cname": null,
+        "comments": null,
+        "dynamicTTL": 30,
+        "failoverDelay": 0,
+        "failbackDelay": 0,
+        "ghostDemandReporting": false,
+        "handoutMode": "normal",
+        "handoutLimit": 8,
+        "healthMax": null,
+        "healthMultiplier": null,
+        "healthThreshold": null,
+        "lastModified": "2026-03-17T08:44:50.242+00:00",
+        "livenessTests": [],
+        "loadImbalancePercentage": null,
+        "mapName": "CreateName",
+        "maxUnreachablePenalty": null,
+        "minLiveFraction": null,
+        "minActiveDatacenterFraction": null,
+        "mxRecords": [],
+        "name": "origin",
+        "scoreAggregationType": "mean",
+        "stickinessBonusConstant": null,
+        "stickinessBonusPercentage": null,
+        "stateChangeNotificationWebhook": {
+            "url": "https://example.com/gtm-webhook",
+            "format": "json-compact"
+        },
+        "staticTTL": null,
+        "staticRRSets": [],
+        "trafficTargets": [
+            {
+                "datacenterId": 1,
+                "enabled": true,
+                "weight": 1.0,
+                "precedence": null,
+                "handoutCName": null,
+                "name": null,
+                "servers": [
+                    "1.2.3.4",
+                    "5.6.7.8"
+                ]
+            }
+        ],
+        "type": "performance",
+        "unreachableThreshold": null,
+        "useComputedTargets": false,
+        "weightedHashBitsForIPv4": null,
+        "weightedHashBitsForIPv6": null,
+        "ipv6": false,
+        "links": [
+            {
+                "rel": "self",
+                "href": "https://akaa-ouijhfns55qwgfuc-knsod5nrjl2w2gmt.luna-dev.akamaiapis.net/config-gtm/v1/domains/example.akadns.net/properties/first"
+            }
+        ]
+    },
+    "status": {
+        "message": "Change Pending",
+        "changeId": "fa7bca23-4742-4dbc-aba2-e6fd4483e5ba",
+        "propagationStatus": "PENDING",
+        "propagationStatusDate": "2026-03-17T08:44:58.221+00:00",
+        "passingValidation": true,
+        "links": [
+            {
+                "rel": "self",
+                "href": "https://akaa-ouijhfns55qwgfuc-knsod5nrjl2w2gmt.luna-dev.akamaiapis.net/config-gtm/v1/domains/example.akadns.net/status/current"
+            }
+        ]
+    }
+}`,
+			expectedResponse: &CreatePropertyResponse{
+				Resource: &Property{
+					BalanceByDownloadScore: false,
+					HandoutLimit:           8,
+					HandoutMode:            "normal",
+					IPv6:                   false,
+					Name:                   "origin",
+					ScoreAggregationType:   "mean",
+					StaticTTL:              0,
+					DynamicTTL:             30,
+					Type:                   "performance",
+					UseComputedTargets:     false,
+					MapName:                "CreateName",
+					LastModified:           "2026-03-17T08:44:50.242+00:00",
+					StaticRRSets:           []StaticRRSet{},
+					LivenessTests:          []LivenessTest{},
+					TrafficTargets: []TrafficTarget{
+						{
+							DatacenterID: 1,
+							Enabled:      true,
+							Weight:       1.0,
+							Servers:      []string{"1.2.3.4", "5.6.7.8"},
+							Precedence:   nil,
+						},
+					},
+
+					StateChangeNotificationWebhook: &StateChangeNotificationWebhook{
+						URL:    ptr.To("https://example.com/gtm-webhook"),
+						Format: JSONCompact,
+					},
+
+					Links: []Link{
+						{
+							Href: "https://akaa-ouijhfns55qwgfuc-knsod5nrjl2w2gmt.luna-dev.akamaiapis.net/config-gtm/v1/domains/example.akadns.net/properties/first",
+							Rel:  "self",
+						},
+					},
+				},
+				Status: &ResponseStatus{
+					ChangeID:              "fa7bca23-4742-4dbc-aba2-e6fd4483e5ba",
+					Message:               "Change Pending",
+					PassingValidation:     true,
+					PropagationStatus:     "PENDING",
+					PropagationStatusDate: "2026-03-17T08:44:58.221+00:00",
+					Links: []Link{
+						{
+							Href: "https://akaa-ouijhfns55qwgfuc-knsod5nrjl2w2gmt.luna-dev.akamaiapis.net/config-gtm/v1/domains/example.akadns.net/status/current",
+							Rel:  "self",
+						},
+					},
+				},
+			},
+			expectedPath: "/config-gtm/v1/domains/example.akadns.net/properties/first",
+		},
 		"validation error - missing precedence for ranked-failover property type": {
 			params: CreatePropertyRequest{
 				Property: &Property{
@@ -649,6 +827,72 @@ func TestGTM_CreateProperty(t *testing.T) {
 			withError: true,
 			assertError: func(t *testing.T, err error) {
 				assert.ErrorContains(t, err, "TrafficTargets: 'Precedence' value has to be between 0 and 255")
+			},
+		},
+		"validation error - missed URL in StateChangeNotificationWebhook and incorrect Format": {
+			params: CreatePropertyRequest{
+				Property: &Property{
+					DynamicTTL:           30,
+					HandoutMode:          "normal",
+					IPv6:                 false,
+					MapName:              "CreateName",
+					Name:                 "first",
+					ScoreAggregationType: "mean",
+					TrafficTargets: []TrafficTarget{
+						{
+							DatacenterID: 1,
+							Enabled:      true,
+							Weight:       1.0,
+							Servers: []string{
+								"1.2.3.4",
+								"5.6.7.8",
+							},
+						},
+					},
+					Type: "performance",
+					StateChangeNotificationWebhook: &StateChangeNotificationWebhook{
+						Format: "json",
+					},
+				},
+				DomainName: "example.akadns.net",
+			},
+			withError: true,
+			assertError: func(t *testing.T, err error) {
+				assert.ErrorContains(t, err, "struct validation: Property: StateChangeNotificationWebhook: Format: must be a valid value\nURL: cannot be blank")
+			},
+		},
+		"validation error - invalid StateChangeNotificationWebhook.URL": {
+			params: CreatePropertyRequest{
+				Property: &Property{
+					DynamicTTL:           30,
+					HandoutMode:          "normal",
+					IPv6:                 false,
+					MapName:              "CreateName",
+					Name:                 "first",
+					ScoreAggregationType: "mean",
+					TrafficTargets: []TrafficTarget{
+						{
+							DatacenterID: 1,
+							Enabled:      true,
+							Weight:       1.0,
+							Servers: []string{
+								"1.2.3.4",
+								"5.6.7.8",
+							},
+						},
+					},
+					Type: "performance",
+					StateChangeNotificationWebhook: &StateChangeNotificationWebhook{
+						Format: JSONCompact,
+						URL:    ptr.To("tel:+123456789"),
+					},
+				},
+				DomainName: "example.akadns.net",
+			},
+			expectedPath: "/config-gtm/v1/domains/example.akadns.net/properties/first",
+			withError:    true,
+			assertError: func(t *testing.T, err error) {
+				assert.ErrorContains(t, err, "create Property: struct validation: Property: StateChangeNotificationWebhook: URL: invalid URL scheme: tel. Only http, https, mailto are allowed")
 			},
 		},
 		"500 internal server error": {
@@ -966,6 +1210,72 @@ func TestGTM_UpdateProperty(t *testing.T) {
 			withError: true,
 			assertError: func(t *testing.T, err error) {
 				assert.ErrorContains(t, err, "TrafficTargets: no traffic targets are enabled")
+			},
+		},
+		"validation error - missed URL in StateChangeNotificationWebhook and incorrect Format": {
+			params: UpdatePropertyRequest{
+				Property: &Property{
+					DynamicTTL:           30,
+					HandoutMode:          "normal",
+					IPv6:                 false,
+					MapName:              "CreateName",
+					Name:                 "first",
+					ScoreAggregationType: "mean",
+					TrafficTargets: []TrafficTarget{
+						{
+							DatacenterID: 1,
+							Enabled:      true,
+							Weight:       1.0,
+							Servers: []string{
+								"1.2.3.4",
+								"5.6.7.8",
+							},
+						},
+					},
+					Type: "performance",
+					StateChangeNotificationWebhook: &StateChangeNotificationWebhook{
+						Format: "json",
+					},
+				},
+				DomainName: "example.akadns.net",
+			},
+			withError: true,
+			assertError: func(t *testing.T, err error) {
+				assert.ErrorContains(t, err, "struct validation: Property: StateChangeNotificationWebhook: Format: must be a valid value\nURL: cannot be blank")
+			},
+		},
+		"validation error - invalid StateChangeNotificationWebhook.URL": {
+			params: UpdatePropertyRequest{
+				Property: &Property{
+					DynamicTTL:           30,
+					HandoutMode:          "normal",
+					IPv6:                 false,
+					MapName:              "CreateName",
+					Name:                 "first",
+					ScoreAggregationType: "mean",
+					TrafficTargets: []TrafficTarget{
+						{
+							DatacenterID: 1,
+							Enabled:      true,
+							Weight:       1.0,
+							Servers: []string{
+								"1.2.3.4",
+								"5.6.7.8",
+							},
+						},
+					},
+					Type: "performance",
+					StateChangeNotificationWebhook: &StateChangeNotificationWebhook{
+						Format: JSONCompact,
+						URL:    ptr.To("tel:+123456789"),
+					},
+				},
+				DomainName: "example.akadns.net",
+			},
+			expectedPath: "/config-gtm/v1/domains/example.akadns.net/properties/first",
+			withError:    true,
+			assertError: func(t *testing.T, err error) {
+				assert.ErrorContains(t, err, "update Property: struct validation: Property: StateChangeNotificationWebhook: URL: invalid URL scheme: tel. Only http, https, mailto are allowed")
 			},
 		},
 		"500 internal server error": {

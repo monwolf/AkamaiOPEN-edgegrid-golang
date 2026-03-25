@@ -1,0 +1,60 @@
+{
+  "backupCName": null,
+  "backupIp": null,
+  "balanceByDownloadScore": false,
+  "cname": null,
+  "comments": null,
+  "dynamicTTL": 30,
+  "failoverDelay": 0,
+  "failbackDelay": 0,
+  "ghostDemandReporting": false,
+  "handoutMode": "normal",
+  "handoutLimit": 8,
+  "healthMax": null,
+  "healthMultiplier": null,
+  "healthThreshold": null,
+  "lastModified": "2026-03-17T11:49:59.322+00:00",
+  "livenessTests": [],
+  "loadImbalancePercentage": null,
+  "mapName": "CreateName",
+  "maxUnreachablePenalty": null,
+  "minLiveFraction": null,
+  "minActiveDatacenterFraction": null,
+  "mxRecords": [],
+  "name": "first",
+  "scoreAggregationType": "mean",
+  "stickinessBonusConstant": null,
+  "stickinessBonusPercentage": null,
+  "stateChangeNotificationWebhook": {
+    "url": "https://example.com/gtm-webhook",
+    "format": "json-compact"
+  },
+  "staticTTL": null,
+  "staticRRSets": [],
+  "trafficTargets": [
+    {
+      "datacenterId": 1,
+      "enabled": true,
+      "weight": 1.0,
+      "precedence": 0,
+      "handoutCName": null,
+      "name": null,
+      "servers": [
+        "1.2.3.4",
+        "5.6.7.8"
+      ]
+    }
+  ],
+  "type": "performance",
+  "unreachableThreshold": null,
+  "useComputedTargets": false,
+  "weightedHashBitsForIPv4": null,
+  "weightedHashBitsForIPv6": null,
+  "ipv6": false,
+  "links": [
+    {
+      "rel": "self",
+      "href": "/config-gtm/v1/domains/example.akadns.net/properties/first"
+    }
+  ]
+}

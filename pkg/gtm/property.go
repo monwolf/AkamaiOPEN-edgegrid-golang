@@ -5,11 +5,16 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
+	"slices"
+	"strings"
 
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v13/pkg/edgegriderr"
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v13/pkg/session"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
+
+var allowedSchemes = []string{"http", "https", "mailto"}
 
 type (
 	// TrafficTarget struct contains information about where to direct data center traffic
@@ -71,40 +76,47 @@ type (
 
 	// Property represents a GTM property
 	Property struct {
-		Name                      string          `json:"name"`
-		Type                      string          `json:"type"`
-		IPv6                      bool            `json:"ipv6"`
-		ScoreAggregationType      string          `json:"scoreAggregationType"`
-		StickinessBonusPercentage int             `json:"stickinessBonusPercentage,omitempty"`
-		StickinessBonusConstant   int             `json:"stickinessBonusConstant,omitempty"`
-		HealthThreshold           float64         `json:"healthThreshold,omitempty"`
-		UseComputedTargets        bool            `json:"useComputedTargets"`
-		BackupIP                  string          `json:"backupIp,omitempty"`
-		BalanceByDownloadScore    bool            `json:"balanceByDownloadScore"`
-		StaticTTL                 int             `json:"staticTTL,omitempty"`
-		StaticRRSets              []StaticRRSet   `json:"staticRRSets,omitempty"`
-		LastModified              string          `json:"lastModified"`
-		UnreachableThreshold      float64         `json:"unreachableThreshold,omitempty"`
-		MinLiveFraction           float64         `json:"minLiveFraction,omitempty"`
-		HealthMultiplier          float64         `json:"healthMultiplier,omitempty"`
-		DynamicTTL                int             `json:"dynamicTTL,omitempty"`
-		MaxUnreachablePenalty     int             `json:"maxUnreachablePenalty,omitempty"`
-		MapName                   string          `json:"mapName,omitempty"`
-		HandoutLimit              int             `json:"handoutLimit"`
-		HandoutMode               string          `json:"handoutMode"`
-		FailoverDelay             int             `json:"failoverDelay,omitempty"`
-		BackupCName               string          `json:"backupCName,omitempty"`
-		FailbackDelay             int             `json:"failbackDelay,omitempty"`
-		LoadImbalancePercentage   float64         `json:"loadImbalancePercentage,omitempty"`
-		HealthMax                 float64         `json:"healthMax,omitempty"`
-		GhostDemandReporting      bool            `json:"ghostDemandReporting"`
-		Comments                  string          `json:"comments,omitempty"`
-		CName                     string          `json:"cname,omitempty"`
-		WeightedHashBitsForIPv4   int             `json:"weightedHashBitsForIPv4,omitempty"`
-		WeightedHashBitsForIPv6   int             `json:"weightedHashBitsForIPv6,omitempty"`
-		TrafficTargets            []TrafficTarget `json:"trafficTargets,omitempty"`
-		Links                     []Link          `json:"links,omitempty"`
-		LivenessTests             []LivenessTest  `json:"livenessTests,omitempty"`
+		Name                           string                          `json:"name"`
+		Type                           string                          `json:"type"`
+		IPv6                           bool                            `json:"ipv6"`
+		ScoreAggregationType           string                          `json:"scoreAggregationType"`
+		StickinessBonusPercentage      int                             `json:"stickinessBonusPercentage,omitempty"`
+		StickinessBonusConstant        int                             `json:"stickinessBonusConstant,omitempty"`
+		HealthThreshold                float64                         `json:"healthThreshold,omitempty"`
+		UseComputedTargets             bool                            `json:"useComputedTargets"`
+		BackupIP                       string                          `json:"backupIp,omitempty"`
+		BalanceByDownloadScore         bool                            `json:"balanceByDownloadScore"`
+		StaticTTL                      int                             `json:"staticTTL,omitempty"`
+		StaticRRSets                   []StaticRRSet                   `json:"staticRRSets,omitempty"`
+		LastModified                   string                          `json:"lastModified"`
+		UnreachableThreshold           float64                         `json:"unreachableThreshold,omitempty"`
+		MinLiveFraction                float64                         `json:"minLiveFraction,omitempty"`
+		HealthMultiplier               float64                         `json:"healthMultiplier,omitempty"`
+		DynamicTTL                     int                             `json:"dynamicTTL,omitempty"`
+		MaxUnreachablePenalty          int                             `json:"maxUnreachablePenalty,omitempty"`
+		MapName                        string                          `json:"mapName,omitempty"`
+		HandoutLimit                   int                             `json:"handoutLimit"`
+		HandoutMode                    string                          `json:"handoutMode"`
+		FailoverDelay                  int                             `json:"failoverDelay,omitempty"`
+		BackupCName                    string                          `json:"backupCName,omitempty"`
+		FailbackDelay                  int                             `json:"failbackDelay,omitempty"`
+		LoadImbalancePercentage        float64                         `json:"loadImbalancePercentage,omitempty"`
+		HealthMax                      float64                         `json:"healthMax,omitempty"`
+		GhostDemandReporting           bool                            `json:"ghostDemandReporting"`
+		Comments                       string                          `json:"comments,omitempty"`
+		CName                          string                          `json:"cname,omitempty"`
+		WeightedHashBitsForIPv4        int                             `json:"weightedHashBitsForIPv4,omitempty"`
+		WeightedHashBitsForIPv6        int                             `json:"weightedHashBitsForIPv6,omitempty"`
+		TrafficTargets                 []TrafficTarget                 `json:"trafficTargets,omitempty"`
+		Links                          []Link                          `json:"links,omitempty"`
+		LivenessTests                  []LivenessTest                  `json:"livenessTests,omitempty"`
+		StateChangeNotificationWebhook *StateChangeNotificationWebhook `json:"stateChangeNotificationWebhook,omitempty"`
+	}
+
+	// StateChangeNotificationWebhook defines a webhook to notify external systems when datacenter or server state changes occur.
+	StateChangeNotificationWebhook struct {
+		URL    *string `json:"url"`
+		Format Format  `json:"format"`
 	}
 
 	// PropertyRequest contains request parameters
@@ -160,6 +172,18 @@ type (
 		Resource *Property       `json:"resource"`
 		Status   *ResponseStatus `json:"status"`
 	}
+
+	// Format represents format of the message that’s sent to the application or service.
+	Format string
+)
+
+const (
+	// JSONCompact is a JSON format where the message is a single line and does not contain line spaces.
+	JSONCompact Format = "json-compact"
+	// JSONPretty is a JSON format where the message contains line spaces and is more readable.
+	JSONPretty Format = "json-pretty"
+	// SlackMarkdown is a Markdown format based on Slack's allowed syntax.
+	SlackMarkdown Format = "slack-mrkdwn"
 )
 
 var (
@@ -198,6 +222,14 @@ func (r CreatePropertyRequest) Validate() error {
 	})
 }
 
+// Validate validates StateChangeNotificationWebhook
+func (s StateChangeNotificationWebhook) Validate() error {
+	return edgegriderr.ParseValidationErrors(validation.Errors{
+		"URL":    validation.Validate(s.URL, validation.Required, validation.Length(0, 1024), validation.By(validScheme)),
+		"Format": validation.Validate(s.Format, validation.In(JSONCompact, JSONPretty, SlackMarkdown)),
+	})
+}
+
 // Validate validates UpdatePropertyRequest
 func (r UpdatePropertyRequest) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
@@ -217,11 +249,12 @@ func (r DeletePropertyRequest) Validate() error {
 // Validate validates Property
 func (p *Property) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
-		"Name":                  validation.Validate(p.Name, validation.Required),
-		"Type":                  validation.Validate(p.Type, validation.Required),
-		"ScoreAggregationTypes": validation.Validate(p.ScoreAggregationType, validation.Required),
-		"HandoutMode":           validation.Validate(p.HandoutMode, validation.Required),
-		"TrafficTargets":        validation.Validate(p.TrafficTargets, validation.When(p.Type == "ranked-failover", validation.By(validateRankedFailoverTrafficTargets))),
+		"Name":                           validation.Validate(p.Name, validation.Required),
+		"Type":                           validation.Validate(p.Type, validation.Required),
+		"ScoreAggregationTypes":          validation.Validate(p.ScoreAggregationType, validation.Required),
+		"HandoutMode":                    validation.Validate(p.HandoutMode, validation.Required),
+		"TrafficTargets":                 validation.Validate(p.TrafficTargets, validation.When(p.Type == "ranked-failover", validation.By(validateRankedFailoverTrafficTargets))),
+		"StateChangeNotificationWebhook": validation.Validate(p.StateChangeNotificationWebhook),
 	})
 }
 
@@ -252,6 +285,43 @@ func validateRankedFailoverTrafficTargets(value interface{}) error {
 	}
 
 	return nil
+}
+
+func validScheme(value interface{}) error {
+	str, ok := toString(value)
+	if !ok || str == "" {
+		return nil
+	}
+
+	parsed, err := url.Parse(str)
+	if err != nil {
+		return fmt.Errorf("invalid URL: %w", err)
+	}
+
+	scheme := strings.ToLower(parsed.Scheme)
+	if !slices.Contains(allowedSchemes, scheme) {
+		return fmt.Errorf(
+			"invalid URL scheme: %s. Only %s are allowed",
+			parsed.Scheme,
+			strings.Join(allowedSchemes, ", "),
+		)
+	}
+	return nil
+}
+
+// toString attempts to convert a value to a string.
+func toString(value interface{}) (string, bool) {
+	switch v := value.(type) {
+	case string:
+		return v, true
+	case *string:
+		if v == nil {
+			return "", false
+		}
+		return *v, true
+	default:
+		return "", false
+	}
 }
 
 func (g *gtm) ListProperties(ctx context.Context, params ListPropertiesRequest) ([]Property, error) {

@@ -45,6 +45,13 @@
 
 
 
+* GTM
+  * Updated the default API schema version to 1.7.
+  * Added support for the `StateChangeNotificationWebhook` object in `Property`.
+
+
+
+
 
 * Cloud Certificates
   * Added support for the `P-384` key size in the ECDSA certificates.
