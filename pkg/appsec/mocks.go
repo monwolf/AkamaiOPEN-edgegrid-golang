@@ -592,6 +592,22 @@ func (m *Mock) GetWAFProtection(ctx context.Context, req GetWAFProtectionRequest
 	return args.Get(0).(*GetWAFProtectionResponse), args.Error(1)
 }
 
+func (m *Mock) GetWAFCompositeRuleset(ctx context.Context, req GetWAFCompositeRulesetRequest) (*CompositeRulesetResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*CompositeRulesetResponse), args.Error(1)
+}
+
+func (m *Mock) UpdateWAFCompositeRuleset(ctx context.Context, req UpdateWAFCompositeRulesetRequest) (*CompositeRulesetResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*CompositeRulesetResponse), args.Error(1)
+}
+
 func (m *Mock) GetWAFMode(ctx context.Context, req GetWAFModeRequest) (*GetWAFModeResponse, error) {
 
 	args := m.Called(ctx, req)
@@ -1597,4 +1613,65 @@ func (m *Mock) CreateActivationsWithHostMove(ctx context.Context, req CreateActi
 		return nil, args.Error(1)
 	}
 	return args.Get(0).(*CreateActivationsWithHostMoveResponse), args.Error(1)
+}
+
+func (m *Mock) ListURLProtectionPolicies(ctx context.Context, req ListURLProtectionPoliciesRequest) (*ListURLProtectionPoliciesResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*ListURLProtectionPoliciesResponse), args.Error(1)
+}
+
+func (m *Mock) GetURLProtectionPolicy(ctx context.Context, req GetURLProtectionPolicyRequest) (*GetURLProtectionPolicyResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*GetURLProtectionPolicyResponse), args.Error(1)
+}
+
+func (m *Mock) CreateURLProtectionPolicy(ctx context.Context, req CreateURLProtectionPolicyRequest) (*CreateURLProtectionPolicyResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*CreateURLProtectionPolicyResponse), args.Error(1)
+}
+
+func (m *Mock) UpdateURLProtectionPolicy(ctx context.Context, req UpdateURLProtectionPolicyRequest) (*UpdateURLProtectionPolicyResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*UpdateURLProtectionPolicyResponse), args.Error(1)
+}
+
+func (m *Mock) RemoveURLProtectionPolicy(ctx context.Context, req RemoveURLProtectionPolicyRequest) error {
+	args := m.Called(ctx, req)
+	return args.Error(0)
+}
+
+func (m *Mock) ListURLProtectionPoliciesActions(ctx context.Context, req ListURLProtectionPoliciesActionsRequest) (*ListURLProtectionPoliciesActionsResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*ListURLProtectionPoliciesActionsResponse), args.Error(1)
+}
+
+func (m *Mock) GetURLProtectionPolicyActions(ctx context.Context, req GetURLProtectionPolicyActionsRequest) (*GetURLProtectionPolicyActionsResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*GetURLProtectionPolicyActionsResponse), args.Error(1)
+}
+
+func (m *Mock) UpdateURLProtectionPolicyActions(ctx context.Context, req UpdateURLProtectionPolicyActionsRequest) (*UpdateURLProtectionPolicyActionsResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*UpdateURLProtectionPolicyActionsResponse), args.Error(1)
 }

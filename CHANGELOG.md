@@ -1,5 +1,52 @@
 # RELEASE NOTES
 
+## 13.1.0 (Mar 30, 2026)
+
+### FEATURES/ENHANCEMENTS:
+
+* General
+    * Migrated to Go `1.25`.
+    * Adopted toolchain Go `1.25.7`.
+
+* Appsec
+  * (Beta) Added WAF Ruleset APIs:
+    * [GetWAFPolicyRuleSet](https://techdocs.akamai.com/application-security/reference/get-waf-policy-ruleset-composite)
+    * [UpdateWAFPolicyRuleSet](https://techdocs.akamai.com/application-security/reference/patch-waf-policy-ruleset-composite)
+  * (Beta) Added URL Protection APIs to manage URL protection policies:
+    * [CreateURLProtectionPolicy](https://techdocs.akamai.com/application-security/reference/post-url-protection-policies)
+    * [ListURLProtectionPolicies](https://techdocs.akamai.com/application-security/reference/get-url-protection-policies)
+    * [GetURLProtectionPolicy](https://techdocs.akamai.com/application-security/reference/get-url-protection-policy)
+    * [UpdateURLProtectionPolicy](https://techdocs.akamai.com/application-security/reference/put-url-protection-policy)
+    * [RemoveURLProtectionPolicy](https://techdocs.akamai.com/application-security/reference/delete-url-protection-policy)
+  * (Beta) Added URL Protection Action APIs to manage actions for URL protection policies:
+    * [ListURLProtectionPoliciesActions](https://techdocs.akamai.com/application-security/reference/get-url-protection-policies-actions)
+    * [GetURLProtectionPolicyActions](https://techdocs.akamai.com/application-security/reference/get-url-protection-policies-actions)
+    * [UpdateURLProtectionPolicyActions](https://techdocs.akamai.com/application-security/reference/put-url-protection-policy-action)
+  * (Beta) Updated [ExportConfiguration](https://techdocs.akamai.com/application-security/reference/get-export-config-version) to include `URLProtectionPolicies` and `URLProtectionPoliciesActions`.
+  * (Beta) Updated [PolicyProtections](https://techdocs.akamai.com/application-security/reference/get-policy-protections) to support a new attribute `applyUrlProtectionControls`.
+
+* Cloud Access
+  * Added support for a new authentication method `VP_QUEUE_IT`.
+  * Added a `note` field to the `GetAccessKeyResponse` structure.
+  * Deprecated the `AuthenticationMethod` field in the `GetAccessKeyStatusResponse` structure. It is no longer populated by the API and will always be empty. It will be removed in the nearest breaking release.
+
+* Cloud Certificates (Beta)
+  * Added support for the `STANDARD_TLS` secure network type.
+  * Added support for the `P-384` key size in the ECDSA certificates.
+
+* GTM
+  * Updated the default API schema version to `1.7`.
+  * Added support for the `StateChangeNotificationWebhook` object in `Property`.
+
+* HAPI
+  * Added support for the `HTTPSServiceBinding`:
+    * Added the `HTTPSServiceBinding` field to the `EdgeHostname` and `GetEdgeHostnameResponse` structures.
+    * Enabled using `/httpsServiceBinding` as the `Path` field with one of the values `H2`, `H3`, or `H2_AND_H3` in the `UpdateEdgeHostnameRequestBody` structure with the `replace` and `add` as the `Op` field.
+    * Enabled using `remove` as the `Op` field with the `/httpsServiceBinding` in the `Path` field within the `UpdateEdgeHostnameRequestBody` structure.
+
+* PAPI
+  * Added the `HTTPSServiceBinding` field to the `EdgeHostnameGetItem` and `EdgeHostnameCreate` structures.
+
 ## 13.0.0 (Feb 23, 2026)
 
 ### BREAKING CHANGES:

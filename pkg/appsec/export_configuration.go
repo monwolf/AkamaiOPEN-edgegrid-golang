@@ -200,6 +200,7 @@ type (
 				ApplyReputationControls        bool `json:"applyReputationControls"`
 				ApplySlowPostControls          bool `json:"applySlowPostControls"`
 				ApplyMalwareControls           bool `json:"applyMalwareControls"`
+				ApplyURLProtectionControls     bool `json:"applyUrlProtectionControls"`
 			} `json:"securityControls"`
 			WebApplicationFirewall struct {
 				RuleActions []struct {
@@ -230,6 +231,7 @@ type (
 			} `json:"clientReputation"`
 			RatePolicyActions              *SecurityPoliciesRatePolicyActions    `json:"ratePolicyActions,omitempty"`
 			MalwarePolicyActions           []MalwarePolicyActionBody             `json:"malwarePolicyActions,omitempty"`
+			URLProtectionPoliciesActions   []URLProtectionActionResp             `json:"urlProtectionPolicyActions,omitempty"`
 			IPGeoFirewall                  *IPGeoFirewall                        `json:"ipGeoFirewall,omitempty"`
 			PenaltyBox                     *SecurityPoliciesPenaltyBox           `json:"penaltyBox,omitempty"`
 			EvaluationPenaltyBox           *SecurityPoliciesPenaltyBox           `json:"evaluationPenaltyBox,omitempty"`
@@ -250,14 +252,15 @@ type (
 		Evaluating      struct {
 			SecurityPolicies []EvaluatingSecurityPolicy `json:"securityPolicies,omitempty"`
 		} `json:"evaluating,omitempty"`
-		MalwarePolicies           []MalwarePolicyBody      `json:"malwarePolicies,omitempty"`
-		CustomBotCategories       []map[string]interface{} `json:"customBotCategories,omitempty"`
-		CustomDefinedBots         []map[string]interface{} `json:"customDefinedBots,omitempty"`
-		CustomBotCategorySequence []string                 `json:"customBotCategorySequence,omitempty"`
-		CustomClients             []map[string]interface{} `json:"customClients,omitempty"`
-		CustomClientSequence      []string                 `json:"customClientSequence,omitempty"`
-		ResponseActions           *ResponseActions         `json:"responseActions,omitempty"`
-		AdvancedSettings          *AdvancedSettings        `json:"advancedSettings,omitempty"`
+		MalwarePolicies           []MalwarePolicyBody              `json:"malwarePolicies,omitempty"`
+		CustomBotCategories       []map[string]interface{}         `json:"customBotCategories,omitempty"`
+		CustomDefinedBots         []map[string]interface{}         `json:"customDefinedBots,omitempty"`
+		CustomBotCategorySequence []string                         `json:"customBotCategorySequence,omitempty"`
+		CustomClients             []map[string]interface{}         `json:"customClients,omitempty"`
+		CustomClientSequence      []string                         `json:"customClientSequence,omitempty"`
+		ResponseActions           *ResponseActions                 `json:"responseActions,omitempty"`
+		AdvancedSettings          *AdvancedSettings                `json:"advancedSettings,omitempty"`
+		URLProtectionPolicies     []GetURLProtectionPolicyResponse `json:"urlProtectionPolicies,omitempty"`
 	}
 
 	// RatePoliciesPath is returned as part of GetExportConfigurationResponse.

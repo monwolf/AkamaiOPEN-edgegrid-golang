@@ -1,40 +1,20 @@
 package cloudaccess
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
-	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
+	"time"
 
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v13/pkg/ptr"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestGetAccessKeyStatus(t *testing.T) {
-
-	var result GetAccessKeyStatusResponse
-	var resultMinimal GetAccessKeyStatusResponse
-
-	respData, err := loadTestData("AccessKeyStatus/GetAccessKeyStatus.resp.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := json.NewDecoder(bytes.NewBuffer(respData)).Decode(&result); err != nil {
-		t.Fatal(err)
-	}
-
-	respDataMinimal, err := loadTestData("AccessKeyStatus/GetAccessKeyStatus.resp.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := json.NewDecoder(bytes.NewBuffer(respDataMinimal)).Decode(&resultMinimal); err != nil {
-		t.Fatal(err)
-	}
 
 	tests := map[string]struct {
 		params           GetAccessKeyStatusRequest
@@ -48,19 +28,79 @@ func TestGetAccessKeyStatus(t *testing.T) {
 			params: GetAccessKeyStatusRequest{
 				RequestID: 1,
 			},
-			responseStatus:   http.StatusOK,
-			responseBody:     string(respData),
-			expectedPath:     "/cam/v1/access-key-create-requests/1",
-			expectedResponse: &result,
+			responseStatus: http.StatusOK,
+			responseBody: `
+			{
+				"accessKey": 
+					{
+						"accessKeyUid": 123,
+						"link": "/cam/v1/access-keys/123"
+					},
+				"accessKeyVersion": 
+					{
+						"accessKeyUid": 123,
+						"link": "/cam/v1/access-keys/123/versions/1",
+						"version": 1
+					},
+				"processingStatus": "IN_PROGRESS",
+				"request": 
+					{
+						"accessKeyName": "TestAccessKeyName",
+						"authenticationMethod": "AWS4_HMAC_SHA256",
+						"contractId": "TestContractID",
+						"groupId": 123,
+						"networkConfiguration": 
+							{
+								"additionalCdn": "CHINA_CDN",
+								"securityNetwork": "ENHANCED_TLS"
+							}
+					},
+				"requestDate": "2021-02-26T13:34:36.715643Z",
+				"requestId": 1,
+				"requestedBy": "user"
+			}`,
+			expectedPath: "/cam/v1/access-key-create-requests/1",
+			expectedResponse: &GetAccessKeyStatusResponse{
+				AccessKey:        &KeyLink{AccessKeyUID: 123, Link: "/cam/v1/access-keys/123"},
+				AccessKeyVersion: &KeyVersion{AccessKeyUID: 123, Link: "/cam/v1/access-keys/123/versions/1", Version: 1},
+				ProcessingStatus: ProcessingInProgress,
+				Request: &RequestInformation{
+					AccessKeyName:        "TestAccessKeyName",
+					AuthenticationMethod: AuthAWS,
+					ContractID:           "TestContractID",
+					GroupID:              123,
+					NetworkConfiguration: &SecureNetwork{
+						AdditionalCDN:   ptr.To(ChinaCDN),
+						SecurityNetwork: NetworkEnhanced,
+					},
+				},
+				RequestDate: time.Date(2021, 2, 26, 13, 34, 36, 715643000, time.UTC),
+				RequestID:   1,
+				RequestedBy: "user",
+			},
 		},
 		"200 OK - minimal": {
 			params: GetAccessKeyStatusRequest{
 				RequestID: 1,
 			},
-			responseStatus:   http.StatusOK,
-			responseBody:     string(respDataMinimal),
-			expectedPath:     "/cam/v1/access-key-create-requests/1",
-			expectedResponse: &resultMinimal,
+			responseStatus: http.StatusOK,
+			responseBody: `
+			{
+				"accessKey": null,
+				"accessKeyVersion": null,
+				"processingStatus": "IN_PROGRESS",
+				"request": null,
+				"requestDate": "2021-02-26T13:34:36.715643Z",
+				"requestId": 1,
+				"requestedBy": "user"
+			}`,
+			expectedPath: "/cam/v1/access-key-create-requests/1",
+			expectedResponse: &GetAccessKeyStatusResponse{
+				ProcessingStatus: ProcessingInProgress,
+				RequestDate:      time.Date(2021, 2, 26, 13, 34, 36, 715643000, time.UTC),
+				RequestID:        1,
+				RequestedBy:      "user",
+			},
 		},
 		"missing required params - validation error": {
 			params: GetAccessKeyStatusRequest{},
@@ -74,13 +114,13 @@ func TestGetAccessKeyStatus(t *testing.T) {
 			},
 			responseStatus: http.StatusInternalServerError,
 			responseBody: `
-{
-    "type": "internal-server-error",
-    "title": "Internal Server Error",
-    "detail": "Error processing request",
-    "instance": "TestInstances",
-    "status": 500
-}`,
+			{
+				"type": "internal-server-error",
+				"title": "Internal Server Error",
+				"detail": "Error processing request",
+				"instance": "TestInstances",
+				"status": 500
+			}`,
 			expectedPath: "/cam/v1/access-key-create-requests/123",
 			withError: func(t *testing.T, err error) {
 				want := &Error{
@@ -117,27 +157,54 @@ func TestGetAccessKeyStatus(t *testing.T) {
 }
 
 func TestCreateAccessKey(t *testing.T) {
-
-	req := decodeAccessKeyRequest(t, "AccessKey/CreateAccessKey.req.json")
-
 	tests := map[string]struct {
-		accessKey        CreateAccessKeyRequest
-		expectedPath     string
-		responseStatus   int
-		responseBody     string
-		expectedResponse *CreateAccessKeyResponse
-		responseHeaders  map[string]string
-		withError        func(*testing.T, error)
+		accessKey           CreateAccessKeyRequest
+		expectedPath        string
+		expectedRequestBody string
+		responseStatus      int
+		responseBody        string
+		expectedResponse    *CreateAccessKeyResponse
+		responseHeaders     map[string]string
+		withError           func(*testing.T, error)
 	}{
 		"202 Accepted": {
-			accessKey:      req,
+			accessKey: CreateAccessKeyRequest{
+				AccessKeyName:        "key1",
+				AuthenticationMethod: string(AuthAWS),
+				ContractID:           "TestContractID",
+				Credentials: Credentials{
+					CloudAccessKeyID:     "456",
+					CloudSecretAccessKey: "testKey",
+				},
+				GroupID: 123,
+				NetworkConfiguration: SecureNetwork{
+					AdditionalCDN:   ptr.To(ChinaCDN),
+					SecurityNetwork: NetworkEnhanced,
+				},
+			},
 			expectedPath:   "/cam/v1/access-keys",
 			responseStatus: http.StatusAccepted,
 			responseBody: `
 			{
-  				"requestId": 195,
-  				"retryAfter": 4
-
+				"requestId": 195,
+				"retryAfter": 4
+			}`,
+			expectedRequestBody: `
+			{
+				"accessKeyName": "key1",
+				"authenticationMethod": "AWS4_HMAC_SHA256",
+				"contractId": "TestContractID",
+				"credentials": 
+					{
+						"cloudAccessKeyId": "456",
+						"cloudSecretAccessKey": "testKey"
+					},
+				"groupId": 123,
+				"networkConfiguration": 
+					{
+						"additionalCdn": "CHINA_CDN",
+						"securityNetwork": "ENHANCED_TLS"
+					}
 			}`,
 			expectedResponse: &CreateAccessKeyResponse{
 				RequestID:  195,
@@ -146,6 +213,94 @@ func TestCreateAccessKey(t *testing.T) {
 			},
 			responseHeaders: map[string]string{
 				"Location": "https://abc.com",
+			},
+		},
+		"cloudAccessKeyID not required for VP_QUEUE_IT": {
+			accessKey: CreateAccessKeyRequest{
+				AccessKeyName:        "vp-queue-it-key",
+				AuthenticationMethod: string(AuthVPQueueIt),
+				ContractID:           "TestContractID",
+				Credentials: Credentials{
+					CloudSecretAccessKey: "testKey",
+				},
+				GroupID: 123,
+				NetworkConfiguration: SecureNetwork{
+					SecurityNetwork: NetworkEnhanced,
+				},
+			},
+			expectedPath:   "/cam/v1/access-keys",
+			responseStatus: http.StatusAccepted,
+			responseBody: `
+			{
+				"requestId": 196,
+				"retryAfter": 3
+			}`,
+			expectedRequestBody: `
+			{
+				"accessKeyName": "vp-queue-it-key",
+				"authenticationMethod": "VP_QUEUE_IT",
+				"contractId": "TestContractID",
+				"credentials": 
+					{
+						"cloudSecretAccessKey": "testKey"
+					},
+				"groupId": 123,
+				"networkConfiguration": 
+					{
+						"securityNetwork": "ENHANCED_TLS"
+					}
+			}`,
+			expectedResponse: &CreateAccessKeyResponse{
+				RequestID:  196,
+				RetryAfter: 3,
+				Location:   "https://example.com/cam/v1/access-key-create-requests/196",
+			},
+			responseHeaders: map[string]string{
+				"Location": "https://example.com/cam/v1/access-key-create-requests/196",
+			},
+		},
+		"cloudAccessKeyID not required for AVM_CLOUDINARY": {
+			accessKey: CreateAccessKeyRequest{
+				AccessKeyName:        "avm-cloudinary-key",
+				AuthenticationMethod: string(AuthAVMCloudinary),
+				ContractID:           "TestContractID",
+				Credentials: Credentials{
+					CloudSecretAccessKey: "testKey",
+				},
+				GroupID: 123,
+				NetworkConfiguration: SecureNetwork{
+					SecurityNetwork: NetworkEnhanced,
+				},
+			},
+			expectedPath:   "/cam/v1/access-keys",
+			responseStatus: http.StatusAccepted,
+			responseBody: `
+			{
+				"requestId": 197,
+				"retryAfter": 3
+			}`,
+			expectedRequestBody: `
+			{
+				"accessKeyName": "avm-cloudinary-key",
+				"authenticationMethod": "AVM_CLOUDINARY",
+				"contractId": "TestContractID",
+				"credentials": 
+					{
+						"cloudSecretAccessKey": "testKey"
+					},
+				"groupId": 123,
+				"networkConfiguration": 
+					{
+						"securityNetwork": "ENHANCED_TLS"
+					}
+			}`,
+			expectedResponse: &CreateAccessKeyResponse{
+				RequestID:  197,
+				RetryAfter: 3,
+				Location:   "https://example.com/cam/v1/access-key-create-requests/197",
+			},
+			responseHeaders: map[string]string{
+				"Location": "https://example.com/cam/v1/access-key-create-requests/197",
 			},
 		},
 		"missing required request body - validation error": {
@@ -158,22 +313,101 @@ func TestCreateAccessKey(t *testing.T) {
 			},
 		},
 		"invalid Authentication Method - validation error": {
-			accessKey: decodeAccessKeyRequest(t, "AccessKey/CreateInvalidAccessKey.req.json"),
+			accessKey: CreateAccessKeyRequest{
+				AccessKeyName:        "key1",
+				AuthenticationMethod: "AVM_CLOUDINARY_INVALID",
+				ContractID:           "TestContractID",
+				Credentials: Credentials{
+					CloudAccessKeyID:     "456",
+					CloudSecretAccessKey: "testKey",
+				},
+				GroupID: 123,
+				NetworkConfiguration: SecureNetwork{
+					AdditionalCDN:   ptr.To(ChinaCDN),
+					SecurityNetwork: NetworkEnhanced,
+				},
+			},
 			withError: func(t *testing.T, err error) {
 				assert.Equal(t, "create an access key: struct validation: AuthenticationMethod: must be a valid value", err.Error())
 			},
 		},
+		"cloudAccessKeyID missing when required - validation error": {
+			accessKey: CreateAccessKeyRequest{
+				AccessKeyName:        "key-without-cloud-id",
+				AuthenticationMethod: string(AuthAWS),
+				ContractID:           "TestContractID",
+				Credentials: Credentials{
+					CloudSecretAccessKey: "testSecret",
+				},
+				GroupID: 123,
+				NetworkConfiguration: SecureNetwork{
+					SecurityNetwork: NetworkEnhanced,
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "create an access key: struct validation: CloudAccessKeyID: cannot be blank", err.Error())
+			},
+		},
+		"additionalCDN present when not allowed for VP_QUEUE_IT - validation error": {
+			accessKey: CreateAccessKeyRequest{
+				AccessKeyName:        "vp-queue-it-key-with-cdn",
+				AuthenticationMethod: string(AuthVPQueueIt),
+				ContractID:           "TestContractID",
+				Credentials: Credentials{
+					CloudSecretAccessKey: "testKey",
+				},
+				GroupID: 123,
+				NetworkConfiguration: SecureNetwork{
+					AdditionalCDN:   ptr.To(ChinaCDN),
+					SecurityNetwork: NetworkEnhanced,
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "create an access key: struct validation: AdditionalCDN: must be blank", err.Error())
+			},
+		},
+		"additionalCDN present when not allowed for AVM_CLOUDINARY - validation error": {
+			accessKey: CreateAccessKeyRequest{
+				AccessKeyName:        "avm-cloudinary-key-with-cdn",
+				AuthenticationMethod: string(AuthAVMCloudinary),
+				ContractID:           "TestContractID",
+				Credentials: Credentials{
+					CloudSecretAccessKey: "testKey",
+				},
+				GroupID: 123,
+				NetworkConfiguration: SecureNetwork{
+					AdditionalCDN:   ptr.To(ChinaCDN),
+					SecurityNetwork: NetworkEnhanced,
+				},
+			},
+			withError: func(t *testing.T, err error) {
+				assert.Equal(t, "create an access key: struct validation: AdditionalCDN: must be blank", err.Error())
+			},
+		},
 		"500 internal server error": {
-			accessKey:      req,
+			accessKey: CreateAccessKeyRequest{
+				AccessKeyName:        "key1",
+				AuthenticationMethod: string(AuthAWS),
+				ContractID:           "TestContractID",
+				Credentials: Credentials{
+					CloudAccessKeyID:     "456",
+					CloudSecretAccessKey: "testKey",
+				},
+				GroupID: 123,
+				NetworkConfiguration: SecureNetwork{
+					AdditionalCDN:   ptr.To(ChinaCDN),
+					SecurityNetwork: NetworkEnhanced,
+				},
+			},
 			responseStatus: http.StatusInternalServerError,
 			responseBody: `
-{
-    "type": "internal-server-error",
-    "title": "Internal Server Error",
-    "detail": "Error processing request",
-    "instance": "TestInstances",
-    "status": 500
-}`,
+			{
+				"type": "internal-server-error",
+				"title": "Internal Server Error",
+				"detail": "Error processing request",
+				"instance": "TestInstances",
+				"status": 500
+			}`,
 			expectedPath: "/cam/v1/access-keys",
 			withError: func(t *testing.T, err error) {
 				want := &Error{
@@ -193,6 +427,11 @@ func TestCreateAccessKey(t *testing.T) {
 			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				assert.Equal(t, test.expectedPath, r.URL.String())
 				assert.Equal(t, http.MethodPost, r.Method)
+				if test.expectedRequestBody != "" {
+					body, err := io.ReadAll(r.Body)
+					assert.NoError(t, err)
+					assert.JSONEq(t, test.expectedRequestBody, string(body))
+				}
 				if len(test.responseHeaders) > 0 {
 					for header, value := range test.responseHeaders {
 						w.Header().Set(header, value)
@@ -217,17 +456,6 @@ func TestCreateAccessKey(t *testing.T) {
 
 func TestGetAccessKey(t *testing.T) {
 
-	var result GetAccessKeyResponse
-
-	respData, err := loadTestData("AccessKey/GetAccessKey.resp.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := json.NewDecoder(bytes.NewBuffer(respData)).Decode(&result); err != nil {
-		t.Fatal(err)
-	}
-
 	tests := map[string]struct {
 		params           AccessKeyRequest
 		expectedPath     string
@@ -240,10 +468,46 @@ func TestGetAccessKey(t *testing.T) {
 			params: AccessKeyRequest{
 				AccessKeyUID: 1,
 			},
-			expectedPath:     "/cam/v1/access-keys/1",
-			responseStatus:   http.StatusOK,
-			responseBody:     string(respData),
-			expectedResponse: &result,
+			expectedPath:   "/cam/v1/access-keys/1",
+			responseStatus: http.StatusOK,
+			responseBody: `
+			{
+				"accessKeyUid": 1,
+				"accessKeyName": "key1",
+				"authenticationMethod": "AWS4_HMAC_SHA256",
+				"createdBy": "user1",
+				"groups": [
+					{
+						"contractIds": ["TestContractID"],
+						"groupId": 123
+					}
+				],
+				"latestVersion": 1,
+				"networkConfiguration": 
+					{
+						"additionalCdn": "RUSSIA_CDN",
+						"securityNetwork": "ENHANCED_TLS"
+					},
+				"note": "some note"
+			}`,
+			expectedResponse: &GetAccessKeyResponse{
+				AccessKeyUID:         1,
+				AccessKeyName:        "key1",
+				AuthenticationMethod: "AWS4_HMAC_SHA256",
+				NetworkConfiguration: &SecureNetwork{
+					AdditionalCDN:   ptr.To(RussiaCDN),
+					SecurityNetwork: NetworkEnhanced,
+				},
+				LatestVersion: 1,
+				Groups: []Group{
+					{
+						ContractIDs: []string{"TestContractID"},
+						GroupID:     123,
+					},
+				},
+				CreatedBy: "user1",
+				Note:      ptr.To("some note"),
+			},
 		},
 		"missing required params - validation error": {
 			params: AccessKeyRequest{},
@@ -257,7 +521,8 @@ func TestGetAccessKey(t *testing.T) {
 			},
 			expectedPath:   "/cam/v1/access-keys/2",
 			responseStatus: http.StatusNotFound,
-			responseBody: `{
+			responseBody: `
+			{
 				"type": "/cam/error-types/access-key-does-not-exist",
 				"title": "Domain Error",
 				"detail": "Access key with accessKeyUID '2' does not exist.",
@@ -275,13 +540,13 @@ func TestGetAccessKey(t *testing.T) {
 			},
 			responseStatus: http.StatusInternalServerError,
 			responseBody: `
-{
-    "type": "internal-server-error",
-    "title": "Internal Server Error",
-    "detail": "Error processing request",
-    "instance": "TestInstances",
-    "status": 500
-}`,
+			{
+				"type": "internal-server-error",
+				"title": "Internal Server Error",
+				"detail": "Error processing request",
+				"instance": "TestInstances",
+				"status": 500
+			}`,
 			expectedPath: "/cam/v1/access-keys/1",
 			withError: func(t *testing.T, err error) {
 				want := &Error{
@@ -319,17 +584,6 @@ func TestGetAccessKey(t *testing.T) {
 
 func TestListAccessKey(t *testing.T) {
 
-	var result ListAccessKeysResponse
-
-	respData, err := loadTestData("AccessKey/ListAccessKey.resp.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := json.NewDecoder(bytes.NewBuffer(respData)).Decode(&result); err != nil {
-		t.Fatal(err)
-	}
-
 	tests := map[string]struct {
 		params           ListAccessKeysRequest
 		expectedPath     string
@@ -342,10 +596,52 @@ func TestListAccessKey(t *testing.T) {
 			params: ListAccessKeysRequest{
 				VersionGUID: "1",
 			},
-			expectedPath:     "/cam/v1/access-keys?versionGuid=1",
-			responseStatus:   http.StatusOK,
-			responseBody:     string(respData),
-			expectedResponse: &result,
+			expectedPath:   "/cam/v1/access-keys?versionGuid=1",
+			responseStatus: http.StatusOK,
+			responseBody: `
+			{
+				"accessKeys": [
+					{
+						"accessKeyUid": 1,
+						"accessKeyName": "key1",
+						"authenticationMethod": "AWS4_HMAC_SHA256",
+						"createdBy": "user1",
+						"groups": [
+							{
+								"contractIds": ["TestContractID"],
+								"groupId": 123
+							}
+						],
+						"latestVersion": 1,
+						"networkConfiguration": 
+							{
+								"additionalCdn": "RUSSIA_CDN",
+								"securityNetwork": "ENHANCED_TLS"
+							}
+					}
+				]
+			}`,
+			expectedResponse: &ListAccessKeysResponse{
+				AccessKeys: []AccessKeyResponse{
+					{
+						AccessKeyUID:         1,
+						AccessKeyName:        "key1",
+						AuthenticationMethod: "AWS4_HMAC_SHA256",
+						NetworkConfiguration: &SecureNetwork{
+							AdditionalCDN:   ptr.To(RussiaCDN),
+							SecurityNetwork: NetworkEnhanced,
+						},
+						LatestVersion: 1,
+						Groups: []Group{
+							{
+								ContractIDs: []string{"TestContractID"},
+								GroupID:     123,
+							},
+						},
+						CreatedBy: "user1",
+					},
+				},
+			},
 		},
 		"500 internal server error": {
 			params: ListAccessKeysRequest{
@@ -354,13 +650,13 @@ func TestListAccessKey(t *testing.T) {
 			expectedPath:   "/cam/v1/access-keys?versionGuid=1",
 			responseStatus: http.StatusInternalServerError,
 			responseBody: `
-{
-    "type": "internal-server-error",
-    "title": "Internal Server Error",
-    "detail": "Error processing request",
-    "instance": "TestInstances",
-    "status": 500
-}`,
+			{
+				"type": "internal-server-error",
+				"title": "Internal Server Error",
+				"detail": "Error processing request",
+				"instance": "TestInstances",
+				"status": 500
+			}`,
 			withError: func(t *testing.T, err error) {
 				want := &Error{
 					Type:     "internal-server-error",
@@ -424,13 +720,13 @@ func TestDeleteAccessKey(t *testing.T) {
 			expectedPath:   "/cam/v1/access-keys/1",
 			responseStatus: http.StatusInternalServerError,
 			responseBody: `
-{
-    "type": "internal-server-error",
-    "title": "Internal Server Error",
-    "detail": "Error processing request",
-    "instance": "TestInstances",
-    "status": 500
-}`,
+			{
+				"type": "internal-server-error",
+				"title": "Internal Server Error",
+				"detail": "Error processing request",
+				"instance": "TestInstances",
+				"status": 500
+			}`,
 			withError: func(t *testing.T, err error) {
 				want := &Error{
 					Type:     "internal-server-error",
@@ -466,13 +762,14 @@ func TestDeleteAccessKey(t *testing.T) {
 
 func TestUpdateAccessKey(t *testing.T) {
 	tests := map[string]struct {
-		accessKey        UpdateAccessKeyRequest
-		params           AccessKeyRequest
-		expectedPath     string
-		responseStatus   int
-		responseBody     string
-		expectedResponse *UpdateAccessKeyResponse
-		withError        func(*testing.T, error)
+		accessKey           UpdateAccessKeyRequest
+		params              AccessKeyRequest
+		expectedPath        string
+		expectedRequestBody string
+		responseStatus      int
+		responseBody        string
+		expectedResponse    *UpdateAccessKeyResponse
+		withError           func(*testing.T, error)
 	}{
 		"201 OK": {
 			accessKey: UpdateAccessKeyRequest{
@@ -481,7 +778,11 @@ func TestUpdateAccessKey(t *testing.T) {
 			params: AccessKeyRequest{
 				AccessKeyUID: 1,
 			},
-			expectedPath:   "/cam/v1/access-keys/1",
+			expectedPath: "/cam/v1/access-keys/1",
+			expectedRequestBody: `
+			{
+				"accessKeyName": "key2"
+			}`,
 			responseStatus: http.StatusOK,
 			responseBody: `
 			{
@@ -530,16 +831,20 @@ func TestUpdateAccessKey(t *testing.T) {
 			params: AccessKeyRequest{
 				AccessKeyUID: 1,
 			},
-			expectedPath:   "/cam/v1/access-keys/1",
+			expectedPath: "/cam/v1/access-keys/1",
+			expectedRequestBody: `
+			{
+				"accessKeyName": "key2"
+			}`,
 			responseStatus: http.StatusInternalServerError,
 			responseBody: `
-				{
-    				"type": "internal-server-error",
-    				"title": "Internal Server Error",
-    				"detail": "Error processing request",
-    				"instance": "TestInstances",
-    				"status": 500
-				}`,
+			{
+				"type": "internal-server-error",
+				"title": "Internal Server Error",
+				"detail": "Error processing request",
+				"instance": "TestInstances",
+				"status": 500
+			}`,
 			withError: func(t *testing.T, err error) {
 				want := &Error{
 					Type:     "internal-server-error",
@@ -558,6 +863,11 @@ func TestUpdateAccessKey(t *testing.T) {
 			mockServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				assert.Equal(t, test.expectedPath, r.URL.String())
 				assert.Equal(t, http.MethodPut, r.Method)
+				if test.expectedRequestBody != "" {
+					body, err := io.ReadAll(r.Body)
+					assert.NoError(t, err)
+					assert.JSONEq(t, test.expectedRequestBody, string(body))
+				}
 				w.WriteHeader(test.responseStatus)
 				_, err := w.Write([]byte(test.responseBody))
 				assert.NoError(t, err)
@@ -572,26 +882,4 @@ func TestUpdateAccessKey(t *testing.T) {
 			assert.Equal(t, test.expectedResponse, result)
 		})
 	}
-}
-
-func loadTestData(name string) ([]byte, error) {
-	data, err := os.ReadFile(fmt.Sprintf("./testdata/%s", name))
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
-}
-
-func decodeAccessKeyRequest(t *testing.T, path string) CreateAccessKeyRequest {
-	var req CreateAccessKeyRequest
-	reqData, err := loadTestData(path)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := json.NewDecoder(bytes.NewBuffer(reqData)).Decode(&req); err != nil {
-		t.Fatal(err)
-	}
-	return req
 }

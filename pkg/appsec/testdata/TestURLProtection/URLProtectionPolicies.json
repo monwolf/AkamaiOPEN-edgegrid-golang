@@ -1,0 +1,109 @@
+{
+	"urlProtectionPolicies": [
+		{
+			"categories": [
+				{
+					"type": "BOTS"
+				},
+				{
+					"listIds": [
+						"12345_IPCLIENTLISTFEB09"
+					],
+					"positiveMatch": true,
+					"type": "CLIENT_LIST"
+				},
+				{
+					"type": "CLOUD_PROVIDERS"
+				},
+				{
+					"type": "PROXIES"
+				},
+				{
+					"type": "TOR_EXIT_NODES"
+				},
+				{
+					"type": "PLATFORM_DDOS_INTELLIGENCE"
+				}
+			],
+			"configId": 43007,
+			"configVersion": 40,
+			"createDate": "2023-04-26T03:02:43Z",
+			"createdBy": "mrossi",
+			"description": "protect APIs",
+			"hostnamePaths": [
+				{
+					"hostname": "api.custom.com",
+					"paths": [
+						"/payments"
+					]
+				},
+				{
+					"hostname": "staging.api.custom.com",
+					"paths": [
+						"/inventory",
+						"/payments"
+					]
+				}
+			],
+			"intelligentLoadShedding": true,
+			"name": "Second URL Protection Policy",
+			"policyId": 745,
+			"protectionType": "MULTIPLE",
+			"rateThreshold": 1100,
+			"sheddingThresholdHitsPerSec": 880,
+			"updateDate": "2023-04-26T03:02:43Z",
+			"updatedBy": "jkowalski",
+			"used": false
+		},
+		{
+			"categories": [
+				{
+					"type": "BOTS"
+				},
+				{
+					"listIds": [
+						"16656_CPISERVERS"
+					],
+					"positiveMatch": true,
+					"type": "CLIENT_LIST"
+				},
+				{
+					"type": "CLOUD_PROVIDERS"
+				},
+				{
+					"type": "PROXIES"
+				},
+				{
+					"type": "TOR_EXIT_NODES"
+				},
+				{
+					"type": "PLATFORM_DDOS_INTELLIGENCE"
+				}
+			],
+			"configId": 43007,
+			"configVersion": 40,
+			"createDate": "2023-04-14T18:58:53Z",
+			"createdBy": "szhang",
+			"description": "URL Protection",
+			"hostnamePaths": [
+				{
+					"hostname": "custom.com",
+					"paths": [
+						"/Hamza-path",
+						"/asd",
+						"/my-test-path"
+					]
+				}
+			],
+			"intelligentLoadShedding": true,
+			"name": "Transaction site protection",
+			"policyId": 681,
+			"protectionType": "MULTIPLE",
+			"rateThreshold": 195,
+			"sheddingThresholdHitsPerSec": 150,
+			"updateDate": "2023-04-26T02:42:28Z",
+			"updatedBy": "afero",
+			"used": true
+		}
+	]
+}

@@ -1,0 +1,58 @@
+{
+	"bypassCondition": {
+		"atomicConditions": [
+			{
+				"checkIps": "connecting",
+				"className": "NetworkListCondition",
+				"positiveMatch": true,
+				"value": [
+					"12345_10CLIENTLIST",
+					"54321_123"
+				]
+			},
+			{
+				"className": "RequestHeaderCondition",
+				"name": [
+					"my-custom-header"
+				],
+				"nameWildcard": false,
+				"positiveMatch": true,
+				"value": [
+					"my-custom-value"
+				],
+				"valueCase": false,
+				"valueWildcard": false
+			}
+		]
+	},
+	"categories": [
+		{
+			"type": "BOTS"
+		},
+		{
+			"listIds": [
+				"12345_10CLIENTLIST",
+				"54321_123"
+			],
+			"positiveMatch": true,
+			"type": "CLIENT_LIST"
+		}
+	],
+	"configId": 43007,
+	"configVersion": 40,
+	"description": "URL Protection",
+	"hostnamePaths": [
+		{
+			"hostname": "custom.com",
+			"paths": [
+				"/asd",
+				"/my-test-path"
+			]
+		}
+	],
+	"intelligentLoadShedding": true,
+	"name": "Test URL Protection Rule with Hostname Paths",
+	"protectionType": "MULTIPLE",
+	"rateThreshold": 195,
+	"sheddingThresholdHitsPerSec": 150
+}

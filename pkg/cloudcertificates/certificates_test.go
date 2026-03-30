@@ -448,6 +448,198 @@ func TestCreateCertificate(t *testing.T) {
 				"trustChainPem": null
 			}`,
 		},
+		"201 Created - create certificate with ECDSA P-384 key size": {
+			params: CreateCertificateRequest{
+				ContractID: "111",
+				GroupID:    "222",
+				Body: CreateCertificateRequestBody{
+					CertificateName: "test-cert-ecdsa-p384",
+					SANs:            []string{"example.com", "www.example.com"},
+					SecureNetwork:   "ENHANCED_TLS",
+					KeyType:         "ECDSA",
+					KeySize:         "P-384",
+					Subject: &Subject{
+						CommonName:   "example.com",
+						Country:      "US",
+						State:        "Massachusetts",
+						Locality:     "Cambridge",
+						Organization: "ExampleOrg",
+					},
+				},
+			},
+			expectedPath:        "/ccm/v1/certificates?contractId=111&groupId=222",
+			expectedRequestBody: `{"certificateName":"test-cert-ecdsa-p384","keyType":"ECDSA","keySize":"P-384","secureNetwork":"ENHANCED_TLS","sans":["example.com","www.example.com"],"subject":{"commonName":"example.com","organization":"ExampleOrg","country":"US","state":"Massachusetts","locality":"Cambridge"}}`,
+			returnedHeaders: map[string]string{
+				"Akamai-Limit-Certificates":           "50",
+				"Akamai-Limit-Certificates-Remaining": "27",
+				"Akamai-RateLimit-Limit":              "60",
+				"Akamai-RateLimit-Remaining":          "59",
+			},
+			expectedResponse: &CreateCertificateResponse{
+				Certificate: Certificate{
+					AccountID:         "A-CCT7890",
+					CertificateID:     "456",
+					CertificateName:   "test-cert-ecdsa-p384",
+					CertificateStatus: "CSR_READY",
+					CertificateType:   "THIRD_PARTY",
+					ContractID:        "C-0N7RAC7",
+					CreatedBy:         "jsmith",
+					CreatedDate:       test.NewTimeFromString(t, "2025-09-01T06:16:05.952613Z"),
+					CSRExpirationDate: test.NewTimeFromString(t, "2026-11-03T06:16:07Z"),
+					CSRPEM:            "-----BEGIN CERTIFICATE REQUEST-----\nexample-ECDSA-P384-PEM\n-----END CERTIFICATE REQUEST-----\n",
+					KeySize:           "P-384",
+					KeyType:           "ECDSA",
+					ModifiedBy:        "jsmith",
+					ModifiedDate:      test.NewTimeFromString(t, "2025-09-02T06:16:05.952613Z"),
+					SANs:              []string{"example.com", "www.example.com"},
+					SecureNetwork:     "ENHANCED_TLS",
+					Subject: &Subject{
+						Country:      "US",
+						Organization: "ExampleOrg",
+						State:        "Massachusetts",
+						Locality:     "Cambridge",
+						CommonName:   "example.com",
+					},
+				},
+				ResourceLimits: ResourceLimitsMetadata{
+					CertificateLimitTotal:     ptr.To(int64(50)),
+					CertificateLimitRemaining: ptr.To(int64(27)),
+				},
+				RateLimits: RateLimitsMetadata{
+					Limit:     ptr.To(int64(60)),
+					Remaining: ptr.To(int64(59)),
+				},
+			},
+			responseStatus: 201,
+			responseBody: `{
+				"accountId": "A-CCT7890",
+				"certificateId": "456",
+				"certificateName": "test-cert-ecdsa-p384",
+				"certificateStatus": "CSR_READY",
+				"certificateType": "THIRD_PARTY",
+				"contractId": "C-0N7RAC7",
+				"createdBy": "jsmith",
+				"createdDate": "2025-09-01T06:16:05.952613Z",
+				"csrExpirationDate": "2026-11-03T06:16:07Z",
+				"csrPem": "-----BEGIN CERTIFICATE REQUEST-----\nexample-ECDSA-P384-PEM\n-----END CERTIFICATE REQUEST-----\n",
+				"keySize": "P-384",
+				"keyType": "ECDSA",
+				"modifiedBy": "jsmith",
+				"modifiedDate": "2025-09-02T06:16:05.952613Z",
+				"sans": ["example.com", "www.example.com"],
+				"secureNetwork": "ENHANCED_TLS",
+				"signedCertificateIssuer": null,
+				"signedCertificateNotValidAfterDate": null,
+				"signedCertificateNotValidBeforeDate": null,
+				"signedCertificatePem": null,
+				"signedCertificateSHA256Fingerprint": null,
+				"signedCertificateSerialNumber": null,
+				"subject": {
+					"commonName": "example.com",
+					"country": "US",
+					"locality": "Cambridge",
+					"organization": "ExampleOrg",
+					"state": "Massachusetts"
+				},
+				"trustChainPem": null
+			}`,
+		},
+		"201 Created - create certificate with STANDARD_TLS secure network": {
+			params: CreateCertificateRequest{
+				ContractID: "111",
+				GroupID:    "222",
+				Body: CreateCertificateRequestBody{
+					CertificateName: "test-cert",
+					SANs:            []string{"example.com", "www.example.com"},
+					SecureNetwork:   "STANDARD_TLS",
+					KeyType:         "RSA",
+					KeySize:         "2048",
+					Subject: &Subject{
+						CommonName:   "example.com",
+						Country:      "US",
+						State:        "Massachusetts",
+						Locality:     "Cambridge",
+						Organization: "ExampleOrg",
+					},
+				},
+			},
+			expectedPath:        "/ccm/v1/certificates?contractId=111&groupId=222",
+			expectedRequestBody: `{"certificateName":"test-cert","keyType":"RSA","keySize":"2048","secureNetwork":"STANDARD_TLS","sans":["example.com","www.example.com"],"subject":{"commonName":"example.com","organization":"ExampleOrg","country":"US","state":"Massachusetts","locality":"Cambridge"}}`,
+			returnedHeaders: map[string]string{
+				"Akamai-Limit-Certificates":           "50",
+				"Akamai-Limit-Certificates-Remaining": "27",
+				"Akamai-RateLimit-Limit":              "60",
+				"Akamai-RateLimit-Remaining":          "59",
+			},
+			expectedResponse: &CreateCertificateResponse{
+				Certificate: Certificate{
+					AccountID:         "A-CCT7890",
+					CertificateID:     "123",
+					CertificateName:   "test-cert",
+					CertificateStatus: "CSR_READY",
+					CertificateType:   "THIRD_PARTY",
+					ContractID:        "C-0N7RAC7",
+					CreatedBy:         "jsmith",
+					CreatedDate:       test.NewTimeFromString(t, "2025-09-01T06:16:05.952613Z"),
+					CSRExpirationDate: test.NewTimeFromString(t, "2026-11-03T06:16:07Z"),
+					CSRPEM:            "-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n",
+					KeySize:           "2048",
+					KeyType:           "RSA",
+					ModifiedBy:        "jsmith",
+					ModifiedDate:      test.NewTimeFromString(t, "2025-09-02T06:16:05.952613Z"),
+					SANs:              []string{"example.com", "www.example.com"},
+					SecureNetwork:     "STANDARD_TLS",
+					Subject: &Subject{
+						Country:      "US",
+						Organization: "ExampleOrg",
+						State:        "Massachusetts",
+						Locality:     "Cambridge",
+						CommonName:   "example.com",
+					},
+				},
+				ResourceLimits: ResourceLimitsMetadata{
+					CertificateLimitTotal:     ptr.To(int64(50)),
+					CertificateLimitRemaining: ptr.To(int64(27)),
+				},
+				RateLimits: RateLimitsMetadata{
+					Limit:     ptr.To(int64(60)),
+					Remaining: ptr.To(int64(59)),
+				},
+			},
+			responseStatus: 201,
+			responseBody: `{
+				"accountId": "A-CCT7890",
+				"certificateId": "123",
+				"certificateName": "test-cert",
+				"certificateStatus": "CSR_READY",
+				"certificateType": "THIRD_PARTY",
+				"contractId": "C-0N7RAC7",
+				"createdBy": "jsmith",
+				"createdDate": "2025-09-01T06:16:05.952613Z",
+				"csrExpirationDate": "2026-11-03T06:16:07Z",
+				"csrPem": "-----BEGIN CERTIFICATE REQUEST-----\nexample-PEM\n-----END CERTIFICATE REQUEST-----\n",
+				"keySize": "2048",
+				"keyType": "RSA",
+				"modifiedBy": "jsmith",
+				"modifiedDate": "2025-09-02T06:16:05.952613Z",
+				"sans": ["example.com", "www.example.com"],
+				"secureNetwork": "STANDARD_TLS",
+				"signedCertificateIssuer": null,
+				"signedCertificateNotValidAfterDate": null,
+				"signedCertificateNotValidBeforeDate": null,
+				"signedCertificatePem": null,
+				"signedCertificateSHA256Fingerprint": null,
+				"signedCertificateSerialNumber": null,
+				"subject": {
+					"commonName": "example.com",
+					"country": "US",
+					"locality": "Cambridge",
+					"organization": "ExampleOrg",
+					"state": "Massachusetts"
+				},
+				"trustChainPem": null
+			}`,
+		},
 		"validation error - missing required ContractID": {
 			params: CreateCertificateRequest{
 				GroupID: "123",
@@ -570,7 +762,7 @@ func TestCreateCertificate(t *testing.T) {
 				},
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "creating certificate: struct validation: KeySize: value '1111' is invalid. Must be one of: '2048', or 'P-256'",
+				assert.Equal(t, "creating certificate: struct validation: KeySize: value '1111' is invalid. Must be one of: '2048', 'P-256', or 'P-384'",
 					err.Error())
 				assert.ErrorIs(t, err, ErrCreateCertificate)
 				assert.ErrorIs(t, err, ErrStructValidation)
@@ -596,7 +788,7 @@ func TestCreateCertificate(t *testing.T) {
 				},
 			},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "creating certificate: struct validation: SecureNetwork: value 'WRONG_NETWORK' is invalid. Must be: 'ENHANCED_TLS'",
+				assert.Equal(t, "creating certificate: struct validation: SecureNetwork: value 'WRONG_NETWORK' is invalid. Must be either 'ENHANCED_TLS' or 'STANDARD_TLS'",
 					err.Error())
 				assert.ErrorIs(t, err, ErrCreateCertificate)
 				assert.ErrorIs(t, err, ErrStructValidation)
@@ -853,6 +1045,65 @@ func TestCreateCertificate(t *testing.T) {
 				})
 				assert.EqualError(t, err, want.Error(), "want: %s; got: %s", want, err)
 				assert.ErrorIs(t, err, ErrCertificateNameInUse)
+				assert.ErrorIs(t, err, ErrCreateCertificate)
+			},
+		},
+		"400 - account not permitted to use P-384 key size": {
+			params: CreateCertificateRequest{
+				ContractID: "111",
+				GroupID:    "222",
+				Body: CreateCertificateRequestBody{
+					CertificateName: "test-cert-ecdsa-p384",
+					SANs:            []string{"example.com", "www.example.com"},
+					SecureNetwork:   "ENHANCED_TLS",
+					KeyType:         "ECDSA",
+					KeySize:         "P-384",
+					Subject: &Subject{
+						CommonName:   "example.com",
+						Country:      "US",
+						State:        "Massachusetts",
+						Locality:     "Cambridge",
+						Organization: "ExampleOrg",
+					},
+				},
+			},
+			expectedPath:        "/ccm/v1/certificates?contractId=111&groupId=222",
+			expectedRequestBody: `{"certificateName":"test-cert-ecdsa-p384","keyType":"ECDSA","keySize":"P-384","secureNetwork":"ENHANCED_TLS","sans":["example.com","www.example.com"],"subject":{"commonName":"example.com","organization":"ExampleOrg","country":"US","state":"Massachusetts","locality":"Cambridge"}}`,
+			responseStatus:      400,
+			responseBody: `{
+				"detail": "Validation failed while executing the operation.",
+				"errors": [
+					{
+						"accountId": "A-CCT1234",
+						"detail": "Account {A-CCT1234} is not permitted to create certificate for the key size {P-384}.",
+						"instance": "/error-types/account-key-size-not-allowed?traceId=123456789",
+						"keySize": "P-384",
+						"title": "Forbidden.",
+						"type": "/error-types/account-key-size-not-allowed"
+					}
+				],
+				"instance": "/error-types/validation-failure?traceId=123456789",
+				"status": 400,
+				"title": "Validation Failure.",
+				"type": "/error-types/validation-failure"
+			}`,
+			withError: func(t *testing.T, err error) {
+				want := fmt.Errorf("%w: %w", ErrCreateCertificate, &Error{
+					Type:     "/error-types/validation-failure",
+					Title:    "Validation Failure.",
+					Detail:   "Validation failed while executing the operation.",
+					Status:   http.StatusBadRequest,
+					Instance: "/error-types/validation-failure?traceId=123456789",
+					Errors: []SecondaryError{
+						{
+							Type:     "/error-types/account-key-size-not-allowed",
+							Title:    "Forbidden.",
+							Detail:   "Account {A-CCT1234} is not permitted to create certificate for the key size {P-384}.",
+							Instance: "/error-types/account-key-size-not-allowed?traceId=123456789",
+						},
+					},
+				})
+				assert.EqualError(t, err, want.Error(), "want: %s; got: %s", want, err)
 				assert.ErrorIs(t, err, ErrCreateCertificate)
 			},
 		},

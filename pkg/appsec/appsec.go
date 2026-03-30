@@ -85,7 +85,10 @@ type (
 		SlowPostProtectionSetting
 		ThreatIntel
 		TuningRecommendations
+		URLProtection
+		URLProtectionAction
 		VersionNotes
+		WAFCompositeRuleset
 		WAFMode
 		WAFProtection
 		WAPBypassNetworkLists

@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v13/internal/test"
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v13/pkg/ptr"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -70,6 +71,63 @@ func TestDeleteEdgeHostname(t *testing.T) {
 					UseDefaultTTL:  false,
 				},
 				},
+				Status:           "PENDING",
+				StatusMessage:    "File uploaded and awaiting validation",
+				StatusUpdateDate: "2021-09-23T15:07:10.000+00:00",
+				SubmitDate:       "2021-09-23T15:07:10.000+00:00",
+				Submitter:        "ftzgvvigljhoq5ib",
+				SubmitterEmail:   "ftzgvvigljhoq5ib@nomail-akamai.com",
+			},
+		},
+		"202 Accepted with HTTPSServiceBinding in response": {
+			request: DeleteEdgeHostnameRequest{
+				DNSZone:           "edgesuite.net",
+				RecordName:        "mgw-test-001",
+				StatusUpdateEmail: []string{"some@example.com"},
+				Comments:          "some comment",
+			},
+			responseStatus: http.StatusAccepted,
+			responseBody: `
+{
+    "action": "DELETE",
+    "changeId": 66025604,
+    "edgeHostnames": [
+        {
+            "chinaCdn": {
+                "isChinaCdn": false
+            },
+            "dnsZone": "edgesuite.net",
+            "edgeHostnameId": 4558392,
+            "recordName": "mgw-test-001",
+            "securityType": "STANDARD-TLS",
+            "useDefaultMap": false,
+            "useDefaultTtl": false,
+            "httpsServiceBinding": "H2"
+        }
+    ],
+    "status": "PENDING",
+    "statusMessage": "File uploaded and awaiting validation",
+    "statusUpdateDate": "2021-09-23T15:07:10.000+00:00",
+    "submitDate": "2021-09-23T15:07:10.000+00:00",
+    "submitter": "ftzgvvigljhoq5ib",
+    "submitterEmail": "ftzgvvigljhoq5ib@nomail-akamai.com"
+}`,
+			expectedPath: "/hapi/v1/dns-zones/edgesuite.net/edge-hostnames/mgw-test-001?comments=some+comment&statusUpdateEmail=some%40example.com",
+			expectedResponse: &DeleteEdgeHostnameResponse{
+				Action:   "DELETE",
+				ChangeID: 66025604,
+				EdgeHostnames: []EdgeHostname{{
+					ChinaCDN: ChinaCDN{
+						IsChinaCDN: false,
+					},
+					DNSZone:             "edgesuite.net",
+					EdgeHostnameID:      4558392,
+					RecordName:          "mgw-test-001",
+					SecurityType:        "STANDARD-TLS",
+					UseDefaultMap:       false,
+					UseDefaultTTL:       false,
+					HTTPSServiceBinding: ptr.To("H2"),
+				}},
 				Status:           "PENDING",
 				StatusMessage:    "File uploaded and awaiting validation",
 				StatusUpdateDate: "2021-09-23T15:07:10.000+00:00",
@@ -233,6 +291,52 @@ func TestGetEdgeHostname(t *testing.T) {
 				},
 			},
 		},
+		"200 OK with HTTPSServiceBinding": {
+			edgeHostnameID: 1234,
+			responseStatus: http.StatusOK,
+			responseBody: `
+			{
+				"chinaCdn": {
+					"isChinaCdn": false
+				},
+				"comments": "Created by Property-Manager/PAPI on Thu Mar 03 15:58:17 GMT 2022",
+				"dnsZone": "edgekey.net",
+				"edgeHostnameId": 4617960,
+				"ipVersionBehavior": "IPV6_IPV4_DUALSTACK",
+				"productId": "DSA",
+				"map": "e;dscx.akamaiedge.net",
+				"recordName": "aws_ci_pearltest-asorigin-na-as-eu-ionp.cumulus-essl.webexp-ipqa-ion.com-v2",
+				"securityType": "ENHANCED-TLS",
+				"slotNumber": 47463,
+				"ttl": 21600,
+				"useDefaultMap": true,
+				"useDefaultTtl": true,
+				"mapAlias": "al",
+				"httpsServiceBinding": "H2",
+				"useCases": []
+			}`,
+			expectedPath: "/hapi/v1/edge-hostnames/1234",
+			expectedResponse: &GetEdgeHostnameResponse{
+				ChinaCdn: ChinaCDN{
+					IsChinaCDN: false,
+				},
+				Comments:            "Created by Property-Manager/PAPI on Thu Mar 03 15:58:17 GMT 2022",
+				DNSZone:             "edgekey.net",
+				EdgeHostnameID:      4617960,
+				IPVersionBehavior:   "IPV6_IPV4_DUALSTACK",
+				ProductID:           "DSA",
+				Map:                 "e;dscx.akamaiedge.net",
+				RecordName:          "aws_ci_pearltest-asorigin-na-as-eu-ionp.cumulus-essl.webexp-ipqa-ion.com-v2",
+				SecurityType:        "ENHANCED-TLS",
+				SlotNumber:          47463,
+				TTL:                 21600,
+				UseDefaultMap:       true,
+				UseDefaultTTL:       true,
+				MapAlias:            "al",
+				HTTPSServiceBinding: ptr.To("H2"),
+				UseCases:            []UseCase{},
+			},
+		},
 		"404 could not find edge hostname": {
 			edgeHostnameID: 9999,
 			responseStatus: http.StatusNotFound,
@@ -381,6 +485,347 @@ func TestPatchEdgeHostname(t *testing.T) {
 				Submitter:        "ftzgvvigljhoq5ib",
 				SubmitterEmail:   "ftzgvvigljhoq5ib@nomail-akamai.com",
 			},
+		},
+		"202 Accepted with HTTPSServiceBinding in response": {
+			request: UpdateEdgeHostnameRequest{
+				DNSZone:           "edgesuite.net",
+				RecordName:        "mgw-test-001",
+				StatusUpdateEmail: []string{"some@example.com"},
+				Comments:          "some comment",
+				Body: []UpdateEdgeHostnameRequestBody{
+					{
+						Op:    "replace",
+						Path:  "/ttl",
+						Value: "10000",
+					},
+				},
+			},
+			responseStatus: http.StatusAccepted,
+			responseBody: `
+{
+    "action": "EDIT",
+    "changeId": 66025604,
+    "edgeHostnames": [
+        {
+            "chinaCdn": {
+                "isChinaCdn": false
+            },
+            "dnsZone": "edgesuite.net",
+            "edgeHostnameId": 4558392,
+            "ipVersionBehavior": "IPV4",
+            "recordName": "mgw-test-001",
+            "securityType": "STANDARD-TLS",
+            "ttl": 10000,
+            "useDefaultMap": false,
+            "useDefaultTtl": false,
+            "httpsServiceBinding": "H2"
+        }
+    ],
+    "status": "PENDING",
+    "statusMessage": "File uploaded and awaiting validation",
+    "statusUpdateDate": "2021-09-23T15:07:10.000+00:00",
+    "submitDate": "2021-09-23T15:07:10.000+00:00",
+    "submitter": "ftzgvvigljhoq5ib",
+    "submitterEmail": "ftzgvvigljhoq5ib@nomail-akamai.com"
+}`,
+			expectedPath: "/hapi/v1/dns-zones/edgesuite.net/edge-hostnames/mgw-test-001?comments=some+comment&statusUpdateEmail=some%40example.com",
+			expectedResponse: &UpdateEdgeHostnameResponse{
+				Action:   "EDIT",
+				ChangeID: 66025604,
+				EdgeHostnames: []EdgeHostname{{
+					ChinaCDN: ChinaCDN{
+						IsChinaCDN: false,
+					},
+					DNSZone:             "edgesuite.net",
+					EdgeHostnameID:      4558392,
+					RecordName:          "mgw-test-001",
+					SecurityType:        "STANDARD-TLS",
+					UseDefaultMap:       false,
+					UseDefaultTTL:       false,
+					TTL:                 10000,
+					IPVersionBehavior:   "IPV4",
+					HTTPSServiceBinding: ptr.To("H2"),
+				}},
+				Status:           "PENDING",
+				StatusMessage:    "File uploaded and awaiting validation",
+				StatusUpdateDate: "2021-09-23T15:07:10.000+00:00",
+				SubmitDate:       "2021-09-23T15:07:10.000+00:00",
+				Submitter:        "ftzgvvigljhoq5ib",
+				SubmitterEmail:   "ftzgvvigljhoq5ib@nomail-akamai.com",
+			},
+		},
+		"202 Accepted - updating httpsServiceBinding": {
+			request: UpdateEdgeHostnameRequest{
+				DNSZone:           "edgesuite.net",
+				RecordName:        "mgw-test-001",
+				StatusUpdateEmail: []string{"some@example.com"},
+				Comments:          "some comment",
+				Body: []UpdateEdgeHostnameRequestBody{
+					{
+						Op:    "replace",
+						Path:  "/httpsServiceBinding",
+						Value: "H2_AND_H3",
+					},
+				},
+			},
+			responseStatus: http.StatusAccepted,
+			responseBody: `
+{
+    "action": "EDIT",
+    "changeId": 66025605,
+    "edgeHostnames": [
+        {
+            "chinaCdn": {
+                "isChinaCdn": false
+            },
+            "dnsZone": "edgesuite.net",
+            "edgeHostnameId": 4558392,
+            "recordName": "mgw-test-001",
+            "securityType": "STANDARD-TLS",
+            "useDefaultMap": false,
+            "useDefaultTtl": false,
+            "httpsServiceBinding": "H2_AND_H3"
+        }
+    ],
+    "status": "PENDING",
+    "statusMessage": "File uploaded and awaiting validation",
+    "statusUpdateDate": "2021-09-23T15:07:10.000+00:00",
+    "submitDate": "2021-09-23T15:07:10.000+00:00",
+    "submitter": "ftzgvvigljhoq5ib",
+    "submitterEmail": "ftzgvvigljhoq5ib@nomail-akamai.com"
+}`,
+			expectedPath: "/hapi/v1/dns-zones/edgesuite.net/edge-hostnames/mgw-test-001?comments=some+comment&statusUpdateEmail=some%40example.com",
+			expectedResponse: &UpdateEdgeHostnameResponse{
+				Action:   "EDIT",
+				ChangeID: 66025605,
+				EdgeHostnames: []EdgeHostname{{
+					ChinaCDN: ChinaCDN{
+						IsChinaCDN: false,
+					},
+					DNSZone:             "edgesuite.net",
+					EdgeHostnameID:      4558392,
+					RecordName:          "mgw-test-001",
+					SecurityType:        "STANDARD-TLS",
+					UseDefaultMap:       false,
+					UseDefaultTTL:       false,
+					HTTPSServiceBinding: ptr.To("H2_AND_H3"),
+				}},
+				Status:           "PENDING",
+				StatusMessage:    "File uploaded and awaiting validation",
+				StatusUpdateDate: "2021-09-23T15:07:10.000+00:00",
+				SubmitDate:       "2021-09-23T15:07:10.000+00:00",
+				Submitter:        "ftzgvvigljhoq5ib",
+				SubmitterEmail:   "ftzgvvigljhoq5ib@nomail-akamai.com",
+			},
+		},
+		"202 Accepted - adding httpsServiceBinding with op add": {
+			request: UpdateEdgeHostnameRequest{
+				DNSZone:           "edgesuite.net",
+				RecordName:        "mgw-test-001",
+				StatusUpdateEmail: []string{"some@example.com"},
+				Comments:          "some comment",
+				Body: []UpdateEdgeHostnameRequestBody{
+					{
+						Op:    "add",
+						Path:  "/httpsServiceBinding",
+						Value: "H3",
+					},
+				},
+			},
+			responseStatus: http.StatusAccepted,
+			responseBody: `
+{
+    "action": "EDIT",
+    "changeId": 66025606,
+    "edgeHostnames": [
+        {
+            "chinaCdn": {
+                "isChinaCdn": false
+            },
+            "dnsZone": "edgesuite.net",
+            "edgeHostnameId": 4558392,
+            "recordName": "mgw-test-001",
+            "securityType": "STANDARD-TLS",
+            "useDefaultMap": false,
+            "useDefaultTtl": false,
+            "httpsServiceBinding": "H3"
+        }
+    ],
+    "status": "PENDING",
+    "statusMessage": "File uploaded and awaiting validation",
+    "statusUpdateDate": "2021-09-23T15:07:10.000+00:00",
+    "submitDate": "2021-09-23T15:07:10.000+00:00",
+    "submitter": "ftzgvvigljhoq5ib",
+    "submitterEmail": "ftzgvvigljhoq5ib@nomail-akamai.com"
+}`,
+			expectedPath: "/hapi/v1/dns-zones/edgesuite.net/edge-hostnames/mgw-test-001?comments=some+comment&statusUpdateEmail=some%40example.com",
+			expectedResponse: &UpdateEdgeHostnameResponse{
+				Action:   "EDIT",
+				ChangeID: 66025606,
+				EdgeHostnames: []EdgeHostname{{
+					ChinaCDN: ChinaCDN{
+						IsChinaCDN: false,
+					},
+					DNSZone:             "edgesuite.net",
+					EdgeHostnameID:      4558392,
+					RecordName:          "mgw-test-001",
+					SecurityType:        "STANDARD-TLS",
+					UseDefaultMap:       false,
+					UseDefaultTTL:       false,
+					HTTPSServiceBinding: ptr.To("H3"),
+				}},
+				Status:           "PENDING",
+				StatusMessage:    "File uploaded and awaiting validation",
+				StatusUpdateDate: "2021-09-23T15:07:10.000+00:00",
+				SubmitDate:       "2021-09-23T15:07:10.000+00:00",
+				Submitter:        "ftzgvvigljhoq5ib",
+				SubmitterEmail:   "ftzgvvigljhoq5ib@nomail-akamai.com",
+			},
+		},
+		"202 Accepted - removing httpsServiceBinding with op remove": {
+			request: UpdateEdgeHostnameRequest{
+				DNSZone:           "edgesuite.net",
+				RecordName:        "mgw-test-001",
+				StatusUpdateEmail: []string{"some@example.com"},
+				Comments:          "some comment",
+				Body: []UpdateEdgeHostnameRequestBody{
+					{
+						Op:   "remove",
+						Path: "/httpsServiceBinding",
+					},
+				},
+			},
+			responseStatus: http.StatusAccepted,
+			responseBody: `
+{
+    "action": "EDIT",
+    "changeId": 66025607,
+    "edgeHostnames": [
+        {
+            "chinaCdn": {
+                "isChinaCdn": false
+            },
+            "dnsZone": "edgesuite.net",
+            "edgeHostnameId": 4558392,
+            "recordName": "mgw-test-001",
+            "securityType": "STANDARD-TLS",
+            "useDefaultMap": false,
+            "useDefaultTtl": false
+        }
+    ],
+    "status": "PENDING",
+    "statusMessage": "File uploaded and awaiting validation",
+    "statusUpdateDate": "2021-09-23T15:07:10.000+00:00",
+    "submitDate": "2021-09-23T15:07:10.000+00:00",
+    "submitter": "ftzgvvigljhoq5ib",
+    "submitterEmail": "ftzgvvigljhoq5ib@nomail-akamai.com"
+}`,
+			expectedPath: "/hapi/v1/dns-zones/edgesuite.net/edge-hostnames/mgw-test-001?comments=some+comment&statusUpdateEmail=some%40example.com",
+			expectedResponse: &UpdateEdgeHostnameResponse{
+				Action:   "EDIT",
+				ChangeID: 66025607,
+				EdgeHostnames: []EdgeHostname{{
+					ChinaCDN: ChinaCDN{
+						IsChinaCDN: false,
+					},
+					DNSZone:        "edgesuite.net",
+					EdgeHostnameID: 4558392,
+					RecordName:     "mgw-test-001",
+					SecurityType:   "STANDARD-TLS",
+					UseDefaultMap:  false,
+					UseDefaultTTL:  false,
+				}},
+				Status:           "PENDING",
+				StatusMessage:    "File uploaded and awaiting validation",
+				StatusUpdateDate: "2021-09-23T15:07:10.000+00:00",
+				SubmitDate:       "2021-09-23T15:07:10.000+00:00",
+				Submitter:        "ftzgvvigljhoq5ib",
+				SubmitterEmail:   "ftzgvvigljhoq5ib@nomail-akamai.com",
+			},
+		},
+		"validation error - invalid httpsServiceBinding value": {
+			request: UpdateEdgeHostnameRequest{
+				DNSZone:    "edgesuite.net",
+				RecordName: "mgw-test-001",
+				Body: []UpdateEdgeHostnameRequestBody{
+					{
+						Op:    "replace",
+						Path:  "/httpsServiceBinding",
+						Value: "INVALID",
+					},
+				},
+			},
+			withError: ErrUpdateEdgeHostname,
+		},
+		"validation error - invalid op add for /ttl path": {
+			request: UpdateEdgeHostnameRequest{
+				DNSZone:    "edgesuite.net",
+				RecordName: "mgw-test-001",
+				Body: []UpdateEdgeHostnameRequestBody{
+					{
+						Op:    "add",
+						Path:  "/ttl",
+						Value: "10000",
+					},
+				},
+			},
+			withError: ErrUpdateEdgeHostname,
+		},
+		"validation error - invalid op remove for /ttl path": {
+			request: UpdateEdgeHostnameRequest{
+				DNSZone:    "edgesuite.net",
+				RecordName: "mgw-test-001",
+				Body: []UpdateEdgeHostnameRequestBody{
+					{
+						Op:    "remove",
+						Path:  "/ttl",
+						Value: "10000",
+					},
+				},
+			},
+			withError: ErrUpdateEdgeHostname,
+		},
+		"validation error - invalid op add for /ipVersionBehavior path": {
+			request: UpdateEdgeHostnameRequest{
+				DNSZone:    "edgesuite.net",
+				RecordName: "mgw-test-001",
+				Body: []UpdateEdgeHostnameRequestBody{
+					{
+						Op:    "add",
+						Path:  "/ipVersionBehavior",
+						Value: "IPV4",
+					},
+				},
+			},
+			withError: ErrUpdateEdgeHostname,
+		},
+		"validation error - invalid op remove for /ipVersionBehavior path": {
+			request: UpdateEdgeHostnameRequest{
+				DNSZone:    "edgesuite.net",
+				RecordName: "mgw-test-001",
+				Body: []UpdateEdgeHostnameRequestBody{
+					{
+						Op:    "remove",
+						Path:  "/ipVersionBehavior",
+						Value: "IPV4",
+					},
+				},
+			},
+			withError: ErrUpdateEdgeHostname,
+		},
+		"validation error - invalid op for /httpsServiceBinding path": {
+			request: UpdateEdgeHostnameRequest{
+				DNSZone:    "edgesuite.net",
+				RecordName: "mgw-test-001",
+				Body: []UpdateEdgeHostnameRequestBody{
+					{
+						Op:    "test",
+						Path:  "/httpsServiceBinding",
+						Value: "H2",
+					},
+				},
+			},
+			withError: ErrUpdateEdgeHostname,
 		},
 		"400 Incorrect body": {
 			request: UpdateEdgeHostnameRequest{

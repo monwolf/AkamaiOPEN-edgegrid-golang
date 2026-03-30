@@ -1,0 +1,57 @@
+{
+	"bypassCondition": {
+		"atomicConditions": [
+			{
+				"checkIps": "connecting",
+				"className": "NetworkListCondition",
+				"positiveMatch": true,
+				"value": [
+					"12345_10CLIENTLIST",
+					"54321_123"
+				]
+			},
+			{
+				"className": "RequestHeaderCondition",
+				"name": [
+					"my-custom-header"
+				],
+				"nameWildcard": false,
+				"positiveMatch": true,
+				"value": [
+					"my-custom-value"
+				],
+				"valueCase": false,
+				"valueWildcard": false
+			}
+		]
+	},
+	"categories": [
+		{
+			"type": "BOTS"
+		},
+		{
+			"listIds": [
+				"12345_10CLIENTLIST",
+				"54321_123"
+			],
+			"positiveMatch": true,
+			"type": "CLIENT_LIST"
+		}
+	],
+	"configId": 43007,
+	"configVersion": 40,
+	"description": "URL Protection",
+	"apiDefinitions": [
+		{
+			"apiDefinitionId": 3216157,
+			"definedResources": true,
+			"resourceIds": [],
+			"undefinedResources": true
+		}
+	],
+	"intelligentLoadShedding": true,
+	"name": "Test URL Protection Rule with APIDefinitions",
+	"protectionType": "MULTIPLE",
+	"rateThreshold": 195,
+	"sheddingThresholdHitsPerSec": 150
+}

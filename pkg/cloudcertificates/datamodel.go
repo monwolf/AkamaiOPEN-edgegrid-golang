@@ -14,15 +14,15 @@ import (
 )
 
 var (
-	_ validation.Validatable = &CreateCertificateRequest{}
-	_ validation.Validatable = &GetCertificateRequest{}
-	_ validation.Validatable = &UpdateCertificateRequest{}
-	_ validation.Validatable = &PatchCertificateRequest{}
-	_ validation.Validatable = &ListCertificatesRequest{}
-	_ validation.Validatable = &DeleteCertificateRequest{}
-	_ validation.Validatable = &ListCertificateBindingsRequest{}
-	_ validation.Validatable = &ListBindingsRequest{}
-	_ validation.Validatable = &Subject{}
+	_ validation.Validatable = CreateCertificateRequest{}
+	_ validation.Validatable = GetCertificateRequest{}
+	_ validation.Validatable = UpdateCertificateRequest{}
+	_ validation.Validatable = PatchCertificateRequest{}
+	_ validation.Validatable = ListCertificatesRequest{}
+	_ validation.Validatable = DeleteCertificateRequest{}
+	_ validation.Validatable = ListCertificateBindingsRequest{}
+	_ validation.Validatable = ListBindingsRequest{}
+	_ validation.Validatable = Subject{}
 	_ validation.Validatable = CryptographicAlgorithm("")
 	_ validation.Validatable = KeySize("")
 	_ validation.Validatable = SecureNetwork("")
@@ -47,11 +47,17 @@ const (
 	// SecureNetworkEnhancedTLS represents the `ENHANCED_TLS` secure network type.
 	SecureNetworkEnhancedTLS SecureNetwork = "ENHANCED_TLS"
 
+	// SecureNetworkStandardTLS represents the `STANDARD_TLS` secure network type.
+	SecureNetworkStandardTLS SecureNetwork = "STANDARD_TLS"
+
 	// KeySize2048 represents a key size of 2048 bits.
 	KeySize2048 KeySize = "2048"
 
 	// KeySizeP256 represents a key size of 256 bits.
 	KeySizeP256 KeySize = "P-256"
+
+	// KeySizeP384 represents a key size of 384 bits.
+	KeySizeP384 KeySize = "P-384"
 
 	// NetworkStaging represents staging network.
 	NetworkStaging Network = "STAGING"
@@ -290,10 +296,10 @@ type (
 		// The key type for a certificate. Valid values are `RSA` or `ECDSA`.
 		KeyType CryptographicAlgorithm `json:"keyType"`
 
-		// The key size for a certificate. Valid values for key type RSA: `2048`. Valid values for key type ECDSA: `P-256`.
+		// The key size for a certificate. Valid values for key type RSA: `2048`. Valid values for key type ECDSA: `P-256`, `P-384`.
 		KeySize KeySize `json:"keySize"`
 
-		// Secure network type to use for the certificate. The only valid value is `ENHANCED_TLS`.
+		// Secure network type to use for the certificate. Valid values are `ENHANCED_TLS` and `STANDARD_TLS`.
 		SecureNetwork SecureNetwork `json:"secureNetwork"`
 
 		// The list of Subject Alternative Names (SANs) for the certificate.
@@ -615,17 +621,17 @@ func (s Subject) Validate() error {
 
 // Validate validates KeySize.
 func (k KeySize) Validate() error {
-	return validation.In(KeySize2048, KeySizeP256).
-		Error(fmt.Sprintf("value '%s' is invalid. Must be one of: '%s', or '%s'",
-			k, KeySize2048, KeySizeP256)).
+	return validation.In(KeySize2048, KeySizeP256, KeySizeP384).
+		Error(fmt.Sprintf("value '%s' is invalid. Must be one of: '%s', '%s', or '%s'",
+			k, KeySize2048, KeySizeP256, KeySizeP384)).
 		Validate(k)
 }
 
 // Validate validates SecureNetwork.
 func (s SecureNetwork) Validate() error {
-	return validation.In(SecureNetworkEnhancedTLS).
-		Error(fmt.Sprintf("value '%s' is invalid. Must be: '%s'",
-			s, SecureNetworkEnhancedTLS)).
+	return validation.In(SecureNetworkEnhancedTLS, SecureNetworkStandardTLS).
+		Error(fmt.Sprintf("value '%s' is invalid. Must be either '%s' or '%s'",
+			s, SecureNetworkEnhancedTLS, SecureNetworkStandardTLS)).
 		Validate(s)
 }
 

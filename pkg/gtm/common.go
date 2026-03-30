@@ -6,7 +6,7 @@ import (
 )
 
 // default schema version
-var schemaVersion = "1.6"
+var schemaVersion = "1.7"
 
 // internal method to set version. passed in as string
 func setVersionHeader(req *http.Request, version string) {

@@ -28,16 +28,17 @@ func TestGetAccessKeyVersionStatus(t *testing.T) {
 			},
 			responseStatus: http.StatusOK,
 			responseBody: `
-{
-  "accessKeyVersion": {
-    "accessKeyUid": 123,
-    "link": "/cam/v1/access-keys/123/versions/2",
-    "version": 2
-  },
-  "processingStatus": "IN_PROGRESS",
-  "requestDate": "2021-02-26T14:54:38.622074Z",
-  "requestedBy": "user"
-}`,
+			{
+				"accessKeyVersion": 
+					{
+						"accessKeyUid": 123,
+						"link": "/cam/v1/access-keys/123/versions/2",
+						"version": 2
+					},
+				"processingStatus": "IN_PROGRESS",
+				"requestDate": "2021-02-26T14:54:38.622074Z",
+				"requestedBy": "user"
+			}`,
 			expectedPath: "/cam/v1/access-key-version-create-requests/1",
 			expectedResponse: &GetAccessKeyVersionStatusResponse{
 				ProcessingStatus: ProcessingInProgress,
@@ -56,12 +57,12 @@ func TestGetAccessKeyVersionStatus(t *testing.T) {
 			},
 			responseStatus: http.StatusOK,
 			responseBody: `
-{
-  "accessKeyVersion": null,
-  "processingStatus": "IN_PROGRESS",
-  "requestDate": "2021-02-26T14:54:38.622074Z",
-  "requestedBy": "user"
-}`,
+			{
+				"accessKeyVersion": null,
+				"processingStatus": "IN_PROGRESS",
+				"requestDate": "2021-02-26T14:54:38.622074Z",
+				"requestedBy": "user"
+			}`,
 			expectedPath: "/cam/v1/access-key-version-create-requests/1",
 			expectedResponse: &GetAccessKeyVersionStatusResponse{
 				ProcessingStatus: ProcessingInProgress,
@@ -81,13 +82,13 @@ func TestGetAccessKeyVersionStatus(t *testing.T) {
 			},
 			responseStatus: http.StatusInternalServerError,
 			responseBody: `
-{
-    "type": "internal-server-error",
-    "title": "Internal Server Error",
-    "detail": "Error processing request",
-    "instance": "TestInstances",
-    "status": 500
-}`,
+			{
+				"type": "internal-server-error",
+				"title": "Internal Server Error",
+				"detail": "Error processing request",
+				"instance": "TestInstances",
+				"status": 500
+			}`,
 			expectedPath: "/cam/v1/access-key-version-create-requests/123",
 			withError: func(t *testing.T, err error) {
 				want := &Error{
@@ -143,26 +144,102 @@ func TestCreateAccessKeyVersion(t *testing.T) {
 			},
 			responseStatus: http.StatusAccepted,
 			responseBody: `
-{
-  "requestId": 111,
-  "retryAfter": 6
-}`,
+			{
+				"requestId": 111,
+				"retryAfter": 6
+			}`,
 			expectedPath: "/cam/v1/access-keys/1/versions",
 			expectedRequestBody: `
-{
-	"cloudAccessKeyId": "key-1", 
-	"cloudSecretAccessKey": "secret-1"
-}
-`,
+			{
+				"cloudAccessKeyId": "key-1", 
+				"cloudSecretAccessKey": "secret-1"
+			}`,
 			expectedResponse: &CreateAccessKeyVersionResponse{
 				RequestID:  111,
 				RetryAfter: 6,
 			},
 		},
+		"202 ACCEPTED - missing CloudAccessKeyID when not required for VP_QUEUE_IT": {
+			params: CreateAccessKeyVersionRequest{
+				AccessKeyUID: 1,
+				Body: CreateAccessKeyVersionRequestBody{
+					CloudAccessKeyID:     "",
+					CloudSecretAccessKey: "secret-2",
+				},
+			},
+			responseStatus: http.StatusAccepted,
+			responseBody: `
+			{
+				"requestId": 222,
+				"retryAfter": 8
+			}`,
+			expectedPath: "/cam/v1/access-keys/1/versions",
+			expectedRequestBody: `
+			{
+				"cloudSecretAccessKey": "secret-2"
+			}`,
+			expectedResponse: &CreateAccessKeyVersionResponse{
+				RequestID:  222,
+				RetryAfter: 8,
+			},
+		},
+		"202 ACCEPTED - missing CloudAccessKeyID when not required for AVM_CLOUDINARY": {
+			params: CreateAccessKeyVersionRequest{
+				AccessKeyUID: 1,
+				Body: CreateAccessKeyVersionRequestBody{
+					CloudAccessKeyID:     "",
+					CloudSecretAccessKey: "secret-2",
+				},
+			},
+			responseStatus: http.StatusAccepted,
+			responseBody: `
+			{
+				"requestId": 222,
+				"retryAfter": 8
+			}`,
+			expectedPath: "/cam/v1/access-keys/1/versions",
+			expectedRequestBody: `
+			{
+				"cloudSecretAccessKey": "secret-2"
+			}`,
+			expectedResponse: &CreateAccessKeyVersionResponse{
+				RequestID:  222,
+				RetryAfter: 8,
+			},
+		},
+		"400 error - missing CloudAccessKeyID when required": {
+			params: CreateAccessKeyVersionRequest{
+				AccessKeyUID: 1,
+				Body: CreateAccessKeyVersionRequestBody{
+					CloudAccessKeyID:     "",
+					CloudSecretAccessKey: "secret-1",
+				},
+			},
+			responseStatus: http.StatusBadRequest,
+			responseBody: `
+			{
+				"detail": "Constraint violation: cloudAccessKeyId must not be null.",
+				"instance": "c111eff1-22ec-4d4e-99c9-55efb5d55f55",
+				"status": 400,
+				"title": "Invalid request",
+				"type": "/cam/error-types/constraint-violation"
+			}`,
+			expectedPath: "/cam/v1/access-keys/1/versions",
+			withError: func(t *testing.T, err error) {
+				want := &Error{
+					Type:     "/cam/error-types/constraint-violation",
+					Title:    "Invalid request",
+					Detail:   "Constraint violation: cloudAccessKeyId must not be null.",
+					Instance: "c111eff1-22ec-4d4e-99c9-55efb5d55f55",
+					Status:   http.StatusBadRequest,
+				}
+				assert.True(t, errors.Is(err, want), "want: %s; got: %s", want, err)
+			},
+		},
 		"missing required params - validation error": {
 			params: CreateAccessKeyVersionRequest{},
 			withError: func(t *testing.T, err error) {
-				assert.Equal(t, "create access key version: struct validation: AccessKeyUID: cannot be blank\nBody: CloudAccessKeyID: cannot be blank\nCloudSecretAccessKey: cannot be blank", err.Error())
+				assert.Equal(t, "create access key version: struct validation: AccessKeyUID: cannot be blank\nBody: CloudSecretAccessKey: cannot be blank", err.Error())
 			},
 		},
 		"404 error": {
@@ -175,21 +252,20 @@ func TestCreateAccessKeyVersion(t *testing.T) {
 			},
 			responseStatus: http.StatusNotFound,
 			responseBody: `
-{
-  "accessKeyUid": 1,
-  "detail": "Access key with accessKeyUid '1' does not exist.",
-  "instance": "c111eff1-22ec-4d4e-99c9-55efb5d55f55",
-  "status": 404,
-  "title": "Domain Error",
-  "type": "/cam/error-types/access-key-does-not-exist"
-}`,
+			{
+				"accessKeyUid": 1,
+				"detail": "Access key with accessKeyUid '1' does not exist.",
+				"instance": "c111eff1-22ec-4d4e-99c9-55efb5d55f55",
+				"status": 404,
+				"title": "Domain Error",
+				"type": "/cam/error-types/access-key-does-not-exist"
+			}`,
 			expectedPath: "/cam/v1/access-keys/1/versions",
 			expectedRequestBody: `
-{
-	"cloudAccessKeyId": "key-1", 
-	"cloudSecretAccessKey": "secret-1"
-}
-`,
+			{
+				"cloudAccessKeyId": "key-1", 
+				"cloudSecretAccessKey": "secret-1"
+			}`,
 			withError: func(t *testing.T, err error) {
 				want := &Error{
 					AccessKeyUID: 1,
@@ -212,21 +288,20 @@ func TestCreateAccessKeyVersion(t *testing.T) {
 			},
 			responseStatus: http.StatusConflict,
 			responseBody: `
-{
-  "accessKeyName": "Sales-s3",
-  "detail": "Access key with name 'Sales-s3' already exists.",
-  "instance": "109443e6-f347-43f1-922c-fa0fd480973f",
-  "status": 409,
-  "title": "Domain Error",
-  "type": "/cam/error-types/access-key-already-exists"
-}`,
+			{
+				"accessKeyName": "Sales-s3",
+				"detail": "Access key with name 'Sales-s3' already exists.",
+				"instance": "109443e6-f347-43f1-922c-fa0fd480973f",
+				"status": 409,
+				"title": "Domain Error",
+				"type": "/cam/error-types/access-key-already-exists"
+			}`,
 			expectedPath: "/cam/v1/access-keys/1/versions",
 			expectedRequestBody: `
-{
-	"cloudAccessKeyId": "key-1", 
-	"cloudSecretAccessKey": "secret-1"
-}
-`,
+			{
+				"cloudAccessKeyId": "key-1", 
+				"cloudSecretAccessKey": "secret-1"
+			}`,
 			withError: func(t *testing.T, err error) {
 				want := &Error{
 					AccessKeyName: "Sales-s3",
@@ -283,15 +358,15 @@ func TestGetAccessKeyVersion(t *testing.T) {
 			},
 			responseStatus: http.StatusOK,
 			responseBody: `
-{
-  "accessKeyUid": 12345,
-  "cloudAccessKeyId": null,
-  "createdBy": "testUser",
-  "createdTime": "2021-02-26T13:34:37.916873Z",
-  "deploymentStatus": "ACTIVE",
-  "version": 1,
-  "versionGuid": "aaaa-bbbb-1111"
-}`,
+			{
+				"accessKeyUid": 12345,
+				"cloudAccessKeyId": null,
+				"createdBy": "testUser",
+				"createdTime": "2021-02-26T13:34:37.916873Z",
+				"deploymentStatus": "ACTIVE",
+				"version": 1,
+				"versionGuid": "aaaa-bbbb-1111"
+			}`,
 			expectedPath: "/cam/v1/access-keys/12345/versions/1",
 			expectedResponse: &GetAccessKeyVersionResponse{
 				AccessKeyUID:     12345,
@@ -315,14 +390,14 @@ func TestGetAccessKeyVersion(t *testing.T) {
 			},
 			responseStatus: http.StatusNotFound,
 			responseBody: `
-		{
-		 "accessKeyUid": 1,
-		 "detail": "Access key with accessKeyUid '1' does not exist.",
-		 "instance": "c111eff1-22ec-4d4e-99c9-55efb5d55f55",
-		 "status": 404,
-		 "title": "Domain Error",
-		 "type": "/cam/error-types/access-key-does-not-exist"
-		}`,
+			{
+				"accessKeyUid": 1,
+				"detail": "Access key with accessKeyUid '1' does not exist.",
+				"instance": "c111eff1-22ec-4d4e-99c9-55efb5d55f55",
+				"status": 404,
+				"title": "Domain Error",
+				"type": "/cam/error-types/access-key-does-not-exist"
+			}`,
 			expectedPath: "/cam/v1/access-keys/1/versions/1",
 			withError: func(t *testing.T, err error) {
 				want := &Error{
@@ -343,14 +418,14 @@ func TestGetAccessKeyVersion(t *testing.T) {
 			},
 			responseStatus: http.StatusNotFound,
 			responseBody: `
-		{
-		 "accessKeyUid": 1,
-		 "detail": "Access key with accessKeyUid '1' does not exist.",
-		 "instance": "c111eff1-22ec-4d4e-99c9-55efb5d55f55",
-		 "status": 404,
-		 "title": "Domain Error",
-		 "type": "/cam/error-types/access-key-does-not-exist"
-		}`,
+			{
+				"accessKeyUid": 1,
+				"detail": "Access key with accessKeyUid '1' does not exist.",
+				"instance": "c111eff1-22ec-4d4e-99c9-55efb5d55f55",
+				"status": 404,
+				"title": "Domain Error",
+				"type": "/cam/error-types/access-key-does-not-exist"
+			}`,
 			expectedPath: "/cam/v1/access-keys/1/versions/1",
 			withError: func(t *testing.T, err error) {
 				want := &Error{
@@ -371,14 +446,14 @@ func TestGetAccessKeyVersion(t *testing.T) {
 			},
 			responseStatus: http.StatusNotFound,
 			responseBody: `
-		{
-		 "accessKeyUid": 1,
-		 "detail":  "Version '2' for access key '1' does not exist.",
-		 "instance": "12345-12345-12345-1234-12345678",
-		 "status": 404,
-		 "title": "Domain Error",
-		 "type": "/cam/error-types/access-key-version-does-not-exist"
-		}`,
+			{
+				"accessKeyUid": 1,
+				"detail":  "Version '2' for access key '1' does not exist.",
+				"instance": "12345-12345-12345-1234-12345678",
+				"status": 404,
+				"title": "Domain Error",
+				"type": "/cam/error-types/access-key-version-does-not-exist"
+			}`,
 			expectedPath: "/cam/v1/access-keys/1/versions/2",
 			withError: func(t *testing.T, err error) {
 				want := &Error{
@@ -399,14 +474,14 @@ func TestGetAccessKeyVersion(t *testing.T) {
 			},
 			responseStatus: http.StatusNotFound,
 			responseBody: `
-		{
-		 "accessKeyUid": 1,
-		 "detail":  "Version '2' for access key '1' does not exist.",
-		 "instance": "12345-12345-12345-1234-12345678",
-		 "status": 404,
-		 "title": "Domain Error",
-		 "type": "/cam/error-types/access-key-version-does-not-exist"
-		}`,
+			{
+				"accessKeyUid": 1,
+				"detail":  "Version '2' for access key '1' does not exist.",
+				"instance": "12345-12345-12345-1234-12345678",
+				"status": 404,
+				"title": "Domain Error",
+				"type": "/cam/error-types/access-key-version-does-not-exist"
+			}`,
 			expectedPath: "/cam/v1/access-keys/1/versions/2",
 			withError: func(t *testing.T, err error) {
 				want := &Error{
@@ -458,28 +533,28 @@ func TestListAccessKeyVersions(t *testing.T) {
 			},
 			responseStatus: http.StatusOK,
 			responseBody: `
-{
-  "accessKeyVersions": [
-    {
-      "accessKeyUid": 2,
-      "cloudAccessKeyId": null,
-      "createdBy": "testUser2",
-      "createdTime": "2021-02-26T14:48:27.355346Z",
-      "deploymentStatus": "PENDING_ACTIVATION",
-      "version": 2,
-      "versionGuid": "bbbb-2222"
-    },
-    {
-      "accessKeyUid": 2,
-      "cloudAccessKeyId": null,
-      "createdBy": "testUser1",
-      "createdTime": "2021-02-26T13:34:37.916873Z",
-      "deploymentStatus": "ACTIVE",
-      "version": 1,
-      "versionGuid": "aaaa-1111"
-    }
-  ]
-}`,
+			{
+				"accessKeyVersions": [
+					{
+						"accessKeyUid": 2,
+						"cloudAccessKeyId": null,
+						"createdBy": "testUser2",
+						"createdTime": "2021-02-26T14:48:27.355346Z",
+						"deploymentStatus": "PENDING_ACTIVATION",
+						"version": 2,
+						"versionGuid": "bbbb-2222"
+					},
+					{
+						"accessKeyUid": 2,
+						"cloudAccessKeyId": null,
+						"createdBy": "testUser1",
+						"createdTime": "2021-02-26T13:34:37.916873Z",
+						"deploymentStatus": "ACTIVE",
+						"version": 1,
+						"versionGuid": "aaaa-1111"
+					}
+				]
+			}`,
 			expectedPath: "/cam/v1/access-keys/2/versions",
 			expectedResponse: &ListAccessKeyVersionsResponse{
 				AccessKeyVersions: []AccessKeyVersion{
@@ -508,19 +583,19 @@ func TestListAccessKeyVersions(t *testing.T) {
 			},
 			responseStatus: http.StatusOK,
 			responseBody: `
-{
-  "accessKeyVersions": [
-    {
-      "accessKeyUid": 2,
-      "cloudAccessKeyId": null,
-      "createdBy": "testUser2",
-      "createdTime": "2021-02-26T14:48:27.355346Z",
-      "deploymentStatus": "PENDING_ACTIVATION",
-      "version": 2,
-      "versionGuid": "bbbb-2222"
-    }
-  ]
-}`,
+			{
+				"accessKeyVersions": [
+					{
+						"accessKeyUid": 2,
+						"cloudAccessKeyId": null,
+						"createdBy": "testUser2",
+						"createdTime": "2021-02-26T14:48:27.355346Z",
+						"deploymentStatus": "PENDING_ACTIVATION",
+						"version": 2,
+						"versionGuid": "bbbb-2222"
+					}
+				]
+			}`,
 			expectedPath: "/cam/v1/access-keys/2/versions",
 			expectedResponse: &ListAccessKeyVersionsResponse{
 				AccessKeyVersions: []AccessKeyVersion{
@@ -541,9 +616,9 @@ func TestListAccessKeyVersions(t *testing.T) {
 			},
 			responseStatus: http.StatusOK,
 			responseBody: `
-{
-  "accessKeyVersions": []
-}`,
+			{
+				"accessKeyVersions": []
+			}`,
 			expectedPath: "/cam/v1/access-keys/2/versions",
 			expectedResponse: &ListAccessKeyVersionsResponse{
 				AccessKeyVersions: []AccessKeyVersion{},
@@ -561,13 +636,13 @@ func TestListAccessKeyVersions(t *testing.T) {
 			},
 			responseStatus: http.StatusInternalServerError,
 			responseBody: `
-{
-    "type": "internal-server-error",
-    "title": "Internal Server Error",
-    "detail": "Error processing request",
-    "instance": "TestInstances",
-    "status": 500
-}`,
+			{
+				"type": "internal-server-error",
+				"title": "Internal Server Error",
+				"detail": "Error processing request",
+				"instance": "TestInstances",
+				"status": 500
+			}`,
 			expectedPath: "/cam/v1/access-keys/1/versions",
 			withError: func(t *testing.T, err error) {
 				want := &Error{
@@ -619,15 +694,15 @@ func TestDeleteAccessKeyVersion(t *testing.T) {
 			},
 			responseStatus: http.StatusAccepted,
 			responseBody: `
-{
-  "accessKeyUid": 12345,
-  "cloudAccessKeyId": null,
-  "createdBy": "testUser",
-  "createdTime": "2021-02-26T09:09:53.762230Z",
-  "deploymentStatus": "PENDING_DELETION",
-  "version": 1,
-  "versionGuid": "aaaa-bbbb-1111"
-}`,
+			{
+				"accessKeyUid": 12345,
+				"cloudAccessKeyId": null,
+				"createdBy": "testUser",
+				"createdTime": "2021-02-26T09:09:53.762230Z",
+				"deploymentStatus": "PENDING_DELETION",
+				"version": 1,
+				"versionGuid": "aaaa-bbbb-1111"
+			}`,
 			expectedPath: "/cam/v1/access-keys/12345/versions/1",
 			expectedResponse: &DeleteAccessKeyVersionResponse{
 				AccessKeyUID:     12345,
@@ -651,14 +726,14 @@ func TestDeleteAccessKeyVersion(t *testing.T) {
 			},
 			responseStatus: http.StatusNotFound,
 			responseBody: `
-		{
-		 "accessKeyUid": 1,
-		 "detail": "Access key with accessKeyUid '1' does not exist.",
-		 "instance": "c111eff1-22ec-4d4e-99c9-55efb5d55f55",
-		 "status": 404,
-		 "title": "Domain Error",
-		 "type": "/cam/error-types/access-key-does-not-exist"
-		}`,
+			{
+				"accessKeyUid": 1,
+				"detail": "Access key with accessKeyUid '1' does not exist.",
+				"instance": "c111eff1-22ec-4d4e-99c9-55efb5d55f55",
+				"status": 404,
+				"title": "Domain Error",
+				"type": "/cam/error-types/access-key-does-not-exist"
+			}`,
 			expectedPath: "/cam/v1/access-keys/1/versions/1",
 			withError: func(t *testing.T, err error) {
 				want := &Error{

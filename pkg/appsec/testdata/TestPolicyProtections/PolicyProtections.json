@@ -8,5 +8,6 @@
         "applyRateControls": true,
         "applyReputationControls": true,
         "applySlowPostControls": true,
-        "applyMalwareControls": true
+        "applyMalwareControls": true,
+        "applyUrlProtectionControls": true
     }

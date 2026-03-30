@@ -84,7 +84,7 @@ func (r LookupPropertiesRequest) Validate() error {
 }
 
 // Validate validates GetAsyncPropertiesLookupIDRequest
-func (r GetAsyncPropertiesLookupIDRequest) Validate() interface{} {
+func (r GetAsyncPropertiesLookupIDRequest) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
 		"Version":      validation.Validate(r.Version, validation.Required),
 		"AccessKeyUID": validation.Validate(r.AccessKeyUID, validation.Required),
@@ -92,11 +92,17 @@ func (r GetAsyncPropertiesLookupIDRequest) Validate() interface{} {
 }
 
 // Validate validates PerformAsyncPropertiesLookupRequest
-func (r PerformAsyncPropertiesLookupRequest) Validate() interface{} {
+func (r PerformAsyncPropertiesLookupRequest) Validate() error {
 	return edgegriderr.ParseValidationErrors(validation.Errors{
 		"LookupID": validation.Validate(r.LookupID, validation.Required),
 	})
 }
+
+var (
+	_ validation.Validatable = LookupPropertiesRequest{}
+	_ validation.Validatable = GetAsyncPropertiesLookupIDRequest{}
+	_ validation.Validatable = PerformAsyncPropertiesLookupRequest{}
+)
 
 var (
 	// ErrLookupProperties is returned when LookupProperties fails

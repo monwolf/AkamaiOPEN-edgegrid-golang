@@ -1,0 +1,19 @@
+{
+   "urlProtectionActions": [
+     {
+       "action": "alert",
+       "loadSheddingAction": "alert",
+       "policyId": 747
+     },
+     {
+       "action": "deny",
+       "loadSheddingAction": "none",
+       "policyId": 745
+     },
+     {
+       "action": "alert",
+       "loadSheddingAction": "deny",
+       "policyId": 134644
+     }
+   ]
+ }

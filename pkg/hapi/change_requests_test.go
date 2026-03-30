@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/akamai/AkamaiOPEN-edgegrid-golang/v13/pkg/ptr"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -76,6 +77,70 @@ func TestGetChangeRequest(t *testing.T) {
 						},
 						ProductId:    "DSA",
 						SerialNumber: 0,
+					},
+				},
+				Status:           "PENDING",
+				StatusMessage:    "File uploaded and awaiting validation",
+				StatusUpdateDate: "2023-09-04T09:21:38.000+00:00",
+				SubmitDate:       "2023-09-04T09:21:38.000+00:00",
+				Submitter:        "nobody",
+				SubmitterEmail:   "nobody@nomail-akamai.com",
+			},
+		},
+		"200 OK with HTTPSServiceBinding": {
+			request:        GetChangeRequest{456},
+			responseStatus: http.StatusOK,
+			responseBody: `
+{
+	"action": "EDIT",
+	"changeId": 456,
+	"edgeHostnames": [
+		{
+			"chinaCdn": {
+				"isChinaCdn": false
+			},
+			"dnsZone": "edgekey.net",
+			"edgeHostnameId": 112233,
+			"ipVersionBehavior": "IPV6_IPV4_DUALSTACK",
+			"map": "a;bcd.akamaiedge.net",
+			"productId": "DSA",
+			"recordName": "test123",
+			"securityType": "ENHANCED-TLS",
+			"serialNumber": 0,
+			"slotNumber": 1234,
+			"ttl": 21600,
+			"useDefaultMap": true,
+			"useDefaultTtl": true,
+			"httpsServiceBinding": "H2_AND_H3"
+		}
+	],
+	"status": "PENDING",
+	"statusMessage": "File uploaded and awaiting validation",
+	"statusUpdateDate": "2023-09-04T09:21:38.000+00:00",
+	"submitDate": "2023-09-04T09:21:38.000+00:00",
+	"submitter": "nobody",
+	"submitterEmail": "nobody@nomail-akamai.com"
+}
+`,
+			expectedPath: "/hapi/v1/change-requests/456",
+			expectedResponse: &ChangeRequest{
+				Action:   "EDIT",
+				ChangeID: 456,
+				EdgeHostnames: []EdgeHostname{
+					{
+						EdgeHostnameID:      112233,
+						RecordName:          "test123",
+						DNSZone:             "edgekey.net",
+						SecurityType:        "ENHANCED-TLS",
+						UseDefaultTTL:       true,
+						UseDefaultMap:       true,
+						TTL:                 21600,
+						Map:                 "a;bcd.akamaiedge.net",
+						SlotNumber:          1234,
+						IPVersionBehavior:   "IPV6_IPV4_DUALSTACK",
+						ChinaCDN:            ChinaCDN{IsChinaCDN: false},
+						ProductId:           "DSA",
+						HTTPSServiceBinding: ptr.To("H2_AND_H3"),
 					},
 				},
 				Status:           "PENDING",

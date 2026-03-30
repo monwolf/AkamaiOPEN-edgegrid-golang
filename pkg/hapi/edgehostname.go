@@ -91,6 +91,7 @@ type (
 		ProductId              string    `json:"productId,omitempty"`
 		SerialNumber           int       `json:"serialNumber,omitempty"`
 		UseCases               []UseCase `json:"useCases,omitempty"`
+		HTTPSServiceBinding    *string   `json:"httpsServiceBinding"`
 	}
 
 	// ChinaCDN represents China CDN settings of EdgeHostname
@@ -126,6 +127,7 @@ type (
 		IsEdgeIPBindingEnabled bool      `json:"isEdgeIPBindingEnabled,omitempty"`
 		MapAlias               string    `json:"mapAlias"`
 		UseCases               []UseCase `json:"useCases"`
+		HTTPSServiceBinding    *string   `json:"httpsServiceBinding"`
 	}
 
 	// GetCertificateRequest is used to get certificate associated with edge hostname
@@ -168,9 +170,14 @@ func (r UpdateEdgeHostnameRequest) Validate() error {
 // Validate validates UpdateEdgeHostnameRequestBody
 func (b UpdateEdgeHostnameRequestBody) Validate() error {
 	return validation.Errors{
-		"Path":  validation.Validate(b.Path, validation.Required, validation.In("/ttl", "/ipVersionBehavior").Error(fmt.Sprintf("value '%s' is invalid. Must be one of: '/ttl' or '/ipVersionBehavior'", b.Path))),
-		"Op":    validation.Validate(b.Op, validation.Required, validation.In("replace").Error(fmt.Sprintf("value '%s' is invalid. Must use 'replace'", b.Op))),
-		"Value": validation.Validate(b.Value, validation.Required),
+		"Path": validation.Validate(b.Path, validation.Required, validation.In("/ttl", "/ipVersionBehavior", "/httpsServiceBinding").Error(fmt.Sprintf("value '%s' is invalid. Must be one of: '/ttl', '/ipVersionBehavior' or '/httpsServiceBinding'", b.Path))),
+		"Op": validation.Validate(b.Op, validation.Required,
+			validation.When(b.Path == "/ttl" || b.Path == "/ipVersionBehavior", validation.In("replace").Error(fmt.Sprintf("value '%s' is invalid. Must use 'replace' for '%s' Path", b.Op, b.Path))),
+			validation.When(b.Path == "/httpsServiceBinding", validation.In("replace", "add", "remove").Error(fmt.Sprintf("value '%s' is invalid. Must use 'replace', 'add' or 'remove' for '%s' Path", b.Op, b.Path))),
+		),
+		"Value": validation.Validate(b.Value,
+			validation.When(b.Path == "/ttl" || b.Path == "/ipVersionBehavior", validation.Required),
+			validation.When(b.Path == "/httpsServiceBinding" && (b.Op == "replace" || b.Op == "add"), validation.Required, validation.In("H2", "H3", "H2_AND_H3").Error(fmt.Sprintf("value '%s' is invalid. Must be one of: 'H2', 'H3' or 'H2_AND_H3'", b.Value)))),
 	}.Filter()
 }
 

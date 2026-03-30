@@ -1,8 +1,8 @@
 module github.com/akamai/AkamaiOPEN-edgegrid-golang/v13
 
-go 1.24.0
+go 1.25.0
 
-toolchain go1.24.10
+toolchain go1.25.7
 
 require (
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
@@ -20,7 +20,7 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
 	github.com/benbjohnson/clock v1.3.5 // indirect
-	github.com/buger/jsonparser v1.1.1 // indirect
+	github.com/buger/jsonparser v1.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
