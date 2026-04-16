@@ -896,6 +896,82 @@ func TestCreateClientLists(t *testing.T) {
 			expectedPath:     uri,
 			expectedResponse: &result,
 		},
+		"201 Created - REQUEST_HEADER type with Values": {
+			params: CreateClientListRequest{
+				Name:       "REQUEST HEADER LIST",
+				Type:       REQUEST_HEADER,
+				Notes:      "Some notes",
+				Tags:       []string{"red"},
+				ContractID: "M-2CF0QRI",
+				GroupID:    112524,
+				Items: []ListItemPayload{
+					{
+						Values:         []string{"X-Custom-Header", "my-value"},
+						Tags:           []string{},
+						ExpirationDate: "2026-12-26T01:32:08.375+00:00",
+					},
+				},
+			},
+			expectedRequestBody: `{"contractId":"M-2CF0QRI","groupId":112524,"name":"REQUEST HEADER LIST","type":"REQUEST_HEADER_NAME_VALUE","notes":"Some notes","tags":["red"],"items":[{"values":["X-Custom-Header","my-value"],"tags":[],"description":"","expirationDate":"2026-12-26T01:32:08.375+00:00"}]}`,
+			responseStatus:      http.StatusCreated,
+			responseBody: `{
+				"listId": "123_RH",
+				"name": "REQUEST HEADER LIST",
+				"type": "REQUEST_HEADER_NAME_VALUE",
+				"notes": "Some notes",
+				"tags": ["red"],
+				"contractId": "M-2CF0QRI",
+				"groupName": "Group A",
+				"groupId": 112524,
+				"items": [
+					{
+						"values": ["X-Custom-Header", "my-value"],
+						"tags": [],
+						"expirationDate": "2026-12-26T01:32:08.375+00:00"
+					}
+				]
+			}`,
+			expectedPath: uri,
+			expectedResponse: &CreateClientListResponse{
+				ListContent: ListContent{
+					ListID: "123_RH",
+					Name:   "REQUEST HEADER LIST",
+					Type:   REQUEST_HEADER,
+					Notes:  "Some notes",
+					Tags:   []string{"red"},
+				},
+				ContractID: "M-2CF0QRI",
+				GroupName:  "Group A",
+				GroupID:    112524,
+				Items: []ListItemContent{
+					{
+						Values:         []string{"X-Custom-Header", "my-value"},
+						Tags:           []string{},
+						ExpirationDate: "2026-12-26T01:32:08.375+00:00",
+					},
+				},
+			},
+		},
+		"validation error - REQUEST_HEADER item missing Values": {
+			params: CreateClientListRequest{
+				Name: "REQUEST HEADER LIST",
+				Type: REQUEST_HEADER,
+				Items: []ListItemPayload{
+					{Value: "should-not-use-value"},
+				},
+			},
+			withError: ErrStructValidation,
+		},
+		"validation error - Values not allowed for non-REQUEST_HEADER type": {
+			params: CreateClientListRequest{
+				Name: "IP LIST",
+				Type: IP,
+				Items: []ListItemPayload{
+					{Values: []string{"X-Header", "val"}},
+				},
+			},
+			withError: ErrStructValidation,
+		},
 		"500 internal server error": {
 			params:         request,
 			responseStatus: http.StatusInternalServerError,
