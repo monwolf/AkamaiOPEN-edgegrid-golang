@@ -65,7 +65,8 @@ type (
 
 	// ListItemContent contains client list item information
 	ListItemContent struct {
-		Value            string         `json:"value"`
+		Value            string         `json:"value,omitempty"`
+		Values           []string       `json:"values,omitempty"`
 		Username         string         `json:"username,omitempty"`
 		Tags             []string       `json:"tags"`
 		Description      string         `json:"description"`
@@ -82,7 +83,8 @@ type (
 
 	// ListItemPayload contains item's editable fields to use as update/create/delete payload
 	ListItemPayload struct {
-		Value          string   `json:"value"`
+		Value          string   `json:"value,omitempty"`
+		Values         []string `json:"values,omitempty"` // Only used for REQUEST_HEADER (REQUEST_HEADER_NAME_VALUE) type
 		Tags           []string `json:"tags"`
 		Description    string   `json:"description"`
 		ExpirationDate string   `json:"expirationDate"`
@@ -479,10 +481,18 @@ func (v UpdateClientListItemsRequest) validate() error {
 }
 
 func (v CreateClientListRequest) validate() error {
-	return edgegriderr.ParseValidationErrors(validation.Errors{
+	errs := validation.Errors{
 		"Name": validation.Validate(v.Name, validation.Required),
 		"Type": validation.Validate(v.Type, validation.Required),
-	})
+	}
+	for i, item := range v.Items {
+		if v.Type == REQUEST_HEADER {
+			errs[fmt.Sprintf("Items[%d].Values", i)] = validation.Validate(item.Values, validation.Required, validation.Length(1, 0))
+		} else if len(item.Values) > 0 {
+			errs[fmt.Sprintf("Items[%d].Values", i)] = fmt.Errorf("'Values' field is only supported for %s type", REQUEST_HEADER)
+		}
+	}
+	return edgegriderr.ParseValidationErrors(errs)
 }
 
 func (v DeleteClientListRequest) validate() error {
@@ -529,6 +539,8 @@ const (
 	USER ClientListType = "USER_ID"
 	// DOMAIN for domain list type
 	DOMAIN ClientListType = "DOMAIN"
+	// REQUEST_HEADER for request header name/value list type
+	REQUEST_HEADER ClientListType = "REQUEST_HEADER_NAME_VALUE"
 )
 
 func getValidListTypesAsInterface() []interface{} {
@@ -540,5 +552,6 @@ func getValidListTypesAsInterface() []interface{} {
 		FileHash,
 		USER,
 		DOMAIN,
+		REQUEST_HEADER,
 	}
 }
